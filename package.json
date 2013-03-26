@@ -1,0 +1,32 @@
+{
+  "name": "physicsjs",
+  "version": "0.0.1a",
+  "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
+  "description": "A decent javascript physics engine",
+  "contributors": [
+    {
+      "name": "Jasper Palfree",
+      "email": "jasper@wellcaffeinated.net"
+    }
+  ],
+  "main": null,
+  "repository": {
+    "type": "git",
+    "url": "TODO"
+  },
+  "keywords": [],
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-contrib-concat": "0.x.x",
+    "grunt-contrib-uglify": "0.x.x",
+    "grunt-contrib-jasmine": "0.x.x",
+    "grunt-contrib-clean": "0.x.x",
+    "grunt-contrib-copy": "0.x.x",
+    "grunt-contrib-jshint": "0.x.x",
+    "grunt-contrib-watch": "~0.3.1",
+    "grunt-lodashbuilder": "~0.1.7"
+  },
+  "bundledDependencies": [],
+  "license": "MIT"
+}
