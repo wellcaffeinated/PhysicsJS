@@ -75,7 +75,7 @@ module.exports = function(grunt) {
             options : {
                 jshintrc : 'jshint.json'
             },
-            source : config.dist
+            source : 'src/*/*.js'
         },
         lodash: {
             // modifiers for prepared builds

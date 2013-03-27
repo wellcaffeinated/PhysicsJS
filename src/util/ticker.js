@@ -28,27 +28,33 @@ function start(){
     lastTime = (new Date()).getTime();
     active = true;
     step();
+
+    return this;
 }
 
 function stop(){
 
     active = false;
+    return this;
 }
 
 function subscribe( listener ){
 
-    function cb( l ){
-
-        if ( l === listener )
-            return false;
-    }
-
     // if function and not already in listeners...
-    if ( typeof listener === 'function' && each( listeners, cb ) ){
+    if ( typeof listener === 'function' ){
+
+        for ( var i = 0, l = listeners.length; i < l; ++i ){
+            
+            if (listener === listeners[ i ]){
+                return this;
+            }
+        }
 
         // add it
         listeners.push( listener );
     }
+    
+    return this;
 }
 
 function unsubscribe( listener ){
@@ -61,9 +67,11 @@ function unsubscribe( listener ){
 
             // remove it
             fns.splice( i, 1 );
-            return;
+            return this;
         }
     }
+
+    return this;
 }
 
 function isActive(){

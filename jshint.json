@@ -1,5 +1,6 @@
 {
     "curly" : true,
+    "laxcomma" : true,
     "eqeqeq" : true,
     "immed" : true,
     "latedef" : true,
@@ -13,6 +14,7 @@
     "globals" : {
         "_" : true,
         "module" : true,
-        "exports" : true
+        "exports" : true,
+        "Physics" : true
     }
 }

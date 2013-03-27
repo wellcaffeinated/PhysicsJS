@@ -1,17 +1,30 @@
-(function(Physics){
+(function(Physics, undefined){
+
+// cached math functions
+var sqrt = Math.sqrt
+    ,min = Math.min
+    ,max = Math.max
+    ;
+
 /**
- * begin vector Class
- * @class vector
+ * begin Vector Class
+ * @class Vector
  */
-var vector = function vector(x, y) {
+var Vector = function Vector(x, y) {
 
     // force instantiation
-    if ( !(this instanceof vector) ){
+    if ( !(this instanceof Vector) ){
 
-        return new vector( x, y );
+        return new Vector( x, y );
     }
 
-    this.set( x || 0, y || 0);
+    // x = _[0]
+    // y = _[1]
+    // norm = _[3]
+    // normsq = _[4]
+    this._ = [];
+    this.recalc = true; //whether or not recalculate norms
+    this.set( x || 0.0, y || 0.0);
 };
 
 /**
@@ -19,35 +32,35 @@ var vector = function vector(x, y) {
  */
 
 /** 
- * Return sum of two vectors
+ * Return sum of two Vectors
  */
-vector.vadd = function(v1, v2) {
+Vector.vadd = function(v1, v2) {
 
-    return new vector( v1.x + v2.x, v1.y + v2.y );
+    return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
 };
 
 /** 
  * Subtract v2 from v1
  */
-vector.vsub = function(v1, v2) {
+Vector.vsub = function(v1, v2) {
 
-    return new vector( v1.x - v2.x, v1.y - v2.y );
+    return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
 };
 
 /**
  * Multiply v1 by a scalar m
  */
-vector.mult = function(m, v1){
+Vector.mult = function(m, v1){
 
-    return new vector( v1.x*m, v.y*m );
+    return new Vector( v1._[0]*m, v1._[1]*m );
 };
 
 /** 
  * Project v1 onto v2
  */
-vector.proj = function(v1, v2) {
+Vector.proj = function(v1, v2) {
 
-    return vector.mult( v1.dot(v2) / v2.normSq(), v2 );
+    return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
 };
 
 
@@ -56,106 +69,101 @@ vector.proj = function(v1, v2) {
  */
 
 /**
- * Sets the components of this vector.
+ * Sets the components of this Vector.
  */
-vector.prototype.set = function(x, y) {
+Vector.prototype.set = function(x, y) {
 
-    this._norm = false;
-    this._normSq = false;
+    this.recalc = true;
 
-    this.x = x;
-    this.y = y;
+    this._[0] = x;
+    this._[1] = y;
     return this;
 };
 
 /**
- * Add vector to this
+ * Add Vector to this
  */
-vector.prototype.vadd = function(v) {
+Vector.prototype.vadd = function(v) {
 
-    this._norm = false;
-    this._normSq = false;
+    this.recalc = true;
 
-    this.x += v.x;
-    this.y += v.y;
+    this._[0] += v._[0];
+    this._[1] += v._[1];
     return this;
 };
 
 /**
- * Subtract vector from this
+ * Subtract Vector from this
  */
-vector.prototype.vsub = function(v) {
+Vector.prototype.vsub = function(v) {
 
-    this._norm = false;
-    this._normSq = false;
+    this.recalc = true;
 
-    this.x -= v.x;
-    this.y -= v.y;
+    this._[0] -= v._[0];
+    this._[1] -= v._[1];
     return this;
 };
 
 /**
- * Add scalars to vector's components
+ * Add scalars to Vector's components
  */
-vector.prototype.add = function(x, y){
+Vector.prototype.add = function(x, y){
     
-    this._norm = false;
-    this._normSq = false;
+    this.recalc = true;
 
-    this.x += x;
-    this.y += y === undefined? x : y;
+    this._[0] += x;
+    this._[1] += y === undefined? x : y;
     return this;
 };
 
 /**
- * Subtract scalars to vector's components
+ * Subtract scalars to Vector's components
  */
-vector.prototype.sub = function(x, y){
+Vector.prototype.sub = function(x, y){
     
-    this._norm = false;
-    this._normSq = false;
+    this.recalc = true;
 
-    this.x -= x;
-    this.y -= y === undefined? x : y;
+    this._[0] -= x;
+    this._[1] -= y === undefined? x : y;
     return this;
 };
 
 /* 
  * Multiply by a scalar
  */
-vector.prototype.mult = function(m) {
+Vector.prototype.mult = function(m) {
     
-    if ( this._normSq ){
+    if ( !this.recalc ){
 
-        this._normSq *= m;
-        this._norm *= m;
+        this._[4] *= m * m;
+        this._[3] *= m;
     }
 
-    this.x *= m;
-    this.y *= m;
+    this._[0] *= m;
+    this._[1] *= m;
     return this;
 };
 
 /* 
  * Get the dot product
  */
-vector.prototype.dot = function(v) {
+Vector.prototype.dot = function(v) {
 
-    return (this.x * v.x) + (this.y * v.y);
+    return (this._[0] * v._[0]) + (this._[1] * v._[1]);
 };
 
 /** 
  * Get the cross product
  */
-vector.prototype.cross = function(v) {
+Vector.prototype.cross = function(v) {
 
-    return (this.x * v.y) - (this.y * v.x);
+    return (this._[0] * v._[1]) - (this._[1] * v._[0]);
 };
 
 /**
  * Get projection of this along v
  */
-vector.prototype.proj = function(v){
+Vector.prototype.proj = function(v){
 
     var m = this.dot( v ) / v.normSq();
     return this.clone( v ).mult( m );
@@ -164,98 +172,111 @@ vector.prototype.proj = function(v){
 /**
  * Get the norm (length)
  */
-vector.prototype.norm = function() {
+Vector.prototype.norm = function() {
 
-    return this._norm !== false? this._norm : this._norm = Math.sqrt( this._normSq = (this.x * this.x + this.y * this.y) );
+    if (this.recalc){
+        this.recalc = false;
+        this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
+        this._[3] = sqrt( this._[4] );
+    }
+    
+    return this._[3];
 };
 
 /**
  * Get the norm squared
  */
-vector.prototype.normSq = function() {
+Vector.prototype.normSq = function() {
 
-    return this._normSq !== false? this._normSq : this._normSq = (this.x * this.x) + (this.y * this.y);
+    if (this.recalc){
+        this.recalc = false;
+        this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
+        this._[3] = sqrt( this._[4] );
+    }
+
+    return this._[4];
 };
 
 /** 
- * Get distance to other vector
+ * Get distance to other Vector
  */
-vector.prototype.dist = function(v) {
+Vector.prototype.dist = function(v) {
   
     var dx, dy;
-    return Math.sqrt(
-        (dx = v.x - this.x) * dx + 
-        (dy = v.y - this.y) * dy
+    return sqrt(
+        (dx = v._[0] - this._[0]) * dx + 
+        (dy = v._[1] - this._[1]) * dy
     );
 };
 
 /**
- * Get distance squared to other vector
+ * Get distance squared to other Vector
  */
-vector.prototype.distSq = function(v) {
+Vector.prototype.distSq = function(v) {
 
     var dx, dy;
     return (
-        (dx = v.x - this.x) * dx + 
-        (dy = v.y - this.y) * dy
+        (dx = v._[0] - this._[0]) * dx + 
+        (dy = v._[1] - this._[1]) * dy
     );
 };
 
 /**
- * Normalises this vector, making it a unit vector
+ * Normalises this Vector, making it a unit Vector
  */
-vector.prototype.normalize = function() {
+Vector.prototype.normalize = function() {
 
     var m = this.norm();
 
-    // means it's a zero vector
+    // means it's a zero Vector
     if ( m === 0 ){
         return this;
     }
 
-    this.x /= m;
-    this.y /= m;
+    this._[0] /= m;
+    this._[1] /= m;
 
-    this._norm = 1;
-    this._normSq = 1;
+    this._[3] = 1.0;
+    this._[4] = 1.0;
 
     return this;
 };
 
 /**
- * Returns clone of current vector
- * Or clones provided vector to this one
+ * Returns clone of current Vector
+ * Or clones provided Vector to this one
  */
-vector.prototype.clone = function(v) {
+Vector.prototype.clone = function(v) {
     
-    if(v){
+    if (v){
         
-        this._norm = false;
-        this._normSq = false;
+        this.recalc = v.recalc;
+        this._[3] = v._[3];
+        this._[4] = v._[4];
 
-        this.x = v.x;
-        this.y = v.y;
+        this._[0] = v._[0];
+        this._[1] = v._[1];
         return this;
     }
 
-    return new vector( this.x, this.y );
+    return new Vector( this._[0], this._[1] );
 };
 
 /**
  * Create a litteral object
  */
-vector.prototype.toNative = function(){
+Vector.prototype.toNative = function(){
 
     return {
-        x: this.x,
-        y: this.y
+        x: this._[0],
+        y: this._[1]
     };
 };
 
 /**
- * Copies components of this vector to other vector
+ * Copies components of this Vector to other Vector
  */
-vector.prototype.copyTo = function(v) {
+Vector.prototype.copyTo = function(v) {
     
     v.clone( this );
     return this;
@@ -263,50 +284,50 @@ vector.prototype.copyTo = function(v) {
 
 
 /**
- * Zero the vector
+ * Zero the Vector
  */
-vector.prototype.zero = function() {
+Vector.prototype.zero = function() {
 
-    this._norm = 0;
-    this._normSq = 0;
+    this._[3] = 0.0;
+    this._[4] = 0.0;
 
-    this.x = 0.0;
-    this.y = 0.0;
+    this._[0] = 0.0;
+    this._[1] = 0.0;
     return this;
 };
 
 /**
- * Make this a vector in the opposite direction
+ * Make this a Vector in the opposite direction
  */
-vector.prototype.negate = function(){
+Vector.prototype.negate = function(){
 
-    this.x = -this.x;
-    this.y = -this.y;
+    this._[0] = -this._[0];
+    this._[1] = -this._[1];
     return this;
 };
 
 /**
- * Constrain vector components to minima and maxima
+ * Constrain Vector components to minima and maxima
  */
-vector.prototype.clamp = function(minV, maxV){
+Vector.prototype.clamp = function(minV, maxV){
 
-    this.x = Math.min(Math.max(this.x, minV.x), maxV.x);
-    this.y = Math.min(Math.max(this.y, minV.y), maxV.y);
-    this._norm = this._normSq = false;
+    this._[0] = min(max(this._[0], minV._[0]), maxV._[0]);
+    this._[1] = min(max(this._[1], minV._[1]), maxV._[1]);
+    this.recalc = true;
     return this;
-}
+};
 
 /**
  * Render string
  */
-vector.prototype.toString = function(){
+Vector.prototype.toString = function(){
 
-    return '('+this.x + ', ' + this.y+')';
+    return '('+this._[0] + ', ' + this._[1]+')';
 };
 
-Physics.vector = vector;
+Physics.vector = Vector;
 
 /**
- * end vector class
+ * end Vector class
  */
 }(Physics));
