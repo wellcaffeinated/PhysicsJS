@@ -19,7 +19,11 @@
 }(this, function () {
     'use strict';
 
-    var Physics = {};
+    var Physics = function Physics(){
+
+        return Physics.world.apply(Physics, arguments);
+    };
+
     Physics.util = {};
 
 (function(window,Physics,undefined){
@@ -1151,7 +1155,7 @@ exp.ticker = {
 };
 
 }(this, Physics.util));
-(function(Physics, undefined){
+(function(Physics){
 
 // cached math functions
 var sqrt = Math.sqrt
@@ -1165,7 +1169,7 @@ var sqrt = Math.sqrt
  */
 var Vector = function Vector(x, y) {
 
-    // force instantiation
+    // enforce instantiation
     if ( !(this instanceof Vector) ){
 
         return new Vector( x, y );

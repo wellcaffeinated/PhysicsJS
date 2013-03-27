@@ -19,5 +19,9 @@
 }(this, function () {
     'use strict';
 
-    var Physics = {};
+    var Physics = function Physics(){
+
+        return Physics.world.apply(Physics, arguments);
+    };
+
     Physics.util = {};

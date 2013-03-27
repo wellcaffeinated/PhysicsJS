@@ -1,4 +1,4 @@
-(function(Physics, undefined){
+(function(Physics){
 
 // cached math functions
 var sqrt = Math.sqrt
@@ -12,7 +12,7 @@ var sqrt = Math.sqrt
  */
 var Vector = function Vector(x, y) {
 
-    // force instantiation
+    // enforce instantiation
     if ( !(this instanceof Vector) ){
 
         return new Vector( x, y );
