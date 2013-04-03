@@ -1,5 +1,5 @@
 /**
- * Facilitates creation of factory functions for instances
+ * Facilitates creation of decorator service functions
  *
  * @example
  * 
@@ -23,7 +23,11 @@
 var Decorator = function Decorator( type, proto ){
 
     var registry = {}
-        ,constructor = function(){}
+        ,constructor = function( opts ){
+            if (this.init){
+                this.init( opts );
+            }
+        }
         ;
 
     // TODO: not sure of the best way to make the constructor names
@@ -31,7 +35,7 @@ var Decorator = function Decorator( type, proto ){
     constructor.prototype = proto || {};
     constructor.prototype.type = type;
     
-    return function test( name, decorator ){
+    return function factory( name, decorator, cfg ){
 
         var instance
             ,result
@@ -41,19 +45,23 @@ var Decorator = function Decorator( type, proto ){
         if ( typeOfdecorator === 'function' ){
 
             // store the decorator function in the registry
-            registry[ name ] = decorator;
+            result = registry[ name ] = decorator;
 
         } else {
 
-            // create a new instance from the provided decorator
+            cfg = decorator || {};
             result = registry[ name ];
             if (!result){
 
                 throw 'The ' + type + ' "' + name + '" has not been defined';
             }
+        }
 
-            instance = new constructor();
-            result = new result( decorator, instance );
+        if ( cfg ) {
+
+            // create a new instance from the provided decorator
+            instance = new constructor( cfg );
+            result = new result( cfg, instance );
             return Physics.util.extend( instance, result );
         }
     };
