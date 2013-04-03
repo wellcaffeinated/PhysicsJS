@@ -5,7 +5,7 @@ var defaults = {
     timestep: 1000.0 / 60,
     maxSteps: 4,
     webworker: false, // to implement
-    integrator: 'verlet'
+    integrator: 'improved-euler'
 };
 
 var World = function World( cfg, fn ){
