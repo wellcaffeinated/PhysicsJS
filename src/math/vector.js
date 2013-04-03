@@ -4,6 +4,7 @@
 var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
+    ,acos = Math.acos
     ;
 
 /**
@@ -24,45 +25,8 @@ var Vector = function Vector(x, y) {
     // normsq = _[4]
     this._ = [];
     this.recalc = true; //whether or not recalculate norms
-    this.set( x || 0.0, y || 0.0);
+    this.set( x || 0.0, y || 0.0 );
 };
-
-/**
- * Static functions
- */
-
-/** 
- * Return sum of two Vectors
- */
-Vector.vadd = function(v1, v2) {
-
-    return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
-};
-
-/** 
- * Subtract v2 from v1
- */
-Vector.vsub = function(v1, v2) {
-
-    return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
-};
-
-/**
- * Multiply v1 by a scalar m
- */
-Vector.mult = function(m, v1){
-
-    return new Vector( v1._[0]*m, v1._[1]*m );
-};
-
-/** 
- * Project v1 onto v2
- */
-Vector.proj = function(v1, v2) {
-
-    return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
-};
-
 
 /**
  * Methods
@@ -161,12 +125,23 @@ Vector.prototype.cross = function(v) {
 };
 
 /**
- * Get projection of this along v
+ * Project this along v
  */
 Vector.prototype.proj = function(v){
 
     var m = this.dot( v ) / v.normSq();
     return this.clone( v ).mult( m );
+};
+
+Vector.prototype.angle = function(v){
+
+    if (!v){
+        v = Vector.axis[0];
+    }
+
+    var prod = this.dot( v ) / ( this.norm() * v.norm() );
+
+    return acos( prod );
 };
 
 /**
@@ -315,6 +290,54 @@ Vector.prototype.toString = function(){
 
     return '('+this._[0] + ', ' + this._[1]+')';
 };
+
+
+/**
+ * Static functions
+ */
+
+/** 
+ * Return sum of two Vectors
+ */
+Vector.vadd = function(v1, v2) {
+
+    return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
+};
+
+/** 
+ * Subtract v2 from v1
+ */
+Vector.vsub = function(v1, v2) {
+
+    return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
+};
+
+/**
+ * Multiply v1 by a scalar m
+ */
+Vector.mult = function(m, v1){
+
+    return new Vector( v1._[0]*m, v1._[1]*m );
+};
+
+/** 
+ * Project v1 onto v2
+ */
+Vector.proj = function(v1, v2) {
+
+    return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
+};
+
+/**
+ * Axis vectors for general reference
+ * @type {Array}
+ */
+Vector.axis = [
+    new Vector(1.0, 0.0),
+    new Vector(0.0, 1.0)
+];
+
+// assign
 
 Physics.vector = Vector;
 
