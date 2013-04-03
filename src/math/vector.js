@@ -45,6 +45,16 @@ Vector.prototype.set = function(x, y) {
 };
 
 /**
+ * Get component
+ * @param  {Integer} n The nth component. x is 1, y is 2, ...
+ * @return {Integer} component value
+ */
+Vector.prototype.get = function( n ){
+
+    return this._[ n ];
+};
+
+/**
  * Add Vector to this
  */
 Vector.prototype.vadd = function(v) {
