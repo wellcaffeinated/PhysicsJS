@@ -22,7 +22,66 @@
 <script src="../dist/physicsjs-0.0.1a.js"></script>
 <script>
 
+Physics({
 
+    // config
+
+}, function( world ){
+
+    var viewportBounds = Physics.bounds(0, 0, 400, 400);
+
+    var circle = Physics.body('circle', {
+        x: 100,
+        y: 100,
+        radius: 10
+    });
+
+    var renderer = Physics.renderer('DOM', function( opts ){
+
+        var el = typeof opts.el === 'string' ? document.getElementById(opts.el) : opts.el
+            ,viewport = el ? el : document.body
+            ,classpfx = 'pjs-'
+            ;
+
+        return {
+
+            createView: function( type ){
+
+                var el = document.createElement('div');
+
+                el.className = classpfx + type;
+
+                viewport.appendChild( el );
+                return el;
+            },
+
+            render: function( dt, bodies ){
+
+                var body
+                    ,view
+                    ;
+
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    body = bodies[ i ];
+                    view = body.view || ( body.view = this.createView(body.type) );
+                }
+            }
+        };
+    }, {}); // instantiate immediately
+
+    var constrain = World.behavior('constrain-within', {
+        bounds: viewportBounds
+    });
+
+    constrain.applyTo( circle );
+
+    // add things to world
+    world.add( constrain );
+    world.add( circle );
+
+
+});
 
 </script>
   
