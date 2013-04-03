@@ -1110,7 +1110,7 @@ var Decorator = function Decorator( type, proto ){
         };
     }
 }(this));
-(function(window, exp){
+(function(window){
         
 var lastTime = 0
     ,active = false
@@ -1192,7 +1192,7 @@ function isActive(){
 }
 
 // API
-exp.ticker = {
+Physics.util.ticker = {
     start: start,
     stop: stop,
     subscribe: subscribe,
@@ -1200,7 +1200,7 @@ exp.ticker = {
     isActive: isActive
 };
 
-}(this, Physics.util));
+}(this));
 (function(){
     
     var Bounds = function Bounds( minX, minY, maxX, maxY ){
@@ -1260,6 +1260,16 @@ Vector.prototype.set = function(x, y) {
     this._[0] = x;
     this._[1] = y;
     return this;
+};
+
+/**
+ * Get component
+ * @param  {Integer} n The nth component. x is 1, y is 2, ...
+ * @return {Integer} component value
+ */
+Vector.prototype.get = function( n ){
+
+    return this._[ n ];
 };
 
 /**
@@ -1584,7 +1594,7 @@ var defaults = {
     timestep: 1000.0 / 60,
     maxSteps: 4,
     webworker: false, // to implement
-    integrator: 'verlet'
+    integrator: 'improved-euler'
 };
 
 var World = function World( cfg, fn ){
@@ -1798,7 +1808,7 @@ World.prototype = {
 Physics.world = World;
     
 }());
-(function(Physics){
+(function(){
 
     var defaults = {
 
@@ -1875,6 +1885,7 @@ Physics.world = World;
         };
     });
 
-}(Physics));
+}());
+
     return Physics;
 }));

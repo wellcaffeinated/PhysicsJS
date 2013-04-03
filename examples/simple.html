@@ -41,7 +41,11 @@ Physics({
         var el = typeof opts.el === 'string' ? document.getElementById(opts.el) : opts.el
             ,viewport = el ? el : document.body
             ,classpfx = 'pjs-'
+            ,px = 'px'
             ;
+
+        viewport.style.position = 'relative';
+        viewport.style.overflow = 'hidden';
 
         return {
 
@@ -50,6 +54,7 @@ Physics({
                 var el = document.createElement('div');
 
                 el.className = classpfx + type;
+                el.style.position = 'absolute';
 
                 viewport.appendChild( el );
                 return el;
@@ -59,12 +64,17 @@ Physics({
 
                 var body
                     ,view
+                    ,pos
                     ;
 
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
                     body = bodies[ i ];
                     view = body.view || ( body.view = this.createView(body.type) );
+
+                    pos = body.state.pos;
+                    view.style.left = pos.get(0) + px;
+                    view.style.top = pos.get(1) + px;
                 }
             }
         };
@@ -79,7 +89,13 @@ Physics({
     // add things to world
     world.add( constrain );
     world.add( circle );
+    world.add( renderer );
 
+    Physics.util.ticker.subscribe(function( time, dt ){
+
+        world.step( time );
+        world.render();
+    });
 
 });
 
