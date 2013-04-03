@@ -1,4 +1,4 @@
-(function(Physics){
+(function(){
     
     var Bounds = function Bounds( minX, minY, maxX, maxY ){
 
@@ -12,4 +12,4 @@
     };
 
     Physics.bounds = Bounds;
-}(Physics));
+}());

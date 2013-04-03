@@ -21,7 +21,11 @@ module.exports = function(grunt) {
             'src/intro.js',
             'lib/lodash.js',
             'src/util/*.js',
-            'src/math/vector.js',
+            'src/math/*.js',
+            'src/core/*.js',
+            'src/behaviors/*.js',
+            'src/integrators/*.js',
+            'src/objects/*.js',
             'src/outro.js'
         ],
         pkg : pkg,

@@ -1,4 +1,4 @@
-(function(Physics){
+(function(){
 
 // cached math functions
 var sqrt = Math.sqrt
@@ -265,21 +265,12 @@ Vector.prototype.clone = function(v) {
 /**
  * Create a litteral object
  */
-Vector.prototype.toNative = function(){
+Vector.prototype.values = function(){
 
     return {
         x: this._[0],
         y: this._[1]
     };
-};
-
-/**
- * Copies components of this Vector to other Vector
- */
-Vector.prototype.copyTo = function(v) {
-    
-    v.clone( this );
-    return this;
 };
 
 
@@ -330,4 +321,4 @@ Physics.vector = Vector;
 /**
  * end Vector class
  */
-}(Physics));
+}());
