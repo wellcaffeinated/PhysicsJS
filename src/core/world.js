@@ -22,12 +22,14 @@ World.prototype = {
     init: function( cfg, fn ){
 
         // prevent double initialization
-        this.init = false;
+        this.init = true;
 
         this._bodies = [];
-        this._behaviourStack = [];
+        this._behaviorStack = [];
         this._integrator = null;
         this._paused = false;
+        this._opts = {};
+
         // set options
         this.options( cfg );
 
@@ -44,19 +46,19 @@ World.prototype = {
         if (cfg){
 
             // extend the defaults
-            Physics.util.extend(this.opts, defaults, cfg);
+            Physics.util.extend(this._opts, defaults, cfg);
             // set timestep
-            this.timeStep(this.opts.timestep);
+            this.timeStep(this._opts.timestep);
             // add integrator
-            this.add(Physics.integrator(this.opts.integrator));
+            this.add(Physics.integrator(this._opts.integrator));
 
             return this;
         }
 
-        return Physics.util.extend({}, this.opts);
+        return Physics.util.extend({}, this._opts);
     },
 
-    // add objects, integrators, behaviours...
+    // add objects, integrators, behaviors...
     add: function( arg ){
 
         var i = 0
@@ -69,9 +71,9 @@ World.prototype = {
         do {
             switch (thing.type){
 
-                case 'behaviour':
-                    this.addBehaviour(thing);
-                break; // end behaviour
+                case 'behavior':
+                    this.addBehavior(thing);
+                break; // end behavior
 
                 case 'integrator':
                     this._integrator = thing;
@@ -87,11 +89,11 @@ World.prototype = {
         return this;
     },
 
-    // add a behaviour
-    addBehaviour: function( behaviour ){
+    // add a behavior
+    addBehavior: function( behavior ){
 
         // TODO more...
-        this._behaviourStack.push( behaviour );
+        this._behaviorStack.push( behavior );
         return this;
     },
 
@@ -101,14 +103,14 @@ World.prototype = {
         return this;
     },
 
-    applyBehaviours: function(){
+    applyBehaviors: function(){
 
     },
 
     // internal method
     substep: function(){
 
-        this.applyBehaviours();
+        this.applyBehaviors();
         this._integrator.integrate(dt, this._bodies)
 
         // this.doInteractions( 'beforeAccel', dt );
@@ -173,7 +175,7 @@ World.prototype = {
 
             this._dt = dt;
             // calculate the maximum jump in time over which to do substeps
-            this._maxJump = dt * this.opts.maxSteps;
+            this._maxJump = dt * this._opts.maxSteps;
 
             return this;
         }
