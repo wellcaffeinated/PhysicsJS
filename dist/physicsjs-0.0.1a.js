@@ -1033,28 +1033,32 @@
 
   
 ;lodash.extend(Physics.util, lodash);}(this,Physics));
-var Factory = function Factory( type, proto ){
+var Decorator = function Decorator( type, proto ){
 
     var registry = {}
         ,constructor = function(){}
         ;
 
+    // TODO: not sure of the best way to make the constructor names
+    // transparent and readable in debug consoles...
     constructor.prototype = proto || {};
     constructor.prototype.type = type;
     
-    return function test( name, factory ){
+    return function test( name, decorator ){
 
         var instance
             ,result
-            ,typeOfFactory = typeof factory
+            ,typeOfdecorator = typeof decorator
             ;
 
-        if ( typeOfFactory === 'function' ){
+        if ( typeOfdecorator === 'function' ){
 
-            registry[ name ] = factory;
+            // store the decorator function in the registry
+            registry[ name ] = decorator;
 
         } else {
 
+            // create a new instance from the provided decorator
             result = registry[ name ];
             if (!result){
 
@@ -1062,7 +1066,7 @@ var Factory = function Factory( type, proto ){
             }
 
             instance = new constructor();
-            result = new result( factory, instance );
+            result = new result( decorator, instance );
             return Physics.util.extend( instance, result );
         }
     };
@@ -1532,11 +1536,11 @@ Physics.vector = Vector;
 (function(){
 
     // Service
-    Physics.integrator = Factory('integrator', {
+    Physics.integrator = Decorator('integrator', {
 
         // prototype
         integrate: function(){
-            
+
             throw 'The integrator.integrate() method must be overriden';
         }
     });

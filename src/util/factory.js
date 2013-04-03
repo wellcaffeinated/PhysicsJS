@@ -3,14 +3,14 @@
  *
  * @example
  * 
- * var service = Factory('service', {
+ * var service = Decorator('service', {
  *      // prototype methods...
  *      method: function( args ){
  *      }
  * });
  *
  * // define
- * service( 'name', function factory(){
+ * service( 'name', function decorator(){
  *
  *      // extend further...
  *      return {
@@ -20,28 +20,32 @@
  * // instantiate
  * var instance = service( 'name', options );
  */
-var Factory = function Factory( type, proto ){
+var Decorator = function Decorator( type, proto ){
 
     var registry = {}
         ,constructor = function(){}
         ;
 
+    // TODO: not sure of the best way to make the constructor names
+    // transparent and readable in debug consoles...
     constructor.prototype = proto || {};
     constructor.prototype.type = type;
     
-    return function test( name, factory ){
+    return function test( name, decorator ){
 
         var instance
             ,result
-            ,typeOfFactory = typeof factory
+            ,typeOfdecorator = typeof decorator
             ;
 
-        if ( typeOfFactory === 'function' ){
+        if ( typeOfdecorator === 'function' ){
 
-            registry[ name ] = factory;
+            // store the decorator function in the registry
+            registry[ name ] = decorator;
 
         } else {
 
+            // create a new instance from the provided decorator
             result = registry[ name ];
             if (!result){
 
@@ -49,7 +53,7 @@ var Factory = function Factory( type, proto ){
             }
 
             instance = new constructor();
-            result = new result( factory, instance );
+            result = new result( decorator, instance );
             return Physics.util.extend( instance, result );
         }
     };

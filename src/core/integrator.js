@@ -1,11 +1,11 @@
 (function(){
 
     // Service
-    Physics.integrator = Factory('integrator', {
+    Physics.integrator = Decorator('integrator', {
 
         // prototype
         integrate: function(){
-            
+
             throw 'The integrator.integrate() method must be overriden';
         }
     });
