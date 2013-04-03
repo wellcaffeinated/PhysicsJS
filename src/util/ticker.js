@@ -1,4 +1,4 @@
-(function(window, exp){
+(function(window){
         
 var lastTime = 0
     ,active = false
@@ -80,7 +80,7 @@ function isActive(){
 }
 
 // API
-exp.ticker = {
+Physics.util.ticker = {
     start: start,
     stop: stop,
     subscribe: subscribe,
@@ -88,4 +88,4 @@ exp.ticker = {
     isActive: isActive
 };
 
-}(this, Physics.util));
+}(this));

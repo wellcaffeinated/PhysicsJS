@@ -1,4 +1,4 @@
-(function(Physics){
+(function(){
 
     var defaults = {
 
@@ -75,4 +75,4 @@
         };
     });
 
-}(Physics));
+}());
