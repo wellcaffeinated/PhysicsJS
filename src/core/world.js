@@ -24,9 +24,11 @@ World.prototype = {
         // prevent double initialization
         this.init = true;
 
+        this._stats = {}; // statistics (fps, etc)
         this._bodies = [];
         this._behaviorStack = [];
         this._integrator = null;
+        this._renderer = null;
         this._paused = false;
         this._opts = {};
 
@@ -79,9 +81,16 @@ World.prototype = {
                     this._integrator = thing;
                 break; // end integrator
 
-                // assume physical body
-                default:
+                case 'renderer':
+                    this._renderer = thing;
+                break; // end renderer
+
+                case 'body':
                     this.addBody(thing);
+                break; // end body
+                
+                default:
+                    throw 'Error: failed to add item of unknown type to world';
                 break; // end default
             }
         } while ( ++i < len && (thing = arg[ i ]) )
@@ -108,7 +117,7 @@ World.prototype = {
     },
 
     // internal method
-    substep: function(){
+    substep: function( dt ){
 
         this.applyBehaviors();
         this._integrator.integrate(dt, this._bodies)
@@ -130,13 +139,15 @@ World.prototype = {
 
         var time = this._time || (this._time = now)
             ,diff = now - time
+            ,stats = this._stats
+            ,dt = this._dt
             ;
 
         if ( !diff ) return this;
         
         // set some stats
-        this.FPS = 1000/diff;
-        this.nsteps = Math.ceil(diff/this._dt);
+        stats.fps = 1000/diff;
+        stats.steps = Math.ceil(diff/this._dt);
 
         // limit number of substeps in each step
         if ( diff > this._maxJump ){
@@ -146,8 +157,19 @@ World.prototype = {
 
         while ( this._time < now ){
             this._time += dt;
-            this.substep();
+            this.substep( dt );
         }
+
+        return this;
+    },
+
+    render: function(){
+
+        if ( !this._renderer ){
+            throw "No renderer added to world";
+        }
+        
+        this._renderer.render( this._bodies, this._stats );
 
         return this;
     },
