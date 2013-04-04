@@ -53,7 +53,7 @@ var Decorator = function Decorator( type, proto ){
             result = registry[ name ];
             if (!result){
 
-                throw 'The ' + type + ' "' + name + '" has not been defined';
+                throw 'Error: "' + name + '" ' + type + ' not defined';
             }
         }
 
@@ -61,7 +61,8 @@ var Decorator = function Decorator( type, proto ){
 
             // create a new instance from the provided decorator
             instance = new constructor( cfg );
-            result = new result( cfg, instance );
+            instance.name = name;
+            result = result.call( instance, cfg, instance );
             return Physics.util.extend( instance, result );
         }
     };
