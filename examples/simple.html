@@ -51,6 +51,25 @@ Physics({
         radius: 10
     });
 
+    var myCircle = Physics.body('my-custom-circle', 'circle', function( parent ){
+
+        return {
+            init: function( options ){
+
+                options.radius = 15;
+                parent.init.call(this, options);
+                
+                this.myThing = 2;
+            }
+        };
+    }, {
+        x: 10,
+        y: 200,
+        radius: 300,
+        vx: .1,
+        vy: .1
+    });
+
     var renderer = Physics.renderer('DOM', function( parent ){
 
         var classpfx = 'pjs-'
@@ -127,6 +146,7 @@ Physics({
     // add things to world
     // world.add( constrain );
     world.add( circle );
+    world.add( myCircle );
     world.add( renderer );
 
     Physics.util.ticker.subscribe(function( time, dt ){

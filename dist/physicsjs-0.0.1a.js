@@ -1044,14 +1044,24 @@ var Decorator = function Decorator( type, proto ){
     proto = proto || {};
     proto.type = type;
     
-    return function factory( name, decorator, cfg ){
+    return function factory( name, parentName, decorator, cfg ){
 
         var instance
             ,result
-            ,typeOfdecorator = typeof decorator
+            ,parent = proto
             ;
 
-        if ( typeOfdecorator === 'function' ){
+        if ( typeof parentName !== 'string' ){
+
+            cfg = decorator;
+            decorator = parentName;
+
+        } else {
+
+            parent = registry[ parentName ].prototype;
+        }
+
+        if ( typeof decorator === 'function' ){
 
             // store the new class
             result = registry[ name ] = function constructor( opts ){
@@ -1060,7 +1070,7 @@ var Decorator = function Decorator( type, proto ){
                 }
             };
 
-            result.prototype = Physics.util.extend({}, proto, decorator( proto ));
+            result.prototype = Physics.util.extend({}, parent, decorator( parent ));
             result.prototype.name = name;
             
         } else {
