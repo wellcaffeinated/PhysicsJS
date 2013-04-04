@@ -1036,17 +1036,13 @@
 var Decorator = function Decorator( type, proto ){
 
     var registry = {}
-        ,constructor = function( opts ){
-            if (this.init){
-                this.init( opts );
-            }
-        }
+        ,base = function(){}
         ;
 
     // TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
-    constructor.prototype = proto || {};
-    constructor.prototype.type = type;
+    proto = proto || {};
+    proto.type = type;
     
     return function factory( name, decorator, cfg ){
 
@@ -1057,9 +1053,16 @@ var Decorator = function Decorator( type, proto ){
 
         if ( typeOfdecorator === 'function' ){
 
-            // store the decorator function in the registry
-            result = registry[ name ] = decorator;
+            // store the new class
+            result = registry[ name ] = function constructor( opts ){
+                if (this.init){
+                    this.init( opts );
+                }
+            };
 
+            result.prototype = Physics.util.extend({}, proto, decorator( proto ));
+            result.prototype.name = name;
+            
         } else {
 
             cfg = decorator || {};
@@ -1073,10 +1076,7 @@ var Decorator = function Decorator( type, proto ){
         if ( cfg ) {
 
             // create a new instance from the provided decorator
-            instance = new constructor( cfg );
-            instance.name = name;
-            result = result.call( instance, cfg, instance );
-            return Physics.util.extend( instance, result );
+            return new result( cfg );
         }
     };
 };
@@ -1624,12 +1624,18 @@ Physics.vector = Vector;
     Physics.geometry = Decorator('geometry', {
 
         // prototype methods
-        getWidth: function(){
-            return 0;
-        },
+        init: function( options ){
 
-        getHeight: function(){
-            return 0;
+        },
+        
+        // get axis-aligned bounding box for this object
+        // to be overridden
+        aabb: function(){
+
+            return {
+                halfWidth: 0,
+                halfHeight: 0
+            };
         }
     });
 
@@ -1903,70 +1909,69 @@ World.prototype = {
 Physics.world = World;
     
 }());
-(function(){
+// circle geometry
+Physics.geometry('circle', function( parent ){
 
     var defaults = {
 
         radius: 1.0
     };
 
-    // circle geometry
-    Physics.geometry('circle', function( options, instance ){
+    return {
 
-        options = Physics.util.extend({}, defaults, options);
+        init: function( options ){
 
-        this.radius = options.radius;
+            // call parent init method
+            parent.init.call(this, options);
 
-        return {
-            
-            getWidth: function(){
-                
-                return this.radius * 2;
-            },
+            options = Physics.util.extend({}, defaults, options);
 
-            getHeight: function(){
-                return this.radius * 2;
-            }
-        };
-    });
+            this.radius = options.radius;
+        },
+        
+        aabb: function(){
 
-}());
-(function(){
+            return {
+                halfWidth: this.radius,
+                halfHeight: this.radius
+            };
+        }
+    };
+});
+
+// point geometry
+Physics.geometry('point', function( parent ){
 
     var defaults = {
 
-        
     };
+    
+});
 
-    // point geometry
-    Physics.geometry('point', function( options, instance ){
-
-        
-        
-    });
-
-}());
-(function(){
+// circle body
+Physics.body('circle', function( parent ){
 
     var defaults = {
-
         
     };
 
-    // circle body
-    Physics.body('circle', function( options, instance ){
+    return {
+        init: function( options ){
 
-        options = Physics.util.extend({}, defaults, options);
+            // call parent init method
+            parent.init.call(this, options);
 
-        this.geometry = Physics.geometry('circle', {
-            radius: options.radius
-        });
+            options = Physics.util.extend({}, defaults, options);
 
-        
-    });
+            this.geometry = Physics.geometry('circle', {
+                radius: options.radius
+            });
 
-}());
-(function(){
+        }
+    }
+});
+
+Physics.integrator('improved-euler', function( parent ){
 
     var defaults = {
 
@@ -1974,79 +1979,78 @@ Physics.world = World;
         // 0.001 means molasses
         drag: 0.9995
     };
-    
-    Physics.integrator('improved-euler', function( options, instance ){
 
-        // cache some vector instances
-        // so we don't need to recreate them in a loop
-        var vel = Physics.vector()
-            ;
+    return {
 
-        options = Physics.util.extend({}, defaults, options);
+        init: function( options ){
+            // cache some vector instances
+            // so we don't need to recreate them in a loop
+            this.vel = Physics.vector();
 
-        return {
+            this.options = Physics.util.extend({}, defaults, options);
+        },
 
-            integrate: function( dt, bodies ){
+        integrate: function( dt, bodies ){
 
-                // half the timestep
-                var halfdt = 0.5 * dt
-                    ,drag = options.drag
-                    ,body = null
-                    ,state
-                    ;
+            // half the timestep
+            var halfdt = 0.5 * dt
+                ,drag = this.options.drag
+                ,body = null
+                ,state
+                ,vel = this.vel
+                ;
 
-                for ( var i = 0, l = bodies.length; i < l; ++i ){
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
 
-                    body = bodies[ i ];
+                body = bodies[ i ];
 
-                    // only integrate if the body isn't fixed
-                    if ( !body.fixed ){
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
 
-                        state = body.state;
+                    state = body.state;
 
-                        // Inspired from https://github.com/soulwire/Coffee-Physics
-                        // @licence MIT
-                        // 
-                        // x += (v * dt) + (a * 0.5 * dt * dt)
-                        // v += a * dt
+                    // Inspired from https://github.com/soulwire/Coffee-Physics
+                    // @licence MIT
+                    // 
+                    // x += (v * dt) + (a * 0.5 * dt * dt)
+                    // v += a * dt
 
-                        // Store previous location.
-                        state.old.pos.clone( state.pos );
+                    // Store previous location.
+                    state.old.pos.clone( state.pos );
 
-                        // Scale force to mass.
-                        // state.acc.mult( body.massInv );
+                    // Scale force to mass.
+                    // state.acc.mult( body.massInv );
 
-                        // Duplicate velocity to preserve momentum.
-                        vel.clone( state.vel );
+                    // Duplicate velocity to preserve momentum.
+                    vel.clone( state.vel );
 
-                        // Update velocity first so we can reuse the acc vector.
-                        // a *= dt
-                        // v += a ...
-                        state.vel.vadd( state.acc.mult( dt ) );
+                    // Update velocity first so we can reuse the acc vector.
+                    // a *= dt
+                    // v += a ...
+                    state.vel.vadd( state.acc.mult( dt ) );
 
-                        // Update position.
-                        // ...
-                        // oldV *= dt
-                        // a *= 0.5 * dt
-                        // x += oldV + a
-                        state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
+                    // Update position.
+                    // ...
+                    // oldV *= dt
+                    // a *= 0.5 * dt
+                    // x += oldV + a
+                    state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
 
-                        // Apply "air resistance".
-                        if ( drag ){
+                    // Apply "air resistance".
+                    if ( drag ){
 
-                            state.vel.mult( drag );
-                        }
+                        state.vel.mult( drag );
+                    }
 
-                        // Reset accel
-                        state.acc.zero();
+                    // Reset accel
+                    state.acc.zero();
 
-                    }                    
-                }
+                }                    
             }
-        };
-    });
+        }
+    };
+});
 
-}());
 
     return Physics;
 }));

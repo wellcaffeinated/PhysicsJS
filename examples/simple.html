@@ -29,9 +29,11 @@
 </head>
 <body>
 
+    <button class="start-stop">Pause</button>
     <div id="viewport"></div>
 
 <script src="../dist/physicsjs-0.0.1a.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 
 Physics({
@@ -49,29 +51,48 @@ Physics({
         radius: 10
     });
 
-    var renderer = Physics.renderer('DOM', function( opts ){
+    var renderer = Physics.renderer('DOM', function( parent ){
 
-        var el = typeof opts.el === 'string' ? document.getElementById(opts.el) : opts.el
-            ,viewport = el ? el : document.body
-            ,classpfx = 'pjs-'
+        var classpfx = 'pjs-'
             ,px = 'px'
             ;
 
-        viewport.style.position = 'relative';
-        viewport.style.overflow = 'hidden';
-
         return {
+
+            init: function( options ){
+
+                var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
+                    ,viewport = el ? el : document.body
+                    ;
+
+                viewport.style.position = 'relative';
+                viewport.style.overflow = 'hidden';
+
+                this.viewport = viewport;
+            },
+
+            circleProperties: function( el, geometry ){
+
+                var aabb = geometry.aabb();
+
+                el.style.width = (aabb.halfWidth * 2) + px;
+                el.style.height = (aabb.halfHeight * 2) + px;
+            },
 
             createView: function( geometry ){
 
-                var el = document.createElement('div');
+                var el = document.createElement('div')
+                    ,fn = geometry.name + 'Properties'
+                    ;
 
                 el.className = classpfx + geometry.name;
                 el.style.position = 'absolute';
-                el.style.width = geometry.getWidth() + px;
-                el.style.height = geometry.getHeight() + px;
-
-                viewport.appendChild( el );
+                
+                if (this[ fn ]){
+                    this[ fn ](el, geometry);
+                }
+                
+                this.viewport.appendChild( el );
                 return el;
             },
 
@@ -116,6 +137,20 @@ Physics({
 
     Physics.util.ticker.start();
 
+    // play/pause button
+    $(document).on('click', '.start-stop', function(e){
+
+        e.preventDefault();
+        var paused = world.isPaused();
+
+        if (paused){
+            $(this).text('pause');
+            world.unpause();
+        } else {
+            $(this).text('play');
+            world.pause();
+        }
+    });
 });
 
 </script>

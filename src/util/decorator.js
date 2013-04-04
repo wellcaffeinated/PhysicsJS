@@ -10,11 +10,14 @@
  * });
  *
  * // define
- * service( 'name', function decorator(){
+ * service( 'name', function decorator( parent ){
  *
  *      // extend further...
  *      return {
  *          // overrides
+ *          init: function( cfg ){
+ *              parent.init.call(this, cfg);
+ *          }
  *      };
  * });
  * // instantiate
@@ -23,17 +26,13 @@
 var Decorator = function Decorator( type, proto ){
 
     var registry = {}
-        ,constructor = function( opts ){
-            if (this.init){
-                this.init( opts );
-            }
-        }
+        ,base = function(){}
         ;
 
     // TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
-    constructor.prototype = proto || {};
-    constructor.prototype.type = type;
+    proto = proto || {};
+    proto.type = type;
     
     return function factory( name, decorator, cfg ){
 
@@ -44,9 +43,16 @@ var Decorator = function Decorator( type, proto ){
 
         if ( typeOfdecorator === 'function' ){
 
-            // store the decorator function in the registry
-            result = registry[ name ] = decorator;
+            // store the new class
+            result = registry[ name ] = function constructor( opts ){
+                if (this.init){
+                    this.init( opts );
+                }
+            };
 
+            result.prototype = Physics.util.extend({}, proto, decorator( proto ));
+            result.prototype.name = name;
+            
         } else {
 
             cfg = decorator || {};
@@ -60,10 +66,7 @@ var Decorator = function Decorator( type, proto ){
         if ( cfg ) {
 
             // create a new instance from the provided decorator
-            instance = new constructor( cfg );
-            instance.name = name;
-            result = result.call( instance, cfg, instance );
-            return Physics.util.extend( instance, result );
+            return new result( cfg );
         }
     };
 };

@@ -1,20 +1,22 @@
-(function(){
+// circle body
+Physics.body('circle', function( parent ){
 
     var defaults = {
-
         
     };
 
-    // circle body
-    Physics.body('circle', function( options, instance ){
+    return {
+        init: function( options ){
 
-        options = Physics.util.extend({}, defaults, options);
+            // call parent init method
+            parent.init.call(this, options);
 
-        this.geometry = Physics.geometry('circle', {
-            radius: options.radius
-        });
+            options = Physics.util.extend({}, defaults, options);
 
-        
-    });
+            this.geometry = Physics.geometry('circle', {
+                radius: options.radius
+            });
 
-}());
+        }
+    }
+});

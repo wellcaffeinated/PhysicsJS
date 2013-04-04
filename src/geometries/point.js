@@ -1,15 +1,8 @@
-(function(){
+// point geometry
+Physics.geometry('point', function( parent ){
 
     var defaults = {
 
-        
     };
-
-    // point geometry
-    Physics.geometry('point', function( options, instance ){
-
-        
-        
-    });
-
-}());
+    
+});

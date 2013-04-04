@@ -1,28 +1,29 @@
-(function(){
+// circle geometry
+Physics.geometry('circle', function( parent ){
 
     var defaults = {
 
         radius: 1.0
     };
 
-    // circle geometry
-    Physics.geometry('circle', function( options, instance ){
+    return {
 
-        options = Physics.util.extend({}, defaults, options);
+        init: function( options ){
 
-        this.radius = options.radius;
+            // call parent init method
+            parent.init.call(this, options);
 
-        return {
-            
-            getWidth: function(){
-                
-                return this.radius * 2;
-            },
+            options = Physics.util.extend({}, defaults, options);
 
-            getHeight: function(){
-                return this.radius * 2;
-            }
-        };
-    });
+            this.radius = options.radius;
+        },
+        
+        aabb: function(){
 
-}());
+            return {
+                halfWidth: this.radius,
+                halfHeight: this.radius
+            };
+        }
+    };
+});

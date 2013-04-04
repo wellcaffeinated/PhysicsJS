@@ -4,12 +4,18 @@
     Physics.geometry = Decorator('geometry', {
 
         // prototype methods
-        getWidth: function(){
-            return 0;
-        },
+        init: function( options ){
 
-        getHeight: function(){
-            return 0;
+        },
+        
+        // get axis-aligned bounding box for this object
+        // to be overridden
+        aabb: function(){
+
+            return {
+                halfWidth: 0,
+                halfHeight: 0
+            };
         }
     });
 
