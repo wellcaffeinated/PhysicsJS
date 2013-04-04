@@ -3,6 +3,10 @@
     // Service
     Physics.renderer = Decorator('renderer', {
 
+        init: function(){
+            //empty
+        },
+
         // prototype methods
         render: function( bodies, stats ){
 

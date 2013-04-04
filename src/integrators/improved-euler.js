@@ -10,6 +10,10 @@ Physics.integrator('improved-euler', function( parent ){
     return {
 
         init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+
             // cache some vector instances
             // so we don't need to recreate them in a loop
             this.vel = Physics.vector();

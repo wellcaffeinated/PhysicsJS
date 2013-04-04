@@ -5,4 +5,7 @@ Physics.geometry('point', function( parent ){
 
     };
     
+    return {
+
+    };
 });

@@ -80,6 +80,9 @@ Physics({
 
             init: function( options ){
 
+                // call parent init
+                parent.init.call(this, options);
+
                 var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
                     ,viewport = el ? el : document.body
                     ;

@@ -1655,6 +1655,10 @@ Physics.vector = Vector;
     // Service
     Physics.integrator = Decorator('integrator', {
 
+        init: function(){
+            // empty
+        },
+
         // prototype
         integrate: function(){
 
@@ -1667,6 +1671,10 @@ Physics.vector = Vector;
 
     // Service
     Physics.renderer = Decorator('renderer', {
+
+        init: function(){
+            //empty
+        },
 
         // prototype methods
         render: function( bodies, stats ){
@@ -1956,6 +1964,9 @@ Physics.geometry('point', function( parent ){
 
     };
     
+    return {
+
+    };
 });
 
 // circle body
@@ -1993,6 +2004,10 @@ Physics.integrator('improved-euler', function( parent ){
     return {
 
         init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+
             // cache some vector instances
             // so we don't need to recreate them in a loop
             this.vel = Physics.vector();
