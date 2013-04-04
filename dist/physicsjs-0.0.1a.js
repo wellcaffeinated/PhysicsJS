@@ -1213,6 +1213,8 @@ Physics.util.ticker = {
 
 }(this));
 (function(){
+
+    var vector = Physics.vector;
     
     var Bounds = function Bounds( minX, minY, maxX, maxY ){
 
@@ -1222,8 +1224,24 @@ Physics.util.ticker = {
             return new Bounds( minX, minY, maxX, maxY );
         }
 
-        
+        this.set( minX, minY, maxX, maxY );
     };
+
+    Bounds.prototype.set = function( minX, minY, maxX, maxY ){
+
+        this._minX = minX;
+        this._minY = minY;
+        this._maxX = maxX;
+        this._maxY = maxY;
+    };
+
+    Bounds.prototype.get = function( minX, minY, maxX, maxY ){
+
+        this._minX = minX;
+        this._minY = minY;
+        this._maxX = maxX;
+        this._maxY = maxY;
+    };    
 
     Physics.bounds = Bounds;
 }());
@@ -1587,6 +1605,22 @@ Physics.vector = Vector;
 
 (function(){
 
+    // Service
+    Physics.behavior = Physics.behaviour = Decorator('behavior', {
+
+        init: function(){
+            //empty
+        },
+
+        behave: function( bodies, dt ){
+
+            throw 'The behavior.behave() method must be overriden';
+        }
+    });
+
+}());
+(function(){
+
     var vector = Physics.vector;
 
     // Service
@@ -1660,7 +1694,7 @@ Physics.vector = Vector;
         },
 
         // prototype
-        integrate: function(){
+        integrate: function( bodies, dt ){
 
             throw 'The integrator.integrate() method must be overriden';
         }
@@ -1798,21 +1832,22 @@ World.prototype = {
         return this;
     },
 
-    applyBehaviors: function(){
+    applyBehaviors: function( dt ){
 
+        var behaviors = this._behaviorStack
+            ;
+
+        for ( var i = 0, l = behaviors.length; i < l; ++i ){
+            
+            behaviors[ i ].applyTo( this._bodies, dt );
+        }
     },
 
     // internal method
     substep: function( dt ){
 
-        this.applyBehaviors();
-        this._integrator.integrate(dt, this._bodies)
-
-        // this.doInteractions( 'beforeAccel', dt );
-        // this.resolveAcceleration( dt );
-        // this.doInteractions( 'afterAccel', dt );
-        // this.resolveInertia( dt );
-        // this.doInteractions( 'afterInertia', dt );
+        this._integrator.integrate( this._bodies, dt );
+        this.applyBehaviors( dt );
     },
 
     step: function( now ){
@@ -2015,7 +2050,7 @@ Physics.integrator('improved-euler', function( parent ){
             this.options = Physics.util.extend({}, defaults, options);
         },
 
-        integrate: function( dt, bodies ){
+        integrate: function( bodies, dt ){
 
             // half the timestep
             var halfdt = 0.5 * dt

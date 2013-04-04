@@ -112,21 +112,22 @@ World.prototype = {
         return this;
     },
 
-    applyBehaviors: function(){
+    applyBehaviors: function( dt ){
 
+        var behaviors = this._behaviorStack
+            ;
+
+        for ( var i = 0, l = behaviors.length; i < l; ++i ){
+            
+            behaviors[ i ].applyTo( this._bodies, dt );
+        }
     },
 
     // internal method
     substep: function( dt ){
 
-        this.applyBehaviors();
-        this._integrator.integrate(dt, this._bodies)
-
-        // this.doInteractions( 'beforeAccel', dt );
-        // this.resolveAcceleration( dt );
-        // this.doInteractions( 'afterAccel', dt );
-        // this.resolveInertia( dt );
-        // this.doInteractions( 'afterInertia', dt );
+        this._integrator.integrate( this._bodies, dt );
+        this.applyBehaviors( dt );
     },
 
     step: function( now ){

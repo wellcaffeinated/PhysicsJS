@@ -21,7 +21,7 @@ Physics.integrator('improved-euler', function( parent ){
             this.options = Physics.util.extend({}, defaults, options);
         },
 
-        integrate: function( dt, bodies ){
+        integrate: function( bodies, dt ){
 
             // half the timestep
             var halfdt = 0.5 * dt

@@ -8,7 +8,7 @@
         },
 
         // prototype
-        integrate: function(){
+        integrate: function( bodies, dt ){
 
             throw 'The integrator.integrate() method must be overriden';
         }
