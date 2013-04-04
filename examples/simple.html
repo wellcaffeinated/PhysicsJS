@@ -14,10 +14,22 @@
   <meta name="viewport" content="width=device-width">
 
   <!-- <link rel="stylesheet" href="css/style.css"> -->
+  <style>
+  #viewport {
+    width: 600px;
+    height: 400px;
+  }
+
+  .pjs-circle {
+    background: red;
+    border-radius: 50%;
+  }
+  </style>
 
 </head>
 <body>
-  
+
+    <div id="viewport"></div>
 
 <script src="../dist/physicsjs-0.0.1a.js"></script>
 <script>
@@ -28,11 +40,12 @@ Physics({
 
 }, function( world ){
 
-    var viewportBounds = Physics.bounds(0, 0, 400, 400);
+    var viewportBounds = Physics.bounds(0, 0, 600, 400);
 
     var circle = Physics.body('circle', {
-        x: 100,
+        x: 10,
         y: 100,
+        vx: 0.1,
         radius: 10
     });
 
@@ -49,18 +62,20 @@ Physics({
 
         return {
 
-            createView: function( type ){
+            createView: function( geometry ){
 
                 var el = document.createElement('div');
 
-                el.className = classpfx + type;
+                el.className = classpfx + geometry.name;
                 el.style.position = 'absolute';
+                el.style.width = geometry.getWidth() + px;
+                el.style.height = geometry.getHeight() + px;
 
                 viewport.appendChild( el );
                 return el;
             },
 
-            render: function( dt, bodies ){
+            render: function( bodies, stats ){
 
                 var body
                     ,view
@@ -70,7 +85,7 @@ Physics({
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
                     body = bodies[ i ];
-                    view = body.view || ( body.view = this.createView(body.type) );
+                    view = body.view || ( body.view = this.createView(body.geometry) );
 
                     pos = body.state.pos;
                     view.style.left = pos.get(0) + px;
@@ -78,16 +93,18 @@ Physics({
                 }
             }
         };
-    }, {}); // instantiate immediately
+    }, {
+        el: 'viewport'
+    }); // instantiate immediately
 
-    var constrain = World.behavior('constrain-within', {
-        bounds: viewportBounds
-    });
+    // var constrain = world.behavior('constrain-within', {
+    //     bounds: viewportBounds
+    // });
 
-    constrain.applyTo( circle );
+    // constrain.applyTo( circle );
 
     // add things to world
-    world.add( constrain );
+    // world.add( constrain );
     world.add( circle );
     world.add( renderer );
 
@@ -96,6 +113,8 @@ Physics({
         world.step( time );
         world.render();
     });
+
+    Physics.util.ticker.start();
 
 });
 

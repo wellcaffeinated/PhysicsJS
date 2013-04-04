@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-03
+ * physicsjs v0.0.1a - 2013-04-04
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1066,7 +1066,7 @@ var Decorator = function Decorator( type, proto ){
             result = registry[ name ];
             if (!result){
 
-                throw 'The ' + type + ' "' + name + '" has not been defined';
+                throw 'Error: "' + name + '" ' + type + ' not defined';
             }
         }
 
@@ -1074,7 +1074,8 @@ var Decorator = function Decorator( type, proto ){
 
             // create a new instance from the provided decorator
             instance = new constructor( cfg );
-            result = new result( cfg, instance );
+            instance.name = name;
+            result = result.call( instance, cfg, instance );
             return Physics.util.extend( instance, result );
         }
     };
@@ -1576,6 +1577,65 @@ Physics.vector = Vector;
 
 (function(){
 
+    var vector = Physics.vector;
+
+    // Service
+    Physics.body = Decorator('body', {
+
+        // prototype methods
+        init: function( options ){
+
+            this.fixed = false;
+
+            // placeholder for renderers
+            this.view = null;
+
+            // physical properties
+            this.state = {
+                pos: vector( options.x, options.y ),
+                vel: vector( options.vx, options.vy ),
+                acc: vector(),
+                angular: {
+                    pos: options.angle || 0,
+                    vel: options.angularVelocity || 0,
+                    acc: 0
+                },
+                old: {
+                    pos: vector(),
+                    vel: vector(),
+                    acc: vector(),
+                    angular: {
+                        pos: 0,
+                        vel: 0,
+                        acc: 0
+                    }
+                }
+            };
+
+            // shape
+            this.geometry = Physics.geometry('point');
+        }
+    });
+
+}());
+(function(){
+
+    // Service
+    Physics.geometry = Decorator('geometry', {
+
+        // prototype methods
+        getWidth: function(){
+            return 0;
+        },
+
+        getHeight: function(){
+            return 0;
+        }
+    });
+
+}());
+(function(){
+
     // Service
     Physics.integrator = Decorator('integrator', {
 
@@ -1583,6 +1643,19 @@ Physics.vector = Vector;
         integrate: function(){
 
             throw 'The integrator.integrate() method must be overriden';
+        }
+    });
+
+}());
+(function(){
+
+    // Service
+    Physics.renderer = Decorator('renderer', {
+
+        // prototype methods
+        render: function( bodies, stats ){
+
+            throw 'The renderer.render() method must be overriden';
         }
     });
 
@@ -1613,9 +1686,11 @@ World.prototype = {
         // prevent double initialization
         this.init = true;
 
+        this._stats = {}; // statistics (fps, etc)
         this._bodies = [];
         this._behaviorStack = [];
         this._integrator = null;
+        this._renderer = null;
         this._paused = false;
         this._opts = {};
 
@@ -1668,9 +1743,16 @@ World.prototype = {
                     this._integrator = thing;
                 break; // end integrator
 
-                // assume physical body
-                default:
+                case 'renderer':
+                    this._renderer = thing;
+                break; // end renderer
+
+                case 'body':
                     this.addBody(thing);
+                break; // end body
+                
+                default:
+                    throw 'Error: failed to add item of unknown type to world';
                 break; // end default
             }
         } while ( ++i < len && (thing = arg[ i ]) )
@@ -1697,7 +1779,7 @@ World.prototype = {
     },
 
     // internal method
-    substep: function(){
+    substep: function( dt ){
 
         this.applyBehaviors();
         this._integrator.integrate(dt, this._bodies)
@@ -1719,13 +1801,15 @@ World.prototype = {
 
         var time = this._time || (this._time = now)
             ,diff = now - time
+            ,stats = this._stats
+            ,dt = this._dt
             ;
 
         if ( !diff ) return this;
         
         // set some stats
-        this.FPS = 1000/diff;
-        this.nsteps = Math.ceil(diff/this._dt);
+        stats.fps = 1000/diff;
+        stats.steps = Math.ceil(diff/this._dt);
 
         // limit number of substeps in each step
         if ( diff > this._maxJump ){
@@ -1735,8 +1819,19 @@ World.prototype = {
 
         while ( this._time < now ){
             this._time += dt;
-            this.substep();
+            this.substep( dt );
         }
+
+        return this;
+    },
+
+    render: function(){
+
+        if ( !this._renderer ){
+            throw "No renderer added to world";
+        }
+        
+        this._renderer.render( this._bodies, this._stats );
 
         return this;
     },
@@ -1812,9 +1907,72 @@ Physics.world = World;
 
     var defaults = {
 
+        radius: 1.0
+    };
+
+    // circle geometry
+    Physics.geometry('circle', function( options, instance ){
+
+        options = Physics.util.extend({}, defaults, options);
+
+        this.radius = options.radius;
+
+        return {
+            
+            getWidth: function(){
+                
+                return this.radius * 2;
+            },
+
+            getHeight: function(){
+                return this.radius * 2;
+            }
+        };
+    });
+
+}());
+(function(){
+
+    var defaults = {
+
+        
+    };
+
+    // point geometry
+    Physics.geometry('point', function( options, instance ){
+
+        
+        
+    });
+
+}());
+(function(){
+
+    var defaults = {
+
+        
+    };
+
+    // circle body
+    Physics.body('circle', function( options, instance ){
+
+        options = Physics.util.extend({}, defaults, options);
+
+        this.geometry = Physics.geometry('circle', {
+            radius: options.radius
+        });
+
+        
+    });
+
+}());
+(function(){
+
+    var defaults = {
+
         // 1 means vacuum
         // 0.001 means molasses
-        drag: 0.95
+        drag: 0.9995
     };
     
     Physics.integrator('improved-euler', function( options, instance ){
@@ -1824,7 +1982,7 @@ Physics.world = World;
         var vel = Physics.vector()
             ;
 
-        options = Physics.util.extend({}, options, defaults);
+        options = Physics.util.extend({}, defaults, options);
 
         return {
 
@@ -1834,6 +1992,7 @@ Physics.world = World;
                 var halfdt = 0.5 * dt
                     ,drag = options.drag
                     ,body = null
+                    ,state
                     ;
 
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -1843,6 +2002,8 @@ Physics.world = World;
                     // only integrate if the body isn't fixed
                     if ( !body.fixed ){
 
+                        state = body.state;
+
                         // Inspired from https://github.com/soulwire/Coffee-Physics
                         // @licence MIT
                         // 
@@ -1850,34 +2011,34 @@ Physics.world = World;
                         // v += a * dt
 
                         // Store previous location.
-                        body.old.pos.clone( body.pos );
+                        state.old.pos.clone( state.pos );
 
                         // Scale force to mass.
-                        // body.acc.mult( body.massInv );
+                        // state.acc.mult( body.massInv );
 
                         // Duplicate velocity to preserve momentum.
-                        vel.clone( body.vel );
+                        vel.clone( state.vel );
 
                         // Update velocity first so we can reuse the acc vector.
                         // a *= dt
                         // v += a ...
-                        body.vel.vadd( body.acc.mult( dt ) );
+                        state.vel.vadd( state.acc.mult( dt ) );
 
                         // Update position.
                         // ...
                         // oldV *= dt
                         // a *= 0.5 * dt
                         // x += oldV + a
-                        body.pos.vadd( vel.mult( dt ) ).vadd( body.acc.mult( halfdt ) );
+                        state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
 
                         // Apply "air resistance".
                         if ( drag ){
 
-                            body.vel.mult( drag );
+                            state.vel.mult( drag );
                         }
 
                         // Reset accel
-                        body.acc.zero();
+                        state.acc.zero();
 
                     }                    
                 }
