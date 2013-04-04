@@ -23,9 +23,10 @@ module.exports = function(grunt) {
             'src/util/*.js',
             'src/math/*.js',
             'src/core/*.js',
+            'src/geometries/*.js',
+            'src/bodies/*.js',
             'src/behaviors/*.js',
             'src/integrators/*.js',
-            'src/objects/*.js',
             'src/outro.js'
         ],
         pkg : pkg,
