@@ -4,7 +4,7 @@
 
         // 1 means vacuum
         // 0.001 means molasses
-        drag: 0.95
+        drag: 0.9995
     };
     
     Physics.integrator('improved-euler', function( options, instance ){
@@ -14,7 +14,7 @@
         var vel = Physics.vector()
             ;
 
-        options = Physics.util.extend({}, options, defaults);
+        options = Physics.util.extend({}, defaults, options);
 
         return {
 
@@ -24,6 +24,7 @@
                 var halfdt = 0.5 * dt
                     ,drag = options.drag
                     ,body = null
+                    ,state
                     ;
 
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -33,6 +34,8 @@
                     // only integrate if the body isn't fixed
                     if ( !body.fixed ){
 
+                        state = body.state;
+
                         // Inspired from https://github.com/soulwire/Coffee-Physics
                         // @licence MIT
                         // 
@@ -40,34 +43,34 @@
                         // v += a * dt
 
                         // Store previous location.
-                        body.old.pos.clone( body.pos );
+                        state.old.pos.clone( state.pos );
 
                         // Scale force to mass.
-                        // body.acc.mult( body.massInv );
+                        // state.acc.mult( body.massInv );
 
                         // Duplicate velocity to preserve momentum.
-                        vel.clone( body.vel );
+                        vel.clone( state.vel );
 
                         // Update velocity first so we can reuse the acc vector.
                         // a *= dt
                         // v += a ...
-                        body.vel.vadd( body.acc.mult( dt ) );
+                        state.vel.vadd( state.acc.mult( dt ) );
 
                         // Update position.
                         // ...
                         // oldV *= dt
                         // a *= 0.5 * dt
                         // x += oldV + a
-                        body.pos.vadd( vel.mult( dt ) ).vadd( body.acc.mult( halfdt ) );
+                        state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
 
                         // Apply "air resistance".
                         if ( drag ){
 
-                            body.vel.mult( drag );
+                            state.vel.mult( drag );
                         }
 
                         // Reset accel
-                        body.acc.zero();
+                        state.acc.zero();
 
                     }                    
                 }
