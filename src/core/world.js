@@ -2,7 +2,7 @@
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 240,
+    timestep: 1000.0 / 360,
     maxSteps: 4,
     webworker: false, // to implement
     integrator: 'improved-euler'
@@ -24,7 +24,11 @@ World.prototype = {
         // prevent double initialization
         this.init = true;
 
-        this._stats = {}; // statistics (fps, etc)
+        this._stats = {
+           // statistics (fps, etc)
+           fps: 0,
+           steps: 0 
+        }; 
         this._bodies = [];
         this._behaviorStack = [];
         this._integrator = null;

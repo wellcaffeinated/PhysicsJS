@@ -303,6 +303,19 @@ Vector.prototype.toString = function(){
 
 
 /**
+ * Determine if equal
+ * @param  {Vector} v
+ * @return {boolean}
+ */
+Vector.prototype.equals = function(v){
+
+    return this._[0] === v._[0] &&
+        this._[1] === v._[1] &&
+        this._[2] === v._[2];
+};
+
+
+/**
  * Static functions
  */
 

@@ -889,6 +889,57 @@
   });
 
   /**
+   * Checks if `value` is a function.
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} value The value to check.
+   * @returns {Boolean} Returns `true`, if the `value` is a function, else `false`.
+   * @example
+   *
+   * _.isFunction(_);
+   * // => true
+   */
+  function isFunction(value) {
+    return typeof value == 'function';
+  }
+  // fallback for older versions of Chrome and Safari
+  if (isFunction(/x/)) {
+    isFunction = function(value) {
+      return value instanceof Function || toString.call(value) == funcClass;
+    };
+  }
+
+  /**
+   * Checks if `value` is the language type of Object.
+   * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} value The value to check.
+   * @returns {Boolean} Returns `true`, if the `value` is an object, else `false`.
+   * @example
+   *
+   * _.isObject({});
+   * // => true
+   *
+   * _.isObject([1, 2, 3]);
+   * // => true
+   *
+   * _.isObject(1);
+   * // => false
+   */
+  function isObject(value) {
+    // check if the value is the ECMAScript language type of Object
+    // http://es5.github.com/#x8
+    // and avoid a V8 bug
+    // http://code.google.com/p/v8/issues/detail?id=2291
+    return value ? objectTypes[typeof value] : false;
+  }
+
+  /**
    * Checks if `value` is a string.
    *
    * @static
@@ -946,9 +997,89 @@
   }
 
   /*--------------------------------------------------------------------------*/
+
+  /**
+   * Creates a function that, when called, invokes `func` with the `this`
+   * binding of `thisArg` and prepends any additional `bind` arguments to those
+   * passed to the bound function.
+   *
+   * @static
+   * @memberOf _
+   * @category Functions
+   * @param {Function} func The function to bind.
+   * @param {Mixed} [thisArg] The `this` binding of `func`.
+   * @param {Mixed} [arg1, arg2, ...] Arguments to be partially applied.
+   * @returns {Function} Returns the new bound function.
+   * @example
+   *
+   * var func = function(greeting) {
+   *   return greeting + ' ' + this.name;
+   * };
+   *
+   * func = _.bind(func, { 'name': 'moe' }, 'hi');
+   * func();
+   * // => 'hi moe'
+   */
+  function bind(func, thisArg) {
+    // use `Function#bind` if it exists and is fast
+    // (in V8 `Function#bind` is slower except when partially applied)
+    return isBindFast || (nativeBind && arguments.length > 2)
+      ? nativeBind.call.apply(nativeBind, arguments)
+      : createBound(func, thisArg, slice(arguments, 2));
+  }
   // use `setImmediate` if it's available in Node.js
   if (isV8 && freeModule && typeof setImmediate == 'function') {
     defer = bind(setImmediate, window);
+  }
+
+  /**
+   * Creates a function that, when executed, will only call the `func`
+   * function at most once per every `wait` milliseconds. If the throttled
+   * function is invoked more than once during the `wait` timeout, `func` will
+   * also be called on the trailing edge of the timeout. Subsequent calls to the
+   * throttled function will return the result of the last `func` call.
+   *
+   * @static
+   * @memberOf _
+   * @category Functions
+   * @param {Function} func The function to throttle.
+   * @param {Number} wait The number of milliseconds to throttle executions to.
+   * @returns {Function} Returns the new throttled function.
+   * @example
+   *
+   * var throttled = _.throttle(updatePosition, 100);
+   * jQuery(window).on('scroll', throttled);
+   */
+  function throttle(func, wait) {
+    var args,
+        result,
+        thisArg,
+        timeoutId,
+        lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+          remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      }
+      else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
   }
 
   /*--------------------------------------------------------------------------*/
@@ -1008,14 +1139,18 @@
 
   /*--------------------------------------------------------------------------*/
   lodash.assign = assign;
+  lodash.bind = bind;
   lodash.forEach = forEach;
   lodash.forOwn = forOwn;
+  lodash.throttle = throttle;
   lodash.each = forEach;
   lodash.extend = assign;
   /*--------------------------------------------------------------------------*/
   lodash.identity = identity;
   lodash.isArguments = isArguments;
   lodash.isArray = isArray;
+  lodash.isFunction = isFunction;
+  lodash.isObject = isObject;
   lodash.isString = isString;
 
   /*--------------------------------------------------------------------------*/
@@ -1550,6 +1685,19 @@ Vector.prototype.toString = function(){
 
 
 /**
+ * Determine if equal
+ * @param  {Vector} v
+ * @return {boolean}
+ */
+Vector.prototype.equals = function(v){
+
+    return this._[0] === v._[0] &&
+        this._[1] === v._[1] &&
+        this._[2] === v._[2];
+};
+
+
+/**
  * Static functions
  */
 
@@ -1700,11 +1848,19 @@ Physics.vector = Vector;
 }());
 (function(){
 
+    var defaults = {
+
+        // 1 means vacuum
+        // 0.001 means molasses
+        drag: 0.9995
+    };
+
     // Service
     Physics.integrator = Decorator('integrator', {
 
-        init: function(){
-            // empty
+        init: function( options ){
+            
+            this.options = Physics.util.extend({}, defaults, options);
         },
 
         // prototype
@@ -1736,7 +1892,7 @@ Physics.vector = Vector;
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 240,
+    timestep: 1000.0 / 360,
     maxSteps: 4,
     webworker: false, // to implement
     integrator: 'improved-euler'
@@ -1758,7 +1914,11 @@ World.prototype = {
         // prevent double initialization
         this.init = true;
 
-        this._stats = {}; // statistics (fps, etc)
+        this._stats = {
+           // statistics (fps, etc)
+           fps: 0,
+           steps: 0 
+        }; 
         this._bodies = [];
         this._behaviorStack = [];
         this._integrator = null;
@@ -2103,13 +2263,6 @@ Physics.behavior('newtonian', function( parent ){
 
 Physics.integrator('improved-euler', function( parent ){
 
-    var defaults = {
-
-        // 1 means vacuum
-        // 0.001 means molasses
-        drag: 0.9995
-    };
-
     return {
 
         init: function( options ){
@@ -2120,8 +2273,6 @@ Physics.integrator('improved-euler', function( parent ){
             // cache some vector instances
             // so we don't need to recreate them in a loop
             this.vel = Physics.vector();
-
-            this.options = Physics.util.extend({}, defaults, options);
         },
 
         integrate: function( bodies, dt ){
@@ -2178,6 +2329,87 @@ Physics.integrator('improved-euler', function( parent ){
 
                     // Reset accel
                     state.acc.zero();
+
+                }                    
+            }
+        }
+    };
+});
+
+
+Physics.integrator('verlet', function( parent ){
+
+    return {
+
+        init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+
+            // cache some vector instances
+            // so we don't need to recreate them in a loop
+            this.vel = Physics.vector();
+        },
+
+        integrate: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,drag = this.options.drag
+                ,body = null
+                ,state
+                ,vel = this.vel
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+                    state = body.state;
+
+                    // Inspired from https://github.com/soulwire/Coffee-Physics
+                    // @licence MIT
+                    // 
+                    // v = x - ox
+                    // x = x + (v + a * dt * dt)
+
+                    // Get velocity by subtracting old position from curr position
+                    vel.clone( state.pos ).vsub( state.old.pos );
+
+                    // only use this velocity if the velocity hasn't been changed manually
+                    if (vel.equals( state.old.vel )){
+                        
+                        state.vel.clone( vel );
+
+                    } else {
+                        // otherwise it's been changed manually,
+                        // so we need to scale the value by dt so it 
+                        // complies with other integration methods
+                        state.vel.mult( dt );
+                    }
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Store old position.
+                    // xold = x
+                    state.old.pos.clone( state.pos );
+
+                    // Apply acceleration
+                    // xtemp = x + (v + a * dt * dt)
+                    state.pos.vadd( state.vel.vadd( state.acc.mult( dtdt ) ) );
+
+                    // Reset accel
+                    state.acc.zero();
+
+                    // store old velocity
+                    state.old.vel.clone( state.pos ).vsub( state.old.pos );
 
                 }                    
             }

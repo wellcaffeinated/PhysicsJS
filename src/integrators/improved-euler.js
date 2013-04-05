@@ -1,12 +1,5 @@
 Physics.integrator('improved-euler', function( parent ){
 
-    var defaults = {
-
-        // 1 means vacuum
-        // 0.001 means molasses
-        drag: 0.9995
-    };
-
     return {
 
         init: function( options ){
@@ -17,8 +10,6 @@ Physics.integrator('improved-euler', function( parent ){
             // cache some vector instances
             // so we don't need to recreate them in a loop
             this.vel = Physics.vector();
-
-            this.options = Physics.util.extend({}, defaults, options);
         },
 
         integrate: function( bodies, dt ){

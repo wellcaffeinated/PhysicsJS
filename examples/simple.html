@@ -24,6 +24,12 @@
     background: red;
     border-radius: 50%;
   }
+
+  .pjs-stats {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
   </style>
 
 </head>
@@ -92,6 +98,12 @@ Physics({
                 viewport.style.overflow = 'hidden';
 
                 this.viewport = viewport;
+
+                this.stats = document.createElement('div');
+                this.stats.className = 'pjs-stats';
+                this.viewport.appendChild(this.stats);
+
+                this.updateStats = Physics.util.throttle( Physics.util.bind(this.updateStats, this), 200 );
             },
 
             circleProperties: function( el, geometry ){
@@ -119,12 +131,19 @@ Physics({
                 return el;
             },
 
+            updateStats: function( stats ){
+
+                this.stats.innerHTML = 'FPS: '+stats.fps.toFixed(2) + '; steps ' + stats.steps;
+            },
+
             render: function( bodies, stats ){
 
                 var body
                     ,view
                     ,pos
                     ;
+
+                this.updateStats( stats );
 
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
@@ -152,7 +171,7 @@ Physics({
     world.add( circle );
     world.add( myCircle );
     world.add( renderer );
-    world.add( Physics.integrator('improved-euler', { drag: 1 }));
+    world.add( Physics.integrator('verlet', { drag: 1 }));
     world.add( Physics.behavior('newtonian') );
 
     Physics.util.ticker.subscribe(function( time, dt ){
