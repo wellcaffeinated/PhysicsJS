@@ -38,19 +38,17 @@ Physics.integrator('verlet', function( parent ){
                     // x = x + (v + a * dt * dt)
 
                     // Get velocity by subtracting old position from curr position
-                    vel.clone( state.pos ).vsub( state.old.pos );
+                    state.old.vel.clone( state.pos ).vsub( state.old.pos ).mult( 1/dt );
 
                     // only use this velocity if the velocity hasn't been changed manually
-                    if (vel.equals( state.old.vel )){
+                    if (state.old.vel.equals( state.vel )){
                         
-                        state.vel.clone( vel );
-
-                    } else {
-                        // otherwise it's been changed manually,
-                        // so we need to scale the value by dt so it 
-                        // complies with other integration methods
-                        state.vel.mult( dt );
+                        state.vel.clone( state.old.vel );
                     }
+
+                    // so we need to scale the value by dt so it 
+                    // complies with other integration methods
+                    state.vel.mult( dt );
 
                     // Apply "air resistance".
                     if ( drag ){
@@ -63,14 +61,17 @@ Physics.integrator('verlet', function( parent ){
                     state.old.pos.clone( state.pos );
 
                     // Apply acceleration
-                    // xtemp = x + (v + a * dt * dt)
+                    // x = x + (v + a * dt * dt)
                     state.pos.vadd( state.vel.vadd( state.acc.mult( dtdt ) ) );
+
+                    // normalize velocity 
+                    state.vel.mult( 1/dt );
 
                     // Reset accel
                     state.acc.zero();
 
                     // store old velocity
-                    state.old.vel.clone( state.pos ).vsub( state.old.pos );
+                    state.old.vel.clone( state.vel );
 
                 }                    
             }

@@ -1349,8 +1349,6 @@ Physics.util.ticker = {
 }(this));
 (function(){
 
-    var vector = Physics.vector;
-    
     var Bounds = function Bounds( minX, minY, maxX, maxY ){
 
         // enforce instantiation
@@ -1359,23 +1357,24 @@ Physics.util.ticker = {
             return new Bounds( minX, minY, maxX, maxY );
         }
 
+        this.min = Physics.vector();
+        this.max = Physics.vector();
+
         this.set( minX, minY, maxX, maxY );
     };
 
     Bounds.prototype.set = function( minX, minY, maxX, maxY ){
 
-        this._minX = minX;
-        this._minY = minY;
-        this._maxX = maxX;
-        this._maxY = maxY;
+        this.min.set( minX, minY );
+        this.max.set( maxX, maxY );
     };
 
-    Bounds.prototype.get = function( minX, minY, maxX, maxY ){
+    Bounds.prototype.get = function(){
 
-        this._minX = minX;
-        this._minY = minY;
-        this._maxX = maxX;
-        this._maxY = maxY;
+        return {
+            min: this._min.values(),
+            max: this._max.values()
+        };
     };    
 
     Physics.bounds = Bounds;
@@ -1657,7 +1656,13 @@ Vector.prototype.zero = function() {
 /**
  * Make this a Vector in the opposite direction
  */
-Vector.prototype.negate = function(){
+Vector.prototype.negate = function( component ){
+
+    if (component !== undefined){
+        
+        this._[ component ] = -this._[ component ];
+        return this;
+    }
 
     this._[0] = -this._[0];
     this._[1] = -this._[1];
@@ -2201,6 +2206,103 @@ Physics.body('circle', function( parent ){
     }
 });
 
+// edge-bounce behavior
+Physics.behavior('edge-bounce', function( parent ){
+
+    var defaults = {
+
+        bounds: null,
+        callback: null
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.bounds = options.bounds;
+            this.callback = options.callback;
+            this.pos = Physics.vector();
+        },
+        
+        behave: function( bodies, dt ){
+
+            var body
+                ,pos
+                ,state
+                ,p = this.pos
+                ,bounds = this.bounds
+                ,callback = this.callback
+                ,dim
+                ;
+
+            if (!bounds) throw "Bounds not set";
+            
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                body = bodies[ i ];
+                state = body.state;
+                pos = body.state.pos;
+
+                switch ( body.geometry.name ){
+
+                    case 'circle':
+                        dim = body.geometry.radius;
+
+                        if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
+
+                            // adjust position
+                            pos._[ 0 ] = bounds.max._[ 0 ] - dim;
+                            // adjust velocity
+                            state.vel._[ 0 ] = -state.vel._[ 0 ];
+
+                            p.set( bounds.max._[ 0 ], pos._[ 1 ] );
+                            callback && callback( body, p );
+                        }
+                        
+                        if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
+
+                            // adjust position
+                            pos._[ 0 ] = bounds.min._[ 0 ] + dim;
+                            // adjust velocity
+                            state.vel._[ 0 ] = -state.vel._[ 0 ];
+
+                            p.set( bounds.min._[ 0 ], pos._[ 1 ] );
+                            callback && callback( body, p );
+                        }
+
+                        if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
+
+                            // adjust position
+                            pos._[ 1 ] = bounds.max._[ 1 ] - dim;
+                            // adjust velocity
+                            state.vel._[ 1 ] = -state.vel._[ 1 ];
+
+                            p.set( pos._[ 0 ], bounds.max._[ 1 ] );
+                            callback && callback( body, p );
+                        }
+                        
+                        if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
+
+                            // adjust position
+                            pos._[ 1 ] = bounds.min._[ 1 ] + dim;
+                            // adjust velocity
+                            state.vel._[ 1 ] = -state.vel._[ 1 ];
+
+                            p.set( pos._[ 0 ], bounds.min._[ 1 ] );
+                            callback && callback( body, p );
+                        }
+                    break;
+                }
+            }
+        }
+    };
+});
+
 // newtonian gravity
 Physics.behavior('newtonian', function( parent ){
 
@@ -2377,19 +2479,17 @@ Physics.integrator('verlet', function( parent ){
                     // x = x + (v + a * dt * dt)
 
                     // Get velocity by subtracting old position from curr position
-                    vel.clone( state.pos ).vsub( state.old.pos );
+                    state.old.vel.clone( state.pos ).vsub( state.old.pos ).mult( 1/dt );
 
                     // only use this velocity if the velocity hasn't been changed manually
-                    if (vel.equals( state.old.vel )){
+                    if (state.old.vel.equals( state.vel )){
                         
-                        state.vel.clone( vel );
-
-                    } else {
-                        // otherwise it's been changed manually,
-                        // so we need to scale the value by dt so it 
-                        // complies with other integration methods
-                        state.vel.mult( dt );
+                        state.vel.clone( state.old.vel );
                     }
+
+                    // so we need to scale the value by dt so it 
+                    // complies with other integration methods
+                    state.vel.mult( dt );
 
                     // Apply "air resistance".
                     if ( drag ){
@@ -2402,14 +2502,17 @@ Physics.integrator('verlet', function( parent ){
                     state.old.pos.clone( state.pos );
 
                     // Apply acceleration
-                    // xtemp = x + (v + a * dt * dt)
+                    // x = x + (v + a * dt * dt)
                     state.pos.vadd( state.vel.vadd( state.acc.mult( dtdt ) ) );
+
+                    // normalize velocity 
+                    state.vel.mult( 1/dt );
 
                     // Reset accel
                     state.acc.zero();
 
                     // store old velocity
-                    state.old.vel.clone( state.pos ).vsub( state.old.pos );
+                    state.old.vel.clone( state.vel );
 
                 }                    
             }

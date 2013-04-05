@@ -275,7 +275,13 @@ Vector.prototype.zero = function() {
 /**
  * Make this a Vector in the opposite direction
  */
-Vector.prototype.negate = function(){
+Vector.prototype.negate = function( component ){
+
+    if (component !== undefined){
+        
+        this._[ component ] = -this._[ component ];
+        return this;
+    }
 
     this._[0] = -this._[0];
     this._[1] = -this._[1];

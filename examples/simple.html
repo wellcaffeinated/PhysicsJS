@@ -53,7 +53,7 @@ Physics({
     var circle = Physics.body('circle', {
         x: 10,
         y: 100,
-        vx: 0.3,
+        vx: 0.0,
         radius: 10
     });
 
@@ -73,7 +73,7 @@ Physics({
         y: 200,
         radius: 300,
         mass: 10,
-        vx: .01,
+        vx: 0.3,
         vy: 0
     });
 
@@ -112,6 +112,8 @@ Physics({
 
                 el.style.width = (aabb.halfWidth * 2) + px;
                 el.style.height = (aabb.halfHeight * 2) + px;
+                el.style.marginLeft = (-aabb.halfWidth) + px;
+                el.style.marginTop = (-aabb.halfHeight) + px;
             },
 
             createView: function( geometry ){
@@ -173,6 +175,7 @@ Physics({
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 1 }));
     world.add( Physics.behavior('newtonian') );
+    world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 
