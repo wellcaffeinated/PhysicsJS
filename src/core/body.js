@@ -8,7 +8,9 @@
         // prototype methods
         init: function( options ){
 
-            this.fixed = false;
+            // properties
+            this.fixed = options.fixed || false;
+            this.mass = options.mass || 1.0;
 
             // placeholder for renderers
             this.view = null;
@@ -37,6 +39,18 @@
 
             // shape
             this.geometry = Physics.geometry('point');
+        },
+
+        accelerate: function( vect ){
+
+            this.state.acc.vadd( vect );
+            return this;
+        },
+
+        applyForce: function( vect ){
+
+            this.accelerate( vect.clone().mult( 1/this.mass ) );
+            return this;
         }
     });
 

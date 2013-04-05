@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-04
+ * physicsjs v0.0.1a - 2013-04-05
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1629,7 +1629,9 @@ Physics.vector = Vector;
         // prototype methods
         init: function( options ){
 
-            this.fixed = false;
+            // properties
+            this.fixed = options.fixed || false;
+            this.mass = options.mass || 1.0;
 
             // placeholder for renderers
             this.view = null;
@@ -1658,6 +1660,18 @@ Physics.vector = Vector;
 
             // shape
             this.geometry = Physics.geometry('point');
+        },
+
+        accelerate: function( vect ){
+
+            this.state.acc.vadd( vect );
+            return this;
+        },
+
+        applyForce: function( vect ){
+
+            this.accelerate( vect.clone().mult( 1/this.mass ) );
+            return this;
         }
     });
 
@@ -1722,7 +1736,7 @@ Physics.vector = Vector;
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 60,
+    timestep: 1000.0 / 240,
     maxSteps: 4,
     webworker: false, // to implement
     integrator: 'improved-euler'
@@ -1839,7 +1853,7 @@ World.prototype = {
 
         for ( var i = 0, l = behaviors.length; i < l; ++i ){
             
-            behaviors[ i ].applyTo( this._bodies, dt );
+            behaviors[ i ].behave( this._bodies, dt );
         }
     },
 
@@ -2025,6 +2039,66 @@ Physics.body('circle', function( parent ){
 
         }
     }
+});
+
+// newtonian gravity
+Physics.behavior('newtonian', function( parent ){
+
+    var defaults = {
+
+        strength: 1,
+        tolerance: 500
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.strength = options.strength;
+            this.tolerance = options.tolerance;
+            this._vec = Physics.vector(); // temp vector
+        },
+        
+        behave: function( bodies, dt ){
+
+            var body
+                ,other
+                ,strength = this.strength
+                ,tolerance = this.tolerance
+                ,pos = this._vec
+                ,normsq
+                ,g
+                ;
+
+            for ( var j = 0, ll = bodies.length; j < ll; j++ ){
+                
+                body = bodies[ j ];
+
+                for ( var i = j + 1, l = bodies.length; i < l; i++ ){
+                    
+                    other = bodies[ i ];
+                    
+                    pos.clone( other.state.pos );
+                    pos.vsub( body.state.pos );
+
+                    normsq = pos.normSq();
+
+                    if (normsq > tolerance){
+
+                        g = strength / normsq;
+
+                        body.accelerate( pos.normalize().mult( g * other.mass ) );
+                        other.applyForce( pos.mult( body.mass/other.mass ).negate() );
+                    }
+                }
+            }
+        }
+    };
 });
 
 Physics.integrator('improved-euler', function( parent ){

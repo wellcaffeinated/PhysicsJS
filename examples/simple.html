@@ -47,7 +47,7 @@ Physics({
     var circle = Physics.body('circle', {
         x: 10,
         y: 100,
-        vx: 0.1,
+        vx: 0.3,
         radius: 10
     });
 
@@ -66,8 +66,9 @@ Physics({
         x: 10,
         y: 200,
         radius: 300,
-        vx: .1,
-        vy: .1
+        mass: 10,
+        vx: .01,
+        vy: 0
     });
 
     var renderer = Physics.renderer('DOM', function( parent ){
@@ -151,6 +152,8 @@ Physics({
     world.add( circle );
     world.add( myCircle );
     world.add( renderer );
+    world.add( Physics.integrator('improved-euler', { drag: 1 }));
+    world.add( Physics.behavior('newtonian') );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 

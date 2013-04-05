@@ -2,7 +2,7 @@
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 60,
+    timestep: 1000.0 / 240,
     maxSteps: 4,
     webworker: false, // to implement
     integrator: 'improved-euler'
@@ -119,7 +119,7 @@ World.prototype = {
 
         for ( var i = 0, l = behaviors.length; i < l; ++i ){
             
-            behaviors[ i ].applyTo( this._bodies, dt );
+            behaviors[ i ].behave( this._bodies, dt );
         }
     },
 
