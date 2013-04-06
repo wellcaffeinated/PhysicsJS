@@ -60,7 +60,7 @@ Physics({
                 y: 400*Math.random(),
                 vx: -0.15*(Math.random()-0.5),
                 mass: 1,
-                radius: 10
+                radius: 2
             })
         );
     }
@@ -80,7 +80,7 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 1 }));
-    world.add( Physics.behavior('newtonian', { strength: .2 }) );
+    world.add( Physics.behavior('newtonian', { strength: .02 }) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){

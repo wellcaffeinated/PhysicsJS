@@ -2408,8 +2408,7 @@ Physics.behavior('newtonian', function( parent ){
 
     var defaults = {
 
-        strength: 1,
-        tolerance: 500
+        strength: 1
     };
 
     return {
@@ -2422,7 +2421,7 @@ Physics.behavior('newtonian', function( parent ){
             options = Physics.util.extend({}, defaults, options);
 
             this.strength = options.strength;
-            this.tolerance = options.tolerance;
+            this.tolerance = options.tolerance || 100 * this.strength;
             this._vec = Physics.vector(); // temp vector
         },
         
