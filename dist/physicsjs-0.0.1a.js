@@ -1392,13 +1392,14 @@ Physics.util.ticker = {
 
     Physics.bounds = Bounds;
 }());
-(function(){
+(function(window){
 
 // cached math functions
 var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
     ,acos = Math.acos
+    ,typedArrays = !!window.Float32Array
     ;
 
 /**
@@ -1413,13 +1414,30 @@ var Vector = function Vector(x, y) {
         return new Vector( x, y );
     }
 
+    // arrays to store values
     // x = _[0]
     // y = _[1]
     // norm = _[3]
     // normsq = _[4]
-    this._ = [];
-    this.recalc = true; //whether or not recalculate norms
-    this.set( x || 0.0, y || 0.0 );
+    
+
+    if (typedArrays){
+        this._ = new Float32Array(5);
+    }
+
+    if (x && x._ && x._.length){
+
+        this.clone( x );
+
+    } else {
+
+        if (!typedArrays){
+            this._ = [];
+        }
+
+        this.recalc = true; //whether or not recalculate norms
+        this.set( x || 0.0, y || 0.0 );
+    }
 };
 
 /**
@@ -1627,18 +1645,31 @@ Vector.prototype.normalize = function() {
  */
 Vector.prototype.clone = function(v) {
     
+    // http://jsperf.com/vector-storage-test
+
     if (v){
         
         this.recalc = v.recalc;
-        this._[3] = v._[3];
-        this._[4] = v._[4];
 
-        this._[0] = v._[0];
-        this._[1] = v._[1];
+        if (typedArrays){
+            
+            if (!v.recalc){
+                this._[3] = v._[3];
+                this._[4] = v._[4];
+            }
+
+            this._[0] = v._[0];
+            this._[1] = v._[1];
+
+        } else {
+
+            this._ = v._.splice(0);
+        }
+
         return this;
     }
 
-    return new Vector( this._[0], this._[1] );
+    return new Vector( this );
 };
 
 /**
@@ -1672,7 +1703,7 @@ Vector.prototype.zero = function() {
 Vector.prototype.negate = function( component ){
 
     if (component !== undefined){
-        
+
         this._[ component ] = -this._[ component ];
         return this;
     }
@@ -1767,7 +1798,7 @@ Physics.vector = Vector;
 /**
  * end Vector class
  */
-}());
+}(this));
 
 (function(){
 
