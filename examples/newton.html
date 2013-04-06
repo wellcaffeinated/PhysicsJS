@@ -54,31 +54,21 @@ Physics({
     
     circles.push(
         Physics.body('circle', {
-            x: 400,
-            y: 100,
-            vx: 0,
+            x: 300,
+            y: 50,
+            vx: -0.15,
+            mass: 1,
             radius: 10
         })
     );
 
     circles.push(
         Physics.body('circle', {
-            x: 10,
+            x: 300,
             y: 200,
             radius: 15,
-            mass: 2,
-            vx: 0.05,
-            vy: -0.05
-        })
-    );
-
-    circles.push(
-        Physics.body('circle', {
-            x: 400,
-            y: 300,
-            radius: 12,
-            mass: 1.5,
-            vx: -0.05,
+            mass: 10,
+            vx: 0.015,
             vy: 0
         })
     );
@@ -98,7 +88,7 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 1 }));
-    world.add( Physics.behavior('newtonian', { strength: 3 }) );
+    world.add( Physics.behavior('newtonian', { strength: .5 }) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){

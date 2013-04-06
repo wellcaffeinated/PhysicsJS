@@ -2424,7 +2424,7 @@ Physics.behavior('newtonian', function( parent ){
                         g = strength / normsq;
 
                         body.accelerate( pos.normalize().mult( g * other.mass ) );
-                        other.applyForce( pos.mult( body.mass/other.mass ).negate() );
+                        other.accelerate( pos.mult( body.mass/other.mass ).negate() );
                     }
                 }
             }
