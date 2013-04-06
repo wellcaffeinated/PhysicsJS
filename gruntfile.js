@@ -27,6 +27,7 @@ module.exports = function(grunt) {
             'src/bodies/*.js',
             'src/behaviors/*.js',
             'src/integrators/*.js',
+            'src/renderers/*.js',
             'src/outro.js'
         ],
         pkg : pkg,

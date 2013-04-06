@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-05
+ * physicsjs v0.0.1a - 2013-04-06
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1225,6 +1225,19 @@ var Decorator = function Decorator( type, proto ){
         }
     };
 };
+(function(window){
+    var log;
+
+    if (window && window.console && window.console.log){
+        log = function(){
+            window.console.log.apply(window, arguments);
+        };
+    } else {
+        log = function(){};
+    }
+
+    Physics.util.log = log;
+}(this));
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
  
@@ -1878,18 +1891,74 @@ Physics.vector = Vector;
 }());
 (function(){
 
+    var defaults = {
+        // draw meta data (fps, steps, etc)
+        meta: true,
+        // refresh rate of meta info
+        metaRefresh: 200
+    };
+
     // Service
     Physics.renderer = Decorator('renderer', {
 
-        init: function(){
-            //empty
+        init: function( options ){
+
+            var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
+                ;
+
+            this.options = Physics.util.extend({}, defaults, options);
+
+            this.el = el ? el : document.body;
+
+            this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
         },
 
         // prototype methods
         render: function( bodies, stats ){
 
-            throw 'The renderer.render() method must be overriden';
+            var body
+                ,view
+                ,pos
+                ;
+
+            if (this.options.meta){
+                this.drawMeta( stats );
+            }
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                body = bodies[ i ];
+                view = body.view || ( body.view = this.createView(body.geometry) );
+
+                this.drawBody( body, view );
+            }
+        },
+
+        // methods that should be overridden
+        createView: function( geometry ){
+
+            // example:
+            // var el = document.createElement('div');
+            // el.style.height = geometry.height + 'px';
+            // el.style.width = geometry.width + 'px';
+            // return el;
+        },
+
+        drawMeta: function( stats ){
+            
+            // example:
+            // this.els.fps.innerHTML = stats.fps.toFixed(2);
+            // this.els.steps.innerHTML = stats.steps;
+        },
+
+        drawBody: function( body, view ){
+
+            // example (pseudocode):
+            // view.angle = body.state.angle
+            // view.position = body.state.position
         }
+
+        
     });
 
 }());
@@ -2521,5 +2590,135 @@ Physics.integrator('verlet', function( parent ){
 });
 
 
+Physics.renderer('dom', function( parent ){
+
+    var thePrefix = {}
+        ,tmpdiv = document.createElement("div")
+        ,toTitleCase = function toTitleCase(str) {
+            return str.replace(/(?:^|\s)\w/g, function(match) {
+                return match.toUpperCase();
+            });
+        }
+        ,pfx = function pfx(prop) {
+
+            if (thePrefix[prop]){
+                return thePrefix[prop];
+            }
+
+            var arrayOfPrefixes = ['Webkit', 'Moz', 'Ms', 'O']
+                ,name
+                ;
+
+            for (var i = 0, l = arrayOfPrefixes.length; i < l; ++i) {
+
+                name = arrayOfPrefixes[i] + toTitleCase(prop);
+
+                if (name in tmpdiv.style){
+                    return thePrefix[prop] = name;
+                }
+            }
+
+            if (name in tmpdiv.style){
+                return thePrefix[prop] = prop;
+            }
+
+            return false;
+        }
+        ;
+
+    var classpfx = 'pjs-'
+        ,px = 'px'
+        ,cssTransform = pfx('transform')
+        ;
+
+    var newEl = function( node, content ){
+            var el = document.createElement(node || 'div');
+            if (content){
+                el.innerHTML = content;
+            }
+            return el;
+        }
+        ,drawBody
+        ;
+
+    if (cssTransform){
+        drawBody = function( body, view ){
+
+            var pos = body.state.pos;
+            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px)';
+        };
+    } else {
+        drawBody = function( body, view ){
+
+            var pos = body.state.pos;
+            view.style.left = pos.get(0) + px;
+            view.style.top = pos.get(1) + px;
+        };
+    }
+
+    return {
+
+        init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+
+            var viewport = this.el;
+            viewport.style.position = 'relative';
+            viewport.style.overflow = 'hidden';
+
+            this.els = {};
+
+            var stats = newEl();
+            stats.className = 'pjs-meta';
+            this.els.fps = newEl('span');
+            this.els.steps = newEl('span');
+            stats.appendChild(newEl('span', 'fps: '));
+            stats.appendChild(this.els.fps);
+            stats.appendChild(newEl('br'));
+            stats.appendChild(newEl('span', 'steps: '));
+            stats.appendChild(this.els.steps);
+
+            viewport.appendChild(stats);
+        },
+
+        circleProperties: function( el, geometry ){
+
+            var aabb = geometry.aabb();
+
+            el.style.width = (aabb.halfWidth * 2) + px;
+            el.style.height = (aabb.halfHeight * 2) + px;
+            el.style.marginLeft = (-aabb.halfWidth) + px;
+            el.style.marginTop = (-aabb.halfHeight) + px;
+        },
+
+        createView: function( geometry ){
+
+            var el = newEl()
+                ,fn = geometry.name + 'Properties'
+                ;
+
+            el.className = classpfx + geometry.name;
+            el.style.position = 'absolute';            
+            el.style.top = '0px';
+            el.style.left = '0px';
+            
+            if (this[ fn ]){
+                this[ fn ](el, geometry);
+            }
+            
+            this.el.appendChild( el );
+            return el;
+        },
+
+        drawMeta: function( stats ){
+
+            this.els.fps.innerHTML = stats.fps.toFixed(2);
+            this.els.steps.innerHTML = stats.steps;
+        },
+
+        drawBody: drawBody
+    };
+});
     return Physics;
 }));
