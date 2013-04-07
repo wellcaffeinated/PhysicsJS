@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-06
+ * physicsjs v0.0.1a - 2013-04-07
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1829,6 +1829,8 @@ Physics.vector = Vector;
             // properties
             this.fixed = options.fixed || false;
             this.mass = options.mass || 1.0;
+            // moment of inertia
+            this.moi = 0;
 
             // placeholder for renderers
             this.view = null;
@@ -2274,13 +2276,7 @@ Physics.geometry('circle', function( parent ){
 // point geometry
 Physics.geometry('point', function( parent ){
 
-    var defaults = {
-
-    };
-    
-    return {
-
-    };
+    // alias of default
 });
 
 // circle body
@@ -2302,6 +2298,8 @@ Physics.body('circle', function( parent ){
                 radius: options.radius
             });
 
+            // moment of inertia
+            this.moi = this.mass * this.geometry.radius / 3;
         }
     }
 });
@@ -2338,6 +2336,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,bounds = this.bounds
                 ,callback = this.callback
                 ,dim
+                ,x
                 ;
 
             if (!bounds) throw "Bounds not set";
@@ -2352,7 +2351,9 @@ Physics.behavior('edge-bounce', function( parent ){
 
                     case 'circle':
                         dim = body.geometry.radius;
+                        x = body.moi / body.mass;
 
+                        // right
                         if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
 
                             // adjust position
@@ -2360,10 +2361,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 0 ] = -state.vel._[ 0 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 1 ] /= (1 + x);
+                                state.vel._[ 1 ] -= dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = -state.vel._[ 1 ] / dim;
+                            }
+
                             p.set( bounds.max._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
                         }
                         
+                        // left
                         if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
 
                             // adjust position
@@ -2371,10 +2380,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 0 ] = -state.vel._[ 0 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 1 ] /= (1 + x);
+                                state.vel._[ 1 ] += dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = state.vel._[ 1 ] / dim;
+                            }
+
                             p.set( bounds.min._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
                         }
 
+                        // bottom
                         if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
 
                             // adjust position
@@ -2382,10 +2399,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 1 ] = -state.vel._[ 1 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 0 ] /= (1 + x);
+                                state.vel._[ 0 ] += dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = state.vel._[ 0 ] / dim;
+                            }
+
                             p.set( pos._[ 0 ], bounds.max._[ 1 ] );
                             callback && callback( body, p );
                         }
-                        
+                            
+                        // top
                         if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
 
                             // adjust position
@@ -2393,9 +2418,17 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 1 ] = -state.vel._[ 1 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 0 ] /= (1 + x);
+                                state.vel._[ 0 ] -= dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = -state.vel._[ 0 ] / dim;
+                            }
+
                             p.set( pos._[ 0 ], bounds.min._[ 1 ] );
                             callback && callback( body, p );
                         }
+
                     break;
                 }
             }
@@ -2613,6 +2646,28 @@ Physics.integrator('verlet', function( parent ){
                     // store old velocity
                     state.old.vel.clone( state.vel );
 
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.vel = (state.angular.pos - state.old.angular.pos) / dt;
+
+                    if (state.old.angular.vel === state.angular.vel){
+
+                        state.angular.vel = state.old.angular.vel;
+                    }
+
+                    state.angular.vel *= dt;
+
+                    state.old.angular.pos = state.angular.pos;
+
+                    state.angular.vel += state.angular.acc * dtdt;
+                    state.angular.pos += state.angular.vel;
+                    state.angular.vel /= dt;
+                    state.angular.acc = 0;
+                    state.old.angular.vel = state.angular.vel;
+
                 }                    
             }
         }
@@ -2675,7 +2730,7 @@ Physics.renderer('dom', function( parent ){
         drawBody = function( body, view ){
 
             var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px)';
+            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px) rotate('+body.state.angular.pos+'rad)';
         };
     } else {
         drawBody = function( body, view ){

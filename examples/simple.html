@@ -19,7 +19,20 @@
   <style>
 
   .pjs-circle {
+    position: relative;
     background: #ddd;
+    border-radius: 50%;
+  }
+
+  .pjs-circle:after {
+    content: '';
+    background: #833;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 30%;
+    height: 30%;
+    margin-top: -15%;
     border-radius: 50%;
   }
 
@@ -68,7 +81,7 @@ Physics({
             radius: 15,
             mass: 2,
             vx: 0.05,
-            vy: -0.05
+            vy: -0.15
         })
     );
 
@@ -78,8 +91,8 @@ Physics({
             y: 300,
             radius: 12,
             mass: 1.5,
-            vx: -0.05,
-            vy: 0
+            vx: 0.25,
+            vy: .1
         })
     );
 
@@ -98,7 +111,21 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 1 }));
-    world.add( Physics.behavior('newtonian', { strength: 3 }) );
+    // world.add( Physics.behavior('newtonian', { strength: 3 }) );
+    world.add( Physics.behavior('gravity', function(){
+
+        var g = Physics.vector(0, .001);
+
+        return {
+            behave: function( bodies ){
+
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    bodies[ i ].accelerate( g );
+                }
+            }
+        };
+    }, {}) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){

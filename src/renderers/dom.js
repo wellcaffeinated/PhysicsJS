@@ -53,7 +53,7 @@ Physics.renderer('dom', function( parent ){
         drawBody = function( body, view ){
 
             var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px)';
+            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px) rotate('+body.state.angular.pos+'rad)';
         };
     } else {
         drawBody = function( body, view ){

@@ -73,6 +73,28 @@ Physics.integrator('verlet', function( parent ){
                     // store old velocity
                     state.old.vel.clone( state.vel );
 
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.vel = (state.angular.pos - state.old.angular.pos) / dt;
+
+                    if (state.old.angular.vel === state.angular.vel){
+
+                        state.angular.vel = state.old.angular.vel;
+                    }
+
+                    state.angular.vel *= dt;
+
+                    state.old.angular.pos = state.angular.pos;
+
+                    state.angular.vel += state.angular.acc * dtdt;
+                    state.angular.pos += state.angular.vel;
+                    state.angular.vel /= dt;
+                    state.angular.acc = 0;
+                    state.old.angular.vel = state.angular.vel;
+
                 }                    
             }
         }

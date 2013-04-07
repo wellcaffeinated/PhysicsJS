@@ -11,6 +11,8 @@
             // properties
             this.fixed = options.fixed || false;
             this.mass = options.mass || 1.0;
+            // moment of inertia
+            this.moi = 0;
 
             // placeholder for renderers
             this.view = null;

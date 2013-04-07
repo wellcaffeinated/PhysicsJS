@@ -31,3 +31,13 @@ Example:
         });
 
     world.add(mine);
+
+
+# Directionality
+
+Positive direction of:
+
+    * x: right
+    * y: down
+    * angle: clockwise
+

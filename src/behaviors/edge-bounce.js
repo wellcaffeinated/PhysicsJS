@@ -30,6 +30,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,bounds = this.bounds
                 ,callback = this.callback
                 ,dim
+                ,x
                 ;
 
             if (!bounds) throw "Bounds not set";
@@ -44,7 +45,9 @@ Physics.behavior('edge-bounce', function( parent ){
 
                     case 'circle':
                         dim = body.geometry.radius;
+                        x = body.moi / body.mass;
 
+                        // right
                         if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
 
                             // adjust position
@@ -52,10 +55,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 0 ] = -state.vel._[ 0 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 1 ] /= (1 + x);
+                                state.vel._[ 1 ] -= dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = -state.vel._[ 1 ] / dim;
+                            }
+
                             p.set( bounds.max._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
                         }
                         
+                        // left
                         if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
 
                             // adjust position
@@ -63,10 +74,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 0 ] = -state.vel._[ 0 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 1 ] /= (1 + x);
+                                state.vel._[ 1 ] += dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = state.vel._[ 1 ] / dim;
+                            }
+
                             p.set( bounds.min._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
                         }
 
+                        // bottom
                         if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
 
                             // adjust position
@@ -74,10 +93,18 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 1 ] = -state.vel._[ 1 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 0 ] /= (1 + x);
+                                state.vel._[ 0 ] += dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = state.vel._[ 0 ] / dim;
+                            }
+
                             p.set( pos._[ 0 ], bounds.max._[ 1 ] );
                             callback && callback( body, p );
                         }
-                        
+                            
+                        // top
                         if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
 
                             // adjust position
@@ -85,9 +112,17 @@ Physics.behavior('edge-bounce', function( parent ){
                             // adjust velocity
                             state.vel._[ 1 ] = -state.vel._[ 1 ];
 
+                            if (x){
+                                // angular momentum transfer to perpendicular velocity
+                                state.vel._[ 0 ] /= (1 + x);
+                                state.vel._[ 0 ] -= dim * state.angular.vel * x / (1 + x);
+                                state.angular.vel = -state.vel._[ 0 ] / dim;
+                            }
+
                             p.set( pos._[ 0 ], bounds.min._[ 1 ] );
                             callback && callback( body, p );
                         }
+
                     break;
                 }
             }
