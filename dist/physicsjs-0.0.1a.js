@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-07
+ * physicsjs v0.0.1a - 2013-04-10
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1394,6 +1394,8 @@ Physics.util.ticker = {
 }());
 (function(window){
 
+// http://jsperf.com/vector-storage-test/2
+
 // cached math functions
 var sqrt = Math.sqrt
     ,min = Math.min
@@ -1547,14 +1549,28 @@ Vector.prototype.cross = function(v) {
 };
 
 /**
- * Project this along v
+ * Scalar projection of this along v
  */
 Vector.prototype.proj = function(v){
+
+    return this.dot( v ) / v.norm();
+};
+
+
+/**
+ * Vector project this along v
+ */
+Vector.prototype.vproj = function(v){
 
     var m = this.dot( v ) / v.normSq();
     return this.clone( v ).mult( m );
 };
 
+/**
+ * Angle between this and vector. Or this and x axis.
+ * @param  {Vector} v (optional) other vector
+ * @return {Number} Angle in radians
+ */
 Vector.prototype.angle = function(v){
 
     if (!v){
@@ -1619,6 +1635,37 @@ Vector.prototype.distSq = function(v) {
 };
 
 /**
+ * Change vector into a vector perpendicular
+ * @param {Boolean} cw Set to true if want to go clockwise instead
+ * @return {this}
+ */
+Vector.prototype.perp = function( cw ) {
+
+    var tmp = this._[0]
+        // if x and y are both less positive or negative
+        ,q1q4 = (this._[0] >= 0 && this._[1] >= 0) || (this._[0] < 0 && this._[1] < 0)
+        ;
+
+    if ( cw ^ q1q4 ){
+
+        // x <-> y
+        // negate x
+        this._[0] = -this._[1];
+        this._[1] = tmp;
+
+    } else {
+
+        // x <-> y
+        // negate y
+        this._[0] = this._[1];
+        this._[1] = -tmp;
+
+    }
+
+    return this;
+};
+
+/**
  * Normalises this Vector, making it a unit Vector
  */
 Vector.prototype.normalize = function() {
@@ -1651,20 +1698,13 @@ Vector.prototype.clone = function(v) {
         
         this.recalc = v.recalc;
 
-        if (typedArrays){
-            
-            if (!v.recalc){
-                this._[3] = v._[3];
-                this._[4] = v._[4];
-            }
-
-            this._[0] = v._[0];
-            this._[1] = v._[1];
-
-        } else {
-
-            this._ = v._.splice(0);
+        if (!v.recalc){
+            this._[3] = v._[3];
+            this._[4] = v._[4];
         }
+
+        this._[0] = v._[0];
+        this._[1] = v._[1];
 
         return this;
     }
@@ -1777,7 +1817,7 @@ Vector.mult = function(m, v1){
 /** 
  * Project v1 onto v2
  */
-Vector.proj = function(v1, v2) {
+Vector.vproj = function(v1, v2) {
 
     return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
 };
@@ -1818,19 +1858,20 @@ Physics.vector = Vector;
 }());
 (function(){
 
-    var vector = Physics.vector;
-
     // Service
     Physics.body = Decorator('body', {
 
         // prototype methods
         init: function( options ){
 
+            var vector = Physics.vector;
+
             // properties
             this.fixed = options.fixed || false;
             this.mass = options.mass || 1.0;
+            this.restitution = options.restitution || 1.0;
             // moment of inertia
-            this.moi = 0;
+            this.moi = 0.0;
 
             // placeholder for renderers
             this.view = null;
@@ -1841,35 +1882,62 @@ Physics.vector = Vector;
                 vel: vector( options.vx, options.vy ),
                 acc: vector(),
                 angular: {
-                    pos: options.angle || 0,
-                    vel: options.angularVelocity || 0,
-                    acc: 0
+                    pos: options.angle || 0.0,
+                    vel: options.angularVelocity || 0.0,
+                    acc: 0.0
                 },
                 old: {
                     pos: vector(),
                     vel: vector(),
                     acc: vector(),
                     angular: {
-                        pos: 0,
-                        vel: 0,
-                        acc: 0
+                        pos: 0.0,
+                        vel: 0.0,
+                        acc: 0.0
                     }
                 }
             };
+
+            if (this.mass === 0){
+                throw "Error: Bodies must have non-zero mass";
+            }
+
+            this.tmp = vector();
 
             // shape
             this.geometry = Physics.geometry('point');
         },
 
-        accelerate: function( vect ){
+        accelerate: function( acc ){
 
-            this.state.acc.vadd( vect );
+            this.state.acc.vadd( acc );
             return this;
         },
 
-        applyForce: function( vect ){
+        // p relative to center of mass
+        applyForce: function( force, p ){
 
-            this.accelerate( vect.clone().mult( 1/this.mass ) );
+            var r = this.tmp
+                ,state
+                ;
+                
+            // if no point at which to apply the force... apply at center of mass
+            if ( !p ){
+                
+                this.accelerate( r.clone( force ).mult( 1/this.mass ) );
+
+            } else if ( this.moi ) {
+
+                // apply torques
+                state = this.state;
+                r.clone( p );
+                // r cross F
+                this.state.angular.acc -= r.cross( force ) / this.moi;
+                // projection of force towards center of mass
+                this.applyForce( force );
+
+            }
+
             return this;
         }
     });
@@ -2299,7 +2367,7 @@ Physics.body('circle', function( parent ){
             });
 
             // moment of inertia
-            this.moi = this.mass * this.geometry.radius / 3;
+            this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
         }
     }
 });
@@ -2310,7 +2378,29 @@ Physics.behavior('edge-bounce', function( parent ){
     var defaults = {
 
         bounds: null,
+        restitution: 1.0,
         callback: null
+    };
+
+    var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor){
+
+        // break up components along normal and perp-normal directions
+        var v = state.vel
+            ,angVel = state.angular.vel
+            ,vproj = v.proj( n )
+            ,rreg = r.proj( n.perp(true) )
+            ,impulse
+            ;
+
+        // rotate n back
+        n.perp();
+        // account for rotation ... += (r omega) in the tangential direction
+        vproj -= angVel * rreg;
+
+        impulse =  - ((1 + cor) * vproj) / ( (1 / mass) + (rreg * rreg / moi) );
+        state.vel._[ 1 ] += -impulse / mass;
+        state.angular.vel += impulse * rreg / moi;
+        return impulse;
     };
 
     return {
@@ -2323,8 +2413,10 @@ Physics.behavior('edge-bounce', function( parent ){
             options = Physics.util.extend({}, defaults, options);
 
             this.bounds = options.bounds;
+            this.restitution = options.restitution;
             this.callback = options.callback;
             this.pos = Physics.vector();
+            this.norm = Physics.vector();
         },
         
         behave: function( bodies, dt ){
@@ -2337,6 +2429,12 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,callback = this.callback
                 ,dim
                 ,x
+                ,cor
+                ,cof = 0.02
+                ,dir
+                ,max
+                ,norm = this.norm
+                ,impulse
                 ;
 
             if (!bounds) throw "Bounds not set";
@@ -2346,6 +2444,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 body = bodies[ i ];
                 state = body.state;
                 pos = body.state.pos;
+                cor = body.restitution * this.restitution;
 
                 switch ( body.geometry.name ){
 
@@ -2394,16 +2493,28 @@ Physics.behavior('edge-bounce', function( parent ){
                         // bottom
                         if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
 
+                            this.norm.set(0, -1);
+                            p.set(0, -dim); // set perpendicular displacement from com to impact point
+                            
                             // adjust position
                             pos._[ 1 ] = bounds.max._[ 1 ] - dim;
-                            // adjust velocity
-                            state.vel._[ 1 ] = -state.vel._[ 1 ];
 
-                            if (x){
-                                // angular momentum transfer to perpendicular velocity
-                                state.vel._[ 0 ] /= (1 + x);
-                                state.vel._[ 0 ] += dim * state.angular.vel * x / (1 + x);
-                                state.angular.vel = state.vel._[ 0 ] / dim;
+                            dir = (state.vel._[ 0 ] - dim * state.angular.vel);
+
+                            impulse = applyImpulse(state, norm, p, body.moi, body.mass, cor);
+
+                            // if we have friction
+                            if ( cof && dir ){
+
+                                // maximum impulse allowed by friction
+                                max = dir / ( 1 / body.mass + dim * dim / body.moi );
+                                dir = dir < 0 ? -1 : 1;
+
+                                // get perp vector to norm in direction opposite the velocity
+                                impulse *= dir * cof;
+                                impulse = (dir === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
+                                state.angular.vel += impulse * dim / body.moi;
+                                state.vel._[ 0 ] -= impulse / body.mass;
                             }
 
                             p.set( pos._[ 0 ], bounds.max._[ 1 ] );

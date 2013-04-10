@@ -1,5 +1,7 @@
 (function(window){
 
+// http://jsperf.com/vector-storage-test/2
+
 // cached math functions
 var sqrt = Math.sqrt
     ,min = Math.min
@@ -153,14 +155,28 @@ Vector.prototype.cross = function(v) {
 };
 
 /**
- * Project this along v
+ * Scalar projection of this along v
  */
 Vector.prototype.proj = function(v){
+
+    return this.dot( v ) / v.norm();
+};
+
+
+/**
+ * Vector project this along v
+ */
+Vector.prototype.vproj = function(v){
 
     var m = this.dot( v ) / v.normSq();
     return this.clone( v ).mult( m );
 };
 
+/**
+ * Angle between this and vector. Or this and x axis.
+ * @param  {Vector} v (optional) other vector
+ * @return {Number} Angle in radians
+ */
 Vector.prototype.angle = function(v){
 
     if (!v){
@@ -225,6 +241,37 @@ Vector.prototype.distSq = function(v) {
 };
 
 /**
+ * Change vector into a vector perpendicular
+ * @param {Boolean} cw Set to true if want to go clockwise instead
+ * @return {this}
+ */
+Vector.prototype.perp = function( cw ) {
+
+    var tmp = this._[0]
+        // if x and y are both less positive or negative
+        ,q1q4 = (this._[0] >= 0 && this._[1] >= 0) || (this._[0] < 0 && this._[1] < 0)
+        ;
+
+    if ( cw ^ q1q4 ){
+
+        // x <-> y
+        // negate x
+        this._[0] = -this._[1];
+        this._[1] = tmp;
+
+    } else {
+
+        // x <-> y
+        // negate y
+        this._[0] = this._[1];
+        this._[1] = -tmp;
+
+    }
+
+    return this;
+};
+
+/**
  * Normalises this Vector, making it a unit Vector
  */
 Vector.prototype.normalize = function() {
@@ -257,20 +304,13 @@ Vector.prototype.clone = function(v) {
         
         this.recalc = v.recalc;
 
-        if (typedArrays){
-            
-            if (!v.recalc){
-                this._[3] = v._[3];
-                this._[4] = v._[4];
-            }
-
-            this._[0] = v._[0];
-            this._[1] = v._[1];
-
-        } else {
-
-            this._ = v._.splice(0);
+        if (!v.recalc){
+            this._[3] = v._[3];
+            this._[4] = v._[4];
         }
+
+        this._[0] = v._[0];
+        this._[1] = v._[1];
 
         return this;
     }
@@ -383,7 +423,7 @@ Vector.mult = function(m, v1){
 /** 
  * Project v1 onto v2
  */
-Vector.proj = function(v1, v2) {
+Vector.vproj = function(v1, v2) {
 
     return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
 };
