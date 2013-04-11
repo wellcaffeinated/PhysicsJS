@@ -75,19 +75,20 @@ Physics({
 
     circles.push(
         Physics.body('circle', {
-            x: 10,
+            x: 20,
             y: 200,
             radius: 15,
             mass: 2,
             vx: 0.05,
-            vy: -0.15
+            vy: -0.15,
+            angularVelocity: 0.01
         })
     );
 
     circles.push(
         Physics.body('circle', {
-            x: 400,
-            y: 300,
+            x: 400*Math.random(),
+            y: 500*Math.random(),
             radius: 12,
             mass: 1.5,
             vx: 0.25,
@@ -113,7 +114,24 @@ Physics({
     // world.add( Physics.behavior('newtonian', { strength: 3 }) );
     world.add( Physics.behavior('gravity', function(){
 
-        var g = Physics.vector(0, .001);
+        var g = Physics.vector(0, .001)
+            ,mouse = Physics.vector()
+            ,mouseDown = false
+            ,tmp = Physics.vector()
+            ;
+
+        $('#viewport').on({
+            mousedown: function(e){
+                mouseDown = true;
+            },
+            mousemove: function(e){
+                var offset = $(this).offset();
+                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
+            },
+            mouseup: function(e){
+                mouseDown = false;
+            }
+        });
 
         return {
             behave: function( bodies ){
@@ -121,11 +139,16 @@ Physics({
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
                     bodies[ i ].accelerate( g );
+
+                    if (mouseDown){
+                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
+                        bodies[ i ].accelerate( tmp );
+                    }
                 }
             }
         };
     }, {}) );
-    world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
+    world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 

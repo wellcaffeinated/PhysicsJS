@@ -8,25 +8,62 @@ Physics.behavior('edge-bounce', function( parent ){
         callback: null
     };
 
-    var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor){
+    var perp = Physics.vector(); //tmp
+    var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
+
+        perp.clone( n ).perp();
 
         // break up components along normal and perp-normal directions
         var v = state.vel
             ,angVel = state.angular.vel
-            ,vproj = v.proj( n )
-            ,rreg = r.proj( n.perp(true) )
+            ,vproj = v.proj( n ) // projection of v along n
+            ,vreg = v.proj( perp ) // rejection of v along n (perp of proj)
+            ,rproj = r.proj( n )
+            ,rreg = r.proj( perp )
             ,impulse
+            ,sign
+            ,max
+            ,inContact = false
+            ,invMass = 1 / mass
+            ,invMoi = 1 / moi
             ;
 
-        // rotate n back
-        n.perp();
         // account for rotation ... += (r omega) in the tangential direction
-        vproj -= angVel * rreg;
+        vproj += angVel * rreg;
+        vreg += angVel * rproj;
 
-        impulse =  - ((1 + cor) * vproj) / ( (1 / mass) + (rreg * rreg / moi) );
-        state.vel._[ 1 ] += -impulse / mass;
-        state.angular.vel += impulse * rreg / moi;
-        return impulse;
+        impulse =  - ((1 + cor) * vproj) / ( invMass + (invMoi * rreg * rreg) );
+        vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
+        angVel -= impulse * rreg * invMoi;
+        // inContact = (impulse < 0.004);
+        
+        // if we have friction and a relative velocity perpendicular to the normal
+        if ( cof && vreg ){
+
+            // maximum impulse allowed by friction
+            max = vreg / ( invMass + (invMoi * rproj * rproj) );
+
+            if (!inContact){
+                // the sign of vreg ( plus or minus 1 )
+                sign = vreg < 0 ? -1 : 1;
+
+                // get impulse due to friction
+                impulse *= sign * cof;
+                // make sure the impulse isn't giving the system energy
+                impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
+                
+            } else {
+
+                impulse = max;
+            }
+
+            angVel -= impulse * rproj * invMoi;
+            vreg -= impulse * ( invMass + (invMoi * rproj * rproj) );
+        }
+
+        // adjust velocities
+        state.angular.vel = angVel;
+        v.clone( n ).mult( vproj - angVel * rreg ).vadd( perp.mult( vreg - angVel * rproj ) );
     };
 
     return {
@@ -56,9 +93,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,dim
                 ,x
                 ,cor
-                ,cof = 0.02
-                ,dir
-                ,max
+                ,cof = 0.6
                 ,norm = this.norm
                 ,impulse
                 ;
@@ -81,17 +116,13 @@ Physics.behavior('edge-bounce', function( parent ){
                         // right
                         if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
 
+                            this.norm.set(-1, 0);
+                            p.set(dim, 0); // set perpendicular displacement from com to impact point
+                            
                             // adjust position
                             pos._[ 0 ] = bounds.max._[ 0 ] - dim;
-                            // adjust velocity
-                            state.vel._[ 0 ] = -state.vel._[ 0 ];
 
-                            if (x){
-                                // angular momentum transfer to perpendicular velocity
-                                state.vel._[ 1 ] /= (1 + x);
-                                state.vel._[ 1 ] -= dim * state.angular.vel * x / (1 + x);
-                                state.angular.vel = -state.vel._[ 1 ] / dim;
-                            }
+                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( bounds.max._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
@@ -100,17 +131,13 @@ Physics.behavior('edge-bounce', function( parent ){
                         // left
                         if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
 
+                            this.norm.set(1, 0);
+                            p.set(-dim, 0); // set perpendicular displacement from com to impact point
+                            
                             // adjust position
                             pos._[ 0 ] = bounds.min._[ 0 ] + dim;
-                            // adjust velocity
-                            state.vel._[ 0 ] = -state.vel._[ 0 ];
 
-                            if (x){
-                                // angular momentum transfer to perpendicular velocity
-                                state.vel._[ 1 ] /= (1 + x);
-                                state.vel._[ 1 ] += dim * state.angular.vel * x / (1 + x);
-                                state.angular.vel = state.vel._[ 1 ] / dim;
-                            }
+                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( bounds.min._[ 0 ], pos._[ 1 ] );
                             callback && callback( body, p );
@@ -120,28 +147,12 @@ Physics.behavior('edge-bounce', function( parent ){
                         if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
 
                             this.norm.set(0, -1);
-                            p.set(0, -dim); // set perpendicular displacement from com to impact point
+                            p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
                             pos._[ 1 ] = bounds.max._[ 1 ] - dim;
 
-                            dir = (state.vel._[ 0 ] - dim * state.angular.vel);
-
-                            impulse = applyImpulse(state, norm, p, body.moi, body.mass, cor);
-
-                            // if we have friction
-                            if ( cof && dir ){
-
-                                // maximum impulse allowed by friction
-                                max = dir / ( 1 / body.mass + dim * dim / body.moi );
-                                dir = dir < 0 ? -1 : 1;
-
-                                // get perp vector to norm in direction opposite the velocity
-                                impulse *= dir * cof;
-                                impulse = (dir === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-                                state.angular.vel += impulse * dim / body.moi;
-                                state.vel._[ 0 ] -= impulse / body.mass;
-                            }
+                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( pos._[ 0 ], bounds.max._[ 1 ] );
                             callback && callback( body, p );
@@ -150,17 +161,13 @@ Physics.behavior('edge-bounce', function( parent ){
                         // top
                         if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
 
+                            this.norm.set(0, 1);
+                            p.set(0, -dim); // set perpendicular displacement from com to impact point
+                            
                             // adjust position
                             pos._[ 1 ] = bounds.min._[ 1 ] + dim;
-                            // adjust velocity
-                            state.vel._[ 1 ] = -state.vel._[ 1 ];
 
-                            if (x){
-                                // angular momentum transfer to perpendicular velocity
-                                state.vel._[ 0 ] /= (1 + x);
-                                state.vel._[ 0 ] -= dim * state.angular.vel * x / (1 + x);
-                                state.angular.vel = -state.vel._[ 0 ] / dim;
-                            }
+                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( pos._[ 0 ], bounds.min._[ 1 ] );
                             callback && callback( body, p );

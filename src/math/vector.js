@@ -248,23 +248,21 @@ Vector.prototype.distSq = function(v) {
 Vector.prototype.perp = function( cw ) {
 
     var tmp = this._[0]
-        // if x and y are both less positive or negative
-        ,q1q4 = (this._[0] >= 0 && this._[1] >= 0) || (this._[0] < 0 && this._[1] < 0)
         ;
 
-    if ( cw ^ q1q4 ){
-
-        // x <-> y
-        // negate x
-        this._[0] = -this._[1];
-        this._[1] = tmp;
-
-    } else {
+    if ( cw ){
 
         // x <-> y
         // negate y
         this._[0] = this._[1];
         this._[1] = -tmp;
+
+    } else {
+
+        // x <-> y
+        // negate x        
+        this._[0] = -this._[1];
+        this._[1] = tmp;
 
     }
 
