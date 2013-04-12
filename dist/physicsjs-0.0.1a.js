@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-10
+ * physicsjs v0.0.1a - 2013-04-12
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1967,9 +1967,9 @@ Physics.vector = Vector;
 
     var defaults = {
 
-        // 1 means vacuum
-        // 0.001 means molasses
-        drag: 0.9995
+        // 0 means vacuum
+        // 0.9 means molasses
+        drag: 0
     };
 
     // Service
@@ -2065,10 +2065,10 @@ Physics.vector = Vector;
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 360,
-    maxSteps: 4,
+    timestep: 1000.0 / 160,
+    maxSteps: 16,
     webworker: false, // to implement
-    integrator: 'improved-euler'
+    integrator: 'verlet'
 };
 
 var World = function World( cfg, fn ){
@@ -2213,15 +2213,16 @@ World.prototype = {
 
         if ( !diff ) return this;
         
-        // set some stats
-        stats.fps = 1000/diff;
-        stats.steps = Math.ceil(diff/this._dt);
-
         // limit number of substeps in each step
         if ( diff > this._maxJump ){
 
             this._time = now - this._maxJump;
+            diff = this._maxJump;
         }
+
+        // set some stats
+        stats.fps = 1000/diff;
+        stats.steps = Math.ceil(diff/this._dt);
 
         while ( this._time < now ){
             this._time += dt;
@@ -2629,10 +2630,11 @@ Physics.integrator('improved-euler', function( parent ){
 
             // half the timestep
             var halfdt = 0.5 * dt
-                ,drag = this.options.drag
+                ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
                 ,vel = this.vel
+                ,angVel
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -2680,6 +2682,17 @@ Physics.integrator('improved-euler', function( parent ){
                     // Reset accel
                     state.acc.zero();
 
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.pos = state.angular.pos;
+                    angVel = state.old.angular.vel = state.angular.vel;
+                    state.angular.acc *= dt;
+                    angVel += state.angular.acc;
+                    state.angular.pos += angVel * dt + state.angular.acc * halfdt;
+                    state.angular.acc = 0;
+
                 }                    
             }
         }
@@ -2705,7 +2718,7 @@ Physics.integrator('verlet', function( parent ){
 
             // half the timestep
             var dtdt = dt * dt
-                ,drag = this.options.drag
+                ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
                 ,vel = this.vel

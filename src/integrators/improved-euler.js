@@ -16,10 +16,11 @@ Physics.integrator('improved-euler', function( parent ){
 
             // half the timestep
             var halfdt = 0.5 * dt
-                ,drag = this.options.drag
+                ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
                 ,vel = this.vel
+                ,angVel
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -66,6 +67,17 @@ Physics.integrator('improved-euler', function( parent ){
 
                     // Reset accel
                     state.acc.zero();
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.pos = state.angular.pos;
+                    angVel = state.old.angular.vel = state.angular.vel;
+                    state.angular.acc *= dt;
+                    angVel += state.angular.acc;
+                    state.angular.pos += angVel * dt + state.angular.acc * halfdt;
+                    state.angular.acc = 0;
 
                 }                    
             }

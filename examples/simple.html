@@ -57,6 +57,7 @@
 Physics({
 
     // config
+    timestep: 1000 / 160 
 
 }, function( world ){
 
@@ -110,11 +111,11 @@ Physics({
     // world.add( constrain );
     world.add( circles );
     world.add( renderer );
-    world.add( Physics.integrator('verlet', { drag: 1 }));
+    world.add( Physics.integrator('verlet', { drag: 0 }));
     // world.add( Physics.behavior('newtonian', { strength: 3 }) );
     world.add( Physics.behavior('gravity', function(){
 
-        var g = Physics.vector(0, .001)
+        var g = Physics.vector(0, .0004)
             ,mouse = Physics.vector()
             ,mouseDown = false
             ,tmp = Physics.vector()

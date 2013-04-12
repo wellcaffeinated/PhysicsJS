@@ -56,7 +56,7 @@ Physics({
         Physics.body('circle', {
             x: 300,
             y: 50,
-            vx: -0.15,
+            vx: -0.12,
             mass: 1,
             radius: 10
         })
@@ -68,7 +68,7 @@ Physics({
             y: 200,
             radius: 15,
             mass: 10,
-            vx: 0.015,
+            vx: 0.012,
             vy: 0
         })
     );
@@ -87,7 +87,7 @@ Physics({
     // world.add( constrain );
     world.add( circles );
     world.add( renderer );
-    world.add( Physics.integrator('verlet', { drag: 1 }));
+    world.add( Physics.integrator('verlet', { drag: 0 }));
     world.add( Physics.behavior('newtonian', { strength: .5 }) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 

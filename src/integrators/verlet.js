@@ -16,7 +16,7 @@ Physics.integrator('verlet', function( parent ){
 
             // half the timestep
             var dtdt = dt * dt
-                ,drag = this.options.drag
+                ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
                 ,vel = this.vel

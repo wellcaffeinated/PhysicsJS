@@ -2,9 +2,9 @@
 
     var defaults = {
 
-        // 1 means vacuum
-        // 0.001 means molasses
-        drag: 0.9995
+        // 0 means vacuum
+        // 0.9 means molasses
+        drag: 0
     };
 
     // Service

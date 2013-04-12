@@ -2,10 +2,10 @@
 
 var defaults = {
     name: false,
-    timestep: 1000.0 / 360,
-    maxSteps: 4,
+    timestep: 1000.0 / 160,
+    maxSteps: 16,
     webworker: false, // to implement
-    integrator: 'improved-euler'
+    integrator: 'verlet'
 };
 
 var World = function World( cfg, fn ){
@@ -150,15 +150,16 @@ World.prototype = {
 
         if ( !diff ) return this;
         
-        // set some stats
-        stats.fps = 1000/diff;
-        stats.steps = Math.ceil(diff/this._dt);
-
         // limit number of substeps in each step
         if ( diff > this._maxJump ){
 
             this._time = now - this._maxJump;
+            diff = this._maxJump;
         }
+
+        // set some stats
+        stats.fps = 1000/diff;
+        stats.steps = Math.ceil(diff/this._dt);
 
         while ( this._time < now ){
             this._time += dt;

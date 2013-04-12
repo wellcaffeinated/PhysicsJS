@@ -52,7 +52,7 @@ Physics({
 
     var circles = [];
     
-    for ( var i = 0, l = 300; i < l; ++i ){
+    for ( var i = 0, l = 240; i < l; ++i ){
         
         circles.push(
             Physics.body('circle', {
@@ -79,7 +79,7 @@ Physics({
     // world.add( constrain );
     world.add( circles );
     world.add( renderer );
-    world.add( Physics.integrator('verlet', { drag: 1 }));
+    world.add( Physics.integrator('verlet', { drag: 0 }));
     world.add( Physics.behavior('newtonian', { strength: .02 }) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
