@@ -2815,7 +2815,15 @@ Physics.integrator('verlet', function( parent ){
 
 Physics.renderer('canvas', function( proto ){
 
-    var Pi2 = Math.PI * 2;
+    var Pi2 = Math.PI * 2
+        ,newEl = function( node, content ){
+            var el = document.createElement(node || 'div');
+            if (content){
+                el.innerHTML = content;
+            }
+            return el;
+        }
+        ;
 
     var defaults = {
 
@@ -2856,6 +2864,20 @@ Physics.renderer('canvas', function( proto ){
             viewport.height = this.options.height;
 
             this.ctx = viewport.getContext("2d");
+
+            this.els = {};
+
+            var stats = newEl();
+            stats.className = 'pjs-meta';
+            this.els.fps = newEl('span');
+            this.els.steps = newEl('span');
+            stats.appendChild(newEl('span', 'fps: '));
+            stats.appendChild(this.els.fps);
+            stats.appendChild(newEl('br'));
+            stats.appendChild(newEl('span', 'steps: '));
+            stats.appendChild(this.els.steps);
+
+            viewport.parentNode.insertBefore(stats, viewport);
         },
 
         circleProperties: function( el, geometry ){
@@ -2910,8 +2932,8 @@ Physics.renderer('canvas', function( proto ){
 
         drawMeta: function( stats ){
 
-            // this.els.fps.innerHTML = stats.fps.toFixed(2);
-            // this.els.steps.innerHTML = stats.steps;
+            this.els.fps.innerHTML = stats.fps.toFixed(2);
+            this.els.steps.innerHTML = stats.steps;
         },
 
         beforeRender: function(){

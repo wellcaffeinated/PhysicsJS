@@ -18,15 +18,8 @@
   <!-- Page styles -->
   <style>
 
-  .pjs-circle {
-    background: #ddd;
-    border-radius: 50%;
-  }
-
   .pjs-meta {
-    position: absolute;
-    top: 0;
-    right: 0;
+    text-align: right;
   }
   </style>
 
@@ -35,7 +28,7 @@
 
 <!-- Setup -->
     <button class="start-stop">Pause</button>
-    <div id="viewport"></div>
+    <canvas id="viewport"></canvas>
 
 <!-- Scripts -->
 <script src="../dist/physicsjs-0.0.1a.js"></script>
@@ -54,7 +47,7 @@ Physics({
 
     var circles = [];
     
-    for ( var i = 0, l = 240; i < l; ++i ){
+    for ( var i = 0, l = 280; i < l; ++i ){
         
         circles.push(
             Physics.body('circle', {
@@ -67,7 +60,7 @@ Physics({
         );
     }
 
-    var renderer = Physics.renderer('dom', {
+    var renderer = Physics.renderer('canvas', {
         el: 'viewport',
         width: viewWidth,
         height: viewHeight
