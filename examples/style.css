@@ -5,8 +5,35 @@ body {
   color: #fff;
 }
 
+.pjs-meta {
+    text-align: right;
+}
+
+#viewport .pjs-meta {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+}
+
+.pjs-circle {
+    position: relative;
+    background: #ddd;
+    border-radius: 50%;
+}
+
+.pjs-circle:after {
+    content: '';
+    background: #833;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 50%;
+    height: 2px;
+    margin-top: -1px;
+}
+
 #viewport {
-    
+
     border: 1px solid #222;
     -webkit-box-shadow: inset 0 0 3px #222;
        -moz-box-shadow: inset 0 0 3px #222;
