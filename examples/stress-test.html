@@ -48,7 +48,9 @@ Physics({
 
 }, function( world ){
 
-    var viewportBounds = Physics.bounds(0, 0, 600, 400);
+    var viewWidth = 600;
+    var viewHeight = 400;
+    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
 
     var circles = [];
     
@@ -66,7 +68,9 @@ Physics({
     }
 
     var renderer = Physics.renderer('dom', {
-        el: 'viewport'
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight
     });
 
     // var constrain = world.behavior('constrain-within', {
@@ -80,7 +84,7 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    world.add( Physics.behavior('newtonian', { strength: .02 }) );
+    world.add( Physics.behavior('newtonian', { strength: .08 }) );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){

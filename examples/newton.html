@@ -48,7 +48,9 @@ Physics({
 
 }, function( world ){
 
-    var viewportBounds = Physics.bounds(0, 0, 600, 400);
+    var viewWidth = 600;
+    var viewHeight = 400;
+    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
 
     var circles = [];
     
@@ -74,7 +76,9 @@ Physics({
     );
 
     var renderer = Physics.renderer('dom', {
-        el: 'viewport'
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight
     });
 
     // var constrain = world.behavior('constrain-within', {

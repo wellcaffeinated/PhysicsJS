@@ -1,5 +1,6 @@
-Physics.renderer('dom', function( parent ){
+Physics.renderer('dom', function( proto ){
 
+    // utility methods
     var thePrefix = {}
         ,tmpdiv = document.createElement("div")
         ,toTitleCase = function toTitleCase(str) {
@@ -68,12 +69,14 @@ Physics.renderer('dom', function( parent ){
 
         init: function( options ){
 
-            // call parent init
-            parent.init.call(this, options);
+            // call proto init
+            proto.init.call(this, options);
 
             var viewport = this.el;
             viewport.style.position = 'relative';
             viewport.style.overflow = 'hidden';
+            viewport.style.width = this.options.width + px;
+            viewport.style.height = this.options.height + px;
 
             this.els = {};
 

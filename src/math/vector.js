@@ -3,6 +3,7 @@
 // http://jsperf.com/vector-storage-test/2
 
 // cached math functions
+// TODO: might be faster not to do this???
 var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max

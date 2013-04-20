@@ -47,7 +47,7 @@
 
 <!-- Setup -->
     <button class="start-stop">Pause</button>
-    <div id="viewport"></div>
+    <canvas id="viewport"></canvas>
 
 <!-- Scripts -->
 <script src="../dist/physicsjs-0.0.1a.js"></script>
@@ -61,7 +61,9 @@ Physics({
 
 }, function( world ){
 
-    var viewportBounds = Physics.bounds(0, 0, 600, 400);
+    var viewWidth = 600;
+    var viewHeight = 400;
+    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
 
     var circles = [];
     
@@ -97,15 +99,11 @@ Physics({
         })
     );
 
-    var renderer = Physics.renderer('dom', {
-        el: 'viewport'
+    var renderer = Physics.renderer('canvas', {
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight
     });
-
-    // var constrain = world.behavior('constrain-within', {
-    //     bounds: viewportBounds
-    // });
-
-    // constrain.applyTo( circle );
 
     // add things to world
     // world.add( constrain );
@@ -149,6 +147,7 @@ Physics({
             }
         };
     }, {}) );
+
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){

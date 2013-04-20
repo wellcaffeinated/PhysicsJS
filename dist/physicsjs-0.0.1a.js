@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-12
+ * physicsjs v0.0.1a - 2013-04-20
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1397,6 +1397,7 @@ Physics.util.ticker = {
 // http://jsperf.com/vector-storage-test/2
 
 // cached math functions
+// TODO: might be faster not to do this???
 var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
@@ -1994,7 +1995,10 @@ Physics.vector = Vector;
         // draw meta data (fps, steps, etc)
         meta: true,
         // refresh rate of meta info
-        metaRefresh: 200
+        metaRefresh: 200,
+
+        width: 600,
+        height: 600
     };
 
     // Service
@@ -2019,6 +2023,11 @@ Physics.vector = Vector;
                 ,view
                 ,pos
                 ;
+
+            if (this.beforeRender){
+
+                this.beforeRender();
+            }
 
             if (this.options.meta){
                 this.drawMeta( stats );
@@ -2804,8 +2813,130 @@ Physics.integrator('verlet', function( parent ){
 });
 
 
-Physics.renderer('dom', function( parent ){
+Physics.renderer('canvas', function( proto ){
 
+    var Pi2 = Math.PI * 2;
+
+    var defaults = {
+
+        bodyColor: '#fff',
+        orientationLineColor: '#cc0000'
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call proto init
+            proto.init.call(this, options);
+
+            // further options
+            Physics.util.extend(this.options, defaults, this.options);
+
+            // hidden canvas
+            this.hiddenCanvas = document.createElement('canvas');
+            this.hiddenCanvas.width = this.hiddenCanvas.height = 100;
+            
+            if (!this.hiddenCanvas.getContext){
+                throw "Canvas not supported";
+            }
+
+            this.hiddenCtx = this.hiddenCanvas.getContext('2d');
+
+            // actual viewport
+            var viewport = this.el;
+            if (viewport.nodeName.toUpperCase() !== "CANVAS"){
+
+                viewport = document.createElement('canvas');
+                this.el.appendChild( viewport );
+                this.el = viewport;
+            }
+
+            viewport.width = this.options.width;
+            viewport.height = this.options.height;
+
+            this.ctx = viewport.getContext("2d");
+        },
+
+        circleProperties: function( el, geometry ){
+
+            var aabb = geometry.aabb();
+
+            el.style.width = (aabb.halfWidth * 2) + px;
+            el.style.height = (aabb.halfHeight * 2) + px;
+            el.style.marginLeft = (-aabb.halfWidth) + px;
+            el.style.marginTop = (-aabb.halfHeight) + px;
+        },
+
+        createView: function( geometry ){
+
+            var view = new Image()
+                ,aabb = geometry.aabb()
+                ,hw = aabb.halfWidth
+                ,hh = aabb.halfHeight
+                ,x = hw + 1
+                ,y = hh + 1
+                ,hiddenCtx = this.hiddenCtx
+                ,hiddenCanvas = this.hiddenCanvas
+                ;
+            
+            // clear
+            hiddenCanvas.width = 2 * hw + 2;
+            hiddenCanvas.height = 2 * hh + 2;
+
+            if (geometry.name === 'circle'){
+
+                hiddenCtx.beginPath();
+                hiddenCtx.fillStyle = hiddenCtx.strokeStyle = this.options.bodyColor;
+                hiddenCtx.arc(x, y, hw, 0, Pi2, false);
+                hiddenCtx.closePath();
+                hiddenCtx.stroke();
+                hiddenCtx.fill();
+            }
+
+            if (this.options.orientationLineColor){
+
+                hiddenCtx.beginPath();
+                hiddenCtx.strokeStyle = this.options.orientationLineColor;
+                hiddenCtx.moveTo(x, y);
+                hiddenCtx.lineTo(x + hw, y);
+                hiddenCtx.closePath();
+                hiddenCtx.stroke();
+            }
+
+            view.src = hiddenCanvas.toDataURL("image/png");
+            return view;
+        },
+
+        drawMeta: function( stats ){
+
+            // this.els.fps.innerHTML = stats.fps.toFixed(2);
+            // this.els.steps.innerHTML = stats.steps;
+        },
+
+        beforeRender: function(){
+
+            // clear canvas
+            this.el.width = this.el.width;
+        },
+
+        drawBody: function( body, view ){
+
+            var ctx = this.ctx
+                ,pos = body.state.pos
+                ;
+
+            ctx.save();
+            ctx.translate(pos.get(0), pos.get(1));
+            ctx.rotate(body.state.angular.pos);
+            ctx.drawImage(view, -view.width/2, -view.height/2);
+            ctx.restore();
+        }
+    };
+});
+Physics.renderer('dom', function( proto ){
+
+    // utility methods
     var thePrefix = {}
         ,tmpdiv = document.createElement("div")
         ,toTitleCase = function toTitleCase(str) {
@@ -2874,12 +3005,14 @@ Physics.renderer('dom', function( parent ){
 
         init: function( options ){
 
-            // call parent init
-            parent.init.call(this, options);
+            // call proto init
+            proto.init.call(this, options);
 
             var viewport = this.el;
             viewport.style.position = 'relative';
             viewport.style.overflow = 'hidden';
+            viewport.style.width = this.options.width + px;
+            viewport.style.height = this.options.height + px;
 
             this.els = {};
 

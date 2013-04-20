@@ -4,7 +4,10 @@
         // draw meta data (fps, steps, etc)
         meta: true,
         // refresh rate of meta info
-        metaRefresh: 200
+        metaRefresh: 200,
+
+        width: 600,
+        height: 600
     };
 
     // Service
@@ -29,6 +32,11 @@
                 ,view
                 ,pos
                 ;
+
+            if (this.beforeRender){
+
+                this.beforeRender();
+            }
 
             if (this.options.meta){
                 this.drawMeta( stats );
