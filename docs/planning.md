@@ -29,3 +29,10 @@ Number ang = c12.angle();
 
 if ( ang >= (arc1.min - rot1) && ang <= (arc1.max - rot1) )
     then c12 intersects arc
+
+
+// edge collide
+
+make an overlap helper
+Physics.geometry.getOverlaps(geometry1, geometry2) ?
+returns [vector, vector, ...]
