@@ -44,8 +44,6 @@
                 throw "Error: Bodies must have non-zero mass";
             }
 
-            this.tmp = vector();
-
             // shape
             this.geometry = Physics.geometry('point');
         },
@@ -59,7 +57,8 @@
         // p relative to center of mass
         applyForce: function( force, p ){
 
-            var r = this.tmp
+            var scratch = Physics.scratchpad()
+                ,r = scratch.vector()
                 ,state
                 ;
                 
@@ -79,6 +78,8 @@
                 this.applyForce( force );
 
             }
+
+            scratch.done();
 
             return this;
         }

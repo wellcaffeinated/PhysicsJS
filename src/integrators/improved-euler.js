@@ -6,10 +6,6 @@ Physics.integrator('improved-euler', function( parent ){
 
             // call parent init
             parent.init.call(this, options);
-
-            // cache some vector instances
-            // so we don't need to recreate them in a loop
-            this.vel = Physics.vector();
         },
 
         integrate: function( bodies, dt ){
@@ -19,7 +15,10 @@ Physics.integrator('improved-euler', function( parent ){
                 ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
-                ,vel = this.vel
+                // use cached vector instances
+                // so we don't need to recreate them in a loop
+                ,scratch = Physics.scratchpad()
+                ,vel = scratch.vector()
                 ,angVel
                 ;
 
@@ -81,6 +80,8 @@ Physics.integrator('improved-euler', function( parent ){
 
                 }                    
             }
+
+            scratch.done();
         }
     };
 });

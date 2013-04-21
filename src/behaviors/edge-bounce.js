@@ -78,8 +78,6 @@ Physics.behavior('edge-bounce', function( parent ){
             this.bounds = options.bounds;
             this.restitution = options.restitution;
             this.callback = options.callback;
-            this.pos = Physics.vector();
-            this.norm = Physics.vector();
         },
         
         behave: function( bodies, dt ){
@@ -87,14 +85,15 @@ Physics.behavior('edge-bounce', function( parent ){
             var body
                 ,pos
                 ,state
-                ,p = this.pos
+                ,scratch = Physics.scratchpad()
+                ,p = scratch.vector()
                 ,bounds = this.bounds
                 ,callback = this.callback
                 ,dim
                 ,x
                 ,cor
                 ,cof = 0.6
-                ,norm = this.norm
+                ,norm = scratch.vector()
                 ,impulse
                 ;
 
@@ -116,7 +115,7 @@ Physics.behavior('edge-bounce', function( parent ){
                         // right
                         if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
 
-                            this.norm.set(-1, 0);
+                            norm.set(-1, 0);
                             p.set(dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
@@ -131,7 +130,7 @@ Physics.behavior('edge-bounce', function( parent ){
                         // left
                         if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
 
-                            this.norm.set(1, 0);
+                            norm.set(1, 0);
                             p.set(-dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
@@ -146,7 +145,7 @@ Physics.behavior('edge-bounce', function( parent ){
                         // bottom
                         if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
 
-                            this.norm.set(0, -1);
+                            norm.set(0, -1);
                             p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
@@ -161,7 +160,7 @@ Physics.behavior('edge-bounce', function( parent ){
                         // top
                         if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
 
-                            this.norm.set(0, 1);
+                            norm.set(0, 1);
                             p.set(0, -dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
@@ -176,6 +175,8 @@ Physics.behavior('edge-bounce', function( parent ){
                     break;
                 }
             }
+
+            scratch.done();
         }
     };
 });
