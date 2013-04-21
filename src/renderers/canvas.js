@@ -65,16 +65,6 @@ Physics.renderer('canvas', function( proto ){
             viewport.parentNode.insertBefore(stats, viewport);
         },
 
-        circleProperties: function( el, geometry ){
-
-            var aabb = geometry.aabb();
-
-            el.style.width = (aabb.halfWidth * 2) + px;
-            el.style.height = (aabb.halfHeight * 2) + px;
-            el.style.marginLeft = (-aabb.halfWidth) + px;
-            el.style.marginTop = (-aabb.halfHeight) + px;
-        },
-
         createView: function( geometry ){
 
             var view = new Image()
