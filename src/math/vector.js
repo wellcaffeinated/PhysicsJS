@@ -246,24 +246,24 @@ Vector.prototype.distSq = function(v) {
  * @param {Boolean} cw Set to true if want to go clockwise instead
  * @return {this}
  */
-Vector.prototype.perp = function( cw ) {
+Vector.prototype.perp = function( ccw ) {
 
     var tmp = this._[0]
         ;
 
-    if ( cw ){
+    if ( ccw ){
+
+        // x <-> y
+        // negate x
+        this._[0] = -this._[1];
+        this._[1] = tmp;
+
+    } else {
 
         // x <-> y
         // negate y
         this._[0] = this._[1];
         this._[1] = -tmp;
-
-    } else {
-
-        // x <-> y
-        // negate x        
-        this._[0] = -this._[1];
-        this._[1] = tmp;
 
     }
 
