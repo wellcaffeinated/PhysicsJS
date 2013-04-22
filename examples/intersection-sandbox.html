@@ -85,6 +85,23 @@ Physics({
         });
     };
 
+    // general support function
+    function support( bodyA, bodyB, searchDir, result ){
+        result = result || Physics.vector();
+        var scratch = Physics.scratchpad();
+        var vA = scratch.vector();
+        var vB = scratch.vector();
+        var tA = bodyA.getTransform();
+        var tB = bodyB.getTransform();
+
+        vA = tA.apply(bodyA.geometry.getFarthestPoint( searchDir.transformInv(tA), vA ));
+        vB = tB.apply(bodyB.geometry.getFarthestPoint( searchDir.transform(tA).transformInv(tB).negate(), vB ));
+
+        searchDir.transform(tB);
+
+        return result.clone(vA).vsub(vB);
+    }
+
     $('#viewport').on({
         mousedown: function(e){
 
@@ -92,7 +109,6 @@ Physics({
                 ,offset = $('#viewport').offset()
                 ,diff = Physics.vector(e.pageX - offset.left, e.pageY - offset.top)
                 ,pos = Physics.vector()
-                ,result = Physics.intersection.result()
                 ;
 
             for ( var i = 0, l = world._bodies.length; i < l; ++i ){
@@ -125,19 +141,13 @@ Physics({
                                 
                                 bodyB = world._bodies[ i ];
 
-                                if ( bodyA.name > bodyB.name ){
+                                ret = Physics.gjk(function( searchDir, result ){
+                                    return support( bodyA, bodyB, searchDir, result );
+                                });
+                                
+                                if (ret.collision){
 
-                                    method = 'test' + toTitleCase(bodyA.name) + toTitleCase(bodyB.name);
-                                    ret = Physics.intersection[ method ]( bodyA, bodyB, result );
-                                } else {
-                                    method = 'test' + toTitleCase(bodyB.name) + toTitleCase(bodyA.name);
-                                    ret = Physics.intersection[ method ]( bodyB, bodyA, result );
-                                }
-
-                                if (ret){
-
-                                    console.log('intersect', bodyA, bodyB, result);
-                                    result.clear()
+                                    console.log('intersection', bodyA, bodyB, ret);
                                 }
                             }
                         }

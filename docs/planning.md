@@ -36,3 +36,26 @@ if ( ang >= (arc1.min - rot1) && ang <= (arc1.max - rot1) )
 make an overlap helper
 Physics.geometry.getOverlaps(geometry1, geometry2) ?
 returns [vector, vector, ...]
+
+// GJK
+
+function support( bodyA, bodyB, searchDir, result ){
+    result = result || Physics.vector();
+    var scratch = Physics.scratchpad();
+    var vA = scratch.vector();
+    var vB = scratch.vector();
+    var tA = bodyA.getTransform();
+    var tB = bodyB.getTransform();
+
+    vA = tA.apply(bodyA.geometry.gjkSupport( searchDir.transformInv(tA), vA ));
+    vB = tB.apply(bodyB.geometry.gjkSupport( searchDir.transform(tA).transformInv(tB).negate(), vB ));
+
+    searchDir.transform(tB);
+
+    return result.clone(vA).vsub(vB);
+}
+
+Physics.gjk(function( searchDir, result ){
+    return support( bodyA, bodyB, searchDir, result );
+});
+
