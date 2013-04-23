@@ -86,7 +86,7 @@ Physics({
     };
 
     // general support function
-    function support( bodyA, bodyB, searchDir, result ){
+    function support( bodyA, bodyB, searchDir ){
         var scratch = Physics.scratchpad();
         var vA = scratch.vector();
         var vB = scratch.vector();
@@ -98,7 +98,8 @@ Physics({
 
         searchDir.transform(tB);
 
-        result.clone(vA).vsub(vB);
+        // need to create a new vector
+        return Physics.vector(vA).vsub(vB);
     }
 
     $('#viewport').on({
@@ -140,8 +141,8 @@ Physics({
                                 
                                 bodyB = world._bodies[ i ];
 
-                                ret = Physics.gjk(function( searchDir, result ){
-                                    return support( bodyA, bodyB, searchDir, result );
+                                ret = Physics.gjk(function( searchDir ){
+                                    return support( bodyA, bodyB, searchDir );
                                 });
                                 
                                 if (ret.overlap){
