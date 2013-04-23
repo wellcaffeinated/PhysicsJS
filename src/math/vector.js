@@ -322,6 +322,49 @@ Vector.prototype.transformInv = function( t ){
 };
 
 /**
+ * Apply the rotation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.rotate = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
+        this._[ 0 ] * t.sinA - this._[ 1 ] * t.cosA
+    );
+};
+
+/**
+ * Apply an inverse rotation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.rotateInv = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
+        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+    );
+};
+
+/**
+ * Apply the translation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.translate = function( t ){
+
+    return this.vadd( t.v );
+};
+
+/**
+ * Apply an inverse translation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.translateInv = function( t ){
+
+    return this.vsub( t.v );
+};
+
+
+/**
  * Returns clone of current Vector
  * Or clones provided Vector to this one
  */

@@ -28,9 +28,7 @@ var Transform = function Transform( vect, angle ) {
         this.setTranslation( vect );
     }
 
-    if (angle){
-        this.setRotation( angle );
-    }
+    this.setRotation( angle || 0 );
 };
 
 /**

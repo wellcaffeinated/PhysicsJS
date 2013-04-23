@@ -33,7 +33,7 @@ Physics.geometry('circle', function( parent ){
 
             result = result || Physics.vector();
 
-            return result.normalize().mult( this.radius );
+            return result.clone( dir ).normalize().mult( this.radius );
         }
     };
 });

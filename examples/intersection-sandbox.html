@@ -100,10 +100,10 @@ Physics({
                 ,ret
                 ;
 
-            vA = bodyA.geometry.getFarthestPoint( searchDir.transformInv( tA ), vA ).transform( tA );
-            vB = bodyB.geometry.getFarthestPoint( searchDir.transform( tA ).transformInv( tB ).negate(), vB ).transform( tB );
+            vA = bodyA.geometry.getFarthestPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
+            vB = bodyB.geometry.getFarthestPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
 
-            searchDir.transform( tB );
+            searchDir.negate().rotate( tB );
 
             // need to create a new vector
             ret = Physics.vector( vA ).vsub( vB );

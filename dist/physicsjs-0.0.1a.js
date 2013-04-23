@@ -2054,9 +2054,7 @@ var Transform = function Transform( vect, angle ) {
         this.setTranslation( vect );
     }
 
-    if (angle){
-        this.setRotation( angle );
-    }
+    this.setRotation( angle || 0 );
 };
 
 /**
@@ -2424,6 +2422,49 @@ Vector.prototype.transformInv = function( t ){
         this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
     );
 };
+
+/**
+ * Apply the rotation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.rotate = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
+        this._[ 0 ] * t.sinA - this._[ 1 ] * t.cosA
+    );
+};
+
+/**
+ * Apply an inverse rotation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.rotateInv = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
+        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+    );
+};
+
+/**
+ * Apply the translation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.translate = function( t ){
+
+    return this.vadd( t.v );
+};
+
+/**
+ * Apply an inverse translation portion of transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.translateInv = function( t ){
+
+    return this.vsub( t.v );
+};
+
 
 /**
  * Returns clone of current Vector
@@ -3197,7 +3238,7 @@ Physics.geometry('circle', function( parent ){
 
             result = result || Physics.vector();
 
-            return result.normalize().mult( this.radius );
+            return result.clone( dir ).normalize().mult( this.radius );
         }
     };
 });
