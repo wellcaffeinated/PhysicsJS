@@ -87,7 +87,6 @@ Physics({
 
     // general support function
     function support( bodyA, bodyB, searchDir, result ){
-        result = result || Physics.vector();
         var scratch = Physics.scratchpad();
         var vA = scratch.vector();
         var vB = scratch.vector();
@@ -99,7 +98,7 @@ Physics({
 
         searchDir.transform(tB);
 
-        return result.clone(vA).vsub(vB);
+        result.clone(vA).vsub(vB);
     }
 
     $('#viewport').on({
@@ -145,7 +144,7 @@ Physics({
                                     return support( bodyA, bodyB, searchDir, result );
                                 });
                                 
-                                if (ret.collision){
+                                if (ret.overlap){
 
                                     console.log('intersection', bodyA, bodyB, ret);
                                 }
