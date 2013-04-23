@@ -24,6 +24,16 @@ Physics.geometry('circle', function( parent ){
                 halfWidth: this.radius,
                 halfHeight: this.radius
             };
+        },
+
+        // get farthest point of this geometry along the direction vector "dir"
+        // returns local coordinates
+        // replace result if provided
+        getFarthestPoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            return result.normalize().mult( this.radius );
         }
     };
 });

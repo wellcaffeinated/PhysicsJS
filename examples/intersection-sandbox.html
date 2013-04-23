@@ -86,20 +86,30 @@ Physics({
     };
 
     // general support function
-    function support( bodyA, bodyB, searchDir ){
-        var scratch = Physics.scratchpad();
-        var vA = scratch.vector();
-        var vB = scratch.vector();
-        var tA = bodyA.getTransform();
-        var tB = bodyB.getTransform();
+    function getSupportFn( bodyA, bodyB ){
 
-        vA = tA.apply(bodyA.geometry.getFarthestPoint( searchDir.transformInv(tA), vA ));
-        vB = tB.apply(bodyB.geometry.getFarthestPoint( searchDir.transform(tA).transformInv(tB).negate(), vB ));
+        var tA = Physics.transform( bodyA.state.pos, bodyA.state.angular.pos )
+            ,tB = Physics.transform( bodyB.state.pos, bodyB.state.angular.pos )
+            ;
 
-        searchDir.transform(tB);
+        return function( searchDir ){
 
-        // need to create a new vector
-        return Physics.vector(vA).vsub(vB);
+            var scratch = Physics.scratchpad()
+                ,vA = scratch.vector()
+                ,vB = scratch.vector()
+                ,ret
+                ;
+
+            vA = bodyA.geometry.getFarthestPoint( searchDir.transformInv( tA ), vA ).transform( tA );
+            vB = bodyB.geometry.getFarthestPoint( searchDir.transform( tA ).transformInv( tB ).negate(), vB ).transform( tB );
+
+            searchDir.transform( tB );
+
+            // need to create a new vector
+            ret = Physics.vector( vA ).vsub( vB );
+            scratch.done();
+            return ret;
+        }
     }
 
     $('#viewport').on({
@@ -141,9 +151,7 @@ Physics({
                                 
                                 bodyB = world._bodies[ i ];
 
-                                ret = Physics.gjk(function( searchDir ){
-                                    return support( bodyA, bodyB, searchDir );
-                                });
+                                ret = Physics.gjk(getSupportFn( bodyA, bodyB ));
                                 
                                 if (ret.overlap){
 

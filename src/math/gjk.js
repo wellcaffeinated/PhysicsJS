@@ -20,7 +20,7 @@ var gjk = function gjk( support, seed ){
         // setup a scratchpad of temporary cheap objects
         ,scratch = Physics.scratchpad()
         // use seed as starting direction or use x axis
-        ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ]);
+        ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ])
         ,last
         ,lastlast
         ,ab

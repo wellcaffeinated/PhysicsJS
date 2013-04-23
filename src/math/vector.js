@@ -15,6 +15,12 @@ var sqrt = Math.sqrt
  * begin Vector Class
  * @class Vector
  */
+
+/**
+ * Vector Constructor / Factory
+ * @param {Number|Physics.vector} x (optional) Either the x coord. Or a vector to copy.
+ * @param {Number} y (optional) The y coord.
+ */
 var Vector = function Vector(x, y) {
 
     // enforce instantiation
@@ -224,8 +230,8 @@ Vector.prototype.dist = function(v) {
   
     var dx, dy;
     return sqrt(
-        (dx = v._[0] - this._[0]) * dx + 
-        (dy = v._[1] - this._[1]) * dy
+        (dx = (v._[0] - this._[0])) * dx + 
+        (dy = (v._[1] - this._[1])) * dy
     );
 };
 
@@ -236,8 +242,8 @@ Vector.prototype.distSq = function(v) {
 
     var dx, dy;
     return (
-        (dx = v._[0] - this._[0]) * dx + 
-        (dy = v._[1] - this._[1]) * dy
+        (dx = (v._[0] - this._[0])) * dx + 
+        (dy = (v._[1] - this._[1])) * dy
     );
 };
 
@@ -289,6 +295,30 @@ Vector.prototype.normalize = function() {
     this._[4] = 1.0;
 
     return this;
+};
+
+/**
+ * Apply a transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.transform = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA + t.v._[ 0 ], 
+        this._[ 0 ] * t.sinA - this._[ 1 ] * t.cosA + t.v._[ 1 ]
+    );
+};
+
+/**
+ * Apply an inverse transform to this vector
+ * @param  {Physics.transform} t The transform
+ */
+Vector.prototype.transformInv = function( t ){
+
+    return this.set(
+        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA - t.v._[ 0 ], 
+        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
+    );
 };
 
 /**
