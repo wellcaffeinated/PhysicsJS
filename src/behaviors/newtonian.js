@@ -17,7 +17,6 @@ Physics.behavior('newtonian', function( parent ){
 
             this.strength = options.strength;
             this.tolerance = options.tolerance || 100 * this.strength;
-            this._vec = Physics.vector(); // temp vector
         },
         
         behave: function( bodies, dt ){
@@ -26,7 +25,8 @@ Physics.behavior('newtonian', function( parent ){
                 ,other
                 ,strength = this.strength
                 ,tolerance = this.tolerance
-                ,pos = this._vec
+                ,scratch = Physics.scratchpad()
+                ,pos = scratch.vector()
                 ,normsq
                 ,g
                 ;
@@ -38,10 +38,10 @@ Physics.behavior('newtonian', function( parent ){
                 for ( var i = j + 1, l = bodies.length; i < l; i++ ){
                     
                     other = bodies[ i ];
-                    
+                    // clone the position
                     pos.clone( other.state.pos );
                     pos.vsub( body.state.pos );
-
+                    // get the square distance
                     normsq = pos.normSq();
 
                     if (normsq > tolerance){
@@ -53,6 +53,8 @@ Physics.behavior('newtonian', function( parent ){
                     }
                 }
             }
+
+            scratch.done();
         }
     };
 });
