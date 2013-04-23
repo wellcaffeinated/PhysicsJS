@@ -249,27 +249,27 @@ Vector.prototype.distSq = function(v) {
 
 /**
  * Change vector into a vector perpendicular
- * @param {Boolean} cw Set to true if want to go clockwise instead
+ * @param {Boolean} neg Set to true if want to go in the negative direction
  * @return {this}
  */
-Vector.prototype.perp = function( ccw ) {
+Vector.prototype.perp = function( neg ) {
 
     var tmp = this._[0]
         ;
 
-    if ( ccw ){
-
-        // x <-> y
-        // negate x
-        this._[0] = -this._[1];
-        this._[1] = tmp;
-
-    } else {
+    if ( neg ){
 
         // x <-> y
         // negate y
         this._[0] = this._[1];
         this._[1] = -tmp;
+
+    } else {
+
+        // x <-> y
+        // negate x
+        this._[0] = -this._[1];
+        this._[1] = tmp;
 
     }
 
@@ -305,7 +305,7 @@ Vector.prototype.transform = function( t ){
 
     return this.set(
         this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA + t.v._[ 0 ], 
-        this._[ 0 ] * t.sinA - this._[ 1 ] * t.cosA + t.v._[ 1 ]
+        - this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
     );
 };
 
@@ -329,7 +329,7 @@ Vector.prototype.rotate = function( t ){
 
     return this.set(
         this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
-        this._[ 0 ] * t.sinA - this._[ 1 ] * t.cosA
+        - this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
     );
 };
 
@@ -508,6 +508,11 @@ Vector.axis = [
     new Vector(1.0, 0.0),
     new Vector(0.0, 1.0)
 ];
+
+/**
+ * Zero vector for reference
+ */
+Vector.zero = new Vector(0, 0);
 
 // assign
 

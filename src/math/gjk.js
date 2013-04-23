@@ -42,7 +42,7 @@ var gjk = function gjk( support, seed ){
         simplexLen = simplex.push( last );
 
         // check if the last point we added actually passed the origin
-        if ( last.dot( dir ) <= 0.0 ) {
+        if ( last.dot( dir ) <= 0.0 && !last.equals(Physics.vector.zero) ) {
             // if the point added last was not past the origin in the direction of d
             // then the Minkowski Sum cannot possibly contain the origin since
             // the last point added is on the edge of the Minkowski Difference

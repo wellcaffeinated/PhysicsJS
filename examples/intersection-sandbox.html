@@ -156,6 +156,10 @@ Physics({
                                 if (ret.overlap){
 
                                     console.log('intersection', bodyA, bodyB, ret);
+                                    $('body').css('background', '#833');
+                                } else {
+
+                                    $('body').css('background', '#333');
                                 }
                             }
                         }
