@@ -1441,6 +1441,72 @@ var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
 };
 
 /**
+ * Figure out the closest points on the original objects
+ * from the last two entries of the simplex
+ * @param  {Array} simplex
+ * @return {Object}
+ */
+var getClosestPoints = function getClosestPoints( simplex ){
+
+    // see http://www.codezealot.org/archives/153
+    // for algorithm details
+    var len = simplex.length
+        ,last = simplex[ len - 1 ]
+        ,prev = simplex[ len - 2 ]
+        ,scratch = Physics.scratchpad()
+        ,A = scratch.vector().clone( last.pt )
+        // L = B - A
+        ,L = scratch.vector().clone( prev.pt ).vsub( A )
+        ,lambdaB
+        ,lambdaA
+        ;
+
+    if ( L.equals(Physics.vector.zero) ){
+
+        // oh.. it's a zero vector. So A and B are both the closest.
+        // just use one of them
+        scratch.done();
+        return {
+
+            a: last.a,
+            b: last.b
+        };
+    }
+
+    lambdaB = L.dot( A ) / L.normSq();
+    lambdaA = 1 - lambdaB;
+
+    if ( lambdaA <= 0 ){
+        // woops.. that means the closest simplex point
+        // isn't on the line it's point B itself
+        scratch.done();
+        return {
+            a: prev.a,
+            b: prev.b
+        };
+    } else if ( lambdaB <= 0 ){
+
+        // vice versa
+        scratch.done();
+        return {
+            a: last.a,
+            b: last.b
+        };
+    }
+
+    // guess we'd better do the math now...
+    var ret = {
+        // a closest = lambdaA * Aa + lambdaB * Ba
+        a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
+        // b closest = lambdaA * Ab + lambdaB * Bb
+        b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
+    };
+
+    scratch.done();
+    return ret;
+};
+
+/**
  * Implementation agnostic GJK function.
  * @param  {Function} support The support function. Must return an object containing 
  *                            the witness points (.a, .b) and the support point (.pt).
@@ -1644,6 +1710,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
     if ( distance !== false ){
 
         tmp.distance = distance;
+        tmp.closest = getClosestPoints( simplex );
     }
 
     return tmp;

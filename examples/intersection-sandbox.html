@@ -34,12 +34,27 @@
 
 // helpers
 
-function drawPoint(ctx, p, radius, color) {
+function drawPoint(ctx, p, radius, color, offset) {
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
     ctx.beginPath();
-    ctx.arc(p.get(0), p.get(1), radius, 0, Math.PI*2, false);     
+    ctx.arc(p.x === undefined? p.get(0) : p.x, p.y === undefined? p.get(1) : p.y, radius, 0, Math.PI*2, false);     
 
     ctx.fillStyle = color;
     ctx.fill();
+    ctx.restore();
+}
+
+function drawLine(ctx, p1, p2, lineWidth, color, offset) {
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
+    ctx.beginPath();
+    ctx.moveTo(p1.x === undefined? p1.get(0) : p1.x, p1.y === undefined? p1.get(1) : p1.y);
+    ctx.lineTo(p2.x === undefined? p2.get(0) : p2.x, p2.y === undefined? p2.get(1) : p2.y);     
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.restore();
 }
 
 function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
@@ -107,13 +122,23 @@ Physics({
     world.add( circles );
     world.add( renderer );
 
-    function updateCanvas( simplex ){
+    function updateCanvas( gjk ){
         var ctx = renderer.ctx;
         renderer.render(world._bodies, { fps: 0, steps: 0 });
         // draw origin
-        drawPoint(ctx, renderer.options.offset, 2, 'red');
+        drawPoint(ctx, {x: 0, y: 0}, 2, 'red', renderer.options.offset);
         drawMinkowski( ctx, circles[0], circles[1] );
-        drawSimplex(ctx, simplex, 1, '#448', renderer.options.offset);
+        
+        if (!gjk) return;
+
+        drawSimplex(ctx, gjk.simplex, 1, '#448', renderer.options.offset);
+
+        if (gjk.closest){
+
+            drawLine(ctx, gjk.closest.a, gjk.closest.b, 1, 'yellow', renderer.options.offset);
+            drawPoint(ctx, gjk.closest.a, 2, 'green', renderer.options.offset);
+            drawPoint(ctx, gjk.closest.b, 2, 'green', renderer.options.offset);
+        }
     }
 
     var toTitleCase = function toTitleCase(str) {
@@ -134,7 +159,7 @@ Physics({
             transform.setRotation( i );
             dir.rotate(transform);
             point.clone( support( dir ).pt );
-            drawPoint(ctx, point.vadd(renderer.options.offset), 0.5, '#ddd');
+            drawPoint(ctx, point, 0.5, '#ddd', renderer.options.offset);
         }
 
     }
@@ -216,7 +241,7 @@ Physics({
                         bodyA = world._bodies[ 0 ];
                         bodyB = world._bodies[ 1 ];
 
-                        pos.clone( bodyA.state.pos ).vsub( body.state.pos );
+                        pos.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
 
                         ret = Physics.gjk(getSupportFn( bodyA, bodyB ), pos);
                         
@@ -233,7 +258,7 @@ Physics({
 
                         pos.set(e.pageX - offset.left, e.pageY - offset.top).vsub( diff );
                         body.state.pos.clone(pos);
-                        updateCanvas( ret.simplex );
+                        updateCanvas( ret );
                     },
                     mouseup: function(e){
                         $(window).off('mousemove.drag');
