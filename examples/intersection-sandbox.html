@@ -151,14 +151,15 @@ Physics({
                                 
                                 bodyB = world._bodies[ i ];
 
-                                ret = Physics.gjk(getSupportFn( bodyA, bodyB ));
+                                ret = Physics.gjk(getSupportFn( bodyA, bodyB ), null);
                                 
                                 if (ret.overlap){
 
-                                    console.log('intersection', bodyA, bodyB, ret);
+                                    console.log('intersection', ret);
                                     $('body').css('background', '#833');
                                 } else {
 
+                                    console.log('intersection', ret.distance);
                                     $('body').css('background', '#333');
                                 }
                             }
