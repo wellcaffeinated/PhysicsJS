@@ -209,27 +209,23 @@ Physics({
                             ,ret
                             ;
 
-                        for ( var ii = 0, l = world._bodies.length; ii < l; ++ii ){
+                        bodyA = world._bodies[ 0 ];
+                        bodyB = world._bodies[ 1 ];
 
-                            bodyA = world._bodies[ ii ];
-                            
-                            for ( var i = ii + 1; i < l; ++i ){
-                                
-                                bodyB = world._bodies[ i ];
+                        pos.clone( bodyA.state.pos ).vsub( body.state.pos );
 
-                                ret = Physics.gjk(getSupportFn( bodyA, bodyB ), null);
-                                
-                                if (ret.overlap){
+                        ret = Physics.gjk(getSupportFn( bodyA, bodyB ), pos);
+                        
+                        if (ret.overlap){
 
-                                    console.log('intersection', ret);
-                                    $('body').css('background', '#833');
-                                } else {
+                            console.log('intersection', ret, 'iterations: '+ret.iterations);
+                            $('body').css('background', '#833');
+                        } else {
 
-                                    console.log('intersection', ret.distance, ret.simplex + "");
-                                    $('body').css('background', '#333');
-                                }
-                            }
+                            console.log('distance', ret.distance, ret.simplex + "", 'iterations: ' + ret.iterations);
+                            $('body').css('background', '#333');
                         }
+                        
 
                         pos.set(e.pageX - offset.left, e.pageY - offset.top).vsub( diff );
                         body.state.pos.clone(pos);

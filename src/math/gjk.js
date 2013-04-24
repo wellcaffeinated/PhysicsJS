@@ -4,8 +4,8 @@
 // * http://mollyrocket.com/849
 (function(){
 
-var gjkAccuracy = 0.000001;
-var gjkMaxIterations = 500;
+var gjkAccuracy = 0.0001;
+var gjkMaxIterations = 100;
 
 // get the next search direction from two simplex points
 var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
@@ -208,6 +208,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             return {
                 simplex: simplex,
                 iterations: iterations,
+                distance: 0,
                 maxIterationsReached: true
             };
         }
