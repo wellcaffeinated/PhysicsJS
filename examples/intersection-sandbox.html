@@ -25,13 +25,45 @@
 <body>
 
 <!-- Setup -->
-    <div id="viewport"></div>
+    <canvas id="viewport"></canvas>
 
 <!-- Scripts -->
 <script src="../dist/physicsjs-0.0.1a.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 
+// helpers
+
+function drawPoint(ctx, p, radius, color) {
+    ctx.beginPath();
+    ctx.arc(p.get(0), p.get(1), radius, 0, Math.PI*2, false);     
+
+    ctx.fillStyle = color;
+    ctx.fill();
+}
+
+function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
+    if (!simplex || !simplex.length) return;
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
+    ctx.beginPath();
+
+    ctx.moveTo(simplex[0].get(0), simplex[0].get(1));     
+    for (var i = 1; i < simplex.length; i++) {
+        ctx.lineTo(simplex[i].get(0), simplex[i].get(1));
+    }
+
+    // if (v.length > 2) {
+    //     ctx.closePath();
+    // }
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeColor;
+    ctx.stroke();
+    ctx.restore();
+}
+
+// main
 Physics({
 
     // config
@@ -47,29 +79,27 @@ Physics({
     
     circles.push(
         Physics.body('circle', {
-            x: 400,
-            y: 100,
-            vx: 0,
+            x: 200,
+            y: 0,
             radius: 10
         })
     );
 
     circles.push(
         Physics.body('circle', {
-            x: 20,
-            y: 200,
+            x: 200,
+            y: 100,
             radius: 15,
             mass: 2,
-            vx: 0.05,
-            vy: -0.15,
             angularVelocity: 0.01
         })
     );
 
-    var renderer = Physics.renderer('dom', {
+    var renderer = Physics.renderer('canvas', {
         el: 'viewport',
         width: viewWidth,
-        height: viewHeight
+        height: viewHeight,
+        offset: Physics.vector( viewWidth/2, viewHeight/2 )
     });
 
     // add things to world
@@ -77,13 +107,37 @@ Physics({
     world.add( circles );
     world.add( renderer );
 
-    renderer.render(world._bodies, { fps: 0, steps: 0 });
+    function updateCanvas( simplex ){
+        var ctx = renderer.ctx;
+        renderer.render(world._bodies, { fps: 0, steps: 0 });
+        // draw origin
+        drawPoint(ctx, renderer.options.offset, 2, 'red');
+        drawMinkowski( ctx, circles[0], circles[1] );
+        drawSimplex(ctx, simplex, 1, '#448', renderer.options.offset);
+    }
 
     var toTitleCase = function toTitleCase(str) {
        return str.replace(/(?:^|\s)\w/g, function(match) {
             return match.toUpperCase();
         });
     };
+
+    function drawMinkowski(ctx, bodyA, bodyB){
+        var support = getSupportFn( bodyA, bodyB )
+            ,dir = Physics.vector(1, 0)
+            ,transform = Physics.transform()
+            ,point
+            ;
+
+        for ( var i = 0, l = 2*Math.PI; i < l; i += 0.1 ){
+            
+            transform.setRotation( i );
+            dir.rotate(transform);
+            point = support( dir );
+            drawPoint(ctx, point.vadd(renderer.options.offset), 0.5, '#ddd');
+        }
+
+    }
 
     // general support function
     function getSupportFn( bodyA, bodyB ){
@@ -119,16 +173,28 @@ Physics({
                 ,offset = $('#viewport').offset()
                 ,diff = Physics.vector(e.pageX - offset.left, e.pageY - offset.top)
                 ,pos = Physics.vector()
+                ,bounds = Physics.bounds()
                 ;
 
+            diff.vsub( renderer.options.offset );
+
             for ( var i = 0, l = world._bodies.length; i < l; ++i ){
+
+                body = world._bodies[ i ];
+
+                pos.clone( body.state.pos ).sub( body.geometry.radius );
+                bounds.set( pos.get(0), pos.get(1), pos.add( body.geometry.radius * 2).get(0), pos.get(1) );
                 
-                if (world._bodies[ i ].view === this){
+                if (bounds.contains( diff )){
 
                     body = world._bodies[ i ];
                     break;
                 }
+
+                body = null;
             }
+
+            diff.vadd( renderer.options.offset );
 
             if (body){
 
@@ -159,7 +225,7 @@ Physics({
                                     $('body').css('background', '#833');
                                 } else {
 
-                                    console.log('intersection', ret.distance);
+                                    console.log('intersection', ret.distance, ret.simplex + "");
                                     $('body').css('background', '#333');
                                 }
                             }
@@ -167,7 +233,7 @@ Physics({
 
                         pos.set(e.pageX - offset.left, e.pageY - offset.top).vsub( diff );
                         body.state.pos.clone(pos);
-                        renderer.render(world._bodies, { fps: 0, steps: 0 });
+                        updateCanvas( ret.simplex );
                     },
                     mouseup: function(e){
                         $(window).off('mousemove.drag');
@@ -175,8 +241,12 @@ Physics({
                 });
             }
         }
-    },
-    '.pjs-circle');
+    });
+    
+    updateCanvas();
+    setTimeout(function(){
+        updateCanvas();
+    }, 500);
 });
 
 </script>
