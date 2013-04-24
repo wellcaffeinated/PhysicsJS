@@ -5,6 +5,7 @@
 (function(){
 
 var gjkAccuracy = 0.000001;
+var gjkMaxIterations = 500;
 
 // get the next search direction from two simplex points
 var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
@@ -91,9 +92,10 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             }
 
             noOverlap = true;
+        }
 
         // if it's a line...
-        } else if ( simplexLen === 2 ){
+        if ( simplexLen === 2 ){
 
             // otherwise we need to determine if the origin is in
             // the current simplex and act accordingly
@@ -112,6 +114,8 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             if ( (tmp - lastlast.dot( dir )) < gjkAccuracy ){
 
                 distance = -tmp;
+                // we didn't end up using the lastlast point
+                simplex.splice(1, 1);
                 break;
             }
 
@@ -199,15 +203,23 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 break;
             }
         }
+
+        if (iterations > gjkMaxIterations){
+            return {
+                simplex: simplex,
+                iterations: iterations,
+                maxIterationsReached: true
+            };
+        }
     }
 
-    console.log(iterations)
     // free workspace
     scratch.done();
 
     tmp = {
         overlap: overlap,
-        simplex: simplex
+        simplex: simplex,
+        iterations: iterations
     };
 
     if ( distance !== false ){
