@@ -37,25 +37,30 @@ make an overlap helper
 Physics.geometry.getOverlaps(geometry1, geometry2) ?
 returns [vector, vector, ...]
 
-// GJK
+// collision
 
-function support( bodyA, bodyB, searchDir, result ){
-    result = result || Physics.vector();
-    var scratch = Physics.scratchpad();
-    var vA = scratch.vector();
-    var vB = scratch.vector();
-    var tA = bodyA.getTransform();
-    var tB = bodyB.getTransform();
+collision.behave():
 
-    vA = tA.apply(bodyA.geometry.gjkSupport( searchDir.transformInv(tA), vA ));
-    vB = tB.apply(bodyB.geometry.gjkSupport( searchDir.transform(tA).transformInv(tB).negate(), vB ));
+for each two bodies: bodyA, bodyB (bodyA !== bodyB)
+    
+    gjk = checkHullOverlap( bodyA, bodyB )
 
-    searchDir.transform(tB);
+    if ( !gjk.overlap ) continue;
 
-    return result.clone(vA).vsub(vB);
-}
+    gjk = checkCoreOverlap( bodyA, bodyB )
 
-Physics.gjk(function( searchDir, result ){
-    return support( bodyA, bodyB, searchDir, result );
-});
+    if ( gjk.overlap )
+        do deep penetration test (EPA) on A and B
+        return
+
+    else
+        // not accurate... but might be enough...
+        // overlap is negative
+        var overlap = gjk.distance - (bodyA.geometry.getMargin() + bodyB.geometry.getMargin());
+        // vector minimum transit for extracting B
+        var mtvAB = Physics.vector().clone( gjk.closest.a ).vsub( gjk.closest.b ).normalize().mult( overlap );
+
+        collisionPt = projected core point to hull
+
+        applyImpulses( bodyA, bodyB, collisionPt )
 
