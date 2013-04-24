@@ -66,8 +66,8 @@ Vector.prototype.set = function(x, y) {
 
     this.recalc = true;
 
-    this._[0] = x;
-    this._[1] = y;
+    this._[0] = x || 0.0;
+    this._[1] = y || 0.0;
     return this;
 };
 
@@ -373,6 +373,11 @@ Vector.prototype.clone = function(v) {
     // http://jsperf.com/vector-storage-test
 
     if (v){
+
+        if (!v._){
+
+            return this.set( v.x, v.y );
+        }
         
         this.recalc = v.recalc;
 

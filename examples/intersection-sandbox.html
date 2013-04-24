@@ -48,9 +48,9 @@ function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
     ctx.translate(offset.get(0), offset.get(1));
     ctx.beginPath();
 
-    ctx.moveTo(simplex[0].get(0), simplex[0].get(1));     
+    ctx.moveTo(simplex[0].pt.x, simplex[0].pt.y);     
     for (var i = 1; i < simplex.length; i++) {
-        ctx.lineTo(simplex[i].get(0), simplex[i].get(1));
+        ctx.lineTo(simplex[i].pt.x, simplex[i].pt.y);
     }
 
     // if (v.length > 2) {
@@ -126,24 +126,25 @@ Physics({
         var support = getSupportFn( bodyA, bodyB )
             ,dir = Physics.vector(1, 0)
             ,transform = Physics.transform()
-            ,point
+            ,point = Physics.vector()
             ;
 
         for ( var i = 0, l = 2*Math.PI; i < l; i += 0.1 ){
             
             transform.setRotation( i );
             dir.rotate(transform);
-            point = support( dir );
+            point.clone( support( dir ).pt );
             drawPoint(ctx, point.vadd(renderer.options.offset), 0.5, '#ddd');
         }
 
     }
 
     // general support function
-    function getSupportFn( bodyA, bodyB ){
+    function getSupportFn( bodyA, bodyB, useCore ){
 
         var tA = Physics.transform( bodyA.state.pos, bodyA.state.angular.pos )
             ,tB = Physics.transform( bodyB.state.pos, bodyB.state.angular.pos )
+            ,fn = useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
             ;
 
         return function( searchDir ){
@@ -154,13 +155,16 @@ Physics({
                 ,ret
                 ;
 
-            vA = bodyA.geometry.getFarthestPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
-            vB = bodyB.geometry.getFarthestPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+            vA = bodyA.geometry[ fn ]( searchDir.rotateInv( tA ), vA ).transform( tA );
+            vB = bodyB.geometry[ fn ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
 
             searchDir.negate().rotate( tB );
 
-            // need to create a new vector
-            ret = Physics.vector( vA ).vsub( vB );
+            ret = {
+                a: vA.values(),
+                b: vB.values(),
+                pt: vA.vsub( vB ).values() 
+            };
             scratch.done();
             return ret;
         }

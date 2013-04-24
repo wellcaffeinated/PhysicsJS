@@ -26,14 +26,29 @@ Physics.geometry('circle', function( parent ){
             };
         },
 
-        // get farthest point of this geometry along the direction vector "dir"
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
         // returns local coordinates
         // replace result if provided
-        getFarthestPoint: function( dir, result ){
+        getFarthestHullPoint: function( dir, result ){
 
             result = result || Physics.vector();
 
             return result.clone( dir ).normalize().mult( this.radius );
+        },
+
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
+        // returns local coordinates
+        // replace result if provided
+        getFarthestCorePoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            // we can use the center of the circle as the core object
+            // because we can project a point to the hull in any direction
+            // ... yay circles!
+            return result.set( 0, 0 );
         }
     };
 });

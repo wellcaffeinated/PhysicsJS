@@ -1407,6 +1407,8 @@ Physics.util.ticker = {
 // * http://mollyrocket.com/849
 (function(){
 
+// the algorithm doesn't always converge for curved shapes.
+// need these constants to dictate how accurate we want to be.
 var gjkAccuracy = 0.0001;
 var gjkMaxIterations = 100;
 
@@ -1417,6 +1419,8 @@ var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
         ,ABdotA = ptB.dot( ptA ) - ptA.normSq()
         ;
 
+    // if the origin is farther than either of these points
+    // get the direction from one of those points to the origin
     if ( ABdotB < 0 ){
 
         return dir.clone( ptB ).negate();
@@ -1425,6 +1429,7 @@ var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
 
         return dir.clone( ptA ).negate();
 
+    // otherwise, use the perpendicular direction from the simplex
     } else {
 
         // dir = AB = B - A
@@ -1437,7 +1442,9 @@ var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
 
 /**
  * Implementation agnostic GJK function.
- * @param  {Function} support The support function. 
+ * @param  {Function} support The support function. Must return an object containing 
+ *                            the witness points (.a, .b) and the support point (.pt).
+ *                            Recommended to use simple objects. Eg: return { a: {x: 1, y:2}, b: {x: 3, y: 4}, pt: {x: 2, y: 2} }
  *                            Signature: function(<Physics.vector> axis).
  *                            axis: The axis to use
  * @param {Physics.vector} seed The starting direction for the simplex
@@ -1454,8 +1461,11 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
         ,scratch = Physics.scratchpad()
         // use seed as starting direction or use x axis
         ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ])
-        ,last
-        ,lastlast
+        ,last = scratch.vector()
+        ,lastlast = scratch.vector()
+        // some temp vectors
+        ,v1 = scratch.vector()
+        ,v2 = scratch.vector()
         ,ab
         ,ac
         ,sign
@@ -1464,18 +1474,23 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
         ;
 
     // get the first Minkowski Difference point
-    last = support( dir );
-    simplexLen = simplex.push( last );
+    tmp = support( dir );
+    simplexLen = simplex.push( tmp );
+    last.clone( tmp.pt );
     // negate d for the next point
     dir.negate();
 
     // start looping
     while ( ++iterations ) {
 
-        // push a new point to the simplex because we haven't terminated yet
+        // swap last and lastlast, to save on memory/speed
+        tmp = lastlast;
         lastlast = last;
-        last = support( dir );
-        simplexLen = simplex.push( last );
+        last = tmp;
+        // push a new point to the simplex because we haven't terminated yet
+        tmp = support( dir );
+        simplexLen = simplex.push( tmp );
+        last.clone( tmp.pt );
 
         if ( last.equals(Physics.vector.zero) ){
             // we happened to pick the origin as a support point... lucky.
@@ -1517,8 +1532,6 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             if ( (tmp - lastlast.dot( dir )) < gjkAccuracy ){
 
                 distance = -tmp;
-                // we didn't end up using the lastlast point
-                simplex.splice(1, 1);
                 break;
             }
 
@@ -1528,7 +1541,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             // than the previous two)
             // the norm is the same as distance(origin, a)
             // use norm squared to avoid the sqrt operations
-            if (lastlast.normSq() < simplex[ 0 ].normSq()) {
+            if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
                 
                 simplex.shift();
 
@@ -1537,7 +1550,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 simplex.splice(1, 1);
             }
 
-            dir = getNextSearchDir( simplex[ 1 ], simplex[ 0 ], dir );
+            dir = getNextSearchDir( v1.clone(simplex[ 1 ].pt), v2.clone(simplex[ 0 ].pt), dir );
             // continue...
 
         // if it's a triangle
@@ -1550,7 +1563,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
 
             // get the edges AB and AC
             ab.clone( lastlast ).vsub( last );
-            ac.clone( simplex[ 0 ] ).vsub( last );
+            ac.clone( simplex[ 0 ].pt ).vsub( last );
 
             // here normally people think about this as getting outward facing
             // normals and checking dot products. Since we're in 2D
@@ -1607,6 +1620,8 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             }
         }
 
+        // woah nelly... that's a lot of iterations.
+        // Stop it!
         if (iterations > gjkMaxIterations){
             return {
                 simplex: simplex,
@@ -2272,8 +2287,8 @@ Vector.prototype.set = function(x, y) {
 
     this.recalc = true;
 
-    this._[0] = x;
-    this._[1] = y;
+    this._[0] = x || 0.0;
+    this._[1] = y || 0.0;
     return this;
 };
 
@@ -2579,6 +2594,11 @@ Vector.prototype.clone = function(v) {
     // http://jsperf.com/vector-storage-test
 
     if (v){
+
+        if (!v._){
+
+            return this.set( v.x, v.y );
+        }
         
         this.recalc = v.recalc;
 
@@ -2853,10 +2873,23 @@ Physics.vector = Vector;
             };
         },
 
-        // get farthest point of this geometry along the direction vector "dir"
+        // get farthest point on the hull of this geometry 
+        // along the direction vector "dir"
         // returns local coordinates
         // replace result if provided
-        getFarthestPoint: function( dir, result ){
+        getFarthestHullPoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            // not implemented.
+            return result.set( 0, 0 );
+        },
+
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
+        // returns local coordinates
+        // replace result if provided
+        getFarthestCorePoint: function( dir, result ){
 
             result = result || Physics.vector();
 
@@ -3340,14 +3373,29 @@ Physics.geometry('circle', function( parent ){
             };
         },
 
-        // get farthest point of this geometry along the direction vector "dir"
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
         // returns local coordinates
         // replace result if provided
-        getFarthestPoint: function( dir, result ){
+        getFarthestHullPoint: function( dir, result ){
 
             result = result || Physics.vector();
 
             return result.clone( dir ).normalize().mult( this.radius );
+        },
+
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
+        // returns local coordinates
+        // replace result if provided
+        getFarthestCorePoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            // we can use the center of the circle as the core object
+            // because we can project a point to the hull in any direction
+            // ... yay circles!
+            return result.set( 0, 0 );
         }
     };
 });

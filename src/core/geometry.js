@@ -18,10 +18,23 @@
             };
         },
 
-        // get farthest point of this geometry along the direction vector "dir"
+        // get farthest point on the hull of this geometry 
+        // along the direction vector "dir"
         // returns local coordinates
         // replace result if provided
-        getFarthestPoint: function( dir, result ){
+        getFarthestHullPoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            // not implemented.
+            return result.set( 0, 0 );
+        },
+
+        // get farthest point on the core object of this geometry 
+        // along the direction vector "dir"
+        // returns local coordinates
+        // replace result if provided
+        getFarthestCorePoint: function( dir, result ){
 
             result = result || Physics.vector();
 
