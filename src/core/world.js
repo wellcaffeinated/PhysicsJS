@@ -181,12 +181,13 @@ World.prototype = {
 
         var behaviors = this._behaviorStack
             ,l = behaviors.length
+            ,bodies = this._bodies
             ;
 
         // apply behaviors in reverse order... highest priority first
         while ( l-- ){
             
-            behaviors[ l ].behave( this._bodies, dt );
+            behaviors[ l ].behave( bodies, dt );
         }
     },
 

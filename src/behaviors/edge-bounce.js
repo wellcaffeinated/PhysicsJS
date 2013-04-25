@@ -69,6 +69,8 @@ Physics.behavior('edge-bounce', function( parent ){
 
     return {
 
+        priority: 2,
+
         init: function( options ){
 
             // call parent init method

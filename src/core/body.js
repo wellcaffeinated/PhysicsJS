@@ -12,6 +12,7 @@
             this.fixed = options.fixed || false;
             this.mass = options.mass || 1.0;
             this.restitution = options.restitution || 1.0;
+            this.cof = options.cof || 0.8;
             // moment of inertia
             this.moi = 0.0;
 

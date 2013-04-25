@@ -48,33 +48,33 @@ Physics({
     
     circles.push(
         Physics.body('circle', {
-            x: 400,
+            x: 300,
             y: 100,
             vx: 0,
-            radius: 10
+            radius: 10,
+            angularVelocity: 0
         })
     );
 
     circles.push(
         Physics.body('circle', {
-            x: 20,
+            x: 300,
             y: 200,
-            radius: 15,
-            mass: 2,
-            vx: 0.05,
-            vy: -0.15,
-            angularVelocity: 0.01
+            radius: 10,
+            vx: -0.02,
+            vy: 0,
+            angularVelocity: 0
         })
     );
 
     circles.push(
         Physics.body('circle', {
-            x: 400*Math.random(),
-            y: 500*Math.random(),
+            x: 300,
+            y: 300,
             radius: 12,
             mass: 1.5,
-            vx: 0.25,
-            vy: .1
+            vx: 0.01,
+            vy: 0
         })
     );
 
@@ -127,8 +127,62 @@ Physics({
         };
     }, {}) );
 
+    world.add(Physics.behavior('simple-collision-detection', function(){
+
+        var PUBSUB_TOPIC = 'collision-detect';
+
+        var detectCircleCollisions = function detectCircleCollisions( bodies ){
+
+            var bodyA
+                ,bodyB
+                ,world = this._world
+                ,scratch = Physics.scratchpad()
+                ,d = scratch.vector()
+                ,overlap
+                ;
+
+            if (!world) return;
+
+            for ( var j = 0, l = bodies.length; j < l; j++ ){
+                
+                bodyA = bodies[ j ];
+
+                for ( var i = j + 1; i < l; i++ ){
+
+                    bodyB = bodies[ i ];
+
+                    d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
+                    overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
+
+                    if ( overlap <= 0 ){
+
+                        world.publish({
+                            topic: PUBSUB_TOPIC,
+                            bodyA: bodyA,
+                            bodyB: bodyB,
+                            norm: d.normalize().values(),
+                            pos: d.mult( bodyA.geometry.radius ).vadd( bodyA.state.pos ).values(),
+                            mtv: d.vsub( bodyA.state.pos ).normalize().mult( overlap ).values()
+                        });
+                    }
+                }
+            }
+
+            scratch.done();
+        };
+
+        return {
+
+            priority: 10,
+
+            behave: detectCircleCollisions
+        };
+
+    }, {}));
+
+    world.add( Physics.behavior('body-impulse-response') );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
-    
+
     Physics.util.ticker.subscribe(function( time, dt ){
 
         world.step( time );

@@ -8,7 +8,7 @@ var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
     ,acos = Math.acos
-    ,typedArrays = !!window.Float32Array
+    ,typedArrays = !!window.Float64Array
     ;
 
 /**
@@ -37,7 +37,7 @@ var Vector = function Vector(x, y) {
     
 
     if (typedArrays){
-        this._ = new Float32Array(5);
+        this._ = new Float64Array(5);
     } else {
         this._ = [];
     }

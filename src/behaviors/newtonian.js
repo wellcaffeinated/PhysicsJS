@@ -31,11 +31,11 @@ Physics.behavior('newtonian', function( parent ){
                 ,g
                 ;
 
-            for ( var j = 0, ll = bodies.length; j < ll; j++ ){
+            for ( var j = 0, l = bodies.length; j < l; j++ ){
                 
                 body = bodies[ j ];
 
-                for ( var i = j + 1, l = bodies.length; i < l; i++ ){
+                for ( var i = j + 1; i < l; i++ ){
                     
                     other = bodies[ i ];
                     // clone the position
