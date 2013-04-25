@@ -128,7 +128,7 @@ Physics({
     }, {}) );
 
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
-
+    
     Physics.util.ticker.subscribe(function( time, dt ){
 
         world.step( time );
