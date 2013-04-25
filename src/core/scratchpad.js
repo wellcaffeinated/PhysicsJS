@@ -14,76 +14,98 @@
     var scratches = [];
     var numScratches = 0;
 
-    var ScratchFactory = function ScratchFactory(){
+    var ScratchCls = function ScratchCls(){
 
         // private variables
-        var objIndex = 0
-            ,arrayIndex = 0
-            ,vectorIndex = 0
-            ,objectStack = []
-            ,arrayStack = []
-            ,vectorStack = []
-            ;
+        this.objIndex = 0;
+        this.arrayIndex = 0;
+        this.vectorIndex = 0;
+        this.transformIndex = 0;
+        this.objectStack = [];
+        this.arrayStack = [];
+        this.vectorStack = [];
+        this.transformStack = [];
 
         if (++numScratches >= SCRATCH_MAX_SCRATCHES){
             throw SCRATCH_MAX_REACHED;
         }
+    };
 
-        return {
+    ScratchCls.prototype = {
 
-            // declare that your work is finished
-            done: function(){
+        // declare that your work is finished
+        done: function(){
 
-                this._active = false;
-                objIndex = arrayIndex = vectorIndex = 0;
-                // add it back to the scratch stack for future use
-                scratches.push(this);
-            },
+            this._active = false;
+            this.objIndex = this.arrayIndex = this.vectorIndex = this.transformIndex = 0;
+            // add it back to the scratch stack for future use
+            scratches.push(this);
+        },
 
-            object: function(){
+        object: function(){
 
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
+            var stack = this.objectStack;
 
-                if (objIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return objectStack[ objIndex++ ] || objectStack[ objectStack.push({}) - 1 ];
-            },
-
-            array: function(){
-
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
-
-                if (arrIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return arrayStack[ arrIndex++ ] || arrayStack[ arrayStack.push([]) - 1 ];
-            },
-
-            vector: function(){
-
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
-
-                if (vectorIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return vectorStack[ vectorIndex++ ] || vectorStack[ vectorStack.push(Physics.vector()) - 1 ];
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
             }
-        };
+
+            if (this.objIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.objIndex++ ] || stack[ stack.push({}) - 1 ];
+        },
+
+        array: function(){
+
+            var stack = this.arrayStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.arrIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.arrIndex++ ] || stack[ stack.push([]) - 1 ];
+        },
+
+        vector: function(){
+
+            var stack = this.vectorStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.vectorIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.vectorIndex++ ] || stack[ stack.push(Physics.vector()) - 1 ];
+        },
+
+        transform: function(){
+
+            var stack = this.transformStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.transformIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.transformIndex++ ] || stack[ stack.push(Physics.transform()) - 1 ];
+        }
     };
     
     Physics.scratchpad = function(){
 
-        var scratch = scratches.pop() || ScratchFactory();
+        var scratch = scratches.pop() || new ScratchCls();
         scratch._active = true;
         return scratch;
     };
