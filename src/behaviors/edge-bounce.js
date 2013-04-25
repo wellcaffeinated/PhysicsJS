@@ -7,6 +7,8 @@ Physics.behavior('edge-bounce', function( parent ){
         restitution: 1.0
     };
 
+    var PUBSUB_TOPIC = 'edge-bounce';
+
     var perp = Physics.vector(); //tmp
     var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
 
@@ -130,7 +132,7 @@ Physics.behavior('edge-bounce', function( parent ){
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( bounds.max._[ 0 ], pos._[ 1 ] );
-                            world && world.publish({ topic: 'edge-bounce', body: body, point: p.values() });
+                            world && world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                         }
                         
                         // left
@@ -145,7 +147,7 @@ Physics.behavior('edge-bounce', function( parent ){
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( bounds.min._[ 0 ], pos._[ 1 ] );
-                            world && world.publish({ topic: 'edge-bounce', body: body, point: p.values() });
+                            world && world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                         }
 
                         // bottom
@@ -160,7 +162,7 @@ Physics.behavior('edge-bounce', function( parent ){
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( pos._[ 0 ], bounds.max._[ 1 ] );
-                            world && world.publish({ topic: 'edge-bounce', body: body, point: p.values() });
+                            world && world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                         }
                             
                         // top
@@ -175,7 +177,7 @@ Physics.behavior('edge-bounce', function( parent ){
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
                             p.set( pos._[ 0 ], bounds.min._[ 1 ] );
-                            world && world.publish({ topic: 'edge-bounce', body: body, point: p.values() });
+                            world && world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                         }
 
                     break;
