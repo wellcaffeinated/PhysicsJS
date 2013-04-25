@@ -1,5 +1,7 @@
 (function(){
 
+var PRIORITY_PROP_NAME = 'priority';
+
 var defaults = {
     name: false,
     timestep: 1000.0 / 160,
@@ -35,6 +37,7 @@ World.prototype = {
         this._renderer = null;
         this._paused = false;
         this._opts = {};
+        this._pubsub = {};
 
         // set options
         this.options( cfg );
@@ -62,6 +65,58 @@ World.prototype = {
         }
 
         return Physics.util.extend({}, this._opts);
+    },
+
+    subscribe: function( topic, fn ){
+
+        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = []);
+
+        listeners.push( fn );
+
+        return this;
+    },
+
+    unsubscribe: function( topic, fn ){
+
+        var listeners = this._pubsub[ topic ];
+
+        if (!listeners){
+            return this;
+        }
+
+        for ( var i = 0, l = listeners.length; i < l; i++ ){
+            
+            if ( listeners[ i ] === fn ){
+                listeners.splice(i, 1);
+                break;
+            }
+        }
+
+        return this;
+    },
+
+    publish: function( data, scope ){
+
+        if (typeof data !== 'object'){
+            data = { topic: data };
+        }
+
+        var topic = data.topic
+            ,listeners = this._pubsub[ topic ]
+            ;
+
+        if (!listeners || !listeners.length){
+            return this;
+        }
+        
+        data.scope = data.scope || this;
+
+        for ( var i = 0, l = listeners.length; i < l; i++ ){
+            
+            listeners[ i ]( data );
+        }
+
+        return this;
     },
 
     // add objects, integrators, behaviors...
@@ -105,13 +160,19 @@ World.prototype = {
     // add a behavior
     addBehavior: function( behavior ){
 
-        // TODO more...
-        this._behaviorStack.push( behavior );
+        var stack = this._behaviorStack
+            // gets the index to insert the behavior
+            ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
+            ;
+
+        behavior.setWorld( this );
+        stack.splice( idx, 0, behavior );
         return this;
     },
 
     addBody: function( body ){
 
+        body.setWorld( this );
         this._bodies.push( body );
         return this;
     },
@@ -119,11 +180,13 @@ World.prototype = {
     applyBehaviors: function( dt ){
 
         var behaviors = this._behaviorStack
+            ,l = behaviors.length
             ;
 
-        for ( var i = 0, l = behaviors.length; i < l; ++i ){
+        // apply behaviors in reverse order... highest priority first
+        while ( l-- ){
             
-            behaviors[ i ].behave( this._bodies, dt );
+            behaviors[ l ].behave( this._bodies, dt );
         }
     },
 

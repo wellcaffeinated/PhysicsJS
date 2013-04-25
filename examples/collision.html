@@ -1,0 +1,159 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>PhysicsJS test</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <!-- General styles -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Page styles -->
+  <style>
+
+  
+  </style>
+
+</head>
+<body>
+
+<!-- Setup -->
+    <button class="start-stop">Pause</button>
+    <canvas id="viewport"></canvas>
+
+<!-- Scripts -->
+<script src="../dist/physicsjs-0.0.1a.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+
+Physics({
+
+    // config
+    timestep: 1000 / 160 
+
+}, function( world ){
+
+    var viewWidth = 600;
+    var viewHeight = 400;
+    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
+
+    var circles = [];
+    
+    circles.push(
+        Physics.body('circle', {
+            x: 400,
+            y: 100,
+            vx: 0,
+            radius: 10
+        })
+    );
+
+    circles.push(
+        Physics.body('circle', {
+            x: 20,
+            y: 200,
+            radius: 15,
+            mass: 2,
+            vx: 0.05,
+            vy: -0.15,
+            angularVelocity: 0.01
+        })
+    );
+
+    circles.push(
+        Physics.body('circle', {
+            x: 400*Math.random(),
+            y: 500*Math.random(),
+            radius: 12,
+            mass: 1.5,
+            vx: 0.25,
+            vy: .1
+        })
+    );
+
+    var renderer = Physics.renderer('canvas', {
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight
+    });
+
+    // add things to world
+    // world.add( constrain );
+    world.add( circles );
+    world.add( renderer );
+    world.add( Physics.integrator('verlet', { drag: 0 }));
+    // world.add( Physics.behavior('newtonian', { strength: 3 }) );
+    world.add( Physics.behavior('gravity', function(){
+
+        var g = Physics.vector(0, .0004)
+            ,mouse = Physics.vector()
+            ,mouseDown = false
+            ,tmp = Physics.vector()
+            ;
+
+        $('#viewport').on({
+            mousedown: function(e){
+                mouseDown = true;
+            },
+            mousemove: function(e){
+                var offset = $(this).offset();
+                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
+            },
+            mouseup: function(e){
+                mouseDown = false;
+            }
+        });
+
+        return {
+            behave: function( bodies ){
+
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    bodies[ i ].accelerate( g );
+
+                    if (mouseDown){
+                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
+                        bodies[ i ].accelerate( tmp );
+                    }
+                }
+            }
+        };
+    }, {}) );
+
+    world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
+
+    Physics.util.ticker.subscribe(function( time, dt ){
+
+        world.step( time );
+        world.render();
+    });
+
+    Physics.util.ticker.start();
+
+    // play/pause button
+    $(document).on('click', '.start-stop', function(e){
+
+        e.preventDefault();
+        var paused = world.isPaused();
+
+        if (paused){
+            $(this).text('pause');
+            world.unpause();
+        } else {
+            $(this).text('play');
+            world.pause();
+        }
+    });
+});
+
+</script>
+  
+</body>
+</html>

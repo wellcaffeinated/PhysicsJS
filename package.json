@@ -12,7 +12,7 @@
   "main": null,
   "repository": {
     "type": "git",
-    "url": "TODO"
+    "url": "git@github.com:wellcaffeinated/PhysicsJS.git"
   },
   "keywords": [],
   "dependencies": {},

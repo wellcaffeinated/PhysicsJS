@@ -33,6 +33,12 @@ var Decorator = function Decorator( type, proto ){
     // transparent and readable in debug consoles...
     proto = proto || {};
     proto.type = type;
+
+    // little function to set the world
+    proto.setWorld = function( world ){
+
+        this._world = world;
+    };
     
     return function factory( name, parentName, decorator, cfg ){
 

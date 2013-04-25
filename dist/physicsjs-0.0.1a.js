@@ -187,6 +187,15 @@
    */
   var noCharByIndex = ('x'[0] + Object('x')[0]) != 'xx';
 
+  /**
+   * Detect if a DOM node's [[Class]] is unresolvable (IE < 9)
+   * and that the JS engine won't error when attempting to coerce an object to
+   * a string without a `toString` function.
+   */
+  try {
+    var noNodeClass = toString.call(document) == objectClass && !({ 'toString': 0 } + '');
+  } catch(e) { }
+
   /** Used to determine if values are of the language type Object */
   var objectTypes = {
     'boolean': false,
@@ -750,6 +759,39 @@
   }
 
   /**
+   * Iterates over `object`'s own and inherited enumerable properties, executing
+   * the `callback` for each property. The `callback` is bound to `thisArg` and
+   * invoked with three arguments; (value, key, object). Callbacks may exit iteration
+   * early by explicitly returning `false`.
+   *
+   * @static
+   * @memberOf _
+   * @type Function
+   * @category Objects
+   * @param {Object} object The object to iterate over.
+   * @param {Function} [callback=identity] The function called per iteration.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Object} Returns `object`.
+   * @example
+   *
+   * function Dog(name) {
+   *   this.name = name;
+   * }
+   *
+   * Dog.prototype.bark = function() {
+   *   alert('Woof, woof!');
+   * };
+   *
+   * _.forIn(new Dog('Dagny'), function(value, key) {
+   *   alert(key);
+   * });
+   * // => alerts 'name' and 'bark' (order is not guaranteed)
+   */
+  var forIn = createIterator(eachIteratorOptions, forOwnIteratorOptions, {
+    'useHas': false
+  });
+
+  /**
    * Iterates over an object's own enumerable properties, executing the `callback`
    * for each property. The `callback` is bound to `thisArg` and invoked with three
    * arguments; (value, key, object). Callbacks may exit iteration early by explicitly
@@ -795,6 +837,30 @@
   };
 
   /**
+   * Creates an array composed of the own enumerable property names of `object`.
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Object} object The object to inspect.
+   * @returns {Array} Returns a new array of property names.
+   * @example
+   *
+   * _.keys({ 'one': 1, 'two': 2, 'three': 3 });
+   * // => ['one', 'two', 'three'] (order is not guaranteed)
+   */
+  var keys = !nativeKeys ? shimKeys : function(object) {
+    if (!isObject(object)) {
+      return [];
+    }
+    if ((hasEnumPrototype && typeof object == 'function') ||
+        (nonEnumArgs && object.length && isArguments(object))) {
+      return shimKeys(object);
+    }
+    return nativeKeys(object);
+  };
+
+  /**
    * A fallback implementation of `isPlainObject` that checks if a given `value`
    * is an object created by the `Object` constructor, assuming objects created
    * by the `Object` constructor have no inherited enumerable properties and that
@@ -812,7 +878,7 @@
     }
     // check that the constructor is `Object` (i.e. `Object instanceof Object`)
     var ctor = value.constructor;
-    if ((!isFunction(ctor)) || ctor instanceof ctor) {
+    if ((!isFunction(ctor) && (!noNodeClass || !isNode(value))) || ctor instanceof ctor) {
       // In most environments an object's own properties are iterated before
       // its inherited properties. If the last iterated property is an object's
       // own property then there are no inherited enumerable properties.
@@ -821,6 +887,22 @@
       });
       return result === false || hasOwnProperty.call(value, result);
     }
+    return result;
+  }
+
+  /**
+   * A fallback implementation of `Object.keys` that produces an array of the
+   * given object's own enumerable property names.
+   *
+   * @private
+   * @param {Object} object The object to inspect.
+   * @returns {Array} Returns a new array of property names.
+   */
+  function shimKeys(object) {
+    var result = [];
+    forOwn(object, function(value, key) {
+      result.push(key);
+    });
     return result;
   }
 
@@ -887,6 +969,199 @@
       ),
     'loop': 'result[index] = callback ? callback(result[index], iterable[index]) : iterable[index]'
   });
+
+  /**
+   * Performs a deep comparison between two values to determine if they are
+   * equivalent to each other. If `callback` is passed, it will be executed to
+   * compare values. If `callback` returns `undefined`, comparisons will be handled
+   * by the method instead. The `callback` is bound to `thisArg` and invoked with
+   * two arguments; (a, b).
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} a The value to compare.
+   * @param {Mixed} b The other value to compare.
+   * @param {Function} [callback] The function to customize comparing values.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @param- {Object} [stackA=[]] Internally used track traversed `a` objects.
+   * @param- {Object} [stackB=[]] Internally used track traversed `b` objects.
+   * @returns {Boolean} Returns `true`, if the values are equvalent, else `false`.
+   * @example
+   *
+   * var moe = { 'name': 'moe', 'age': 40 };
+   * var copy = { 'name': 'moe', 'age': 40 };
+   *
+   * moe == copy;
+   * // => false
+   *
+   * _.isEqual(moe, copy);
+   * // => true
+   *
+   * var words = ['hello', 'goodbye'];
+   * var otherWords = ['hi', 'goodbye'];
+   *
+   * _.isEqual(words, otherWords, function(a, b) {
+   *   var reGreet = /^(?:hello|hi)$/i,
+   *       aGreet = _.isString(a) && reGreet.test(a),
+   *       bGreet = _.isString(b) && reGreet.test(b);
+   *
+   *   return (aGreet || bGreet) ? (aGreet == bGreet) : undefined;
+   * });
+   * // => true
+   */
+  function isEqual(a, b, callback, thisArg, stackA, stackB) {
+    // used to indicate that when comparing objects, `a` has at least the properties of `b`
+    var whereIndicator = callback === indicatorObject;
+    if (callback && !whereIndicator) {
+      callback = typeof thisArg == 'undefined' ? callback : createCallback(callback, thisArg, 2);
+      var result = callback(a, b);
+      if (typeof result != 'undefined') {
+        return !!result;
+      }
+    }
+    // exit early for identical values
+    if (a === b) {
+      // treat `+0` vs. `-0` as not equal
+      return a !== 0 || (1 / a == 1 / b);
+    }
+    var type = typeof a,
+        otherType = typeof b;
+
+    // exit early for unlike primitive values
+    if (a === a &&
+        (!a || (type != 'function' && type != 'object')) &&
+        (!b || (otherType != 'function' && otherType != 'object'))) {
+      return false;
+    }
+    // exit early for `null` and `undefined`, avoiding ES3's Function#call behavior
+    // http://es5.github.com/#x15.3.4.4
+    if (a == null || b == null) {
+      return a === b;
+    }
+    // compare [[Class]] names
+    var className = toString.call(a),
+        otherClass = toString.call(b);
+
+    if (className == argsClass) {
+      className = objectClass;
+    }
+    if (otherClass == argsClass) {
+      otherClass = objectClass;
+    }
+    if (className != otherClass) {
+      return false;
+    }
+    switch (className) {
+      case boolClass:
+      case dateClass:
+        // coerce dates and booleans to numbers, dates to milliseconds and booleans
+        // to `1` or `0`, treating invalid dates coerced to `NaN` as not equal
+        return +a == +b;
+
+      case numberClass:
+        // treat `NaN` vs. `NaN` as equal
+        return a != +a
+          ? b != +b
+          // but treat `+0` vs. `-0` as not equal
+          : (a == 0 ? (1 / a == 1 / b) : a == +b);
+
+      case regexpClass:
+      case stringClass:
+        // coerce regexes to strings (http://es5.github.com/#x15.10.6.4)
+        // treat string primitives and their corresponding object instances as equal
+        return a == b + '';
+    }
+    var isArr = className == arrayClass;
+    if (!isArr) {
+      // unwrap any `lodash` wrapped values
+      if (a.__wrapped__ || b.__wrapped__) {
+        return isEqual(a.__wrapped__ || a, b.__wrapped__ || b, callback, thisArg, stackA, stackB);
+      }
+      // exit for functions and DOM nodes
+      if (className != objectClass || (noNodeClass && (isNode(a) || isNode(b)))) {
+        return false;
+      }
+      // in older versions of Opera, `arguments` objects have `Array` constructors
+      var ctorA = !argsAreObjects && isArguments(a) ? Object : a.constructor,
+          ctorB = !argsAreObjects && isArguments(b) ? Object : b.constructor;
+
+      // non `Object` object instances with different constructors are not equal
+      if (ctorA != ctorB && !(
+            isFunction(ctorA) && ctorA instanceof ctorA &&
+            isFunction(ctorB) && ctorB instanceof ctorB
+          )) {
+        return false;
+      }
+    }
+    // assume cyclic structures are equal
+    // the algorithm for detecting cyclic structures is adapted from ES 5.1
+    // section 15.12.3, abstract operation `JO` (http://es5.github.com/#x15.12.3)
+    stackA || (stackA = []);
+    stackB || (stackB = []);
+
+    var length = stackA.length;
+    while (length--) {
+      if (stackA[length] == a) {
+        return stackB[length] == b;
+      }
+    }
+    var size = 0;
+    result = true;
+
+    // add `a` and `b` to the stack of traversed objects
+    stackA.push(a);
+    stackB.push(b);
+
+    // recursively compare objects and arrays (susceptible to call stack limits)
+    if (isArr) {
+      length = a.length;
+      size = b.length;
+
+      // compare lengths to determine if a deep comparison is necessary
+      result = size == a.length;
+      if (!result && !whereIndicator) {
+        return result;
+      }
+      // deep compare the contents, ignoring non-numeric properties
+      while (size--) {
+        var index = length,
+            value = b[size];
+
+        if (whereIndicator) {
+          while (index--) {
+            if ((result = isEqual(a[index], value, callback, thisArg, stackA, stackB))) {
+              break;
+            }
+          }
+        } else if (!(result = isEqual(a[size], value, callback, thisArg, stackA, stackB))) {
+          break;
+        }
+      }
+      return result;
+    }
+    // deep compare objects using `forIn`, instead of `forOwn`, to avoid `Object.keys`
+    // which, in this case, is more costly
+    forIn(b, function(value, key, b) {
+      if (hasOwnProperty.call(b, key)) {
+        // count the number of properties.
+        size++;
+        // deep compare each property value.
+        return (result = hasOwnProperty.call(a, key) && isEqual(a[key], value, callback, thisArg, stackA, stackB));
+      }
+    });
+
+    if (result && !whereIndicator) {
+      // ensure both objects have the same number of properties
+      forIn(a, function(value, key, a) {
+        if (hasOwnProperty.call(a, key)) {
+          // `size` will be `-1` if `a` has more properties than `b`
+          return (result = --size > -1);
+        }
+      });
+    }
+    return result;
+  }
 
   /**
    * Checks if `value` is a function.
@@ -994,6 +1269,73 @@
       each(collection, callback, thisArg);
     }
     return collection;
+  }
+
+  /*--------------------------------------------------------------------------*/
+
+  /**
+   * Uses a binary search to determine the smallest index at which the `value`
+   * should be inserted into `array` in order to maintain the sort order of the
+   * sorted `array`. If `callback` is passed, it will be executed for `value` and
+   * each element in `array` to compute their sort ranking. The `callback` is
+   * bound to `thisArg` and invoked with one argument; (value).
+   *
+   * If a property name is passed for `callback`, the created "_.pluck" style
+   * callback will return the property value of the given element.
+   *
+   * If an object is passed for `callback`, the created "_.where" style callback
+   * will return `true` for elements that have the propeties of the given object,
+   * else `false`.
+   *
+   * @static
+   * @memberOf _
+   * @category Arrays
+   * @param {Array} array The array to iterate over.
+   * @param {Mixed} value The value to evaluate.
+   * @param {Function|Object|String} [callback=identity] The function called per
+   *  iteration. If a property name or object is passed, it will be used to create
+   *  a "_.pluck" or "_.where" style callback, respectively.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Number} Returns the index at which the value should be inserted
+   *  into `array`.
+   * @example
+   *
+   * _.sortedIndex([20, 30, 50], 40);
+   * // => 2
+   *
+   * // using "_.pluck" callback shorthand
+   * _.sortedIndex([{ 'x': 20 }, { 'x': 30 }, { 'x': 50 }], { 'x': 40 }, 'x');
+   * // => 2
+   *
+   * var dict = {
+   *   'wordToNumber': { 'twenty': 20, 'thirty': 30, 'fourty': 40, 'fifty': 50 }
+   * };
+   *
+   * _.sortedIndex(['twenty', 'thirty', 'fifty'], 'fourty', function(word) {
+   *   return dict.wordToNumber[word];
+   * });
+   * // => 2
+   *
+   * _.sortedIndex(['twenty', 'thirty', 'fifty'], 'fourty', function(word) {
+   *   return this.wordToNumber[word];
+   * }, dict);
+   * // => 2
+   */
+  function sortedIndex(array, value, callback, thisArg) {
+    var low = 0,
+        high = array ? array.length : low;
+
+    // explicitly reference `identity` for better inlining in Firefox
+    callback = callback ? createCallback(callback, thisArg, 1) : identity;
+    value = callback(value);
+
+    while (low < high) {
+      var mid = (low + high) >>> 1;
+      callback(array[mid]) < value
+        ? low = mid + 1
+        : high = mid;
+    }
+    return low;
   }
 
   /*--------------------------------------------------------------------------*/
@@ -1141,7 +1483,9 @@
   lodash.assign = assign;
   lodash.bind = bind;
   lodash.forEach = forEach;
+  lodash.forIn = forIn;
   lodash.forOwn = forOwn;
+  lodash.keys = keys;
   lodash.throttle = throttle;
   lodash.each = forEach;
   lodash.extend = assign;
@@ -1149,9 +1493,11 @@
   lodash.identity = identity;
   lodash.isArguments = isArguments;
   lodash.isArray = isArray;
+  lodash.isEqual = isEqual;
   lodash.isFunction = isFunction;
   lodash.isObject = isObject;
   lodash.isString = isString;
+  lodash.sortedIndex = sortedIndex;
 
   /*--------------------------------------------------------------------------*/
 
@@ -1178,6 +1524,12 @@ var Decorator = function Decorator( type, proto ){
     // transparent and readable in debug consoles...
     proto = proto || {};
     proto.type = type;
+
+    // little function to set the world
+    proto.setWorld = function( world ){
+
+        this._world = world;
+    };
     
     return function factory( name, parentName, decorator, cfg ){
 
@@ -2330,6 +2682,9 @@ Physics.vector = Vector;
     // Service
     Physics.behavior = Physics.behaviour = Decorator('behavior', {
 
+        // lowest priority by default
+        priority: 0,
+
         init: function(){
             //empty
         },
@@ -2597,82 +2952,106 @@ Physics.vector = Vector;
     var scratches = [];
     var numScratches = 0;
 
-    var ScratchFactory = function ScratchFactory(){
+    var ScratchCls = function ScratchCls(){
 
         // private variables
-        var objIndex = 0
-            ,arrayIndex = 0
-            ,vectorIndex = 0
-            ,objectStack = []
-            ,arrayStack = []
-            ,vectorStack = []
-            ;
+        this.objIndex = 0;
+        this.arrayIndex = 0;
+        this.vectorIndex = 0;
+        this.transformIndex = 0;
+        this.objectStack = [];
+        this.arrayStack = [];
+        this.vectorStack = [];
+        this.transformStack = [];
 
         if (++numScratches >= SCRATCH_MAX_SCRATCHES){
             throw SCRATCH_MAX_REACHED;
         }
+    };
 
-        return {
+    ScratchCls.prototype = {
 
-            // declare that your work is finished
-            done: function(){
+        // declare that your work is finished
+        done: function(){
 
-                this._active = false;
-                objIndex = arrayIndex = vectorIndex = 0;
-                // add it back to the scratch stack for future use
-                scratches.push(this);
-            },
+            this._active = false;
+            this.objIndex = this.arrayIndex = this.vectorIndex = this.transformIndex = 0;
+            // add it back to the scratch stack for future use
+            scratches.push(this);
+        },
 
-            object: function(){
+        object: function(){
 
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
+            var stack = this.objectStack;
 
-                if (objIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return objectStack[ objIndex++ ] || objectStack[ objectStack.push({}) - 1 ];
-            },
-
-            array: function(){
-
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
-
-                if (arrIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return arrayStack[ arrIndex++ ] || arrayStack[ arrayStack.push([]) - 1 ];
-            },
-
-            vector: function(){
-
-                if (!this._active){
-                    throw SCRATCH_USAGE_ERROR;
-                }
-
-                if (vectorIndex >= SCRATCH_MAX_INDEX){
-                    throw SCRATCH_INDEX_OUT_OF_BOUNDS;
-                }
-
-                return vectorStack[ vectorIndex++ ] || vectorStack[ vectorStack.push(Physics.vector()) - 1 ];
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
             }
-        };
+
+            if (this.objIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.objIndex++ ] || stack[ stack.push({}) - 1 ];
+        },
+
+        array: function(){
+
+            var stack = this.arrayStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.arrIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.arrIndex++ ] || stack[ stack.push([]) - 1 ];
+        },
+
+        vector: function(){
+
+            var stack = this.vectorStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.vectorIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.vectorIndex++ ] || stack[ stack.push(Physics.vector()) - 1 ];
+        },
+
+        transform: function(){
+
+            var stack = this.transformStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.transformIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.transformIndex++ ] || stack[ stack.push(Physics.transform()) - 1 ];
+        }
     };
     
     Physics.scratchpad = function(){
 
-        var scratch = scratches.pop() || ScratchFactory();
+        var scratch = scratches.pop() || new ScratchCls();
         scratch._active = true;
         return scratch;
     };
 
 })();
 (function(){
+
+var PRIORITY_PROP_NAME = 'priority';
 
 var defaults = {
     name: false,
@@ -2709,6 +3088,7 @@ World.prototype = {
         this._renderer = null;
         this._paused = false;
         this._opts = {};
+        this._pubsub = {};
 
         // set options
         this.options( cfg );
@@ -2736,6 +3116,58 @@ World.prototype = {
         }
 
         return Physics.util.extend({}, this._opts);
+    },
+
+    subscribe: function( topic, fn ){
+
+        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = []);
+
+        listeners.push( fn );
+
+        return this;
+    },
+
+    unsubscribe: function( topic, fn ){
+
+        var listeners = this._pubsub[ topic ];
+
+        if (!listeners){
+            return this;
+        }
+
+        for ( var i = 0, l = listeners.length; i < l; i++ ){
+            
+            if ( listeners[ i ] === fn ){
+                listeners.splice(i, 1);
+                break;
+            }
+        }
+
+        return this;
+    },
+
+    publish: function( data, scope ){
+
+        if (typeof data !== 'object'){
+            data = { topic: data };
+        }
+
+        var topic = data.topic
+            ,listeners = this._pubsub[ topic ]
+            ;
+
+        if (!listeners || !listeners.length){
+            return this;
+        }
+        
+        data.scope = data.scope || this;
+
+        for ( var i = 0, l = listeners.length; i < l; i++ ){
+            
+            listeners[ i ]( data );
+        }
+
+        return this;
     },
 
     // add objects, integrators, behaviors...
@@ -2779,13 +3211,19 @@ World.prototype = {
     // add a behavior
     addBehavior: function( behavior ){
 
-        // TODO more...
-        this._behaviorStack.push( behavior );
+        var stack = this._behaviorStack
+            // gets the index to insert the behavior
+            ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
+            ;
+
+        behavior.setWorld( this );
+        stack.splice( idx, 0, behavior );
         return this;
     },
 
     addBody: function( body ){
 
+        body.setWorld( this );
         this._bodies.push( body );
         return this;
     },
@@ -2793,11 +3231,13 @@ World.prototype = {
     applyBehaviors: function( dt ){
 
         var behaviors = this._behaviorStack
+            ,l = behaviors.length
             ;
 
-        for ( var i = 0, l = behaviors.length; i < l; ++i ){
+        // apply behaviors in reverse order... highest priority first
+        while ( l-- ){
             
-            behaviors[ i ].behave( this._bodies, dt );
+            behaviors[ l ].behave( this._bodies, dt );
         }
     },
 
