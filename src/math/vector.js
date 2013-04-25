@@ -38,17 +38,15 @@ var Vector = function Vector(x, y) {
 
     if (typedArrays){
         this._ = new Float32Array(5);
+    } else {
+        this._ = [];
     }
 
-    if (x && x._ && x._.length){
+    if (x && (x.x !== undefined || x._ && x._.length)){
 
         this.clone( x );
 
     } else {
-
-        if (!typedArrays){
-            this._ = [];
-        }
 
         this.recalc = true; //whether or not recalculate norms
         this.set( x || 0.0, y || 0.0 );
