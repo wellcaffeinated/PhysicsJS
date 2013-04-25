@@ -60,7 +60,9 @@ for each two bodies: bodyA, bodyB (bodyA !== bodyB)
         // vector minimum transit for extracting B
         var mtvAB = Physics.vector().clone( gjk.closest.a ).vsub( gjk.closest.b ).normalize().mult( overlap );
 
-        collisionPt = projected core point to hull
+        collisionPt = projected core point to hull. choose point that is farthest from its object's center
+        normal = edge normal with smallest dot product to mtvAB
+            // or edge normal with smallest dot product to relative velocity. Probably this is better.
 
-        applyImpulses( bodyA, bodyB, collisionPt )
+        applyImpulses( bodyA, bodyB, collisionPt, normal )
 

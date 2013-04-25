@@ -11,7 +11,7 @@ Physics.behavior('edge-bounce', function( parent ){
     var perp = Physics.vector(); //tmp
     var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
 
-        perp.clone( n ).perp( true );
+        perp.clone( n ).perp();
 
         // break up components along normal and perp-normal directions
         var v = state.vel
@@ -75,9 +75,19 @@ Physics.behavior('edge-bounce', function( parent ){
 
             options = Physics.util.extend({}, defaults, options);
 
-            this.bounds = options.bounds;
+            this.setBounds( options.bounds );
             this.restitution = options.restitution;
             this.callback = options.callback;
+        },
+
+        setBounds: function( bounds ){
+
+            if (!bounds) throw 'Error: bounds not set';
+
+            this.bounds = bounds;
+            this._edges = [
+                // set edges
+            ];
         },
         
         behave: function( bodies, dt ){
@@ -97,8 +107,6 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,impulse
                 ;
 
-            if (!bounds) throw "Bounds not set";
-            
             for ( var i = 0, l = bodies.length; i < l; ++i ){
                 
                 body = bodies[ i ];
