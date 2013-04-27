@@ -32,6 +32,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             world.subscribe( PUBSUB_TOPIC, this.collect );
             this._world = world;
+            parent.setWorld.call( this, world );
         },
 
         collideBodies: function(bodyA, bodyB, normal, point, mtrans){
@@ -76,6 +77,12 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,inContact = false
                 ;
 
+            // if moving away from each other... don't bother.
+            if (vproj >= 0){
+                scratch.done();
+                return;
+            }
+
             impulse =  - ((1 + cor) * vproj) / ( invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg) );
             // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
             // angVel -= impulse * rreg * invMoi;
@@ -95,7 +102,18 @@ Physics.behavior('body-impulse-response', function( parent ){
             // if we have friction and a relative velocity perpendicular to the normal
             if ( cof && vreg ){
 
-                // maximum impulse allowed by friction
+
+                // TODO: here, we could first assume static friction applies
+                // and that the tangential relative velocity is zero.
+                // Then we could calculate the impulse and check if the
+                // tangential impulse is less than that allowed by static
+                // friction. If not, _then_ apply kinetic friction.
+
+                // instead we're just applying kinetic friction and making
+                // sure the impulse we apply is less than the maximum
+                // allowed amount
+
+                // maximum impulse allowed by kinetic friction
                 max = vreg / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
 
                 if (!inContact){
