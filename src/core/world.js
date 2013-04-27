@@ -67,9 +67,17 @@ World.prototype = {
         return Physics.util.extend({}, this._opts);
     },
 
-    subscribe: function( topic, fn ){
+    subscribe: function( topic, fn, scope ){
 
-        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = []);
+        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
+            ,orig = fn
+            ;
+
+        if ( scope ){
+            
+            fn = Physics.util.bind( fn, scope );
+            fn._bindfn_ = orig;
+        }
 
         listeners.push( fn );
 
@@ -78,7 +86,9 @@ World.prototype = {
 
     unsubscribe: function( topic, fn ){
 
-        var listeners = this._pubsub[ topic ];
+        var listeners = this._pubsub[ topic ]
+            ,listn
+            ;
 
         if (!listeners){
             return this;
@@ -86,7 +96,9 @@ World.prototype = {
 
         for ( var i = 0, l = listeners.length; i < l; i++ ){
             
-            if ( listeners[ i ] === fn ){
+            listn = listeners[ i ];
+
+            if ( listn._bindfn_ === fn || listn === fn ){
                 listeners.splice(i, 1);
                 break;
             }
