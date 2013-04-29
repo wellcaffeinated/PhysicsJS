@@ -20,7 +20,7 @@
     "grunt": "0.4.x",
     "grunt-contrib-concat": "0.x.x",
     "grunt-contrib-uglify": "0.x.x",
-    "grunt-contrib-jasmine": "0.x.x",
+    "grunt-contrib-jasmine": "0.4.x",
     "grunt-contrib-clean": "0.x.x",
     "grunt-contrib-copy": "0.x.x",
     "grunt-contrib-jshint": "0.x.x",

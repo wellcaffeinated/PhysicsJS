@@ -70,7 +70,7 @@ module.exports = function(grunt) {
         },
         jasmine : {
             tests : {
-                src : ['dist/', '.min.js'].join(config.versioned),
+                src : ['dist/', '.js'].join(config.versioned),
                 options : {
                     specs : 'test/spec/*.spec.js',
                     template : 'test/grunt.tmpl'
