@@ -147,9 +147,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
     while ( ++iterations ) {
 
         // swap last and lastlast, to save on memory/speed
-        tmp = lastlast;
-        lastlast = last;
-        last = tmp;
+        last.swap(lastlast);
         // push a new point to the simplex because we haven't terminated yet
         tmp = support( dir );
         simplexLen = simplex.push( tmp );
@@ -249,10 +247,9 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 // then we know which way to look...
                 // morph the ab vector into its outward facing normal
                 ab.perp( sign );
-                // swap names
-                sign = dir;
-                dir = ab;
-                ab = sign;
+                
+                // swap
+                dir.swap( ab );
                 
                 // continue...
 
@@ -267,10 +264,9 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 simplex.splice(1, 1);
 
                 ac.perp( !sign );
-                // swap names
-                sign = dir;
-                dir = ac;
-                ac = sign;
+                
+                // swap
+                dir.swap( ab );
                 
                 // continue...
 
