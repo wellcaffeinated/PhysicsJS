@@ -8,6 +8,8 @@ var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
     ,acos = Math.acos
+    ,atan2 = Math.atan2
+    ,TWOPI = Math.PI * 2
     ,typedArrays = !!window.Float64Array
     ;
 
@@ -152,11 +154,11 @@ Vector.prototype.dot = function(v) {
 };
 
 /** 
- * Get the cross product
+ * Get the cross product (in a left handed coordinate system)
  */
 Vector.prototype.cross = function(v) {
 
-    return (this._[0] * v._[1]) - (this._[1] * v._[0]);
+    return ( - this._[0] * v._[1]) + (this._[1] * v._[0]);
 };
 
 /**
@@ -184,13 +186,21 @@ Vector.prototype.vproj = function(v){
  */
 Vector.prototype.angle = function(v){
 
-    if (!v){
-        v = Vector.axis[0];
+    var ang = atan2(this._[ 1 ], this._[ 0 ]);
+
+    if (v){
+        ang -= atan2(v._[ 1 ], v._[ 0 ]);
+    }
+    
+    while (ang > Math.PI){
+        ang -= TWOPI;
     }
 
-    var prod = this.dot( v ) / ( this.norm() * v.norm() );
+    while (ang < -Math.PI){
+        ang += TWOPI;
+    }
 
-    return acos( prod );
+    return ang;
 };
 
 /**
@@ -391,6 +401,23 @@ Vector.prototype.clone = function(v) {
     }
 
     return new Vector( this );
+};
+
+/**
+ * Swap values with other vector
+ * @param  {Vector} v
+ * @return {this}
+ */
+Vector.prototype.swap = function(v){
+
+    var _ = this._;
+    this._ = v._;
+    v._ = _;
+
+    _ = this.recalc;
+    this.recalc = v.recalc;
+    v.recalc = _;
+    return this;
 };
 
 /**
