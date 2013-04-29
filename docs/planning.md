@@ -66,3 +66,12 @@ for each two bodies: bodyA, bodyB (bodyA !== bodyB)
 
         applyImpulses( bodyA, bodyB, collisionPt, normal )
 
+
+// use pubsub more
+
+// inside setWorld
+this._world.subscribe(event, blah)
+
+// use world publish to trigger all behavior?
+
+

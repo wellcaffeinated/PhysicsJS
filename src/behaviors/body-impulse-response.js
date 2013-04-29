@@ -14,7 +14,6 @@ Physics.behavior('body-impulse-response', function( parent ){
         init: function( options ){
 
             this._collisions = [];
-            this.collect = Physics.util.bind(this.collect, this);
         },
 
         collect: function( data ){
@@ -30,19 +29,18 @@ Physics.behavior('body-impulse-response', function( parent ){
                 this._world.unsubscribe( PUBSUB_TOPIC, this.collect );
             }
 
-            world.subscribe( PUBSUB_TOPIC, this.collect );
-            this._world = world;
+            world.subscribe( PUBSUB_TOPIC, this.collect, this );
             parent.setWorld.call( this, world );
         },
 
-        collideBodies: function(bodyA, bodyB, normal, point, mtrans){
+        collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var invMoiA = 1 / bodyA.moi
                 ,invMoiB = 1 / bodyB.moi
                 ,invMassA = 1 / bodyA.mass
                 ,invMassB = 1 / bodyB.mass
                 // coefficient of restitution between bodies
-                ,cor = bodyA.restitution * bodyB.restitution
+                ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
                 ,scratch = Physics.scratchpad()
@@ -147,17 +145,30 @@ Physics.behavior('body-impulse-response', function( parent ){
 
         behave: function(){
 
-            var col
-                ,collisions = this._collisions
+            var self = this
+                ,col
+                ,collisions = self._collisions
                 ;
 
-            this._collisions = [];
+            self._collisions = [];
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
                 
                 col = collisions[ i ];
-                this.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv );
+                self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv );
             }
+
+            // self._world.publish({
+            //     topic: 'collision-detect:request-sweep',
+            //     callback: function( collisions ){
+
+            //         for ( var i = 0, l = collisions.length; i < l; ++i ){
+                        
+            //             col = collisions[ i ];
+            //             self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv, true );
+            //         }
+            //     }
+            // });
         }
     };
 });

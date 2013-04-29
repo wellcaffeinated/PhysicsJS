@@ -46,37 +46,39 @@ Physics({
 
     var circles = [];
     
+    for ( var i = 0, l = 60; i < l; ++i )
     circles.push(
         Physics.body('circle', {
-            x: 300,
-            y: 100,
+            x: 10 * i % 380 + 10,
+            y: Math.floor(10 * i / 380)* 10 + 10,
             vx: 0,
-            radius: 10,
+            radius: 5,
+            restitution: 0.99,
             angularVelocity: 0
         })
     );
 
-    circles.push(
-        Physics.body('circle', {
-            x: 300,
-            y: 200,
-            radius: 10,
-            vx: -0.02,
-            vy: 0,
-            angularVelocity: 0
-        })
-    );
+    // circles.push(
+    //     Physics.body('circle', {
+    //         x: 300,
+    //         y: 200,
+    //         radius: 10,
+    //         vx: -0.02,
+    //         vy: 0,
+    //         angularVelocity: 0
+    //     })
+    // );
 
-    circles.push(
-        Physics.body('circle', {
-            x: 300,
-            y: 300,
-            radius: 12,
-            mass: 1.5,
-            vx: 0.01,
-            vy: 0
-        })
-    );
+    // circles.push(
+    //     Physics.body('circle', {
+    //         x: 300,
+    //         y: 300,
+    //         radius: 12,
+    //         mass: 1.5,
+    //         vx: 0.01,
+    //         vy: 0
+    //     })
+    // );
 
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
@@ -89,7 +91,6 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    // world.add( Physics.behavior('newtonian', { strength: 3 }) );
     world.add( Physics.behavior('gravity', function(){
 
         var g = Physics.vector(0, .0004)
@@ -127,21 +128,21 @@ Physics({
         };
     }, {}) );
 
-    world.add(Physics.behavior('simple-collision-detection', function(){
+    world.add(Physics.behavior('simple-collision-detection', function( parent ){
 
         var PUBSUB_TOPIC = 'collision-detect';
 
-        var detectCircleCollisions = function detectCircleCollisions( bodies ){
+        var detectCircleCollisions = function detectCircleCollisions( bodies, dt, callback ){
 
             var bodyA
                 ,bodyB
-                ,world = this._world
                 ,scratch = Physics.scratchpad()
                 ,d = scratch.vector()
+                ,tmp = scratch.vector()
                 ,overlap
                 ;
 
-            if (!world) return;
+            if (!callback) return;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
                 
@@ -154,15 +155,22 @@ Physics({
                     d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
                     overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
+                    if ( overlap > 0 ){
+                        // check the future
+                        d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
+                        overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
+                    }
+
                     if ( overlap <= 0 ){
 
-                        world.publish({
+                        callback({
                             topic: PUBSUB_TOPIC,
                             bodyA: bodyA,
                             bodyB: bodyB,
                             norm: d.normalize().values(),
                             pos: d.mult( bodyA.geometry.radius ).vadd( bodyA.state.pos ).values(),
-                            mtv: d.vsub( bodyA.state.pos ).normalize().mult( overlap ).values()
+                            mtv: d.vsub( bodyA.state.pos ).normalize().mult( overlap ).values(),
+                            overlap: overlap
                         });
                     }
                 }
@@ -171,15 +179,60 @@ Physics({
             scratch.done();
         };
 
+        var sweep = function sweep( data ){
+            if (!data.callback || !this._world){
+                return;
+            }
+            
+            var list = [];
+            detectCircleCollisions( this._world._bodies, this._world.timeStep(), function( data ){
+                list.push( data );
+            });
+            data.callback( list );
+        }
+
         return {
 
             priority: 10,
 
-            behave: detectCircleCollisions
+            init: function( options ){
+
+                parent.init.call(this, options);
+
+                this.sweep = Physics.util.bind(this.sweep, this);
+            },
+
+            setWorld: function( world ){
+
+                if (this._world){
+
+                    this._world.unsubscribe( PUBSUB_TOPIC + ':request-sweep', this.sweep );
+                }
+
+                world.subscribe( PUBSUB_TOPIC + ':request-sweep', this.sweep );
+
+                parent.setWorld.call( this, world );
+            },
+
+            sweep: sweep,
+
+            behave: function( bodies, dt ){
+                var world = this._world;
+                detectCircleCollisions( bodies, dt, function( data ){
+                    world.publish( data );
+                });
+            }
         };
 
     }, {}));
 
+    window.runningMaxOverlap = 0;
+    world.subscribe( 'collision-detect', function(data){
+
+        window.runningMaxOverlap = Math.min(window.runningMaxOverlap, data.overlap);
+    });
+    
+    // world.add( Physics.behavior('newtonian', { strength: .02 }) );
     world.add( Physics.behavior('body-impulse-response') );
     world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
 

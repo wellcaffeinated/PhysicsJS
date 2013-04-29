@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-25
+ * physicsjs v0.0.1a - 2013-04-29
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -28,57 +28,43 @@
 
 (function(window,Physics,undefined){
 
-  /** Detect free variable `exports` */
-  var freeExports = typeof exports == 'object' && exports;
+  /** Used as a safe reference for `undefined` in pre ES5 environments */
+  var undefined;
 
-  /** Detect free variable `module` */
-  var freeModule = typeof module == 'object' && module && module.exports == freeExports && module;
-
-  /** Detect free variable `global` and use it as `window` */
+  /** Detect free variable `global`, from Node.js or Browserified code, and use it as `window` */
   var freeGlobal = typeof global == 'object' && global;
-  if (freeGlobal.global === freeGlobal) {
+  if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
     window = freeGlobal;
   }
-
-  /** Used for array and object method references */
-  var arrayRef = [],
-      objectRef = {};
 
   /** Used to generate unique IDs */
   var idCounter = 0;
 
   /** Used internally to indicate various things */
-  var indicatorObject = objectRef;
+  var indicatorObject = {};
 
-  /** Used by `cachedContains` as the default size when optimizations are enabled for large arrays */
-  var largeArraySize = 30;
+  /** Used to prefix keys to avoid issues with `__proto__` and properties on `Object.prototype` */
+  var keyPrefix = +new Date + '';
 
-  /** Used to restore the original `_` reference in `noConflict` */
-  var oldDash = window._;
-
-  /** Used to match HTML entities */
-  var reEscapedHtml = /&(?:amp|lt|gt|quot|#39);/g;
+  /** Used as the size when optimizations are enabled for large arrays */
+  var largeArraySize = 200;
 
   /** Used to match empty string literals in compiled template source */
   var reEmptyStringLeading = /\b__p \+= '';/g,
       reEmptyStringMiddle = /\b(__p \+=) '' \+/g,
       reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
 
-  /** Used to match regexp flags from their coerced string values */
-  var reFlags = /\w*$/;
-
-  /** Used to detect if a method is native */
-  var reNative = RegExp('^' +
-    (objectRef.valueOf + '')
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      .replace(/valueOf|for [^\]]+/g, '.+?') + '$'
-  );
+  /** Used to match HTML entities */
+  var reEscapedHtml = /&(?:amp|lt|gt|quot|#39);/g;
 
   /**
    * Used to match ES6 template delimiters
    * http://people.mozilla.org/~jorendorff/es6-draft.html#sec-7.8.6
    */
   var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+
+  /** Used to match regexp flags from their coerced string values */
+  var reFlags = /\w*$/;
 
   /** Used to match "interpolate" template delimiters */
   var reInterpolate = /<%=([\s\S]+?)%>/g;
@@ -93,31 +79,13 @@
   var reUnescapedString = /['\n\r\t\u2028\u2029\\]/g;
 
   /** Used to fix the JScript [[DontEnum]] bug */
-  var shadowed = [
+  var shadowedProps = [
     'constructor', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable',
     'toLocaleString', 'toString', 'valueOf'
   ];
 
   /** Used to make template sourceURLs easier to identify */
   var templateCounter = 0;
-
-  /** Native method shortcuts */
-  var ceil = Math.ceil,
-      concat = arrayRef.concat,
-      floor = Math.floor,
-      hasOwnProperty = objectRef.hasOwnProperty,
-      push = arrayRef.push,
-      toString = objectRef.toString;
-
-  /* Native method shortcuts for methods with the same name as other `lodash` methods */
-  var nativeBind = reNative.test(nativeBind = slice.bind) && nativeBind,
-      nativeIsArray = reNative.test(nativeIsArray = Array.isArray) && nativeIsArray,
-      nativeIsFinite = window.isFinite,
-      nativeIsNaN = window.isNaN,
-      nativeKeys = reNative.test(nativeKeys = Object.keys) && nativeKeys,
-      nativeMax = Math.max,
-      nativeMin = Math.min,
-      nativeRandom = Math.random;
 
   /** `Object#toString` result shortcuts */
   var argsClass = '[object Arguments]',
@@ -129,72 +97,6 @@
       objectClass = '[object Object]',
       regexpClass = '[object RegExp]',
       stringClass = '[object String]';
-
-  /** Detect various environments */
-  var isIeOpera = !!window.attachEvent,
-      isV8 = nativeBind && !/\n|true/.test(nativeBind + isIeOpera);
-
-  /* Detect if `Function#bind` exists and is inferred to be fast (all but V8) */
-  var isBindFast = nativeBind && !isV8;
-
-  /* Detect if `Object.keys` exists and is inferred to be fast (IE, Opera, V8) */
-  var isKeysFast = nativeKeys && (isIeOpera || isV8);
-
-  /**
-   * Detect the JScript [[DontEnum]] bug:
-   *
-   * In IE < 9 an objects own properties, shadowing non-enumerable ones, are
-   * made non-enumerable as well.
-   */
-  var hasDontEnumBug;
-
-  /**
-   * Detect if a `prototype` properties are enumerable by default:
-   *
-   * Firefox < 3.6, Opera > 9.50 - Opera < 11.60, and Safari < 5.1
-   * (if the prototype or a property on the prototype has been set)
-   * incorrectly sets a function's `prototype` property [[Enumerable]]
-   * value to `true`.
-   */
-  var hasEnumPrototype;
-
-  /** Detect if `arguments` object indexes are non-enumerable (Firefox < 4, IE < 9, PhantomJS, Safari < 5.1) */
-  var nonEnumArgs = true;
-
-  (function() {
-    var props = [];
-    function ctor() { this.x = 1; }
-    ctor.prototype = { 'valueOf': 1, 'y': 1 };
-    for (var prop in new ctor) { props.push(prop); }
-    for (prop in arguments) { nonEnumArgs = !prop; }
-
-    hasDontEnumBug = !/valueOf/.test(props);
-    hasEnumPrototype = ctor.propertyIsEnumerable('prototype');
-
-  }(1));
-
-  /** Detect if `arguments` objects are `Object` objects (all but Opera < 10.5) */
-  var argsAreObjects = arguments.constructor == Object;
-
-  /** Detect if `arguments` objects [[Class]] is unresolvable (Firefox < 4, IE < 9) */
-  var noArgsClass = !isArguments(arguments);
-
-  /**
-   * Detect lack of support for accessing string characters by index:
-   *
-   * IE < 8 can't access characters by index and IE 8 can only access
-   * characters by index on string literals.
-   */
-  var noCharByIndex = ('x'[0] + Object('x')[0]) != 'xx';
-
-  /**
-   * Detect if a DOM node's [[Class]] is unresolvable (IE < 9)
-   * and that the JS engine won't error when attempting to coerce an object to
-   * a string without a `toString` function.
-   */
-  try {
-    var noNodeClass = toString.call(document) == objectClass && !({ 'toString': 0 } + '');
-  } catch(e) { }
 
   /** Used to determine if values are of the language type Object */
   var objectTypes = {
@@ -219,31 +121,77 @@
 
   /*--------------------------------------------------------------------------*/
 
+  /** Used for `Array` and `Object` method references */
+  var arrayRef = Array(),
+      objectRef = Object();
+
+  /** Used to restore the original `_` reference in `noConflict` */
+  var oldDash = window._;
+
+  /** Used to detect if a method is native */
+  var reNative = RegExp('^' +
+    String(objectRef.valueOf)
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/valueOf|for [^\]]+/g, '.+?') + '$'
+  );
+
+  /** Native method shortcuts */
+  var ceil = Math.ceil,
+      clearTimeout = window.clearTimeout,
+      concat = arrayRef.concat,
+      floor = Math.floor,
+      hasOwnProperty = objectRef.hasOwnProperty,
+      push = arrayRef.push,
+      setTimeout = window.setTimeout,
+      toString = objectRef.toString;
+
+  /* Native method shortcuts for methods with the same name as other `lodash` methods */
+  var nativeBind = reNative.test(nativeBind = toString.bind) && nativeBind,
+      nativeIsArray = reNative.test(nativeIsArray = Array.isArray) && nativeIsArray,
+      nativeIsFinite = window.isFinite,
+      nativeIsNaN = window.isNaN,
+      nativeKeys = reNative.test(nativeKeys = Object.keys) && nativeKeys,
+      nativeMax = Math.max,
+      nativeMin = Math.min,
+      nativeRandom = Math.random,
+      nativeSlice = arrayRef.slice;
+
+  /** Detect various environments */
+  var isIeOpera = reNative.test(window.attachEvent),
+      isV8 = nativeBind && !/\n|true/.test(nativeBind + isIeOpera);
+
+  /*--------------------------------------------------------------------------*/
+
   /**
-   * Creates a `lodash` object, that wraps the given `value`, to enable method
+   * Creates a `lodash` object, which wraps the given `value`, to enable method
    * chaining.
    *
    * In addition to Lo-Dash methods, wrappers also have the following `Array` methods:
    * `concat`, `join`, `pop`, `push`, `reverse`, `shift`, `slice`, `sort`, `splice`,
    * and `unshift`
    *
+   * Chaining is supported in custom builds as long as the `value` method is
+   * implicitly or explicitly included in the build.
+   *
    * The chainable wrapper functions are:
-   * `after`, `assign`, `bind`, `bindAll`, `bindKey`, `chain`, `compact`, `compose`,
-   * `concat`, `countBy`, `debounce`, `defaults`, `defer`, `delay`, `difference`,
-   * `filter`, `flatten`, `forEach`, `forIn`, `forOwn`, `functions`, `groupBy`,
-   * `initial`, `intersection`, `invert`, `invoke`, `keys`, `map`, `max`, `memoize`,
-   * `merge`, `min`, `object`, `omit`, `once`, `pairs`, `partial`, `partialRight`,
-   * `pick`, `pluck`, `push`, `range`, `reject`, `rest`, `reverse`, `shuffle`,
-   * `slice`, `sort`, `sortBy`, `splice`, `tap`, `throttle`, `times`, `toArray`,
-   * `union`, `uniq`, `unshift`, `values`, `where`, `without`, `wrap`, and `zip`
+   * `after`, `assign`, `bind`, `bindAll`, `bindKey`, `chain`, `compact`,
+   * `compose`, `concat`, `countBy`, `createCallback`, `debounce`, `defaults`,
+   * `defer`, `delay`, `difference`, `filter`, `flatten`, `forEach`, `forIn`,
+   * `forOwn`, `functions`, `groupBy`, `initial`, `intersection`, `invert`,
+   * `invoke`, `keys`, `map`, `max`, `memoize`, `merge`, `min`, `object`, `omit`,
+   * `once`, `pairs`, `partial`, `partialRight`, `pick`, `pluck`, `push`, `range`,
+   * `reject`, `rest`, `reverse`, `shuffle`, `slice`, `sort`, `sortBy`, `splice`,
+   * `tap`, `throttle`, `times`, `toArray`, `union`, `uniq`, `unshift`, `unzip`,
+   * `values`, `where`, `without`, `wrap`, and `zip`
    *
    * The non-chainable wrapper functions are:
-   * `clone`, `cloneDeep`, `contains`, `escape`, `every`, `find`, `has`, `identity`,
-   * `indexOf`, `isArguments`, `isArray`, `isBoolean`, `isDate`, `isElement`, `isEmpty`,
-   * `isEqual`, `isFinite`, `isFunction`, `isNaN`, `isNull`, `isNumber`, `isObject`,
-   * `isPlainObject`, `isRegExp`, `isString`, `isUndefined`, `join`, `lastIndexOf`,
-   * `mixin`, `noConflict`, `pop`, `random`, `reduce`, `reduceRight`, `result`,
-   * `shift`, `size`, `some`, `sortedIndex`, `template`, `unescape`, and `uniqueId`
+   * `clone`, `cloneDeep`, `contains`, `escape`, `every`, `find`, `has`,
+   * `identity`, `indexOf`, `isArguments`, `isArray`, `isBoolean`, `isDate`,
+   * `isElement`, `isEmpty`, `isEqual`, `isFinite`, `isFunction`, `isNaN`,
+   * `isNull`, `isNumber`, `isObject`, `isPlainObject`, `isRegExp`, `isString`,
+   * `isUndefined`, `join`, `lastIndexOf`, `mixin`, `noConflict`, `parseInt`,
+   * `pop`, `random`, `reduce`, `reduceRight`, `result`, `shift`, `size`, `some`,
+   * `sortedIndex`, `runInContext`, `template`, `unescape`, `uniqueId`, and `value`
    *
    * The wrapper functions `first` and `last` return wrapped values when `n` is
    * passed, otherwise they return unwrapped values.
@@ -253,10 +201,130 @@
    * @category Chaining
    * @param {Mixed} value The value to wrap in a `lodash` instance.
    * @returns {Object} Returns a `lodash` instance.
+   * @example
+   *
+   * var wrapped = _([1, 2, 3]);
+   *
+   * // returns an unwrapped value
+   * wrapped.reduce(function(sum, num) {
+   *   return sum + num;
+   * });
+   * // => 6
+   *
+   * // returns a wrapped value
+   * var squares = wrapped.map(function(num) {
+   *   return num * num;
+   * });
+   *
+   * _.isArray(squares);
+   * // => false
+   *
+   * _.isArray(squares.value());
+   * // => true
    */
   function lodash() {
     // no operation performed
   }
+
+  /**
+   * An object used to flag environments features.
+   *
+   * @static
+   * @memberOf _
+   * @type Object
+   */
+  var support = lodash.support = {};
+
+  (function() {
+    var ctor = function() { this.x = 1; },
+        props = [];
+
+    ctor.prototype = { 'valueOf': 1, 'y': 1 };
+    for (var prop in new ctor) { props.push(prop); }
+    for (prop in arguments) { }
+
+    /**
+     * Detect if `arguments` objects are `Object` objects (all but Narwhal and Opera < 10.5).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.argsObject = arguments.constructor == Object && !(arguments instanceof Array);
+
+    /**
+     * Detect if an `arguments` object's [[Class]] is resolvable (all but Firefox < 4, IE < 9).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.argsClass = isArguments(arguments);
+
+    /**
+     * Detect if `prototype` properties are enumerable by default.
+     *
+     * Firefox < 3.6, Opera > 9.50 - Opera < 11.60, and Safari < 5.1
+     * (if the prototype or a property on the prototype has been set)
+     * incorrectly sets a function's `prototype` property [[Enumerable]]
+     * value to `true`.
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.enumPrototypes = ctor.propertyIsEnumerable('prototype');
+
+    /**
+     * Detect if `Function#bind` exists and is inferred to be fast (all but V8).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.fastBind = nativeBind && !isV8;
+
+    /**
+     * Detect if `arguments` object indexes are non-enumerable
+     * (Firefox < 4, IE < 9, PhantomJS, Safari < 5.1).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.nonEnumArgs = prop != 0;
+
+    /**
+     * Detect if properties shadowing those on `Object.prototype` are non-enumerable.
+     *
+     * In IE < 9 an objects own properties, shadowing non-enumerable ones, are
+     * made non-enumerable as well (a.k.a the JScript [[DontEnum]] bug).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.nonEnumShadows = !/valueOf/.test(props);
+
+    /**
+     * Detect lack of support for accessing string characters by index.
+     *
+     * IE < 8 can't access characters by index and IE 8 can only access
+     * characters by index on string literals.
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.unindexedChars = ('x'[0] + Object('x')[0]) != 'xx';
+
+    /**
+     * Detect if a DOM node's [[Class]] is resolvable (all but IE < 9)
+     * and that the JS engine errors when attempting to coerce an object to
+     * a string without a `toString` function.
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    try {
+      support.nodeClass = !(toString.call(document) == objectClass && !({ 'toString': 0 } + ''));
+    } catch(e) {
+      support.nodeClass = true;
+    }
+  }(1));
 
   /*--------------------------------------------------------------------------*/
 
@@ -264,94 +332,94 @@
    * The template used to create iterator functions.
    *
    * @private
-   * @param {Obect} data The data object used to populate the text.
+   * @param {Object} data The data object used to populate the text.
    * @returns {String} Returns the interpolated text.
    */
   var iteratorTemplate = function(obj) {
-    
+
     var __p = 'var index, iterable = ' +
-    (obj.firstArg ) +
-    ', result = iterable;\nif (!iterable) return result;\n' +
-    (obj.top ) +
+    (obj.firstArg) +
+    ', result = ' +
+    (obj.init) +
+    ';\nif (!iterable) return result;\n' +
+    (obj.top) +
     ';\n';
      if (obj.arrays) {
     __p += 'var length = iterable.length; index = -1;\nif (' +
-    (obj.arrays ) +
+    (obj.arrays) +
     ') {  ';
-     if (obj.noCharByIndex) {
+     if (support.unindexedChars) {
     __p += '\n  if (isString(iterable)) {\n    iterable = iterable.split(\'\')\n  }  ';
-     } ;
+     }
     __p += '\n  while (++index < length) {\n    ' +
-    (obj.loop ) +
+    (obj.loop) +
     '\n  }\n}\nelse {  ';
-      } else if (obj.nonEnumArgs) {
+      } else if (support.nonEnumArgs) {
     __p += '\n  var length = iterable.length; index = -1;\n  if (length && isArguments(iterable)) {\n    while (++index < length) {\n      index += \'\';\n      ' +
-    (obj.loop ) +
+    (obj.loop) +
     '\n    }\n  } else {  ';
-     } ;
-    
-     if (obj.hasEnumPrototype) {
+     }
+
+     if (support.enumPrototypes) {
     __p += '\n  var skipProto = typeof iterable == \'function\';\n  ';
-     } ;
-    
-     if (obj.isKeysFast && obj.useHas) {
-    __p += '\n  var ownIndex = -1,\n      ownProps = objectTypes[typeof iterable] ? nativeKeys(iterable) : [],\n      length = ownProps.length;\n\n  while (++ownIndex < length) {\n    index = ownProps[ownIndex];\n    ';
-     if (obj.hasEnumPrototype) {
+     }
+
+     if (obj.useHas && obj.useKeys) {
+    __p += '\n  var ownIndex = -1,\n      ownProps = objectTypes[typeof iterable] ? keys(iterable) : [],\n      length = ownProps.length;\n\n  while (++ownIndex < length) {\n    index = ownProps[ownIndex];\n    ';
+     if (support.enumPrototypes) {
     __p += 'if (!(skipProto && index == \'prototype\')) {\n  ';
-     } ;
+     }
     __p += 
-    (obj.loop ) +
-    '';
-     if (obj.hasEnumPrototype) {
+    (obj.loop);
+     if (support.enumPrototypes) {
     __p += '}\n';
-     } ;
+     }
     __p += '  }  ';
      } else {
     __p += '\n  for (index in iterable) {';
-        if (obj.hasEnumPrototype || obj.useHas) {
+        if (support.enumPrototypes || obj.useHas) {
     __p += '\n    if (';
-          if (obj.hasEnumPrototype) {
+          if (support.enumPrototypes) {
     __p += '!(skipProto && index == \'prototype\')';
-     }      if (obj.hasEnumPrototype && obj.useHas) {
+     }      if (support.enumPrototypes && obj.useHas) {
     __p += ' && ';
      }      if (obj.useHas) {
     __p += 'hasOwnProperty.call(iterable, index)';
-     }    ;
+     }
     __p += ') {    ';
-     } ;
+     }
     __p += 
-    (obj.loop ) +
+    (obj.loop) +
     ';    ';
-     if (obj.hasEnumPrototype || obj.useHas) {
+     if (support.enumPrototypes || obj.useHas) {
     __p += '\n    }';
-     } ;
-    __p += '\n  }  ';
-     } ;
-    
-     if (obj.hasDontEnumBug) {
-    __p += '\n\n  var ctor = iterable.constructor;\n    ';
+     }
+    __p += '\n  }    ';
+     if (support.nonEnumShadows) {
+    __p += '\n\n  var ctor = iterable.constructor;\n      ';
      for (var k = 0; k < 7; k++) {
     __p += '\n  index = \'' +
-    (obj.shadowed[k] ) +
+    (obj.shadowedProps[k]) +
     '\';\n  if (';
-          if (obj.shadowed[k] == 'constructor') {
+          if (obj.shadowedProps[k] == 'constructor') {
     __p += '!(ctor && ctor.prototype === iterable) && ';
-          } ;
+          }
     __p += 'hasOwnProperty.call(iterable, index)) {\n    ' +
-    (obj.loop ) +
-    '\n  }    ';
-     } ;
-    
-     } ;
-    
-     if (obj.arrays || obj.nonEnumArgs) {
+    (obj.loop) +
+    '\n  }      ';
+     }
+
+     }
+
+     }
+
+     if (obj.arrays || support.nonEnumArgs) {
     __p += '\n}';
-     } ;
+     }
     __p += 
-    (obj.bottom ) +
+    (obj.bottom) +
     ';\nreturn result';
-    
-    
+
     return __p
   };
 
@@ -372,7 +440,7 @@
   /** Reusable iterator options shared by `each`, `forIn`, and `forOwn` */
   var eachIteratorOptions = {
     'args': 'collection, callback, thisArg',
-    'top': "callback = callback && typeof thisArg == 'undefined' ? callback : createCallback(callback, thisArg)",
+    'top': "callback = callback && typeof thisArg == 'undefined' ? callback : lodash.createCallback(callback, thisArg)",
     'arrays': "typeof length == 'number'",
     'loop': 'if (callback(iterable[index], index, collection) === false) return result'
   };
@@ -392,33 +460,27 @@
    * @private
    * @param {Array} array The array to search.
    * @param {Mixed} value The value to search for.
-   * @param {Number} [fromIndex=0] The index to search from.
-   * @param {Number} [largeSize=30] The length at which an array is considered large.
    * @returns {Boolean} Returns `true`, if `value` is found, else `false`.
    */
-  function cachedContains(array, fromIndex, largeSize) {
-    fromIndex || (fromIndex = 0);
-
+  function cachedContains(array) {
     var length = array.length,
-        isLarge = (length - fromIndex) >= (largeSize || largeArraySize);
+        isLarge = length >= largeArraySize;
 
     if (isLarge) {
       var cache = {},
-          index = fromIndex - 1;
+          index = -1;
 
       while (++index < length) {
-        // manually coerce `value` to a string because `hasOwnProperty`, in some
-        // older versions of Firefox, coerces objects incorrectly
-        var key = array[index] + '';
-        (hasOwnProperty.call(cache, key) ? cache[key] : (cache[key] = [])).push(array[index]);
+        var key = keyPrefix + array[index];
+        (cache[key] || (cache[key] = [])).push(array[index]);
       }
     }
     return function(value) {
       if (isLarge) {
-        var key = value + '';
-        return hasOwnProperty.call(cache, key) && indexOf(cache[key], value) > -1;
+        var key = keyPrefix + value;
+        return  cache[key] && indexOf(cache[key], value) > -1;
       }
-      return indexOf(array, value, fromIndex) > -1;
+      return indexOf(array, value) > -1;
     }
   }
 
@@ -472,19 +534,24 @@
    * @param {Function|String} func The function to bind or the method name.
    * @param {Mixed} [thisArg] The `this` binding of `func`.
    * @param {Array} partialArgs An array of arguments to be partially applied.
-   * @param {Object} [rightIndicator] Used to indicate partially applying arguments from the right.
+   * @param {Object} [idicator] Used to indicate binding by key or partially
+   *  applying arguments from the right.
    * @returns {Function} Returns the new bound function.
    */
-  function createBound(func, thisArg, partialArgs, rightIndicator) {
+  function createBound(func, thisArg, partialArgs, indicator) {
     var isFunc = isFunction(func),
         isPartial = !partialArgs,
         key = thisArg;
 
     // juggle arguments
     if (isPartial) {
+      var rightIndicator = indicator;
       partialArgs = thisArg;
     }
-    if (!isFunc) {
+    else if (!isFunc) {
+      if (!indicator) {
+        throw new TypeError;
+      }
       thisArg = func;
     }
 
@@ -499,11 +566,11 @@
       }
       if (partialArgs.length) {
         args = args.length
-          ? (args = slice(args), rightIndicator ? args.concat(partialArgs) : partialArgs.concat(args))
+          ? (args = nativeSlice.call(args), rightIndicator ? args.concat(partialArgs) : partialArgs.concat(args))
           : partialArgs;
       }
       if (this instanceof bound) {
-        // ensure `new bound` is an instance of `bound` and `func`
+        // ensure `new bound` is an instance of `func`
         noop.prototype = func.prototype;
         thisBinding = new noop;
         noop.prototype = null;
@@ -519,93 +586,31 @@
   }
 
   /**
-   * Produces a callback bound to an optional `thisArg`. If `func` is a property
-   * name, the created callback will return the property value for a given element.
-   * If `func` is an object, the created callback will return `true` for elements
-   * that contain the equivalent object properties, otherwise it will return `false`.
-   *
-   * @private
-   * @param {Mixed} [func=identity] The value to convert to a callback.
-   * @param {Mixed} [thisArg] The `this` binding of the created callback.
-   * @param {Number} [argCount=3] The number of arguments the callback accepts.
-   * @returns {Function} Returns a callback function.
-   */
-  function createCallback(func, thisArg, argCount) {
-    if (func == null) {
-      return identity;
-    }
-    var type = typeof func;
-    if (type != 'function') {
-      if (type != 'object') {
-        return function(object) {
-          return object[func];
-        };
-      }
-      var props = keys(func);
-      return function(object) {
-        var length = props.length,
-            result = false;
-        while (length--) {
-          if (!(result = isEqual(object[props[length]], func[props[length]], indicatorObject))) {
-            break;
-          }
-        }
-        return result;
-      };
-    }
-    if (typeof thisArg != 'undefined') {
-      if (argCount === 1) {
-        return function(value) {
-          return func.call(thisArg, value);
-        };
-      }
-      if (argCount === 2) {
-        return function(a, b) {
-          return func.call(thisArg, a, b);
-        };
-      }
-      if (argCount === 4) {
-        return function(accumulator, value, index, object) {
-          return func.call(thisArg, accumulator, value, index, object);
-        };
-      }
-      return function(value, index, object) {
-        return func.call(thisArg, value, index, object);
-      };
-    }
-    return func;
-  }
-
-  /**
    * Creates compiled iteration functions.
    *
    * @private
    * @param {Object} [options1, options2, ...] The compile options object(s).
    *  arrays - A string of code to determine if the iterable is an array or array-like.
    *  useHas - A boolean to specify using `hasOwnProperty` checks in the object loop.
+   *  useKeys - A boolean to specify using `_.keys` for own property iteration.
    *  args - A string of comma separated arguments the iteration function will accept.
    *  top - A string of code to execute before the iteration branches.
    *  loop - A string of code to execute in the object loop.
    *  bottom - A string of code to execute after the iteration branches.
-   *
    * @returns {Function} Returns the compiled function.
    */
   function createIterator() {
     var data = {
-      // support properties
-      'hasDontEnumBug': hasDontEnumBug,
-      'hasEnumPrototype': hasEnumPrototype,
-      'isKeysFast': isKeysFast,
-      'nonEnumArgs': nonEnumArgs,
-      'noCharByIndex': noCharByIndex,
-      'shadowed': shadowed,
-
+      // data properties
+      'shadowedProps': shadowedProps,
       // iterator options
       'arrays': 'isArray(iterable)',
       'bottom': '',
+      'init': 'iterable',
       'loop': '',
       'top': '',
-      'useHas': true
+      'useHas': true,
+      'useKeys': !!keys
     };
 
     // merge options into a template data object
@@ -619,32 +624,16 @@
 
     // create the function factory
     var factory = Function(
-        'createCallback, hasOwnProperty, isArguments, isArray, isString, ' +
-        'objectTypes, nativeKeys',
+        'hasOwnProperty, isArguments, isArray, keys, ' +
+        'lodash, objectTypes',
       'return function(' + args + ') {\n' + iteratorTemplate(data) + '\n}'
     );
     // return the compiled function
     return factory(
-      createCallback, hasOwnProperty, isArguments, isArray, isString,
-      objectTypes, nativeKeys
+      hasOwnProperty, isArguments, isArray, keys,
+      lodash, objectTypes
     );
   }
-
-  /**
-   * A function compiled to iterate `arguments` objects, arrays, objects, and
-   * strings consistenly across environments, executing the `callback` for each
-   * element in the `collection`. The `callback` is bound to `thisArg` and invoked
-   * with three arguments; (value, index|key, collection). Callbacks may exit
-   * iteration early by explicitly returning `false`.
-   *
-   * @private
-   * @type Function
-   * @param {Array|Object|String} collection The collection to iterate over.
-   * @param {Function} [callback=identity] The function called per iteration.
-   * @param {Mixed} [thisArg] The `this` binding of `callback`.
-   * @returns {Array|Object|String} Returns `collection`.
-   */
-  var each = createIterator(eachIteratorOptions);
 
   /**
    * Used by `template` to escape characters for inclusion in compiled
@@ -752,11 +741,116 @@
     return toString.call(value) == argsClass;
   }
   // fallback for browsers that can't detect `arguments` objects by [[Class]]
-  if (noArgsClass) {
+  if (!support.argsClass) {
     isArguments = function(value) {
       return value ? hasOwnProperty.call(value, 'callee') : false;
     };
   }
+
+  /**
+   * A fallback implementation of `Object.keys` which produces an array of the
+   * given object's own enumerable property names.
+   *
+   * @private
+   * @type Function
+   * @param {Object} object The object to inspect.
+   * @returns {Array} Returns a new array of property names.
+   */
+  var shimKeys = createIterator({
+    'args': 'object',
+    'init': '[]',
+    'top': 'if (!(objectTypes[typeof object])) return result',
+    'loop': 'result.push(index)',
+    'arrays': false
+  });
+
+  /**
+   * Creates an array composed of the own enumerable property names of `object`.
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Object} object The object to inspect.
+   * @returns {Array} Returns a new array of property names.
+   * @example
+   *
+   * _.keys({ 'one': 1, 'two': 2, 'three': 3 });
+   * // => ['one', 'two', 'three'] (order is not guaranteed)
+   */
+  var keys = !nativeKeys ? shimKeys : function(object) {
+    if (!isObject(object)) {
+      return [];
+    }
+    if ((support.enumPrototypes && typeof object == 'function') ||
+        (support.nonEnumArgs && object.length && isArguments(object))) {
+      return shimKeys(object);
+    }
+    return nativeKeys(object);
+  };
+
+  /**
+   * Used to convert characters to HTML entities:
+   *
+   * Though the `>` character is escaped for symmetry, characters like `>` and `/`
+   * don't require escaping in HTML and have no special meaning unless they're part
+   * of a tag or an unquoted attribute value.
+   * http://mathiasbynens.be/notes/ambiguous-ampersands (under "semi-related fun fact")
+   */
+  var htmlEscapes = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+
+  /** Used to convert HTML entities to characters */
+  var htmlUnescapes = {'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#x27;':"'"};
+
+  /*--------------------------------------------------------------------------*/
+
+  /**
+   * Assigns own enumerable properties of source object(s) to the destination
+   * object. Subsequent sources will overwrite property assignments of previous
+   * sources. If a `callback` function is passed, it will be executed to produce
+   * the assigned values. The `callback` is bound to `thisArg` and invoked with
+   * two arguments; (objectValue, sourceValue).
+   *
+   * @static
+   * @memberOf _
+   * @type Function
+   * @alias extend
+   * @category Objects
+   * @param {Object} object The destination object.
+   * @param {Object} [source1, source2, ...] The source objects.
+   * @param {Function} [callback] The function to customize assigning values.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Object} Returns the destination object.
+   * @example
+   *
+   * _.assign({ 'name': 'moe' }, { 'age': 40 });
+   * // => { 'name': 'moe', 'age': 40 }
+   *
+   * var defaults = _.partialRight(_.assign, function(a, b) {
+   *   return typeof a == 'undefined' ? b : a;
+   * });
+   *
+   * var food = { 'name': 'apple' };
+   * defaults(food, { 'name': 'banana', 'type': 'fruit' });
+   * // => { 'name': 'apple', 'type': 'fruit' }
+   */
+  var assign = createIterator(defaultsIteratorOptions, {
+    'top':
+      defaultsIteratorOptions.top.replace(';',
+        ';\n' +
+        "if (argsLength > 3 && typeof args[argsLength - 2] == 'function') {\n" +
+        '  var callback = lodash.createCallback(args[--argsLength - 1], args[argsLength--], 2);\n' +
+        "} else if (argsLength > 2 && typeof args[argsLength - 1] == 'function') {\n" +
+        '  callback = args[--argsLength];\n' +
+        '}'
+      ),
+    'loop': 'result[index] = callback ? callback(result[index], iterable[index]) : iterable[index]'
+  });
 
   /**
    * Iterates over `object`'s own and inherited enumerable properties, executing
@@ -830,145 +924,12 @@
    * _.isArray([1, 2, 3]);
    * // => true
    */
-  var isArray = nativeIsArray || function(value) {
+  function isArray(value) {
     // `instanceof` may cause a memory leak in IE 7 if `value` is a host object
     // http://ajaxian.com/archives/working-aroung-the-instanceof-memory-leak
-    return (argsAreObjects && value instanceof Array) || toString.call(value) == arrayClass;
-  };
-
-  /**
-   * Creates an array composed of the own enumerable property names of `object`.
-   *
-   * @static
-   * @memberOf _
-   * @category Objects
-   * @param {Object} object The object to inspect.
-   * @returns {Array} Returns a new array of property names.
-   * @example
-   *
-   * _.keys({ 'one': 1, 'two': 2, 'three': 3 });
-   * // => ['one', 'two', 'three'] (order is not guaranteed)
-   */
-  var keys = !nativeKeys ? shimKeys : function(object) {
-    if (!isObject(object)) {
-      return [];
-    }
-    if ((hasEnumPrototype && typeof object == 'function') ||
-        (nonEnumArgs && object.length && isArguments(object))) {
-      return shimKeys(object);
-    }
-    return nativeKeys(object);
-  };
-
-  /**
-   * A fallback implementation of `isPlainObject` that checks if a given `value`
-   * is an object created by the `Object` constructor, assuming objects created
-   * by the `Object` constructor have no inherited enumerable properties and that
-   * there are no `Object.prototype` extensions.
-   *
-   * @private
-   * @param {Mixed} value The value to check.
-   * @returns {Boolean} Returns `true`, if `value` is a plain object, else `false`.
-   */
-  function shimIsPlainObject(value) {
-    // avoid non-objects and false positives for `arguments` objects
-    var result = false;
-    if (!(value && typeof value == 'object') || isArguments(value)) {
-      return result;
-    }
-    // check that the constructor is `Object` (i.e. `Object instanceof Object`)
-    var ctor = value.constructor;
-    if ((!isFunction(ctor) && (!noNodeClass || !isNode(value))) || ctor instanceof ctor) {
-      // In most environments an object's own properties are iterated before
-      // its inherited properties. If the last iterated property is an object's
-      // own property then there are no inherited enumerable properties.
-      forIn(value, function(value, key) {
-        result = key;
-      });
-      return result === false || hasOwnProperty.call(value, result);
-    }
-    return result;
+    return (support.argsObject && value instanceof Array) ||
+      (nativeIsArray ? nativeIsArray(value) : toString.call(value) == arrayClass);
   }
-
-  /**
-   * A fallback implementation of `Object.keys` that produces an array of the
-   * given object's own enumerable property names.
-   *
-   * @private
-   * @param {Object} object The object to inspect.
-   * @returns {Array} Returns a new array of property names.
-   */
-  function shimKeys(object) {
-    var result = [];
-    forOwn(object, function(value, key) {
-      result.push(key);
-    });
-    return result;
-  }
-
-  /**
-   * Used to convert characters to HTML entities:
-   *
-   * Though the `>` character is escaped for symmetry, characters like `>` and `/`
-   * don't require escaping in HTML and have no special meaning unless they're part
-   * of a tag or an unquoted attribute value.
-   * http://mathiasbynens.be/notes/ambiguous-ampersands (under "semi-related fun fact")
-   */
-  var htmlEscapes = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  };
-
-  /** Used to convert HTML entities to characters */
-  var htmlUnescapes = {'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&#x27;':"'"};
-
-  /*--------------------------------------------------------------------------*/
-
-  /**
-   * Assigns own enumerable properties of source object(s) to the destination
-   * object. Subsequent sources will overwrite propery assignments of previous
-   * sources. If a `callback` function is passed, it will be executed to produce
-   * the assigned values. The `callback` is bound to `thisArg` and invoked with
-   * two arguments; (objectValue, sourceValue).
-   *
-   * @static
-   * @memberOf _
-   * @type Function
-   * @alias extend
-   * @category Objects
-   * @param {Object} object The destination object.
-   * @param {Object} [source1, source2, ...] The source objects.
-   * @param {Function} [callback] The function to customize assigning values.
-   * @param {Mixed} [thisArg] The `this` binding of `callback`.
-   * @returns {Object} Returns the destination object.
-   * @example
-   *
-   * _.assign({ 'name': 'moe' }, { 'age': 40 });
-   * // => { 'name': 'moe', 'age': 40 }
-   *
-   * var defaults = _.partialRight(_.assign, function(a, b) {
-   *   return typeof a == 'undefined' ? b : a;
-   * });
-   *
-   * var food = { 'name': 'apple' };
-   * defaults(food, { 'name': 'banana', 'type': 'fruit' });
-   * // => { 'name': 'apple', 'type': 'fruit' }
-   */
-  var assign = createIterator(defaultsIteratorOptions, {
-    'top':
-      defaultsIteratorOptions.top.replace(';',
-        ';\n' +
-        "if (argsLength > 3 && typeof args[argsLength - 2] == 'function') {\n" +
-        '  var callback = createCallback(args[--argsLength - 1], args[argsLength--], 2);\n' +
-        "} else if (argsLength > 2 && typeof args[argsLength - 1] == 'function') {\n" +
-        '  callback = args[--argsLength];\n' +
-        '}'
-      ),
-    'loop': 'result[index] = callback ? callback(result[index], iterable[index]) : iterable[index]'
-  });
 
   /**
    * Performs a deep comparison between two values to determine if they are
@@ -984,9 +945,9 @@
    * @param {Mixed} b The other value to compare.
    * @param {Function} [callback] The function to customize comparing values.
    * @param {Mixed} [thisArg] The `this` binding of `callback`.
-   * @param- {Object} [stackA=[]] Internally used track traversed `a` objects.
-   * @param- {Object} [stackB=[]] Internally used track traversed `b` objects.
-   * @returns {Boolean} Returns `true`, if the values are equvalent, else `false`.
+   * @param- {Array} [stackA=[]] Tracks traversed `a` objects.
+   * @param- {Array} [stackB=[]] Tracks traversed `b` objects.
+   * @returns {Boolean} Returns `true`, if the values are equivalent, else `false`.
    * @example
    *
    * var moe = { 'name': 'moe', 'age': 40 };
@@ -1013,8 +974,8 @@
   function isEqual(a, b, callback, thisArg, stackA, stackB) {
     // used to indicate that when comparing objects, `a` has at least the properties of `b`
     var whereIndicator = callback === indicatorObject;
-    if (callback && !whereIndicator) {
-      callback = typeof thisArg == 'undefined' ? callback : createCallback(callback, thisArg, 2);
+    if (typeof callback == 'function' && !whereIndicator) {
+      callback = lodash.createCallback(callback, thisArg, 2);
       var result = callback(a, b);
       if (typeof result != 'undefined') {
         return !!result;
@@ -1061,7 +1022,7 @@
 
       case numberClass:
         // treat `NaN` vs. `NaN` as equal
-        return a != +a
+        return (a != +a)
           ? b != +b
           // but treat `+0` vs. `-0` as not equal
           : (a == 0 ? (1 / a == 1 / b) : a == +b);
@@ -1070,21 +1031,21 @@
       case stringClass:
         // coerce regexes to strings (http://es5.github.com/#x15.10.6.4)
         // treat string primitives and their corresponding object instances as equal
-        return a == b + '';
+        return a == String(b);
     }
     var isArr = className == arrayClass;
     if (!isArr) {
       // unwrap any `lodash` wrapped values
-      if (a.__wrapped__ || b.__wrapped__) {
+      if (hasOwnProperty.call(a, '__wrapped__ ') || hasOwnProperty.call(b, '__wrapped__')) {
         return isEqual(a.__wrapped__ || a, b.__wrapped__ || b, callback, thisArg, stackA, stackB);
       }
       // exit for functions and DOM nodes
-      if (className != objectClass || (noNodeClass && (isNode(a) || isNode(b)))) {
+      if (className != objectClass || (!support.nodeClass && (isNode(a) || isNode(b)))) {
         return false;
       }
       // in older versions of Opera, `arguments` objects have `Array` constructors
-      var ctorA = !argsAreObjects && isArguments(a) ? Object : a.constructor,
-          ctorB = !argsAreObjects && isArguments(b) ? Object : b.constructor;
+      var ctorA = !support.argsObject && isArguments(a) ? Object : a.constructor,
+          ctorB = !support.argsObject && isArguments(b) ? Object : b.constructor;
 
       // non `Object` object instances with different constructors are not equal
       if (ctorA != ctorB && !(
@@ -1214,63 +1175,6 @@
     return value ? objectTypes[typeof value] : false;
   }
 
-  /**
-   * Checks if `value` is a string.
-   *
-   * @static
-   * @memberOf _
-   * @category Objects
-   * @param {Mixed} value The value to check.
-   * @returns {Boolean} Returns `true`, if the `value` is a string, else `false`.
-   * @example
-   *
-   * _.isString('moe');
-   * // => true
-   */
-  function isString(value) {
-    return typeof value == 'string' || toString.call(value) == stringClass;
-  }
-
-  /*--------------------------------------------------------------------------*/
-
-  /**
-   * Iterates over a `collection`, executing the `callback` for each element in
-   * the `collection`. The `callback` is bound to `thisArg` and invoked with three
-   * arguments; (value, index|key, collection). Callbacks may exit iteration early
-   * by explicitly returning `false`.
-   *
-   * @static
-   * @memberOf _
-   * @alias each
-   * @category Collections
-   * @param {Array|Object|String} collection The collection to iterate over.
-   * @param {Function} [callback=identity] The function called per iteration.
-   * @param {Mixed} [thisArg] The `this` binding of `callback`.
-   * @returns {Array|Object|String} Returns `collection`.
-   * @example
-   *
-   * _([1, 2, 3]).forEach(alert).join(',');
-   * // => alerts each number and returns '1,2,3'
-   *
-   * _.forEach({ 'one': 1, 'two': 2, 'three': 3 }, alert);
-   * // => alerts each number value (order is not guaranteed)
-   */
-  function forEach(collection, callback, thisArg) {
-    if (callback && typeof thisArg == 'undefined' && isArray(collection)) {
-      var index = -1,
-          length = collection.length;
-
-      while (++index < length) {
-        if (callback(collection[index], index, collection) === false) {
-          break;
-        }
-      }
-    } else {
-      each(collection, callback, thisArg);
-    }
-    return collection;
-  }
-
   /*--------------------------------------------------------------------------*/
 
   /**
@@ -1284,13 +1188,13 @@
    * callback will return the property value of the given element.
    *
    * If an object is passed for `callback`, the created "_.where" style callback
-   * will return `true` for elements that have the propeties of the given object,
+   * will return `true` for elements that have the properties of the given object,
    * else `false`.
    *
    * @static
    * @memberOf _
    * @category Arrays
-   * @param {Array} array The array to iterate over.
+   * @param {Array} array The array to inspect.
    * @param {Mixed} value The value to evaluate.
    * @param {Function|Object|String} [callback=identity] The function called per
    *  iteration. If a property name or object is passed, it will be used to create
@@ -1326,12 +1230,12 @@
         high = array ? array.length : low;
 
     // explicitly reference `identity` for better inlining in Firefox
-    callback = callback ? createCallback(callback, thisArg, 1) : identity;
+    callback = callback ? lodash.createCallback(callback, thisArg, 1) : identity;
     value = callback(value);
 
     while (low < high) {
       var mid = (low + high) >>> 1;
-      callback(array[mid]) < value
+      (callback(array[mid]) < value)
         ? low = mid + 1
         : high = mid;
     }
@@ -1365,49 +1269,155 @@
   function bind(func, thisArg) {
     // use `Function#bind` if it exists and is fast
     // (in V8 `Function#bind` is slower except when partially applied)
-    return isBindFast || (nativeBind && arguments.length > 2)
+    return support.fastBind || (nativeBind && arguments.length > 2)
       ? nativeBind.call.apply(nativeBind, arguments)
-      : createBound(func, thisArg, slice(arguments, 2));
-  }
-  // use `setImmediate` if it's available in Node.js
-  if (isV8 && freeModule && typeof setImmediate == 'function') {
-    defer = bind(setImmediate, window);
+      : createBound(func, thisArg, nativeSlice.call(arguments, 2));
   }
 
   /**
-   * Creates a function that, when executed, will only call the `func`
-   * function at most once per every `wait` milliseconds. If the throttled
-   * function is invoked more than once during the `wait` timeout, `func` will
-   * also be called on the trailing edge of the timeout. Subsequent calls to the
-   * throttled function will return the result of the last `func` call.
+   * Produces a callback bound to an optional `thisArg`. If `func` is a property
+   * name, the created callback will return the property value for a given element.
+   * If `func` is an object, the created callback will return `true` for elements
+   * that contain the equivalent object properties, otherwise it will return `false`.
+   *
+   * Note: All Lo-Dash methods, that accept a `callback` argument, use `_.createCallback`.
+   *
+   * @static
+   * @memberOf _
+   * @category Functions
+   * @param {Mixed} [func=identity] The value to convert to a callback.
+   * @param {Mixed} [thisArg] The `this` binding of the created callback.
+   * @param {Number} [argCount=3] The number of arguments the callback accepts.
+   * @returns {Function} Returns a callback function.
+   * @example
+   *
+   * var stooges = [
+   *   { 'name': 'moe', 'age': 40 },
+   *   { 'name': 'larry', 'age': 50 }
+   * ];
+   *
+   * // wrap to create custom callback shorthands
+   * _.createCallback = _.wrap(_.createCallback, function(func, callback, thisArg) {
+   *   var match = /^(.+?)__([gl]t)(.+)$/.exec(callback);
+   *   return !match ? func(callback, thisArg) : function(object) {
+   *     return match[2] == 'gt' ? object[match[1]] > match[3] : object[match[1]] < match[3];
+   *   };
+   * });
+   *
+   * _.filter(stooges, 'age__gt45');
+   * // => [{ 'name': 'larry', 'age': 50 }]
+   *
+   * // create mixins with support for "_.pluck" and "_.where" callback shorthands
+   * _.mixin({
+   *   'toLookup': function(collection, callback, thisArg) {
+   *     callback = _.createCallback(callback, thisArg);
+   *     return _.reduce(collection, function(result, value, index, collection) {
+   *       return (result[callback(value, index, collection)] = value, result);
+   *     }, {});
+   *   }
+   * });
+   *
+   * _.toLookup(stooges, 'name');
+   * // => { 'moe': { 'name': 'moe', 'age': 40 }, 'larry': { 'name': 'larry', 'age': 50 } }
+   */
+  function createCallback(func, thisArg, argCount) {
+    if (func == null) {
+      return identity;
+    }
+    var type = typeof func;
+    if (type != 'function') {
+      if (type != 'object') {
+        return function(object) {
+          return object[func];
+        };
+      }
+      var props = keys(func);
+      return function(object) {
+        var length = props.length,
+            result = false;
+        while (length--) {
+          if (!(result = isEqual(object[props[length]], func[props[length]], indicatorObject))) {
+            break;
+          }
+        }
+        return result;
+      };
+    }
+    if (typeof thisArg != 'undefined') {
+      if (argCount === 1) {
+        return function(value) {
+          return func.call(thisArg, value);
+        };
+      }
+      if (argCount === 2) {
+        return function(a, b) {
+          return func.call(thisArg, a, b);
+        };
+      }
+      if (argCount === 4) {
+        return function(accumulator, value, index, collection) {
+          return func.call(thisArg, accumulator, value, index, collection);
+        };
+      }
+      return function(value, index, collection) {
+        return func.call(thisArg, value, index, collection);
+      };
+    }
+    return func;
+  }
+
+  /**
+   * Creates a function that, when executed, will only call the `func` function
+   * at most once per every `wait` milliseconds. If the throttled function is
+   * invoked more than once during the `wait` timeout, `func` will also be called
+   * on the trailing edge of the timeout. Pass an `options` object to indicate
+   * that `func` should be invoked on the leading and/or trailing edge of the
+   * `wait` timeout. Subsequent calls to the throttled function will return
+   * the result of the last `func` call.
    *
    * @static
    * @memberOf _
    * @category Functions
    * @param {Function} func The function to throttle.
    * @param {Number} wait The number of milliseconds to throttle executions to.
+   * @param {Object} options The options object.
+   *  [leading=true] A boolean to specify execution on the leading edge of the timeout.
+   *  [trailing=true] A boolean to specify execution on the trailing edge of the timeout.
    * @returns {Function} Returns the new throttled function.
    * @example
    *
    * var throttled = _.throttle(updatePosition, 100);
    * jQuery(window).on('scroll', throttled);
    */
-  function throttle(func, wait) {
+  function throttle(func, wait, options) {
     var args,
         result,
         thisArg,
         timeoutId,
-        lastCalled = 0;
+        lastCalled = 0,
+        leading = true,
+        trailing = true;
 
     function trailingCall() {
       lastCalled = new Date;
       timeoutId = null;
-      result = func.apply(thisArg, args);
+
+      if (trailing) {
+        result = func.apply(thisArg, args);
+      }
+    }
+    if (options === false) {
+      leading = false;
+    } else if (options && objectTypes[typeof options]) {
+      leading = 'leading' in options ? options.leading : leading;
+      trailing = 'trailing' in options ? options.trailing : trailing;
     }
     return function() {
-      var now = new Date,
-          remaining = wait - (now - lastCalled);
-
+      var now = new Date;
+      if (!timeoutId && !leading) {
+        lastCalled = now;
+      }
+      var remaining = wait - (now - lastCalled);
       args = arguments;
       thisArg = this;
 
@@ -1446,57 +1456,24 @@
 
   /*--------------------------------------------------------------------------*/
 
-  /**
-   * Produces the `toString` result of the wrapped value.
-   *
-   * @name toString
-   * @memberOf _
-   * @category Chaining
-   * @returns {String} Returns the string result.
-   * @example
-   *
-   * _([1, 2, 3]).toString();
-   * // => '1,2,3'
-   */
-  function wrapperToString() {
-    return this.__wrapped__ + '';
-  }
-
-  /**
-   * Extracts the wrapped value.
-   *
-   * @name valueOf
-   * @memberOf _
-   * @alias value
-   * @category Chaining
-   * @returns {Mixed} Returns the wrapped value.
-   * @example
-   *
-   * _([1, 2, 3]).valueOf();
-   * // => [1, 2, 3]
-   */
-  function wrapperValueOf() {
-    return this.__wrapped__;
-  }
-
-  /*--------------------------------------------------------------------------*/
   lodash.assign = assign;
   lodash.bind = bind;
-  lodash.forEach = forEach;
+  lodash.createCallback = createCallback;
   lodash.forIn = forIn;
   lodash.forOwn = forOwn;
   lodash.keys = keys;
   lodash.throttle = throttle;
-  lodash.each = forEach;
+
   lodash.extend = assign;
+
   /*--------------------------------------------------------------------------*/
+
   lodash.identity = identity;
   lodash.isArguments = isArguments;
   lodash.isArray = isArray;
   lodash.isEqual = isEqual;
   lodash.isFunction = isFunction;
   lodash.isObject = isObject;
-  lodash.isString = isString;
   lodash.sortedIndex = sortedIndex;
 
   /*--------------------------------------------------------------------------*/
@@ -1508,11 +1485,10 @@
    * @memberOf _
    * @type String
    */
-  lodash.VERSION = '1.0.1';
+  lodash.VERSION = '1.2.0';
 
   /*--------------------------------------------------------------------------*/
 
-  
 ;lodash.extend(Physics.util, lodash);}(this,Physics));
 var Decorator = function Decorator( type, proto ){
 
@@ -1902,9 +1878,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
     while ( ++iterations ) {
 
         // swap last and lastlast, to save on memory/speed
-        tmp = lastlast;
-        lastlast = last;
-        last = tmp;
+        last.swap(lastlast);
         // push a new point to the simplex because we haven't terminated yet
         tmp = support( dir );
         simplexLen = simplex.push( tmp );
@@ -2004,10 +1978,9 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 // then we know which way to look...
                 // morph the ab vector into its outward facing normal
                 ab.perp( sign );
-                // swap names
-                sign = dir;
-                dir = ab;
-                ab = sign;
+                
+                // swap
+                dir.swap( ab );
                 
                 // continue...
 
@@ -2022,10 +1995,9 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
                 simplex.splice(1, 1);
 
                 ac.perp( !sign );
-                // swap names
-                sign = dir;
-                dir = ac;
-                ac = sign;
+                
+                // swap
+                dir.swap( ab );
                 
                 // continue...
 
@@ -2157,6 +2129,8 @@ var sqrt = Math.sqrt
     ,min = Math.min
     ,max = Math.max
     ,acos = Math.acos
+    ,atan2 = Math.atan2
+    ,TWOPI = Math.PI * 2
     ,typedArrays = !!window.Float64Array
     ;
 
@@ -2301,11 +2275,11 @@ Vector.prototype.dot = function(v) {
 };
 
 /** 
- * Get the cross product
+ * Get the cross product (in a left handed coordinate system)
  */
 Vector.prototype.cross = function(v) {
 
-    return (this._[0] * v._[1]) - (this._[1] * v._[0]);
+    return ( - this._[0] * v._[1]) + (this._[1] * v._[0]);
 };
 
 /**
@@ -2333,13 +2307,21 @@ Vector.prototype.vproj = function(v){
  */
 Vector.prototype.angle = function(v){
 
-    if (!v){
-        v = Vector.axis[0];
+    var ang = atan2(this._[ 1 ], this._[ 0 ]);
+
+    if (v){
+        ang -= atan2(v._[ 1 ], v._[ 0 ]);
+    }
+    
+    while (ang > Math.PI){
+        ang -= TWOPI;
     }
 
-    var prod = this.dot( v ) / ( this.norm() * v.norm() );
+    while (ang < -Math.PI){
+        ang += TWOPI;
+    }
 
-    return acos( prod );
+    return ang;
 };
 
 /**
@@ -2540,6 +2522,23 @@ Vector.prototype.clone = function(v) {
     }
 
     return new Vector( this );
+};
+
+/**
+ * Swap values with other vector
+ * @param  {Vector} v
+ * @return {this}
+ */
+Vector.prototype.swap = function(v){
+
+    var _ = this._;
+    this._ = v._;
+    v._ = _;
+
+    _ = this.recalc;
+    this.recalc = v.recalc;
+    v.recalc = _;
+    return this;
 };
 
 /**
@@ -2785,6 +2784,8 @@ Physics.vector = Vector;
 }());
 (function(){
 
+    var ERROR_UNSUPPORTED_ARG = "Error: Unsupported argument";
+
     // Service
     Physics.geometry = Decorator('geometry', {
 
@@ -2827,6 +2828,152 @@ Physics.vector = Vector;
             return result.set( 0, 0 );
         }
     });
+
+    // utility functions
+
+    // check if polygon array is convex
+    // points are assumed to wrap clockwise
+    Physics.geometry.isConvex = function( hull ){
+
+        var scratch = Physics.scratchpad()
+            ,prev = scratch.vector()
+            ,next = scratch.vector()
+            ,tmp = scratch.vector()
+            ,ret = true
+            ,sign = false
+            ,l = hull.length
+            ;
+
+        if ( l < 3 ){
+            // it must be a point or a line...
+            // which are convex
+            scratch.done();
+            return ret;
+        }
+
+        prev.clone( hull[ 0 ] ).vsub( tmp.clone( hull[ l - 1 ] ) );
+
+        // loop over the edges of the hull and construct vectors of the current
+        // edge and retain the last edge
+        // add two to the length to do a full cycle
+        for ( var i = 1; i <= l; ++i ){
+            
+            next.clone( hull[ i % l ] ).vsub( tmp.clone( hull[ (i - 1) % l ] ) );
+
+            if ( sign === false ){
+
+                // first check the sign of the first cross product
+                sign = prev.cross( next );
+
+            } else if ( (sign > 0) ^ (prev.cross( next ) > 0) ){
+            
+                // if the cross products are different signs it's not convex
+                ret = false;
+                break;
+            }
+
+            // remember the last edge
+            next.swap( prev );
+        }
+
+        scratch.done();
+        return ret;
+    };
+
+    // gets the moment of inertia of a 
+    // convex polygon
+    // see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
+    // assumptions: 
+    //  * mass is unitary
+    //  * axis of rotation is the origin
+    Physics.geometry.getPolygonMOI = function( hull ){
+
+        var scratch = Physics.scratchpad()
+            ,prev = scratch.vector()
+            ,next = scratch.vector()
+            ,num = 0
+            ,denom = 0
+            ,tmp
+            ,l = hull.length
+            ;
+
+        if ( l < 2 ){
+            // it must be a point
+            // moi = 0
+            scratch.done();
+            return 0;
+        }
+
+        if ( l === 2 ){
+            // it's a line
+            // get length squared
+            tmp = next.clone( hull[ 1 ] ).distSq( prev.clone( hull[ 0 ] ) );
+            scratch.done();
+            return tmp / 12;
+        }
+
+        prev.clone( hull[ 0 ] );
+
+        for ( var i = 1; i < l; ++i ){
+            
+            next.clone( hull[ i ] );
+
+            tmp = Math.abs( next.cross( prev ) );
+            num += tmp * ( next.normSq() + next.dot( prev ) + prev.normSq() );
+            denom += tmp;
+
+            prev.swap( next );
+        }
+
+        scratch.done();
+        return num / ( 6 * denom );
+    };
+
+    /**
+     * Check if point is inside polygon hull
+     * @param  {Vector-like}  pt
+     * @param  {Array(Vector-likes)}  hull
+     * @return {Boolean}
+     */
+    Physics.geometry.isPointInPolygon = function( pt, hull ){
+
+        var scratch = Physics.scratchpad()
+            ,point = scratch.vector().clone( pt )
+            ,prev = scratch.vector()
+            ,next = scratch.vector()
+            ,ang = 0
+            ,l = hull.length
+            ;
+
+        if ( l < 2 ){
+            // it's a point...
+            ang = point.equals( prev.clone( hull[ 0 ] ));
+            scratch.done();
+            return ang;
+        }
+
+        if ( l === 2 ){
+            // it's a line
+            ang = point.angle( prev.clone( hull[ 0 ] ));
+            ang += point.angle( prev.clone( hull[ 1 ] ));
+            scratch.done();
+            return ( Math.abs(ang) === Math.PI );
+        }
+
+        prev.clone( hull[ 0 ] ).vsub( point );
+
+        // calculate the sum of angles between vector pairs
+        // from point to vertices
+        for ( var i = 1; i <= l; ++i ){
+            
+            next.clone( hull[ i % l ] ).vsub( point );
+            ang += next.angle( prev );
+            prev.swap( next );
+        }
+
+        scratch.done();
+        return ( Math.abs(ang) > 0 );
+    };
 
 }());
 (function(){
@@ -3117,9 +3264,17 @@ World.prototype = {
         return Physics.util.extend({}, this._opts);
     },
 
-    subscribe: function( topic, fn ){
+    subscribe: function( topic, fn, scope ){
 
-        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = []);
+        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
+            ,orig = fn
+            ;
+
+        if ( scope ){
+            
+            fn = Physics.util.bind( fn, scope );
+            fn._bindfn_ = orig;
+        }
 
         listeners.push( fn );
 
@@ -3128,7 +3283,9 @@ World.prototype = {
 
     unsubscribe: function( topic, fn ){
 
-        var listeners = this._pubsub[ topic ];
+        var listeners = this._pubsub[ topic ]
+            ,listn
+            ;
 
         if (!listeners){
             return this;
@@ -3136,7 +3293,9 @@ World.prototype = {
 
         for ( var i = 0, l = listeners.length; i < l; i++ ){
             
-            if ( listeners[ i ] === fn ){
+            listn = listeners[ i ];
+
+            if ( listn._bindfn_ === fn || listn === fn ){
                 listeners.splice(i, 1);
                 break;
             }
@@ -3447,6 +3606,31 @@ Physics.body('circle', function( parent ){
     }
 });
 
+// circle body
+Physics.body('convex-polygon', function( parent ){
+
+    var defaults = {
+        
+    };
+
+    return {
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.geometry = Physics.geometry('convex-polygon', {
+                vertices: options.vertices
+            });
+
+            // moment of inertia
+            this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
+        }
+    }
+});
+
 // object bouncing collision response
 Physics.behavior('body-impulse-response', function( parent ){
     
@@ -3463,7 +3647,6 @@ Physics.behavior('body-impulse-response', function( parent ){
         init: function( options ){
 
             this._collisions = [];
-            this.collect = Physics.util.bind(this.collect, this);
         },
 
         collect: function( data ){
@@ -3479,18 +3662,18 @@ Physics.behavior('body-impulse-response', function( parent ){
                 this._world.unsubscribe( PUBSUB_TOPIC, this.collect );
             }
 
-            world.subscribe( PUBSUB_TOPIC, this.collect );
-            this._world = world;
+            world.subscribe( PUBSUB_TOPIC, this.collect, this );
+            parent.setWorld.call( this, world );
         },
 
-        collideBodies: function(bodyA, bodyB, normal, point, mtrans){
+        collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var invMoiA = 1 / bodyA.moi
                 ,invMoiB = 1 / bodyB.moi
                 ,invMassA = 1 / bodyA.mass
                 ,invMassB = 1 / bodyB.mass
                 // coefficient of restitution between bodies
-                ,cor = bodyA.restitution * bodyB.restitution
+                ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
                 ,scratch = Physics.scratchpad()
@@ -3525,6 +3708,12 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,inContact = false
                 ;
 
+            // if moving away from each other... don't bother.
+            if (vproj >= 0){
+                scratch.done();
+                return;
+            }
+
             impulse =  - ((1 + cor) * vproj) / ( invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg) );
             // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
             // angVel -= impulse * rreg * invMoi;
@@ -3544,7 +3733,18 @@ Physics.behavior('body-impulse-response', function( parent ){
             // if we have friction and a relative velocity perpendicular to the normal
             if ( cof && vreg ){
 
-                // maximum impulse allowed by friction
+
+                // TODO: here, we could first assume static friction applies
+                // and that the tangential relative velocity is zero.
+                // Then we could calculate the impulse and check if the
+                // tangential impulse is less than that allowed by static
+                // friction. If not, _then_ apply kinetic friction.
+
+                // instead we're just applying kinetic friction and making
+                // sure the impulse we apply is less than the maximum
+                // allowed amount
+
+                // maximum impulse allowed by kinetic friction
                 max = vreg / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
 
                 if (!inContact){
@@ -3578,17 +3778,30 @@ Physics.behavior('body-impulse-response', function( parent ){
 
         behave: function(){
 
-            var col
-                ,collisions = this._collisions
+            var self = this
+                ,col
+                ,collisions = self._collisions
                 ;
 
-            this._collisions = [];
+            self._collisions = [];
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
                 
                 col = collisions[ i ];
-                this.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv );
+                self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv );
             }
+
+            // self._world.publish({
+            //     topic: 'collision-detect:request-sweep',
+            //     callback: function( collisions ){
+
+            //         for ( var i = 0, l = collisions.length; i < l; ++i ){
+                        
+            //             col = collisions[ i ];
+            //             self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv, true );
+            //         }
+            //     }
+            // });
         }
     };
 });
