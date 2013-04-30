@@ -61,10 +61,10 @@ Physics.geometry('convex-polygon', function( parent ){
                 ;
 
             this._aabb = {
-                halfWidth: 0.5 * (
+                halfWidth: 0.5 * Math.abs(
                         this.getFarthestHullPoint( xaxis, p ).get(0) - this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
                     ),
-                halfHeight: 0.5 * (
+                halfHeight: 0.5 * Math.abs(
                         this.getFarthestHullPoint( yaxis, p ).get(1) - this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
                     )
             };
@@ -114,17 +114,21 @@ Physics.geometry('convex-polygon', function( parent ){
                     i++;
                 }
 
+                if (val >= prev){
+                    i++;
+                }
+
                 // return the previous (furthest with largest dot product)
-                return result.clone( verts[ i - 1 ] );
+                return result.clone( verts[ i - 2 ] );
 
             } else {
                 // go down
 
-                i = l - 1;
-                while ( i > 1 && prev >= val ){
+                i = l;
+                while ( i > 2 && prev >= val ){
+                    i--;
                     val = prev;
                     prev = verts[ i ].dot( dir );
-                    i--;
                 }
 
                 // return the previous (furthest with largest dot product)

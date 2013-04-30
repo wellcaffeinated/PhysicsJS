@@ -89,8 +89,15 @@ Physics({
     var viewWidth = 600;
     var viewHeight = 400;
     var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
-
+    var pent = [
+            { x: 100, y: 0 },
+            { x: 50, y: -50 },
+            { x: -50, y: -50 },
+            { x: -100, y: 0 },
+            { x: 0, y: 100 }
+        ];
     var circles = [];
+    var poly;
     
     circles.push(
         Physics.body('circle', {
@@ -107,6 +114,10 @@ Physics({
             radius: 30
         })
     );
+
+    poly = Physics.body('convex-polygon', {
+        vertices: pent
+    });
 
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
@@ -126,6 +137,12 @@ Physics({
         // draw origin
         drawPoint(ctx, {x: 0, y: 0}, 2, 'red', renderer.options.offset);
         drawMinkowski( ctx, circles[0], circles[1] );
+
+        // ctx.save();
+        // ctx.translate(renderer.options.offset.get(0), renderer.options.offset.get(1));
+        // renderer.drawPolygon(pent, 'red');
+        // renderer.drawPolygon(poly.geometry.vertices, 'blue');
+        // ctx.restore();
         
         if (!gjk) return;
 

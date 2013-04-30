@@ -8,6 +8,13 @@ describe("Polygon geometry", function() {
                 { x: 0, y: 5 }
             ]
         })
+        ,triangle = Physics.geometry('convex-polygon', {
+            vertices: [
+                { x: 5, y: 5 },
+                { x: 5, y: 0 },
+                { x: 0, y: 0 }
+            ]
+        })
         ,poly = Physics.geometry('convex-polygon', {
             vertices: [
                 { x: 1, y: 0 },
@@ -18,8 +25,6 @@ describe("Polygon geometry", function() {
             ]
         })
         ;
-
-    console.log(poly.vertices+'');
 
     it("check centroid repositioning", function() {
 
@@ -35,7 +40,7 @@ describe("Polygon geometry", function() {
         expect( verts[3].get(1) ).toEqual( 2.5 );
     });
 
-    it("check farthest hull points", function() {
+    it("check farthest hull points pentagon", function() {
 
         var dir = Physics.vector()
             ,pt
@@ -43,24 +48,47 @@ describe("Polygon geometry", function() {
 
         dir.set(1, 0.1);
         pt = poly.getFarthestHullPoint( dir );
-        expect( pt.get(0) ).toEqual( 1 );
-        expect( pt.get(1) ).toEqual( -0.09523809523809523 );
+        expect( pt.get(0) ).toEqual( poly.vertices[ 0 ].get(0) );
+        expect( pt.get(1) ).toEqual( poly.vertices[ 0 ].get(1) );
 
         dir.set(0.1, 1);
         pt = poly.getFarthestHullPoint( dir );
-        expect( pt.get(0) ).toEqual( 0 );
-        expect( pt.get(1) ).toEqual( 0.9047619047619048 );
+        expect( pt.get(0) ).toEqual( poly.vertices[ 4 ].get(0) );
+        expect( pt.get(1) ).toEqual( poly.vertices[ 4 ].get(1) );
 
-        dir.set(0.5, -0.9);
+        dir.set(0.1, -1);
         pt = poly.getFarthestHullPoint( dir );
-        expect( pt.get(0) ).toEqual( 0.5 );
-        expect( pt.get(1) ).toEqual( -0.5952380952380952 );
+        expect( pt.get(0) ).toEqual( poly.vertices[ 1 ].get(0) );
+        expect( pt.get(1) ).toEqual( poly.vertices[ 1 ].get(1) );
 
-        dir.set(-0.5, -0.6);
+        dir.set(-0.1, -1);
         pt = poly.getFarthestHullPoint( dir );
-        expect( pt.get(0) ).toEqual( -0.5 );
-        expect( pt.get(1) ).toEqual( -0.5952380952380952 );
+        expect( pt.get(0) ).toEqual( poly.vertices[ 2 ].get(0) );
+        expect( pt.get(1) ).toEqual( poly.vertices[ 2 ].get(1) );
     });
+
+    it("check farthest hull points triangle", function() {
+
+        var dir = Physics.vector()
+            ,pt
+            ;
+
+        dir.set(1, -0.1);
+        pt = triangle.getFarthestHullPoint( dir );
+        expect( pt.get(0) ).toEqual( triangle.vertices[ 1 ].get(0) );
+        expect( pt.get(1) ).toEqual( triangle.vertices[ 1 ].get(1) );
+
+        dir.set(1, 1);
+        pt = triangle.getFarthestHullPoint( dir );
+        expect( pt.get(0) ).toEqual( triangle.vertices[ 0 ].get(0) );
+        expect( pt.get(1) ).toEqual( triangle.vertices[ 0 ].get(1) );
+
+        dir.set(-1, -0.1);
+        pt = triangle.getFarthestHullPoint( dir );
+        expect( pt.get(0) ).toEqual( triangle.vertices[ 2 ].get(0) );
+        expect( pt.get(1) ).toEqual( triangle.vertices[ 2 ].get(1) );
+    });
+
 
     it("check aabb", function() {
         

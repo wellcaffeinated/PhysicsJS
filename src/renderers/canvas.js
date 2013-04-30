@@ -66,6 +66,48 @@ Physics.renderer('canvas', function( proto ){
             viewport.parentNode.insertBefore(stats, viewport);
         },
 
+        drawCircle: function(x, y, r, color, ctx){
+
+            ctx = ctx || this.ctx;
+
+            ctx.beginPath();
+            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            ctx.arc(x, y, r, 0, Pi2, false);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+        },
+
+        drawPolygon: function(verts, color, ctx){
+
+            var vert = verts[0]
+                ,x = vert.x === undefined ? vert.get(0) : vert.x
+                ,y = vert.y === undefined ? vert.get(1) : vert.y
+                ,l = verts.length
+                ;
+
+            ctx = ctx || this.ctx;
+            ctx.beginPath();
+            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+
+            ctx.moveTo(x, y);
+
+            for ( var i = 1; i < l; ++i ){
+                
+                vert = verts[ i ];
+                x = vert.x === undefined ? vert.get(0) : vert.x;
+                y = vert.y === undefined ? vert.get(1) : vert.y;
+                ctx.lineTo(x, y);
+            }
+
+            if (l > 2){
+                ctx.closePath();
+            }
+
+            ctx.stroke();
+            ctx.fill();
+        },
+
         createView: function( geometry ){
 
             var view = new Image()
@@ -84,12 +126,11 @@ Physics.renderer('canvas', function( proto ){
 
             if (geometry.name === 'circle'){
 
-                hiddenCtx.beginPath();
-                hiddenCtx.fillStyle = hiddenCtx.strokeStyle = this.options.bodyColor;
-                hiddenCtx.arc(x, y, hw, 0, Pi2, false);
-                hiddenCtx.closePath();
-                hiddenCtx.stroke();
-                hiddenCtx.fill();
+                this.drawCircle(x, y, hw, false, hiddenCtx);
+
+            } else if (geometry.name === 'convex-polygon'){
+
+                this.drawPolygon(geometry.vertices, false, hiddenCtx);
             }
 
             if (this.options.orientationLineColor){
