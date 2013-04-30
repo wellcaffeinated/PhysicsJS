@@ -1690,27 +1690,29 @@ Physics.util.ticker = {
 }(this));
 (function(){
 
-    var Bounds = function Bounds( minX, minY, maxX, maxY ){
+    var AABB = function AABB( minX, minY, maxX, maxY ){
 
         // enforce instantiation
-        if ( !(this instanceof Bounds) ){
+        if ( !(this instanceof AABB) ){
 
-            return new Bounds( minX, minY, maxX, maxY );
+            return new AABB( minX, minY, maxX, maxY );
         }
 
-        this.min = Physics.vector();
-        this.max = Physics.vector();
+        this._min = Physics.vector();
+        this._max = Physics.vector();
 
         this.set( minX, minY, maxX, maxY );
     };
 
-    Bounds.prototype.set = function set( minX, minY, maxX, maxY ){
+    AABB.prototype.set = function set( minX, minY, maxX, maxY ){
 
-        this.min.set( minX, minY );
-        this.max.set( maxX, maxY );
+        this._min.set( minX, minY );
+        this._max.set( maxX, maxY );
+        this._hw = false;
+        this._hh = false;
     };
 
-    Bounds.prototype.get = function get(){
+    AABB.prototype.get = function get(){
 
         return {
             min: this._min.values(),
@@ -1718,16 +1720,34 @@ Physics.util.ticker = {
         };
     };
 
-    // check if point is inside bounds
-    Bounds.prototype.contains = function contains( pt ){
+    AABB.prototype.halfWidth = function halfWidth(){
 
-        return  (pt.get(0) > this.min.get(0)) && 
-                (pt.get(0) < this.max.get(0)) &&
-                (pt.get(1) > this.min.get(1)) &&
-                (pt.get(1) < this.max.get(1));
+        if (this._hw === false){
+            this._hw = (this._max.get(0) - this._min.get(0)) / 2;
+        }
+
+        return this._hw;
     };
 
-    Physics.bounds = Bounds;
+    AABB.prototype.halfHeight = function halfHeight(){
+
+        if (this._hh === false){
+            this._hh = (this._max.get(1) - this._min.get(1)) / 2;
+        }
+
+        return this._hh;
+    };
+
+    // check if point is inside bounds
+    AABB.prototype.contains = function contains( pt ){
+
+        return  (pt.get(0) > this._min.get(0)) && 
+                (pt.get(0) < this._max.get(0)) &&
+                (pt.get(1) > this._min.get(1)) &&
+                (pt.get(1) < this._max.get(1));
+    };
+
+    Physics.aabb = AABB;
 }());
 // Gilbert–Johnson–Keerthi object collison algorithm
 // For general information about GJK see: 
@@ -4162,17 +4182,17 @@ Physics.behavior('edge-bounce', function( parent ){
 
             options = Physics.util.extend({}, defaults, options);
 
-            this.setBounds( options.bounds );
+            this.setAABB( options.aabb );
             this.restitution = options.restitution;
         },
 
-        setBounds: function( bounds ){
+        setAABB: function( aabb ){
 
-            if (!bounds) {
-                throw 'Error: bounds not set';
+            if (!aabb) {
+                throw 'Error: aabb not set';
             }
 
-            this.bounds = bounds;
+            this.aabb = aabb;
             this._edges = [
                 // set edges
             ];
@@ -4185,7 +4205,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,state
                 ,scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,bounds = this.bounds
+                ,aabb = this.aabb.get()
                 ,world = this._world
                 ,dim
                 ,x
@@ -4209,68 +4229,68 @@ Physics.behavior('edge-bounce', function( parent ){
                         x = body.moi / body.mass;
 
                         // right
-                        if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
+                        if ( (pos._[ 0 ] + dim) >= aabb.max.x ){
 
                             norm.set(-1, 0);
                             p.set(dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = bounds.max._[ 0 ] - dim;
+                            pos._[ 0 ] = aabb.max.x - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( bounds.max._[ 0 ], pos._[ 1 ] );
+                            p.set( aabb.max.x, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                         
                         // left
-                        if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
+                        if ( (pos._[ 0 ] - dim) <= aabb.min.x ){
 
                             norm.set(1, 0);
                             p.set(-dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = bounds.min._[ 0 ] + dim;
+                            pos._[ 0 ] = aabb.min.x + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( bounds.min._[ 0 ], pos._[ 1 ] );
+                            p.set( aabb.min.x, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
 
                         // bottom
-                        if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
+                        if ( (pos._[ 1 ] + dim) >= aabb.max.y ){
 
                             norm.set(0, -1);
                             p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = bounds.max._[ 1 ] - dim;
+                            pos._[ 1 ] = aabb.max.y - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], bounds.max._[ 1 ] );
+                            p.set( pos._[ 0 ], aabb.max.y );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                             
                         // top
-                        if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
+                        if ( (pos._[ 1 ] - dim) <= aabb.min.y ){
 
                             norm.set(0, 1);
                             p.set(0, -dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = bounds.min._[ 1 ] + dim;
+                            pos._[ 1 ] = aabb.min.y + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], bounds.min._[ 1 ] );
+                            p.set( pos._[ 0 ], aabb.min.y );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }

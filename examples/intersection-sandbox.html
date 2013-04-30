@@ -88,7 +88,7 @@ Physics({
 
     var viewWidth = 600;
     var viewHeight = 400;
-    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
+    var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
     var pent = [
             { x: 100, y: 0 },
             { x: 50, y: -50 },
@@ -217,7 +217,7 @@ Physics({
                 ,offset = $('#viewport').offset()
                 ,diff = Physics.vector(e.pageX - offset.left, e.pageY - offset.top)
                 ,pos = Physics.vector()
-                ,bounds = Physics.bounds()
+                ,aabb = Physics.aabb()
                 ;
 
             diff.vsub( renderer.options.offset );
@@ -227,9 +227,9 @@ Physics({
                 body = world._bodies[ i ];
 
                 pos.clone( body.state.pos ).sub( body.geometry.radius );
-                bounds.set( pos.get(0), pos.get(1), pos.add( body.geometry.radius * 2).get(0), pos.get(1) );
+                aabb.set( pos.get(0), pos.get(1), pos.add( body.geometry.radius * 2).get(0), pos.get(1) );
                 
-                if (bounds.contains( diff )){
+                if (aabb.contains( diff )){
 
                     body = world._bodies[ i ];
                     break;

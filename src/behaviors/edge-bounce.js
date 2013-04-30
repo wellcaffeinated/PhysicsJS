@@ -78,17 +78,17 @@ Physics.behavior('edge-bounce', function( parent ){
 
             options = Physics.util.extend({}, defaults, options);
 
-            this.setBounds( options.bounds );
+            this.setAABB( options.aabb );
             this.restitution = options.restitution;
         },
 
-        setBounds: function( bounds ){
+        setAABB: function( aabb ){
 
-            if (!bounds) {
-                throw 'Error: bounds not set';
+            if (!aabb) {
+                throw 'Error: aabb not set';
             }
 
-            this.bounds = bounds;
+            this.aabb = aabb;
             this._edges = [
                 // set edges
             ];
@@ -101,7 +101,7 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,state
                 ,scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,bounds = this.bounds
+                ,aabb = this.aabb.get()
                 ,world = this._world
                 ,dim
                 ,x
@@ -125,68 +125,68 @@ Physics.behavior('edge-bounce', function( parent ){
                         x = body.moi / body.mass;
 
                         // right
-                        if ( (pos._[ 0 ] + dim) >= bounds.max._[ 0 ] ){
+                        if ( (pos._[ 0 ] + dim) >= aabb.max.x ){
 
                             norm.set(-1, 0);
                             p.set(dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = bounds.max._[ 0 ] - dim;
+                            pos._[ 0 ] = aabb.max.x - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( bounds.max._[ 0 ], pos._[ 1 ] );
+                            p.set( aabb.max.x, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                         
                         // left
-                        if ( (pos._[ 0 ] - dim) <= bounds.min._[ 0 ] ){
+                        if ( (pos._[ 0 ] - dim) <= aabb.min.x ){
 
                             norm.set(1, 0);
                             p.set(-dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = bounds.min._[ 0 ] + dim;
+                            pos._[ 0 ] = aabb.min.x + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( bounds.min._[ 0 ], pos._[ 1 ] );
+                            p.set( aabb.min.x, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
 
                         // bottom
-                        if ( (pos._[ 1 ] + dim) >= bounds.max._[ 1 ] ){
+                        if ( (pos._[ 1 ] + dim) >= aabb.max.y ){
 
                             norm.set(0, -1);
                             p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = bounds.max._[ 1 ] - dim;
+                            pos._[ 1 ] = aabb.max.y - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], bounds.max._[ 1 ] );
+                            p.set( pos._[ 0 ], aabb.max.y );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                             
                         // top
-                        if ( (pos._[ 1 ] - dim) <= bounds.min._[ 1 ] ){
+                        if ( (pos._[ 1 ] - dim) <= aabb.min.y ){
 
                             norm.set(0, 1);
                             p.set(0, -dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = bounds.min._[ 1 ] + dim;
+                            pos._[ 1 ] = aabb.min.y + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], bounds.min._[ 1 ] );
+                            p.set( pos._[ 0 ], aabb.min.y );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }

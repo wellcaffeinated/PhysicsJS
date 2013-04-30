@@ -42,7 +42,7 @@ Physics({
 
     var viewWidth = 600;
     var viewHeight = 400;
-    var viewportBounds = Physics.bounds(0, 0, viewWidth, viewHeight);
+    var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
 
     var circles = [];
     
@@ -127,7 +127,7 @@ Physics({
         };
     }, {}) );
 
-    world.add( Physics.behavior('edge-bounce', { bounds: viewportBounds, restitution: 0.8 }) );
+    world.add( Physics.behavior('edge-bounce', { aabb: viewportBounds, restitution: 0.8 }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 
