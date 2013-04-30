@@ -191,4 +191,87 @@
         return ( Math.abs(ang) > 0 );
     };
 
+    /**
+     * Get the signed area of the polygon
+     * @param  {Array} hull Polygon hull definition
+     * @return {Number} Area (positive for clockwise ordering)
+     */
+    Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
+
+        var scratch = Physics.scratchpad()
+            ,prev = scratch.vector()
+            ,next = scratch.vector()
+            ,ret = 0
+            ,l = hull.length
+            ;
+
+        if ( l < 3 ){
+            // it must be a point or a line
+            // area = 0
+            scratch.done();
+            return 0;
+        }
+
+        prev.clone( hull[ l - 1 ] );
+
+        for ( var i = 0; i < l; ++i ){
+            
+            next.clone( hull[ i ] );
+
+            ret += prev.cross( next );
+
+            prev.swap( next );
+        }
+
+        scratch.done();
+        return ret / 2;
+    };
+
+    /**
+     * Get the coordinates of the centroid
+     * @param  {Array} hull Polygon hull definition
+     * @return {Vector} centroid
+     */
+    Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
+
+        var scratch = Physics.scratchpad()
+            ,prev = scratch.vector()
+            ,next = scratch.vector()
+            ,ret = Physics.vector()
+            ,tmp
+            ,l = hull.length
+            ;
+
+        if ( l < 2 ){
+            // it must be a point
+            scratch.done();
+            return Physics.vector( hull[0] );
+        }
+
+        if ( l === 2 ){
+            // it's a line
+            // get the midpoint
+            scratch.done();
+            return Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
+        }
+
+        prev.clone( hull[ l - 1 ] );
+
+        for ( var i = 0; i < l; ++i ){
+            
+            next.clone( hull[ i ] );
+
+            tmp = prev.cross( next );
+            prev.vadd( next ).mult( tmp );
+            ret.vadd( prev );
+
+            prev.swap( next );
+        }
+
+        tmp = 1 / (6 * Physics.geometry.getPolygonArea( hull ));
+
+        scratch.done();
+        return ret.mult( tmp );
+    };
+
 }());

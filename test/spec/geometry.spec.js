@@ -63,4 +63,50 @@ describe("Physics.geometry static methods", function() {
         expect( Physics.geometry.isPointInPolygon( outside, line ) ).toBe( false );
         expect( Physics.geometry.isPointInPolygon( outside, square ) ).toBe( false );
     });
+
+    it("calculate polygon area", function() {
+        var point = [{ x: 9, y: 9 }]
+        ,line = [
+            { x: 1, y: 0 },
+            { x: 5, y: 0 }
+        ]
+        ,square = [
+            { x: 5, y: 5 },
+            { x: 5, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 5 }
+        ]
+        ;
+
+        expect( Physics.geometry.getPolygonArea( point ) ).toEqual( 0 );
+        expect( Physics.geometry.getPolygonArea( line ) ).toEqual( 0 );
+        expect( Physics.geometry.getPolygonArea( square ) ).toEqual( 25 );
+        square.reverse();
+        expect( Physics.geometry.getPolygonArea( square ) ).toEqual( -25 );
+    });
+
+    it("calculate polygon centroid", function() {
+        var point = [{ x: 9, y: 9 }]
+        ,line = [
+            { x: 1, y: 0 },
+            { x: 5, y: 0 }
+        ]
+        ,square = [
+            { x: 3, y: 3 },
+            { x: 3, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: 3 }
+        ]
+        ,centroid
+        ;
+
+        centroid = Physics.geometry.getPolygonCentroid( point );
+        expect( centroid.equals(Physics.vector(9, 9)) ).toBe( true );
+
+        centroid = Physics.geometry.getPolygonCentroid( line );
+        expect( centroid.equals(Physics.vector(3, 0)) ).toBe( true );
+
+        centroid = Physics.geometry.getPolygonCentroid( square );
+        expect( centroid.equals(Physics.vector(1.5, 1.5)) ).toBe( true );
+    });
 });
