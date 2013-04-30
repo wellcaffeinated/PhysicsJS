@@ -17,11 +17,11 @@ describe("Physics.geometry static methods", function() {
             { x: 2.3, y: 1 }
         ];
 
-        expect( Physics.geometry.isConvex( convex ) ).toBe(true);
-        expect( Physics.geometry.isConvex( notConvex ) ).toBe(false);
+        expect( Physics.geometry.isPolygonConvex( convex ) ).toBe(true);
+        expect( Physics.geometry.isPolygonConvex( notConvex ) ).toBe(false);
         // clockwise
         convex.reverse();
-        expect( Physics.geometry.isConvex( convex ) ).toBe(true);
+        expect( Physics.geometry.isPolygonConvex( convex ) ).toBe(true);
     });
 
     it("check moments of inertia of polygons", function() {

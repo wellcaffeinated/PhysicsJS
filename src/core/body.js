@@ -83,6 +83,10 @@
             scratch.done();
 
             return this;
+        },
+
+        recalc: function(){
+            // override to recalculate properties
         }
     });
 

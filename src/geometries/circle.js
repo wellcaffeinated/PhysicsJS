@@ -26,10 +26,15 @@ Physics.geometry('circle', function( parent ){
             };
         },
 
-        // get farthest point on the core object of this geometry 
-        // along the direction vector "dir"
-        // returns local coordinates
-        // replace result if provided
+        /**
+         * Get farthest point on the hull of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest hull point in local coordinates
+         */
         getFarthestHullPoint: function( dir, result ){
 
             result = result || Physics.vector();
@@ -37,10 +42,15 @@ Physics.geometry('circle', function( parent ){
             return result.clone( dir ).normalize().mult( this.radius );
         },
 
-        // get farthest point on the core object of this geometry 
-        // along the direction vector "dir"
-        // returns local coordinates
-        // replace result if provided
+        /**
+         * Get farthest point on the core of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest core point in local coordinates
+         */
         getFarthestCorePoint: function( dir, result ){
 
             result = result || Physics.vector();

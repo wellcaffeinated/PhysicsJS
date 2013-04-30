@@ -16,9 +16,12 @@ Physics.body('convex-polygon', function( parent ){
             this.geometry = Physics.geometry('convex-polygon', {
                 vertices: options.vertices
             });
+        },
 
+        recalc: function(){
+            parent.recalc.call(this);
             // moment of inertia
-            this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
+            this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
         }
     };
 });
