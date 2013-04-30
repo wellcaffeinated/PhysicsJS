@@ -124,9 +124,12 @@ Physics.renderer('canvas', function( proto ){
             hiddenCanvas.width = 2 * hw + 2;
             hiddenCanvas.height = 2 * hh + 2;
 
+            hiddenCtx.save();
+            hiddenCtx.translate(x, y);
+
             if (geometry.name === 'circle'){
 
-                this.drawCircle(x, y, hw, false, hiddenCtx);
+                this.drawCircle(0, 0, geometry.radius, false, hiddenCtx);
 
             } else if (geometry.name === 'convex-polygon'){
 
@@ -137,11 +140,13 @@ Physics.renderer('canvas', function( proto ){
 
                 hiddenCtx.beginPath();
                 hiddenCtx.strokeStyle = this.options.orientationLineColor;
-                hiddenCtx.moveTo(x, y);
-                hiddenCtx.lineTo(x + hw, y);
+                hiddenCtx.moveTo(0, 0);
+                hiddenCtx.lineTo(hw, 0);
                 hiddenCtx.closePath();
                 hiddenCtx.stroke();
             }
+
+            hiddenCtx.restore();
 
             view.src = hiddenCanvas.toDataURL("image/png");
             return view;
