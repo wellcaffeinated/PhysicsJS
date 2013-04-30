@@ -20,5 +20,5 @@ Physics.body('convex-polygon', function( parent ){
             // moment of inertia
             this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
         }
-    }
+    };
 });

@@ -162,9 +162,9 @@ World.prototype = {
                 
                 default:
                     throw 'Error: failed to add item of unknown type to world';
-                break; // end default
+                // end default
             }
-        } while ( ++i < len && (thing = arg[ i ]) )
+        } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
     },
@@ -224,7 +224,9 @@ World.prototype = {
             ,dt = this._dt
             ;
 
-        if ( !diff ) return this;
+        if ( !diff ){
+            return this;
+        }
         
         // limit number of substeps in each step
         if ( diff > this._maxJump ){

@@ -20,5 +20,5 @@ Physics.body('circle', function( parent ){
             // moment of inertia
             this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
         }
-    }
+    };
 });
