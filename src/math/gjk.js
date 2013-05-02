@@ -6,7 +6,7 @@
 
 // the algorithm doesn't always converge for curved shapes.
 // need these constants to dictate how accurate we want to be.
-var gjkAccuracy = 0.0001;
+var gjkAccuracy = 0.001;
 var gjkMaxIterations = 100;
 
 // get the next search direction from two simplex points
@@ -57,11 +57,12 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
-
+console.log(simplex)
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
+        console.log('L is zero')
         scratch.done();
         return {
 
@@ -74,6 +75,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
     lambdaA = 1 - lambdaB;
 
     if ( lambdaA <= 0 ){
+        console.log('lamA is <')
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
@@ -82,7 +84,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
             b: prev.b
         };
     } else if ( lambdaB <= 0 ){
-
+        console.log('lamB is <')
         // vice versa
         scratch.done();
         return {

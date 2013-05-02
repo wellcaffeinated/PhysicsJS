@@ -12,7 +12,7 @@ Physics.behavior('edge-bounce', function( parent ){
     var perp = Physics.vector(); //tmp
     var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
 
-        perp.clone( n ).perp();
+        perp.clone( n ).perp( true );
 
         // break up components along normal and perp-normal directions
         var v = state.vel

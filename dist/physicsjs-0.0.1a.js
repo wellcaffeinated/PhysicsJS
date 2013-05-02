@@ -1759,7 +1759,7 @@ Physics.util.ticker = {
 
 // the algorithm doesn't always converge for curved shapes.
 // need these constants to dictate how accurate we want to be.
-var gjkAccuracy = 0.0001;
+var gjkAccuracy = 0.001;
 var gjkMaxIterations = 100;
 
 // get the next search direction from two simplex points
@@ -1810,11 +1810,12 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
-
+console.log(simplex)
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
+        console.log('L is zero')
         scratch.done();
         return {
 
@@ -1827,6 +1828,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
     lambdaA = 1 - lambdaB;
 
     if ( lambdaA <= 0 ){
+        console.log('lamA is <')
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
@@ -1835,7 +1837,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
             b: prev.b
         };
     } else if ( lambdaB <= 0 ){
-
+        console.log('lamB is <')
         // vice versa
         scratch.done();
         return {
@@ -2412,17 +2414,16 @@ Vector.prototype.perp = function( neg ) {
     if ( neg ){
 
         // x <-> y
-        // negate y
-        this._[0] = this._[1];
-        this._[1] = -tmp;
-
-    } else {
-
-        // x <-> y
         // negate x
         this._[0] = -this._[1];
         this._[1] = tmp;
+        
+    } else {
 
+        // x <-> y
+        // negate y
+        this._[0] = this._[1];
+        this._[1] = -tmp;
     }
 
     return this;
@@ -3992,7 +3993,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                 // normal vector
                 ,n = scratch.vector().clone( normal )
                 // vector perpendicular to n
-                ,perp = scratch.vector().clone( n ).perp()
+                ,perp = scratch.vector().clone( n ).perp( true )
                 // collision point from A's center
                 ,rA = scratch.vector().clone( point ).vsub( bodyA.state.pos )
                 // collision point from B's center
@@ -4002,9 +4003,9 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,angVelB = bodyB.state.angular.vel
                 // relative velocity towards B at collision point
                 ,vAB = scratch.vector().clone( bodyB.state.vel )
-                        .vadd( tmp.clone(rB).perp().mult( angVelB ) )
+                        .vadd( tmp.clone(rB).perp( true ).mult( angVelB ) )
                         .vsub( bodyA.state.vel )
-                        .vsub( tmp.clone(rA).perp().mult( angVelA ) )
+                        .vsub( tmp.clone(rA).perp( true ).mult( angVelA ) )
                 // break up components along normal and perp-normal directions
                 ,rAproj = rA.proj( n )
                 ,rAreg = rA.proj( perp )
@@ -4130,7 +4131,7 @@ Physics.behavior('edge-bounce', function( parent ){
     var perp = Physics.vector(); //tmp
     var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
 
-        perp.clone( n ).perp();
+        perp.clone( n ).perp( true );
 
         // break up components along normal and perp-normal directions
         var v = state.vel

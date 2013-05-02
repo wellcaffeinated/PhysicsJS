@@ -268,17 +268,16 @@ Vector.prototype.perp = function( neg ) {
     if ( neg ){
 
         // x <-> y
-        // negate y
-        this._[0] = this._[1];
-        this._[1] = -tmp;
-
-    } else {
-
-        // x <-> y
         // negate x
         this._[0] = -this._[1];
         this._[1] = tmp;
+        
+    } else {
 
+        // x <-> y
+        // negate y
+        this._[0] = this._[1];
+        this._[1] = -tmp;
     }
 
     return this;
