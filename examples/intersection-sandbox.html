@@ -90,11 +90,11 @@ Physics({
     var viewHeight = 400;
     var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
     var pent = [
-            { x: 100, y: 0 },
-            { x: 50, y: -50 },
-            { x: -50, y: -50 },
-            { x: -100, y: 0 },
-            { x: 0, y: 100 }
+            { x: 60, y: 0 },
+            { x: 30, y: -30 },
+            { x: -30, y: -30 },
+            { x: -60, y: 0 },
+            { x: 0, y: 60 }
         ];
     var circles = [];
     var poly;
@@ -116,7 +116,9 @@ Physics({
     );
 
     poly = Physics.body('convex-polygon', {
-        vertices: pent
+        vertices: pent,
+        x: -60,
+        y: -60
     });
 
     var renderer = Physics.renderer('canvas', {
@@ -127,7 +129,7 @@ Physics({
     });
 
     // add things to world
-    // world.add( constrain );
+    world.add( poly );
     world.add( circles );
     world.add( renderer );
 
@@ -136,7 +138,7 @@ Physics({
         renderer.render(world._bodies, { fps: 0, steps: 0 });
         // draw origin
         drawPoint(ctx, {x: 0, y: 0}, 2, 'red', renderer.options.offset);
-        drawMinkowski( ctx, circles[0], circles[1] );
+        drawMinkowski( ctx, world._bodies[0], world._bodies[1] );
 
         // ctx.save();
         // ctx.translate(renderer.options.offset.get(0), renderer.options.offset.get(1));
@@ -218,6 +220,7 @@ Physics({
                 ,diff = Physics.vector(e.pageX - offset.left, e.pageY - offset.top)
                 ,pos = Physics.vector()
                 ,aabb = Physics.aabb()
+                ,bdyaabb
                 ;
 
             diff.vsub( renderer.options.offset );

@@ -14,11 +14,9 @@ Physics.geometry('convex-polygon', function( parent ){
 
             // call parent init method
             parent.init.call(this, options);
-
             options = Physics.util.extend({}, defaults, options);
 
             this.coreMargin = options.coreMargin;
-
             this.setVertices( options.vertices || [Physics.vector()] );
         },
 
@@ -51,26 +49,22 @@ Physics.geometry('convex-polygon', function( parent ){
         aabb: function(){
 
             if (this._aabb){
-                return Physics.util.extend({}, this._aabb);
+                return this._aabb.get();
             }
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
                 ,xaxis = scratch.vector().clone(Physics.vector.axis[0])
                 ,yaxis = scratch.vector().clone(Physics.vector.axis[1])
+                ,xmax = this.getFarthestHullPoint( xaxis, p ).get(0)
+                ,xmin = this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
+                ,ymax = this.getFarthestHullPoint( yaxis, p ).get(1)
+                ,ymin = this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
                 ;
 
-            this._aabb = {
-                halfWidth: 0.5 * Math.abs(
-                        this.getFarthestHullPoint( xaxis, p ).get(0) - this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
-                    ),
-                halfHeight: 0.5 * Math.abs(
-                        this.getFarthestHullPoint( yaxis, p ).get(1) - this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
-                    )
-            };
-
+            this._aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
             scratch.done();
-            return Physics.util.extend({}, this._aabb);
+            return this._aabb.get();
         },
 
         /**

@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-04-30
+ * physicsjs v0.0.1a - 2013-05-02
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1716,14 +1716,16 @@ Physics.util.ticker = {
 
         return {
             min: this._min.values(),
-            max: this._max.values()
+            max: this._max.values(),
+            halfWidth: this.halfWidth(),
+            halfHeight: this.halfHeight()
         };
     };
 
     AABB.prototype.halfWidth = function halfWidth(){
 
         if (this._hw === false){
-            this._hw = (this._max.get(0) - this._min.get(0)) / 2;
+            this._hw = 0.5 * (this._max.get(0) - this._min.get(0));
         }
 
         return this._hw;
@@ -1732,7 +1734,7 @@ Physics.util.ticker = {
     AABB.prototype.halfHeight = function halfHeight(){
 
         if (this._hh === false){
-            this._hh = (this._max.get(1) - this._min.get(1)) / 2;
+            this._hh = 0.5 * (this._max.get(1) - this._min.get(1));
         }
 
         return this._hh;
@@ -2033,6 +2035,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
         // woah nelly... that's a lot of iterations.
         // Stop it!
         if (iterations > gjkMaxIterations){
+            scratch.done();
             return {
                 simplex: simplex,
                 iterations: iterations,
@@ -2818,11 +2821,19 @@ Physics.vector = Vector;
 
         },
         
-        // get axis-aligned bounding box for this object
-        // to be overridden
+        // get axis-aligned bounding box for this object.
+        // Intended to be overridden.
         aabb: function(){
 
             return {
+                min: {
+                    x: 0,
+                    y: 0
+                },
+                max: {
+                    x: 0,
+                    y: 0
+                },
                 halfWidth: 0,
                 halfHeight: 0
             };
@@ -3655,15 +3666,24 @@ Physics.geometry('circle', function( parent ){
             parent.init.call(this, options);
 
             options = Physics.util.extend({}, defaults, options);
-
             this.radius = options.radius;
         },
         
         aabb: function(){
 
+            var r = this.radius;
+
             return {
-                halfWidth: this.radius,
-                halfHeight: this.radius
+                min: {
+                    x: -r,
+                    y: -r
+                },
+                max: {
+                    x: r,
+                    y: r
+                },
+                halfWidth: r,
+                halfHeight: r
             };
         },
 
@@ -3720,11 +3740,9 @@ Physics.geometry('convex-polygon', function( parent ){
 
             // call parent init method
             parent.init.call(this, options);
-
             options = Physics.util.extend({}, defaults, options);
 
             this.coreMargin = options.coreMargin;
-
             this.setVertices( options.vertices || [Physics.vector()] );
         },
 
@@ -3757,26 +3775,22 @@ Physics.geometry('convex-polygon', function( parent ){
         aabb: function(){
 
             if (this._aabb){
-                return Physics.util.extend({}, this._aabb);
+                return this._aabb.get();
             }
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
                 ,xaxis = scratch.vector().clone(Physics.vector.axis[0])
                 ,yaxis = scratch.vector().clone(Physics.vector.axis[1])
+                ,xmax = this.getFarthestHullPoint( xaxis, p ).get(0)
+                ,xmin = this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
+                ,ymax = this.getFarthestHullPoint( yaxis, p ).get(1)
+                ,ymin = this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
                 ;
 
-            this._aabb = {
-                halfWidth: 0.5 * Math.abs(
-                        this.getFarthestHullPoint( xaxis, p ).get(0) - this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
-                    ),
-                halfHeight: 0.5 * Math.abs(
-                        this.getFarthestHullPoint( yaxis, p ).get(1) - this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
-                    )
-            };
-
+            this._aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
             scratch.done();
-            return Physics.util.extend({}, this._aabb);
+            return this._aabb.get();
         },
 
         /**

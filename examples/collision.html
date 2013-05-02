@@ -142,7 +142,10 @@ Physics({
                 ,overlap
                 ;
 
-            if (!callback) return;
+            if (!callback) {
+                scratch.done();
+                return;
+            }
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
                 

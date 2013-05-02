@@ -26,14 +26,16 @@
 
         return {
             min: this._min.values(),
-            max: this._max.values()
+            max: this._max.values(),
+            halfWidth: this.halfWidth(),
+            halfHeight: this.halfHeight()
         };
     };
 
     AABB.prototype.halfWidth = function halfWidth(){
 
         if (this._hw === false){
-            this._hw = (this._max.get(0) - this._min.get(0)) / 2;
+            this._hw = 0.5 * (this._max.get(0) - this._min.get(0));
         }
 
         return this._hw;
@@ -42,7 +44,7 @@
     AABB.prototype.halfHeight = function halfHeight(){
 
         if (this._hh === false){
-            this._hh = (this._max.get(1) - this._min.get(1)) / 2;
+            this._hh = 0.5 * (this._max.get(1) - this._min.get(1));
         }
 
         return this._hh;

@@ -10,11 +10,19 @@
 
         },
         
-        // get axis-aligned bounding box for this object
-        // to be overridden
+        // get axis-aligned bounding box for this object.
+        // Intended to be overridden.
         aabb: function(){
 
             return {
+                min: {
+                    x: 0,
+                    y: 0
+                },
+                max: {
+                    x: 0,
+                    y: 0
+                },
                 halfWidth: 0,
                 halfHeight: 0
             };

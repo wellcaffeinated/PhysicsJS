@@ -14,15 +14,24 @@ Physics.geometry('circle', function( parent ){
             parent.init.call(this, options);
 
             options = Physics.util.extend({}, defaults, options);
-
             this.radius = options.radius;
         },
         
         aabb: function(){
 
+            var r = this.radius;
+
             return {
-                halfWidth: this.radius,
-                halfHeight: this.radius
+                min: {
+                    x: -r,
+                    y: -r
+                },
+                max: {
+                    x: r,
+                    y: r
+                },
+                halfWidth: r,
+                halfHeight: r
             };
         },
 

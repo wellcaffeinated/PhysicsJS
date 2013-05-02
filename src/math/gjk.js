@@ -282,6 +282,7 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
         // woah nelly... that's a lot of iterations.
         // Stop it!
         if (iterations > gjkMaxIterations){
+            scratch.done();
             return {
                 simplex: simplex,
                 iterations: iterations,
