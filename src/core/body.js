@@ -85,6 +85,20 @@
             return this;
         },
 
+        aabb: function(){
+
+            var scratch = Physics.scratchpad()
+                ,trans = scratch.transform()
+                ,aabb = Physics.aabb(this.geometry.aabb())
+                ;
+
+            trans.setRotation(this.state.angular.pos).setTranslation(this.state.pos);
+            aabb.transform( trans );
+
+            scratch.done();
+            return aabb.get();
+        },
+
         recalc: function(){
             // override to recalculate properties
         }

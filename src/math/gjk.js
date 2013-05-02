@@ -47,9 +47,14 @@ var getClosestPoints = function getClosestPoints( simplex ){
 
     // see http://www.codezealot.org/archives/153
     // for algorithm details
+
+    // we know that the position of the last point 
+    // is very close to the previous. (by nature of the distance test)
+    // this won't give great results for the closest
+    // points algorithm, so let's use the previous two
     var len = simplex.length
-        ,last = simplex[ len - 1 ]
-        ,prev = simplex[ len - 2 ]
+        ,last = simplex[ len - 2 ]
+        ,prev = simplex[ len - 3 ]
         ,scratch = Physics.scratchpad()
         ,A = scratch.vector().clone( last.pt )
         // L = B - A
@@ -57,12 +62,10 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
-console.log(simplex)
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
-        console.log('L is zero')
         scratch.done();
         return {
 
@@ -71,11 +74,10 @@ console.log(simplex)
         };
     }
 
-    lambdaB = L.dot( A ) / L.normSq();
+    lambdaB = - L.dot( A ) / L.normSq();
     lambdaA = 1 - lambdaB;
 
     if ( lambdaA <= 0 ){
-        console.log('lamA is <')
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
@@ -84,7 +86,6 @@ console.log(simplex)
             b: prev.b
         };
     } else if ( lambdaB <= 0 ){
-        console.log('lamB is <')
         // vice versa
         scratch.done();
         return {
@@ -115,7 +116,7 @@ console.log(simplex)
  * @param {Physics.vector} seed The starting direction for the simplex
  * @return {Object} The algorithm information containing properties: .overlap (bool), and .simplex (Array)
  */
-var gjk = function gjk( support, seed, checkOverlapOnly ){
+var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
 
     var overlap = false
         ,noOverlap = false // if we're sure we're not overlapping
@@ -155,6 +156,10 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
         simplexLen = simplex.push( tmp );
         last.clone( tmp.pt );
 
+        if ( debugFn ){
+            debugFn( simplex );
+        }
+
         if ( last.equals(Physics.vector.zero) ){
             // we happened to pick the origin as a support point... lucky.
             overlap = true;
@@ -191,8 +196,8 @@ var gjk = function gjk( support, seed, checkOverlapOnly ){
             // we're just trying to find the distance...
             // make sure we're getting closer to the origin
             dir.normalize();
-            tmp = last.dot( dir );
-            if ( (tmp - lastlast.dot( dir )) < gjkAccuracy ){
+            tmp = lastlast.dot( dir );
+            if ( Math.abs(tmp - last.dot( dir )) < gjkAccuracy ){
 
                 distance = -tmp;
                 break;

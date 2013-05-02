@@ -76,6 +76,7 @@ function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
     ctx.strokeStyle = strokeColor;
     ctx.stroke();
     ctx.restore();
+    drawPoint(ctx, simplex[ simplex.length - 1 ].pt, 2, 'yellow', offset)
 }
 
 // main
@@ -229,8 +230,8 @@ Physics({
 
                 body = world._bodies[ i ];
 
-                pos.clone( body.state.pos ).sub( body.geometry.radius );
-                aabb.set( pos.get(0), pos.get(1), pos.add( body.geometry.radius * 2).get(0), pos.get(1) );
+                // pos.clone( body.state.pos ).sub( body.geometry.radius );
+                aabb.set( body.aabb() );
                 
                 if (aabb.contains( diff )){
 
@@ -261,6 +262,7 @@ Physics({
 
                         pos.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
 
+                        var debugHue = 0;
                         ret = Physics.gjk(getSupportFn( bodyA, bodyB ), pos);
                         
                         if (ret.overlap){

@@ -16,10 +16,26 @@
 
     AABB.prototype.set = function set( minX, minY, maxX, maxY ){
 
+        if ( Physics.util.isObject(minX) ){
+
+            this._min.set( minX.min.x, minX.min.y );
+            this._max.set( minX.max.x, minX.max.y );
+
+            if (minX.halfWidth){
+                this._hw = minX.halfWidth;
+                this._hh = minX.halfHeight;
+            } else {
+                this._hw = false;
+                this._hh = false;
+            }
+            return this;
+        }
+
         this._min.set( minX, minY );
         this._max.set( maxX, maxY );
         this._hw = false;
         this._hh = false;
+        return this;
     };
 
     AABB.prototype.get = function get(){
@@ -57,6 +73,14 @@
                 (pt.get(0) < this._max.get(0)) &&
                 (pt.get(1) > this._min.get(1)) &&
                 (pt.get(1) < this._max.get(1));
+    };
+
+    // apply a transformation to both vectors
+    AABB.prototype.transform = function transform( trans ){
+
+        this._min.transform( trans );
+        this._max.transform( trans );
+        return this;
     };
 
     Physics.aabb = AABB;
