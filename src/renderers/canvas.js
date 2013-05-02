@@ -112,8 +112,8 @@ Physics.renderer('canvas', function( proto ){
 
             var view = new Image()
                 ,aabb = geometry.aabb()
-                ,hw = aabb.halfWidth
-                ,hh = aabb.halfHeight
+                ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
+                ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
                 ,x = hw + 1
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx

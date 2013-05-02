@@ -102,6 +102,10 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,scratch = Physics.scratchpad()
                 ,p = scratch.vector()
                 ,aabb = this.aabb.get()
+                ,minx = aabb.pos.x - aabb.halfWidth
+                ,maxx = aabb.pos.x + aabb.halfWidth
+                ,miny = aabb.pos.y - aabb.halfHeight
+                ,maxy = aabb.pos.y + aabb.halfHeight
                 ,world = this._world
                 ,dim
                 ,x
@@ -125,68 +129,68 @@ Physics.behavior('edge-bounce', function( parent ){
                         x = body.moi / body.mass;
 
                         // right
-                        if ( (pos._[ 0 ] + dim) >= aabb.max.x ){
+                        if ( (pos._[ 0 ] + dim) >= maxx ){
 
                             norm.set(-1, 0);
                             p.set(dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = aabb.max.x - dim;
+                            pos._[ 0 ] = maxx - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( aabb.max.x, pos._[ 1 ] );
+                            p.set( maxx, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                         
                         // left
-                        if ( (pos._[ 0 ] - dim) <= aabb.min.x ){
+                        if ( (pos._[ 0 ] - dim) <= minx ){
 
                             norm.set(1, 0);
                             p.set(-dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = aabb.min.x + dim;
+                            pos._[ 0 ] = minx + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( aabb.min.x, pos._[ 1 ] );
+                            p.set( minx, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
 
                         // bottom
-                        if ( (pos._[ 1 ] + dim) >= aabb.max.y ){
+                        if ( (pos._[ 1 ] + dim) >= maxy ){
 
                             norm.set(0, -1);
                             p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = aabb.max.y - dim;
+                            pos._[ 1 ] = maxy - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], aabb.max.y );
+                            p.set( pos._[ 0 ], maxy );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                             
                         // top
-                        if ( (pos._[ 1 ] - dim) <= aabb.min.y ){
+                        if ( (pos._[ 1 ] - dim) <= miny ){
 
                             norm.set(0, 1);
                             p.set(0, -dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = aabb.min.y + dim;
+                            pos._[ 1 ] = miny + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], aabb.min.y );
+                            p.set( pos._[ 0 ], miny );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }

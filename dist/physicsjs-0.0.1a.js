@@ -1698,9 +1698,8 @@ Physics.util.ticker = {
             return new AABB( minX, minY, maxX, maxY );
         }
 
-        this._min = Physics.vector();
-        this._max = Physics.vector();
-
+        this._pos = Physics.vector();
+        
         this.set( minX, minY, maxX, maxY );
     };
 
@@ -1708,31 +1707,23 @@ Physics.util.ticker = {
 
         if ( Physics.util.isObject(minX) ){
 
-            this._min.set( minX.min.x, minX.min.y );
-            this._max.set( minX.max.x, minX.max.y );
-
-            if (minX.halfWidth){
-                this._hw = minX.halfWidth;
-                this._hh = minX.halfHeight;
-            } else {
-                this._hw = false;
-                this._hh = false;
-            }
+            this._pos.clone( minX.pos );
+            this._hw = minX.halfWidth;
+            this._hh = minX.halfHeight;
+            
             return this;
         }
 
-        this._min.set( minX, minY );
-        this._max.set( maxX, maxY );
-        this._hw = false;
-        this._hh = false;
+        this._pos.set( 0.5 * (maxX + minX), 0.5 * (maxY + minY) );
+        this._hw = 0.5 * (maxX - minX);
+        this._hh = 0.5 * (maxY - minY);
         return this;
     };
 
     AABB.prototype.get = function get(){
 
         return {
-            min: this._min.values(),
-            max: this._max.values(),
+            pos: this._pos.values(),
             halfWidth: this.halfWidth(),
             halfHeight: this.halfHeight()
         };
@@ -1740,18 +1731,10 @@ Physics.util.ticker = {
 
     AABB.prototype.halfWidth = function halfWidth(){
 
-        if (this._hw === false){
-            this._hw = 0.5 * (this._max.get(0) - this._min.get(0));
-        }
-
         return this._hw;
     };
 
     AABB.prototype.halfHeight = function halfHeight(){
-
-        if (this._hh === false){
-            this._hh = 0.5 * (this._max.get(1) - this._min.get(1));
-        }
 
         return this._hh;
     };
@@ -1759,17 +1742,16 @@ Physics.util.ticker = {
     // check if point is inside bounds
     AABB.prototype.contains = function contains( pt ){
 
-        return  (pt.get(0) > this._min.get(0)) && 
-                (pt.get(0) < this._max.get(0)) &&
-                (pt.get(1) > this._min.get(1)) &&
-                (pt.get(1) < this._max.get(1));
+        return  (pt.get(0) > (this._pos.get(0) - this._hw)) && 
+                (pt.get(0) < (this._pos.get(0) + this._hw)) &&
+                (pt.get(1) > (this._pos.get(1) - this._hh)) &&
+                (pt.get(1) < (this._pos.get(1) + this._hh));
     };
 
     // apply a transformation to both vectors
     AABB.prototype.transform = function transform( trans ){
 
-        this._min.transform( trans );
-        this._max.transform( trans );
+        this._pos.transform( trans );
         return this;
     };
 
@@ -3711,24 +3693,21 @@ Physics.geometry('circle', function( parent ){
 
             options = Physics.util.extend({}, defaults, options);
             this.radius = options.radius;
+            this._aabb = Physics.aabb();
         },
         
         aabb: function(){
 
-            var r = this.radius;
+            var r = this.radius
+                ,aabb = this._aabb
+                ;
 
-            return {
-                min: {
-                    x: -r,
-                    y: -r
-                },
-                max: {
-                    x: r,
-                    y: r
-                },
-                halfWidth: r,
-                halfHeight: r
-            };
+            if ( aabb.halfWidth() === r ){
+                // don't recalculate
+                return aabb.get();
+            }
+
+            return aabb.set( -r, -r, r, r ).get();
         },
 
         /**
@@ -4264,6 +4243,10 @@ Physics.behavior('edge-bounce', function( parent ){
                 ,scratch = Physics.scratchpad()
                 ,p = scratch.vector()
                 ,aabb = this.aabb.get()
+                ,minx = aabb.pos.x - aabb.halfWidth
+                ,maxx = aabb.pos.x + aabb.halfWidth
+                ,miny = aabb.pos.y - aabb.halfHeight
+                ,maxy = aabb.pos.y + aabb.halfHeight
                 ,world = this._world
                 ,dim
                 ,x
@@ -4287,68 +4270,68 @@ Physics.behavior('edge-bounce', function( parent ){
                         x = body.moi / body.mass;
 
                         // right
-                        if ( (pos._[ 0 ] + dim) >= aabb.max.x ){
+                        if ( (pos._[ 0 ] + dim) >= maxx ){
 
                             norm.set(-1, 0);
                             p.set(dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = aabb.max.x - dim;
+                            pos._[ 0 ] = maxx - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( aabb.max.x, pos._[ 1 ] );
+                            p.set( maxx, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                         
                         // left
-                        if ( (pos._[ 0 ] - dim) <= aabb.min.x ){
+                        if ( (pos._[ 0 ] - dim) <= minx ){
 
                             norm.set(1, 0);
                             p.set(-dim, 0); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 0 ] = aabb.min.x + dim;
+                            pos._[ 0 ] = minx + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( aabb.min.x, pos._[ 1 ] );
+                            p.set( minx, pos._[ 1 ] );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
 
                         // bottom
-                        if ( (pos._[ 1 ] + dim) >= aabb.max.y ){
+                        if ( (pos._[ 1 ] + dim) >= maxy ){
 
                             norm.set(0, -1);
                             p.set(0, dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = aabb.max.y - dim;
+                            pos._[ 1 ] = maxy - dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], aabb.max.y );
+                            p.set( pos._[ 0 ], maxy );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
                         }
                             
                         // top
-                        if ( (pos._[ 1 ] - dim) <= aabb.min.y ){
+                        if ( (pos._[ 1 ] - dim) <= miny ){
 
                             norm.set(0, 1);
                             p.set(0, -dim); // set perpendicular displacement from com to impact point
                             
                             // adjust position
-                            pos._[ 1 ] = aabb.min.y + dim;
+                            pos._[ 1 ] = miny + dim;
 
                             applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
 
-                            p.set( pos._[ 0 ], aabb.min.y );
+                            p.set( pos._[ 0 ], miny );
                             if (world){
                                 world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
                             }
@@ -4732,8 +4715,8 @@ Physics.renderer('canvas', function( proto ){
 
             var view = new Image()
                 ,aabb = geometry.aabb()
-                ,hw = aabb.halfWidth
-                ,hh = aabb.halfHeight
+                ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
+                ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
                 ,x = hw + 1
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx
