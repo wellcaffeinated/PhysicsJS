@@ -16,6 +16,8 @@ Physics.body('convex-polygon', function( parent ){
             this.geometry = Physics.geometry('convex-polygon', {
                 vertices: options.vertices
             });
+
+            this.recalc();
         },
 
         recalc: function(){

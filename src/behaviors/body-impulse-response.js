@@ -35,6 +35,15 @@ Physics.behavior('body-impulse-response', function( parent ){
 
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
+            var fixedA = bodyA.fixed
+                ,fixedB = bodyB.fixed
+                ;
+
+            // do nothing if both are fixed
+            if ( fixedA && fixedB ){
+                return;
+            }
+
             var invMoiA = 1 / bodyA.moi
                 ,invMoiB = 1 / bodyB.moi
                 ,invMassA = 1 / bodyA.mass
@@ -86,8 +95,8 @@ Physics.behavior('body-impulse-response', function( parent ){
             // angVel -= impulse * rreg * invMoi;
 
             // extract bodies
-            bodyA.state.pos.vadd( mtv );
-            bodyB.state.pos.vsub( mtv );
+            bodyA.state.pos.vsub( mtv );
+            bodyB.state.pos.vadd( mtv );
 
             // apply impulse
             bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );

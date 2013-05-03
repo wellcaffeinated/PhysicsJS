@@ -43,42 +43,49 @@ Physics({
     var viewWidth = 600;
     var viewHeight = 400;
     var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+    var pent = [
+            { x: 60, y: 0 },
+            { x: 30, y: -30 },
+            { x: -30, y: -30 },
+            { x: -60, y: 0 },
+            { x: 0, y: 60 }
+        ];
 
     var circles = [];
     
-    for ( var i = 0, l = 60; i < l; ++i )
-    circles.push(
-        Physics.body('circle', {
-            x: 10 * i % 380 + 10,
-            y: Math.floor(10 * i / 380)* 10 + 10,
-            vx: 0,
-            radius: 5,
-            restitution: 0.99,
-            angularVelocity: 0
-        })
-    );
-
+    // for ( var i = 0, l = 1; i < l; ++i )
     // circles.push(
     //     Physics.body('circle', {
-    //         x: 300,
-    //         y: 200,
+    //         x: 30 * i % 380 + 10,
+    //         y: Math.floor(10 * i / 380)* 10 + 100,
+    //         vx: 0.05,
     //         radius: 10,
-    //         vx: -0.02,
-    //         vy: 0,
+    //         restitution: 0.99,
     //         angularVelocity: 0
     //     })
     // );
 
-    // circles.push(
-    //     Physics.body('circle', {
-    //         x: 300,
-    //         y: 300,
-    //         radius: 12,
-    //         mass: 1.5,
-    //         vx: 0.01,
-    //         vy: 0
-    //     })
-    // );
+    circles.push(
+        Physics.body('circle', {
+            x: 10,
+            y: 80,
+            vx: 0.05,
+            radius: 10,
+            restitution: 0.99,
+            angularVelocity: 0
+        })
+    );
+    
+    // polly the polygon
+    poly = Physics.body('convex-polygon', {
+        vertices: pent,
+        x: 400,
+        y: 100,
+        vx: -0.05,
+        fixed: true
+    });
+
+    world.add( poly );
 
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
@@ -91,46 +98,164 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    world.add( Physics.behavior('gravity', function(){
+    // world.add( Physics.behavior('gravity', function(){
 
-        var g = Physics.vector(0, .0004)
-            ,mouse = Physics.vector()
-            ,mouseDown = false
-            ,tmp = Physics.vector()
-            ;
+    //     var g = Physics.vector(0, .0004)
+    //         ,mouse = Physics.vector()
+    //         ,mouseDown = false
+    //         ,tmp = Physics.vector()
+    //         ;
 
-        $('#viewport').on({
-            mousedown: function(e){
-                mouseDown = true;
-            },
-            mousemove: function(e){
-                var offset = $(this).offset();
-                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
-            },
-            mouseup: function(e){
-                mouseDown = false;
-            }
-        });
+    //     $('#viewport').on({
+    //         mousedown: function(e){
+    //             mouseDown = true;
+    //         },
+    //         mousemove: function(e){
+    //             var offset = $(this).offset();
+    //             mouse.set(e.screenX - offset.left, e.screenY - offset.top);
+    //         },
+    //         mouseup: function(e){
+    //             mouseDown = false;
+    //         }
+    //     });
 
-        return {
-            behave: function( bodies ){
+    //     return {
+    //         behave: function( bodies ){
 
-                for ( var i = 0, l = bodies.length; i < l; ++i ){
+    //             for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
-                    bodies[ i ].accelerate( g );
+    //                 bodies[ i ].accelerate( g );
 
-                    if (mouseDown){
-                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
-                        bodies[ i ].accelerate( tmp );
-                    }
-                }
-            }
-        };
-    }, {}) );
+    //                 if (mouseDown){
+    //                     tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
+    //                     bodies[ i ].accelerate( tmp );
+    //                 }
+    //             }
+    //         }
+    //     };
+    // }, {}) );
 
     world.add(Physics.behavior('simple-collision-detection', function( parent ){
 
         var PUBSUB_TOPIC = 'collision-detect';
+
+        // get general support function
+        function getSupportFn( bodyA, bodyB ){
+
+            var tA = Physics.transform( bodyA.state.pos, bodyA.state.angular.pos )
+                ,tB = Physics.transform( bodyB.state.pos, bodyB.state.angular.pos )
+                ,fn
+                ;
+
+            fn = function( searchDir ){
+
+                var scratch = Physics.scratchpad()
+                    ,vA = scratch.vector()
+                    ,vB = scratch.vector()
+                    ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
+                    ,margin = fn.margin
+                    ,ret
+                    ;
+
+                vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, margin ).transform( tA );
+                vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, margin ).transform( tB );
+
+                searchDir.negate().rotate( tB );
+
+                ret = {
+                    a: vA.values(),
+                    b: vB.values(),
+                    pt: vA.vsub( vB ).values() 
+                };
+                scratch.done();
+                return ret;
+            };
+
+            fn.useCore = false;
+            fn.margin = 0;
+
+            return fn;
+        }
+
+        var detectCollisions = function detectCollisions( bodies, dt, callback ){
+
+            var bodyA
+                ,bodyB
+                ,scratch = Physics.scratchpad()
+                ,d = scratch.vector()
+                ,tmp = scratch.vector()
+                ,overlap
+                ,result
+                ,support
+                ,collision
+                ;
+
+            if (!callback) {
+                scratch.done();
+                return;
+            }
+
+            for ( var j = 0, l = bodies.length; j < l; j++ ){
+                
+                bodyA = bodies[ j ];
+
+                for ( var i = j + 1; i < l; i++ ){
+
+                    bodyB = bodies[ i ];
+
+                    if ( bodyA.fixed && bodyB.fixed ){
+                        // don't detect two fixed bodies
+                        continue;
+                    }
+
+                    // just check the overlap first
+                    support = getSupportFn( bodyA, bodyB );
+                    d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+                    result = Physics.gjk(support, d, true);
+
+                    if ( result.overlap ){
+
+                        // there is a collision. let's do more work.
+                        collision = {
+                            topic: PUBSUB_TOPIC,
+                            bodyA: bodyA,
+                            bodyB: bodyB
+                        };
+
+                        // first get the min distance of between core objects
+                        support.useCore = true;
+                        // start with a conservative 60% margin of the smallest object
+                        support.margin = 0.6 * Math.min( bodyA.geometry.aabb().halfWidth, bodyB.geometry.aabb().halfWidth );
+
+                        result = Physics.gjk(support, d);
+                        
+                        if ( result.overlap ){
+                            scratch.done();
+                            console.log(result);
+                            // This implementation can't deal with a core overlap yet
+                            throw "oops overlap";
+                        }
+
+                        // calc overlap
+                        overlap = 2 * support.margin - result.distance;
+                        if ( overlap >= 0 ){
+                            collision.overlap = overlap;
+                            // @TODO: for now, just let the normal be the mtv
+                            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+                            collision.mtv = d.mult( overlap ).values();
+                            // get a corresponding hull point for one of the core points
+                            collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
+                            collision.pos = collision.pos.mult( collision.pos.norm() + support.margin ).vadd( bodyB.state.pos ).values();
+                            
+                            // send it to the callback
+                            callback( collision );
+                        }
+                    }
+                }
+            }
+
+            scratch.done();
+        };
 
         var detectCircleCollisions = function detectCircleCollisions( bodies, dt, callback ){
 
@@ -172,7 +297,7 @@ Physics({
                             bodyB: bodyB,
                             norm: d.normalize().values(),
                             pos: d.mult( bodyA.geometry.radius ).vadd( bodyA.state.pos ).values(),
-                            mtv: d.vsub( bodyA.state.pos ).normalize().mult( overlap ).values(),
+                            mtv: d.vsub( bodyA.state.pos ).normalize().mult( overlap ).negate().values(),
                             overlap: overlap
                         });
                     }
@@ -188,7 +313,7 @@ Physics({
             }
             
             var list = [];
-            detectCircleCollisions( this._world._bodies, this._world.timeStep(), function( data ){
+            detectCollisions( this._world._bodies, this._world.timeStep(), function( data ){
                 list.push( data );
             });
             data.callback( list );
@@ -221,7 +346,7 @@ Physics({
 
             behave: function( bodies, dt ){
                 var world = this._world;
-                detectCircleCollisions( bodies, dt, function( data ){
+                detectCollisions( bodies, dt, function( data ){
                     world.publish( data );
                 });
             }
@@ -231,7 +356,7 @@ Physics({
 
     window.runningMaxOverlap = 0;
     world.subscribe( 'collision-detect', function(data){
-
+        // console.log( data )
         window.runningMaxOverlap = Math.min(window.runningMaxOverlap, data.overlap);
     });
     
