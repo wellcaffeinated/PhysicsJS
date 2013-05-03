@@ -25,11 +25,10 @@ Physics.integrator('improved-euler', function( parent ){
             for ( var i = 0, l = bodies.length; i < l; ++i ){
 
                 body = bodies[ i ];
+                state = body.state;
 
                 // only integrate if the body isn't fixed
                 if ( !body.fixed ){
-
-                    state = body.state;
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
@@ -78,7 +77,13 @@ Physics.integrator('improved-euler', function( parent ){
                     state.angular.pos += angVel * dt + state.angular.acc * halfdt;
                     state.angular.acc = 0;
 
-                }                    
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
             }
 
             scratch.done();

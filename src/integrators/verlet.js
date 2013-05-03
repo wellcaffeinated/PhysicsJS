@@ -24,11 +24,10 @@ Physics.integrator('verlet', function( parent ){
             for ( var i = 0, l = bodies.length; i < l; ++i ){
 
                 body = bodies[ i ];
+                state = body.state;
 
                 // only integrate if the body isn't fixed
                 if ( !body.fixed ){
-
-                    state = body.state;
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
@@ -94,6 +93,12 @@ Physics.integrator('verlet', function( parent ){
                     state.angular.acc = 0;
                     state.old.angular.vel = state.angular.vel;
 
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
                 }
             }
 
