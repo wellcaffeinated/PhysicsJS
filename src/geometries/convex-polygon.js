@@ -5,7 +5,6 @@ Physics.geometry('convex-polygon', function( parent ){
 
     var defaults = {
 
-        coreMargin: 5
     };
 
     return {
@@ -16,7 +15,6 @@ Physics.geometry('convex-polygon', function( parent ){
             parent.init.call(this, options);
             options = Physics.util.extend({}, defaults, options);
 
-            this.coreMargin = options.coreMargin;
             this.setVertices( options.vertices || [Physics.vector()] );
         },
 
@@ -139,14 +137,14 @@ Physics.geometry('convex-polygon', function( parent ){
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest core point in local coordinates
          */
-        getFarthestCorePoint: function( dir, result ){
+        getFarthestCorePoint: function( dir, result, margin ){
 
             var norm;
             result = this.getFarthestHullPoint( dir, result );
 
             // now scale it
             norm = result.norm();
-            return result.normalize().mult( norm - this.coreMargin );
+            return result.normalize().mult( norm - margin );
         }
     };
 });

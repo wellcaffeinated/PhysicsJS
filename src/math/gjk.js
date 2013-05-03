@@ -62,6 +62,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
+        
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.

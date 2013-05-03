@@ -109,4 +109,31 @@ describe("Physics.geometry static methods", function() {
         centroid = Physics.geometry.getPolygonCentroid( square );
         expect( centroid.equals(Physics.vector(1.5, 1.5)) ).toBe( true );
     });
+
+
+    it("check nearest point on a line", function() {
+
+        var point = {};
+        var line1 = { x: 0, y: 2 };
+        var line2 = { x: 6, y: 8 };
+        var result;
+
+        point.x = 1;
+        point.y = -5;
+        result = Physics.geometry.nearestPointOnLine( point, line1, line2 );
+        expect( result.get(0) ).toEqual( line1.x );
+        expect( result.get(1) ).toEqual( line1.y );
+
+        point.x = 2;
+        point.y = 2;
+        result = Physics.geometry.nearestPointOnLine( point, line1, line2 );
+        expect( result.get(0) ).toEqual( 1 );
+        expect( result.get(1) ).toEqual( 3 );
+
+        point.x = 10;
+        point.y = 8;
+        result = Physics.geometry.nearestPointOnLine( point, line1, line2 );
+        expect( result.get(0) ).toEqual( line2.x );
+        expect( result.get(1) ).toEqual( line2.y );
+    });
 });

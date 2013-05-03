@@ -57,14 +57,16 @@ Physics.geometry('circle', function( parent ){
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest core point in local coordinates
          */
-        getFarthestCorePoint: function( dir, result ){
+        getFarthestCorePoint: function( dir, result, margin ){
 
             result = result || Physics.vector();
 
             // we can use the center of the circle as the core object
             // because we can project a point to the hull in any direction
             // ... yay circles!
-            return result.set( 0, 0 );
+            // but since the caller is expecting a certain margin... give it
+            // to them
+            return result.clone( dir ).normalize().mult( this.radius - margin );
         }
     };
 });

@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-05-02
+ * physicsjs v0.0.1a - 2013-05-03
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1821,6 +1821,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
+        
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.
@@ -2845,24 +2846,14 @@ Physics.vector = Vector;
         // prototype methods
         init: function( options ){
 
+            this._aabb = new Physics.aabb();
         },
         
         // get axis-aligned bounding box for this object.
         // Intended to be overridden.
         aabb: function(){
 
-            return {
-                min: {
-                    x: 0,
-                    y: 0
-                },
-                max: {
-                    x: 0,
-                    y: 0
-                },
-                halfWidth: 0,
-                halfHeight: 0
-            };
+            return this._aabb.get();
         },
 
         /**
@@ -2891,7 +2882,7 @@ Physics.vector = Vector;
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest core point in local coordinates
          */
-        getFarthestCorePoint: function( dir, result ){
+        getFarthestCorePoint: function( dir, result, margin ){
 
             result = result || Physics.vector();
 
@@ -3127,6 +3118,50 @@ Physics.vector = Vector;
 
         scratch.done();
         return ret.mult( tmp );
+    };
+
+    /**
+     * Get the closest point on a discrete line to specified point.
+     * @param  {Vector-like} pt The point
+     * @param  {Vector-like} linePt1 The first endpoint of the line
+     * @param  {Vector-like} linePt2 The second endpoint of the line
+     * @return {Number}
+     */
+    Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
+
+        var scratch = Physics.scratchpad()
+            ,p = scratch.vector().clone( pt )
+            ,A = scratch.vector().clone( linePt1 ).vsub( p )
+            ,L = scratch.vector().clone( linePt2 ).vsub( p ).vsub( A )
+            ,lambdaB
+            ,lambdaA
+            ;
+
+        if ( L.equals(Physics.vector.zero) ){
+            // oh.. it's a zero vector. So A and B are both the closest.
+            // just use one of them
+            scratch.done();
+            return Physics.vector( linePt1 );
+        }
+
+        lambdaB = - L.dot( A ) / L.normSq();
+        lambdaA = 1 - lambdaB;
+
+        if ( lambdaA <= 0 ){
+            // woops.. that means the closest simplex point
+            // isn't on the line it's point B itself
+            scratch.done();
+            return Physics.vector( linePt2 );
+        } else if ( lambdaB <= 0 ){
+            // vice versa
+            scratch.done();
+            return Physics.vector( linePt1 );
+        }
+
+        // guess we'd better do the math now...
+        p = Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
+        scratch.done();
+        return p;
     };
 
 }());
@@ -3735,14 +3770,16 @@ Physics.geometry('circle', function( parent ){
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest core point in local coordinates
          */
-        getFarthestCorePoint: function( dir, result ){
+        getFarthestCorePoint: function( dir, result, margin ){
 
             result = result || Physics.vector();
 
             // we can use the center of the circle as the core object
             // because we can project a point to the hull in any direction
             // ... yay circles!
-            return result.set( 0, 0 );
+            // but since the caller is expecting a certain margin... give it
+            // to them
+            return result.clone( dir ).normalize().mult( this.radius - margin );
         }
     };
 });
@@ -3754,7 +3791,6 @@ Physics.geometry('convex-polygon', function( parent ){
 
     var defaults = {
 
-        coreMargin: 5
     };
 
     return {
@@ -3765,7 +3801,6 @@ Physics.geometry('convex-polygon', function( parent ){
             parent.init.call(this, options);
             options = Physics.util.extend({}, defaults, options);
 
-            this.coreMargin = options.coreMargin;
             this.setVertices( options.vertices || [Physics.vector()] );
         },
 
@@ -3888,14 +3923,14 @@ Physics.geometry('convex-polygon', function( parent ){
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest core point in local coordinates
          */
-        getFarthestCorePoint: function( dir, result ){
+        getFarthestCorePoint: function( dir, result, margin ){
 
             var norm;
             result = this.getFarthestHullPoint( dir, result );
 
             // now scale it
             norm = result.norm();
-            return result.normalize().mult( norm - this.coreMargin );
+            return result.normalize().mult( norm - margin );
         }
     };
 });
