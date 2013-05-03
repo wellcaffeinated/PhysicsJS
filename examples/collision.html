@@ -53,17 +53,17 @@ Physics({
 
     var circles = [];
     
-    // for ( var i = 0, l = 1; i < l; ++i )
-    // circles.push(
-    //     Physics.body('circle', {
-    //         x: 30 * i % 380 + 10,
-    //         y: Math.floor(10 * i / 380)* 10 + 100,
-    //         vx: 0.05,
-    //         radius: 10,
-    //         restitution: 0.99,
-    //         angularVelocity: 0
-    //     })
-    // );
+    for ( var i = 0, l = 10; i < l; ++i )
+    circles.push(
+        Physics.body('circle', {
+            x: 30 * i % 380 + 10,
+            y: Math.floor(10 * i / 380)* 10 + 100,
+            vx: 0.05,
+            radius: 10,
+            restitution: 0.99,
+            angularVelocity: 0
+        })
+    );
 
     circles.push(
         Physics.body('circle', {
@@ -72,6 +72,7 @@ Physics({
             vx: 0.05,
             radius: 10,
             restitution: 0.99,
+            // cof: 0.00000000000001,
             angularVelocity: 0
         })
     );
@@ -80,8 +81,10 @@ Physics({
     poly = Physics.body('convex-polygon', {
         vertices: pent,
         x: 400,
-        y: 100,
+        y: 300,
         vx: -0.05,
+        // cof: 0.00000000000001,
+        restitution: 0.3,
         fixed: true
     });
 
@@ -98,42 +101,42 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    // world.add( Physics.behavior('gravity', function(){
+    world.add( Physics.behavior('gravity', function(){
 
-    //     var g = Physics.vector(0, .0004)
-    //         ,mouse = Physics.vector()
-    //         ,mouseDown = false
-    //         ,tmp = Physics.vector()
-    //         ;
+        var g = Physics.vector(0, .0004)
+            ,mouse = Physics.vector()
+            ,mouseDown = false
+            ,tmp = Physics.vector()
+            ;
 
-    //     $('#viewport').on({
-    //         mousedown: function(e){
-    //             mouseDown = true;
-    //         },
-    //         mousemove: function(e){
-    //             var offset = $(this).offset();
-    //             mouse.set(e.screenX - offset.left, e.screenY - offset.top);
-    //         },
-    //         mouseup: function(e){
-    //             mouseDown = false;
-    //         }
-    //     });
+        $('#viewport').on({
+            mousedown: function(e){
+                mouseDown = true;
+            },
+            mousemove: function(e){
+                var offset = $(this).offset();
+                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
+            },
+            mouseup: function(e){
+                mouseDown = false;
+            }
+        });
 
-    //     return {
-    //         behave: function( bodies ){
+        return {
+            behave: function( bodies ){
 
-    //             for ( var i = 0, l = bodies.length; i < l; ++i ){
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
                     
-    //                 bodies[ i ].accelerate( g );
+                    bodies[ i ].accelerate( g );
 
-    //                 if (mouseDown){
-    //                     tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
-    //                     bodies[ i ].accelerate( tmp );
-    //                 }
-    //             }
-    //         }
-    //     };
-    // }, {}) );
+                    if (mouseDown){
+                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
+                        bodies[ i ].accelerate( tmp );
+                    }
+                }
+            }
+        };
+    }, {}) );
 
     world.add(Physics.behavior('simple-collision-detection', function( parent ){
 
@@ -245,7 +248,8 @@ Physics({
                             collision.mtv = d.mult( overlap ).values();
                             // get a corresponding hull point for one of the core points
                             collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
-                            collision.pos = collision.pos.mult( collision.pos.norm() + support.margin ).vadd( bodyB.state.pos ).values();
+                            overlap = collision.pos.norm();
+                            collision.pos = collision.pos.mult( 1 + support.margin / overlap ).vadd( bodyB.state.pos ).values();
                             
                             // send it to the callback
                             callback( collision );

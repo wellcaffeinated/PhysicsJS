@@ -44,17 +44,19 @@ Physics.behavior('body-impulse-response', function( parent ){
                 return;
             }
 
-            var invMoiA = 1 / bodyA.moi
-                ,invMoiB = 1 / bodyB.moi
-                ,invMassA = 1 / bodyA.mass
-                ,invMassB = 1 / bodyB.mass
+            // inverse masses and moments of inertia.
+            // give fixed bodies infinite mass and moi
+            var invMoiA = fixedA ? 0 : 1 / bodyA.moi
+                ,invMoiB = fixedB ? 0 : 1 / bodyB.moi
+                ,invMassA = fixedA ? 0 : 1 / bodyA.mass
+                ,invMassB = fixedB ? 0 : 1 / bodyB.mass
                 // coefficient of restitution between bodies
                 ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
                 ,scratch = Physics.scratchpad()
                 // minimum transit vector for each body
-                ,mtv = scratch.vector().clone( mtrans ).mult( 0.5 )
+                ,mtv = scratch.vector().clone( mtrans )
                 // normal vector
                 ,n = scratch.vector().clone( normal )
                 // vector perpendicular to n
@@ -94,15 +96,38 @@ Physics.behavior('body-impulse-response', function( parent ){
             // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
             // angVel -= impulse * rreg * invMoi;
 
-            // extract bodies
-            bodyA.state.pos.vsub( mtv );
-            bodyB.state.pos.vadd( mtv );
+            
+            if ( fixedA ){
 
-            // apply impulse
-            bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
-            bodyB.state.angular.vel += impulse * invMoiB * rBreg;
-            bodyA.state.vel.vsub( n.mult( invMassA * bodyB.mass ) );
-            bodyA.state.angular.vel -= impulse * invMoiA * rAreg;
+                // extract bodies
+                bodyB.state.pos.vadd( mtv );
+
+                // apply impulse
+                bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
+                bodyB.state.angular.vel += impulse * invMoiB * rBreg;
+                
+            } else if ( fixedB ){
+
+                // extract bodies
+                bodyA.state.pos.vsub( mtv );
+
+                // apply impulse
+                bodyA.state.vel.vsub( n.mult( impulse * invMassA ) );
+                bodyA.state.angular.vel -= impulse * invMoiA * rAreg;
+
+            } else {
+
+                // extract bodies
+                mtv.mult( 0.5 );
+                bodyA.state.pos.vsub( mtv );
+                bodyB.state.pos.vadd( mtv );
+
+                // apply impulse
+                bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
+                bodyB.state.angular.vel += impulse * invMoiB * rBreg;
+                bodyA.state.vel.vsub( n.mult( invMassA * bodyB.mass ) );
+                bodyA.state.angular.vel -= impulse * invMoiA * rAreg;
+            }
 
             // inContact = (impulse < 0.004);
             
@@ -137,17 +162,27 @@ Physics.behavior('body-impulse-response', function( parent ){
                     impulse = max;
                 }
 
-                // angVel -= impulse * rproj * invMoi;
-                // vreg -= impulse * ( invMass + (invMoi * rproj * rproj) );
-                bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
-                bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
-                bodyA.state.vel.vadd( perp.mult( invMassA * bodyB.mass ) );
-                bodyA.state.angular.vel += impulse * invMoiA * rAproj;
-            }
+                if ( fixedA ){
 
-            // adjust velocities
-            // state.angular.vel = angVel;
-            // v.clone( n ).mult( vproj - angVel * rreg ).vadd( perp.mult( vreg - angVel * rproj ) );
+                    // apply frictional impulse
+                    bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
+                    bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
+                    
+                } else if ( fixedB ){
+
+                    // apply frictional impulse
+                    bodyA.state.vel.vadd( perp.mult( impulse * invMassA ) );
+                    bodyA.state.angular.vel += impulse * invMoiA * rAproj;
+
+                } else {
+
+                    // apply frictional impulse
+                    bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
+                    bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
+                    bodyA.state.vel.vadd( perp.mult( invMassA * bodyB.mass ) );
+                    bodyA.state.angular.vel += impulse * invMoiA * rAproj;
+                }  
+            }
 
             scratch.done();
         },
