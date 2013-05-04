@@ -53,22 +53,22 @@ Physics({
 
     var circles = [];
     
-    for ( var i = 0, l = 10; i < l; ++i )
-    circles.push(
-        Physics.body('circle', {
-            x: 30 * i % 380 + 10,
-            y: Math.floor(10 * i / 380)* 10 + 100,
-            vx: 0.05,
-            radius: 10,
-            restitution: 0.99,
-            angularVelocity: 0
-        })
-    );
+    // for ( var i = 0, l = 10; i < l; ++i )
+    // circles.push(
+    //     Physics.body('circle', {
+    //         x: 30 * i % 380 + 10,
+    //         y: Math.floor(10 * i / 380)* 10 + 100,
+    //         vx: 0.05,
+    //         radius: 10,
+    //         restitution: 0.99,
+    //         angularVelocity: 0
+    //     })
+    // );
 
     circles.push(
         Physics.body('circle', {
             x: 10,
-            y: 80,
+            y: 280,
             vx: 0.05,
             radius: 10,
             restitution: 0.99,
@@ -80,16 +80,23 @@ Physics({
     // polly the polygon
     poly = Physics.body('convex-polygon', {
         vertices: pent,
+        // [
+        //     {x: 0, y: 20},
+        //     {x: 20, y: 20},
+        //     {x: 20, y: 0},
+        //     {x: 0, y: 0}
+        // ],
         x: 400,
-        y: 300,
+        y: 200,
         vx: -0.05,
         // cof: 0.00000000000001,
-        restitution: 0.3,
-        fixed: true
+        restitution: 0.1,
+        fixed: false
     });
 
     world.add( poly );
 
+    
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
         width: viewWidth,
@@ -99,6 +106,18 @@ Physics({
     // add things to world
     // world.add( constrain );
     world.add( circles );
+    world.add( Physics.body('convex-polygon', {
+        vertices: [
+            { x: 0, y: 0 },
+            { x: viewWidth, y: 0 },
+            { x: viewWidth, y: -40 },
+            { x: 0, y: -40 }
+        ],
+        x: viewWidth / 2,
+        y: viewHeight - 10,
+        fixed: true
+    }));
+
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
     world.add( Physics.behavior('gravity', function(){
@@ -227,10 +246,12 @@ Physics({
 
                         // first get the min distance of between core objects
                         support.useCore = true;
-                        // start with a conservative 60% margin of the smallest object
-                        support.margin = 0.6 * Math.min( bodyA.geometry.aabb().halfWidth, bodyB.geometry.aabb().halfWidth );
+                        support.margin = 0;
 
-                        result = Physics.gjk(support, d);
+                        while ( result.overlap ){
+                            support.margin += 2;
+                            result = Physics.gjk(support, d);
+                        }
                         
                         if ( result.overlap ){
                             scratch.done();
@@ -240,20 +261,19 @@ Physics({
                         }
 
                         // calc overlap
-                        overlap = 2 * support.margin - result.distance;
-                        if ( overlap >= 0 ){
-                            collision.overlap = overlap;
-                            // @TODO: for now, just let the normal be the mtv
-                            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
-                            collision.mtv = d.mult( overlap ).values();
-                            // get a corresponding hull point for one of the core points
-                            collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
-                            overlap = collision.pos.norm();
-                            collision.pos = collision.pos.mult( 1 + support.margin / overlap ).vadd( bodyB.state.pos ).values();
-                            
-                            // send it to the callback
-                            callback( collision );
-                        }
+                        overlap = Math.max(0, 2 * support.margin - result.distance);
+                        collision.overlap = overlap;
+                        // @TODO: for now, just let the normal be the mtv
+                        collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+                        collision.mtv = d.mult( overlap ).values();
+                        // get a corresponding hull point for one of the core points
+                        // collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
+                        // overlap = collision.pos.norm();
+                        // collision.pos = collision.pos.mult( 1 + support.margin / overlap ).vadd( bodyB.state.pos ).values();
+                        collision.pos = d.normalize().mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).values();
+                        
+                        // send it to the callback
+                        callback( collision );
                     }
                 }
             }

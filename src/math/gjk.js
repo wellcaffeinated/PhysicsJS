@@ -6,7 +6,7 @@
 
 // the algorithm doesn't always converge for curved shapes.
 // need these constants to dictate how accurate we want to be.
-var gjkAccuracy = 0.001;
+var gjkAccuracy = 0.0001;
 var gjkMaxIterations = 100;
 
 // get the next search direction from two simplex points
@@ -62,7 +62,7 @@ var getClosestPoints = function getClosestPoints( simplex ){
         ,lambdaB
         ,lambdaA
         ;
-        
+
     if ( L.equals(Physics.vector.zero) ){
 
         // oh.. it's a zero vector. So A and B are both the closest.

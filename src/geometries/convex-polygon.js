@@ -39,6 +39,8 @@ Physics.geometry('convex-polygon', function( parent ){
                 verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
             }
 
+            this._area = Physics.geometry.getPolygonArea( verts );
+
             this._aabb = false;
             scratch.done();
             return this;
@@ -74,18 +76,22 @@ Physics.geometry('convex-polygon', function( parent ){
          * @param {Vector} result (optional) A vector to write result to
          * @return {Vector} The farthest hull point in local coordinates
          */
-        getFarthestHullPoint: function( dir, result ){
+        getFarthestHullPoint: function( dir, result, data ){
 
             var verts = this.vertices
                 ,val
                 ,prev
                 ,l = verts.length
                 ,i = 2
+                ,idx
                 ;
 
             result = result || Physics.vector();
 
             if ( l < 2 ){
+                if ( data ){
+                    data.idx = 0;
+                }
                 return result.clone( verts[0] );
             }
 
@@ -93,7 +99,11 @@ Physics.geometry('convex-polygon', function( parent ){
             val = verts[ 1 ].dot( dir );
 
             if ( l === 2 ){
-                return result.clone( (val >= prev) ? verts[ 1 ] : verts[ 0 ] );
+                idx = (val >= prev) ? 1 : 0;
+                if ( data ){
+                    data.idx = idx;
+                }
+                return result.clone( verts[ idx ] );
             }
 
             if ( val >= prev ){
@@ -111,7 +121,11 @@ Physics.geometry('convex-polygon', function( parent ){
                 }
 
                 // return the previous (furthest with largest dot product)
-                return result.clone( verts[ i - 2 ] );
+                idx = i - 2;
+                if ( data ){
+                    data.idx = i - 2;
+                }
+                return result.clone( verts[ idx ] );
 
             } else {
                 // go down
@@ -124,7 +138,11 @@ Physics.geometry('convex-polygon', function( parent ){
                 }
 
                 // return the previous (furthest with largest dot product)
-                return result.clone( verts[ (i + 1) % l ] );                
+                idx = (i + 1) % l;
+                if ( data ){
+                    data.idx = idx;
+                }
+                return result.clone( verts[ idx ] );                
             }
         },
 
@@ -139,12 +157,31 @@ Physics.geometry('convex-polygon', function( parent ){
          */
         getFarthestCorePoint: function( dir, result, margin ){
 
-            var norm;
-            result = this.getFarthestHullPoint( dir, result );
+            var norm
+                ,scratch = Physics.scratchpad()
+                ,next = scratch.vector()
+                ,prev = scratch.vector()
+                ,verts = this.vertices
+                ,l = verts.length
+                ,mag
+                ,sign = this._area > 0
+                ,data = {}
+                ;
 
-            // now scale it
-            norm = result.norm();
-            return result.normalize().mult( norm - margin );
+            result = this.getFarthestHullPoint( dir, result, data );
+
+            // get normalized directions to next and previous vertices
+            next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( !sign );
+            prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( sign );
+
+            // get the magnitude of a vector from the result vertex 
+            // that splits down the middle
+            // creating a margin of "m" to each edge
+            mag = margin / (1 + next.dot(prev));
+
+            result.vadd( next.vadd( prev ).mult( mag ) );
+            scratch.done();
+            return result;
         }
     };
 });
