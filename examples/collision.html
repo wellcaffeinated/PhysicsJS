@@ -45,56 +45,32 @@ Physics({
     var viewHeight = 400;
     var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
     var pent = [
-            { x: 60, y: 0 },
-            { x: 30, y: -30 },
-            { x: -30, y: -30 },
-            { x: -60, y: 0 },
-            { x: 0, y: 60 }
+            { x: 20, y: 0 },
+            { x: 10, y: -10 },
+            { x: -10, y: -10 },
+            { x: -20, y: 0 },
+            { x: 0, y: 20 }
         ];
 
     var circles = [];
     var squares = [];
+    var polygons = [];
     
-    for ( var i = 0, l = 10; i < l; ++i )
-    circles.push(
-        Physics.body('circle', {
-            x: 30 * i % 380 + 10,
-            y: Math.floor(10 * i / 380)* 10 + 100,
-            vx: 0.05,
-            radius: 10,
-            restitution: 0.7,
-            angularVelocity: 0
-        })
-    );
-
-    circles.push(
-        Physics.body('circle', {
-            x: 10,
-            y: 280,
-            vx: 0.05,
-            radius: 10,
-            restitution: 0.99,
-            // cof: 0.00000000000001,
-            angularVelocity: 0
-        })
-    );
+    for ( var i = 0, l = 15; i < l; ++i ){
+        circles.push(
+            Physics.body('circle', {
+                x: 30 * i % 380 + 10,
+                y: Math.floor(10 * i / 380)* 10 + 100,
+                vx: 0.05,
+                radius: 10,
+                restitution: 0.7,
+                angularVelocity: 0
+            })
+        );
+    }
     
-    // polly the polygon
-    poly = Physics.body('convex-polygon', {
-        vertices: pent,
-        x: 500,
-        y: 100,
-        vx: 0,
-        angle: 0.01,
-        // cof: 0.7,
-        restitution: 0.7,
-        fixed: false
-    });
-
-    world.add( poly );
-
     // squares
-    for ( var i = 0, l = 10; i < l; ++i ){
+    for ( var i = 0, l = 15; i < l; ++i ){
         
         squares.push( Physics.body('convex-polygon', {
             // vertices: pent,
@@ -104,9 +80,23 @@ Physics({
                 {x: 20, y: 0},
                 {x: 0, y: 0}
             ],
-            x: 40*(i/6|0)+200,
-            y: 21*(i%6)+200,
+            x: 40*(i/6|0)+100,
+            y: 21*(i%6)+100,
             vx: 0,
+            // cof: 0.7,
+            restitution: 0.7,
+            fixed: false
+        }));
+    }
+
+    for ( var i = 0, l = 15; i < l; ++i ){
+        
+        polygons.push(Physics.body('convex-polygon', {
+            vertices: pent,
+            x: 60*(i/6|0)+300,
+            y: 60*(i%6)+200,
+            vx: 0,
+            angle: Math.random(),
             // cof: 0.7,
             restitution: 0.7,
             fixed: false
@@ -124,12 +114,14 @@ Physics({
     // world.add( constrain );
     world.add( circles );
     world.add( squares );
+    world.add( polygons );
+    // ground
     world.add( Physics.body('convex-polygon', {
         vertices: [
             { x: 0, y: 0 },
             { x: viewWidth, y: 0 },
-            { x: viewWidth, y: -40 },
-            { x: 0, y: -40 }
+            { x: viewWidth, y: -4 },
+            { x: 0, y: -4 }
         ],
         x: viewWidth / 2,
         y: viewHeight - 10,
@@ -183,14 +175,13 @@ Physics({
         // get general support function
         function getSupportFn( bodyA, bodyB ){
 
-            var tA = Physics.transform( bodyA.state.pos, bodyA.state.angular.pos )
-                ,tB = Physics.transform( bodyB.state.pos, bodyB.state.angular.pos )
-                ,fn
-                ;
+            var fn;
 
             fn = function( searchDir ){
 
                 var scratch = Physics.scratchpad()
+                    ,tA = scratch.transform().setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos )
+                    ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
                     ,vA = scratch.vector()
                     ,vB = scratch.vector()
                     ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
