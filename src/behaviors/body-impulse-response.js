@@ -37,11 +37,32 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             var fixedA = bodyA.fixed
                 ,fixedB = bodyB.fixed
+                ,scratch = Physics.scratchpad()
+                // minimum transit vector for each body
+                ,mtv = scratch.vector().clone( mtrans )
                 ;
 
             // do nothing if both are fixed
             if ( fixedA && fixedB ){
                 return;
+            }
+
+            if ( fixedA ){
+
+                // extract bodies
+                bodyB.state.pos.vadd( mtv );
+                
+            } else if ( fixedB ){
+
+                // extract bodies
+                bodyA.state.pos.vsub( mtv );
+
+            } else {
+
+                // extract bodies
+                mtv.mult( 0.5 );
+                bodyA.state.pos.vsub( mtv );
+                bodyB.state.pos.vadd( mtv );
             }
 
             // inverse masses and moments of inertia.
@@ -54,9 +75,6 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
-                ,scratch = Physics.scratchpad()
-                // minimum transit vector for each body
-                ,mtv = scratch.vector().clone( mtrans )
                 // normal vector
                 ,n = scratch.vector().clone( normal )
                 // vector perpendicular to n
@@ -99,34 +117,23 @@ Physics.behavior('body-impulse-response', function( parent ){
             
             if ( fixedA ){
 
-                // extract bodies
-                bodyB.state.pos.vadd( mtv );
-
                 // apply impulse
                 bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
-                bodyB.state.angular.vel += impulse * invMoiB * rBreg;
+                bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
                 
             } else if ( fixedB ){
 
-                // extract bodies
-                bodyA.state.pos.vsub( mtv );
-
                 // apply impulse
                 bodyA.state.vel.vsub( n.mult( impulse * invMassA ) );
-                bodyA.state.angular.vel -= impulse * invMoiA * rAreg;
+                bodyA.state.angular.vel += impulse * invMoiA * rAreg;
 
             } else {
 
-                // extract bodies
-                mtv.mult( 0.5 );
-                bodyA.state.pos.vsub( mtv );
-                bodyB.state.pos.vadd( mtv );
-
                 // apply impulse
                 bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
-                bodyB.state.angular.vel += impulse * invMoiB * rBreg;
+                bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
                 bodyA.state.vel.vsub( n.mult( invMassA * bodyB.mass ) );
-                bodyA.state.angular.vel -= impulse * invMoiA * rAreg;
+                bodyA.state.angular.vel += impulse * invMoiA * rAreg;
             }
 
             // inContact = (impulse < 0.004);

@@ -26,6 +26,7 @@
 
 <!-- Setup -->
     <button class="start-stop">Pause</button>
+    <button class="next">Next Frame</button>
     <canvas id="viewport"></canvas>
 
 <!-- Scripts -->
@@ -53,17 +54,17 @@ Physics({
 
     var circles = [];
     
-    // for ( var i = 0, l = 10; i < l; ++i )
-    // circles.push(
-    //     Physics.body('circle', {
-    //         x: 30 * i % 380 + 10,
-    //         y: Math.floor(10 * i / 380)* 10 + 100,
-    //         vx: 0.05,
-    //         radius: 10,
-    //         restitution: 0.99,
-    //         angularVelocity: 0
-    //     })
-    // );
+    for ( var i = 0, l = 10; i < l; ++i )
+    circles.push(
+        Physics.body('circle', {
+            x: 30 * i % 380 + 10,
+            y: Math.floor(10 * i / 380)* 10 + 100,
+            vx: 0.05,
+            radius: 10,
+            restitution: 0.7,
+            angularVelocity: 0
+        })
+    );
 
     circles.push(
         Physics.body('circle', {
@@ -78,23 +79,26 @@ Physics({
     );
     
     // polly the polygon
-    poly = Physics.body('convex-polygon', {
-        vertices: pent,
-        // [
-        //     {x: 0, y: 20},
-        //     {x: 20, y: 20},
-        //     {x: 20, y: 0},
-        //     {x: 0, y: 0}
-        // ],
-        x: 400,
-        y: 200,
-        vx: -0.05,
-        // cof: 0.00000000000001,
-        restitution: 0.1,
-        fixed: false
-    });
+    for ( var i = 0, l = 10; i < l; ++i ){
+        
+        poly = Physics.body('convex-polygon', {
+            // vertices: pent,
+            vertices: [
+                {x: 0, y: 20},
+                {x: 20, y: 20},
+                {x: 20, y: 0},
+                {x: 0, y: 0}
+            ],
+            x: 40*(i/6|0)+200,
+            y: 21*(i%6)+200,
+            vx: 0,
+            // cof: 0.7,
+            restitution: 0.7,
+            fixed: false
+        });
 
-    world.add( poly );
+        world.add( poly );
+    }
 
     
     var renderer = Physics.renderer('canvas', {
@@ -115,6 +119,7 @@ Physics({
         ],
         x: viewWidth / 2,
         y: viewHeight - 10,
+        restitution: 0.7,
         fixed: true
     }));
 
@@ -253,7 +258,7 @@ Physics({
                             result = Physics.gjk(support, d);
                         }
                         
-                        if ( result.overlap ){
+                        if ( result.overlap || result.maxIterationsReached ){
                             scratch.done();
                             console.log(result);
                             // This implementation can't deal with a core overlap yet
@@ -270,7 +275,11 @@ Physics({
                         // collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
                         // overlap = collision.pos.norm();
                         // collision.pos = collision.pos.mult( 1 + support.margin / overlap ).vadd( bodyB.state.pos ).values();
-                        collision.pos = d.normalize().mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).values();
+                        collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).values();
+                        // world.render();
+                        // renderer.drawCircle(collision.pos.x, collision.pos.y, 1, 'green')
+                        // renderer.drawCircle(result.closest.a.x, result.closest.a.y, 1, 'blue')
+                        // renderer.drawCircle(result.closest.b.x, result.closest.b.y, 1, 'red')
                         
                         // send it to the callback
                         callback( collision );
@@ -409,6 +418,13 @@ Physics({
             $(this).text('play');
             world.pause();
         }
+    });
+
+    $(document).on('click', '.next', function(e){
+
+        world.unpause();
+        world.step( 1 ).step( 21 );
+        world.pause();
     });
 });
 
