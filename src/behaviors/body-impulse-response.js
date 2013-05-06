@@ -80,9 +80,9 @@ Physics.behavior('body-impulse-response', function( parent ){
                 // vector perpendicular to n
                 ,perp = scratch.vector().clone( n ).perp( true )
                 // collision point from A's center
-                ,rA = scratch.vector().clone( point ).vsub( bodyA.state.pos )
+                ,rA = scratch.vector().clone( point )
                 // collision point from B's center
-                ,rB = scratch.vector().clone( point ).vsub( bodyB.state.pos )
+                ,rB = scratch.vector().clone( point ).vadd( bodyA.state.pos ).vsub( bodyB.state.pos )
                 ,tmp = scratch.vector()
                 ,angVelA = bodyA.state.angular.vel
                 ,angVelB = bodyB.state.angular.vel

@@ -53,6 +53,7 @@ Physics({
         ];
 
     var circles = [];
+    var squares = [];
     
     for ( var i = 0, l = 10; i < l; ++i )
     circles.push(
@@ -79,9 +80,23 @@ Physics({
     );
     
     // polly the polygon
+    poly = Physics.body('convex-polygon', {
+        vertices: pent,
+        x: 500,
+        y: 100,
+        vx: 0,
+        angle: 0.01,
+        // cof: 0.7,
+        restitution: 0.7,
+        fixed: false
+    });
+
+    world.add( poly );
+
+    // squares
     for ( var i = 0, l = 10; i < l; ++i ){
         
-        poly = Physics.body('convex-polygon', {
+        squares.push( Physics.body('convex-polygon', {
             // vertices: pent,
             vertices: [
                 {x: 0, y: 20},
@@ -95,9 +110,7 @@ Physics({
             // cof: 0.7,
             restitution: 0.7,
             fixed: false
-        });
-
-        world.add( poly );
+        }));
     }
 
     
@@ -110,6 +123,7 @@ Physics({
     // add things to world
     // world.add( constrain );
     world.add( circles );
+    world.add( squares );
     world.add( Physics.body('convex-polygon', {
         vertices: [
             { x: 0, y: 0 },
@@ -254,15 +268,15 @@ Physics({
                         support.margin = 0;
 
                         while ( result.overlap ){
-                            support.margin += 2;
+                            support.margin += 1;
                             result = Physics.gjk(support, d);
                         }
-                        
+
                         if ( result.overlap || result.maxIterationsReached ){
                             scratch.done();
                             console.log(result);
                             // This implementation can't deal with a core overlap yet
-                            throw "oops overlap";
+                            throw "Collision information undeterminable";
                         }
 
                         // calc overlap
@@ -271,11 +285,8 @@ Physics({
                         // @TODO: for now, just let the normal be the mtv
                         collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
                         collision.mtv = d.mult( overlap ).values();
-                        // get a corresponding hull point for one of the core points
-                        // collision.pos = d.clone( result.closest.b ).vsub( bodyB.state.pos );
-                        // overlap = collision.pos.norm();
-                        // collision.pos = collision.pos.mult( 1 + support.margin / overlap ).vadd( bodyB.state.pos ).values();
-                        collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).values();
+                        // get a corresponding hull point for one of the core points.. relative to body A
+                        collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
                         // world.render();
                         // renderer.drawCircle(collision.pos.x, collision.pos.y, 1, 'green')
                         // renderer.drawCircle(result.closest.a.x, result.closest.a.y, 1, 'blue')
