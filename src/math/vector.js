@@ -311,8 +311,8 @@ Vector.prototype.normalize = function() {
 Vector.prototype.transform = function( t ){
 
     return this.set(
-        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA + t.v._[ 0 ], 
-        - this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
+        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA + t.v._[ 0 ], 
+        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
     );
 };
 
@@ -323,8 +323,8 @@ Vector.prototype.transform = function( t ){
 Vector.prototype.transformInv = function( t ){
 
     return this.set(
-        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA - t.v._[ 0 ], 
-        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
+        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA - t.v._[ 0 ], 
+        -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
     );
 };
 
@@ -335,8 +335,8 @@ Vector.prototype.transformInv = function( t ){
 Vector.prototype.rotate = function( t ){
 
     return this.set(
-        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
-        - this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
+        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
     );
 };
 
@@ -347,8 +347,8 @@ Vector.prototype.rotate = function( t ){
 Vector.prototype.rotateInv = function( t ){
 
     return this.set(
-        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
-        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
+        -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
     );
 };
 
