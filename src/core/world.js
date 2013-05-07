@@ -165,9 +165,16 @@ World.prototype = {
                 break; // end body
                 
                 default:
-                    throw 'Error: failed to add item of unknown type to world';
+                    throw 'Error: failed to add item of type '+ thing.type +' to world';
                 // end default
             }
+
+            // notify
+            this.publish({
+                topic: 'add:' + thing.type,
+                data: thing 
+            });
+            
         } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
