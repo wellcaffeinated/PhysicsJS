@@ -624,13 +624,13 @@
 
     // create the function factory
     var factory = Function(
-        'hasOwnProperty, isArguments, isArray, keys, ' +
+        'hasOwnProperty, isArguments, isArray, isString, keys, ' +
         'lodash, objectTypes',
       'return function(' + args + ') {\n' + iteratorTemplate(data) + '\n}'
     );
     // return the compiled function
     return factory(
-      hasOwnProperty, isArguments, isArray, keys,
+      hasOwnProperty, isArguments, isArray, isString, keys,
       lodash, objectTypes
     );
   }
@@ -787,6 +787,22 @@
     }
     return nativeKeys(object);
   };
+
+  /**
+   * A function compiled to iterate `arguments` objects, arrays, objects, and
+   * strings consistenly across environments, executing the `callback` for each
+   * element in the `collection`. The `callback` is bound to `thisArg` and invoked
+   * with three arguments; (value, index|key, collection). Callbacks may exit
+   * iteration early by explicitly returning `false`.
+   *
+   * @private
+   * @type Function
+   * @param {Array|Object|String} collection The collection to iterate over.
+   * @param {Function} [callback=identity] The function called per iteration.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Array|Object|String} Returns `collection`.
+   */
+  var each = createIterator(eachIteratorOptions);
 
   /**
    * Used to convert characters to HTML entities:
@@ -1175,6 +1191,120 @@
     return value ? objectTypes[typeof value] : false;
   }
 
+  /**
+   * Checks if `value` is a string.
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} value The value to check.
+   * @returns {Boolean} Returns `true`, if the `value` is a string, else `false`.
+   * @example
+   *
+   * _.isString('moe');
+   * // => true
+   */
+  function isString(value) {
+    return typeof value == 'string' || toString.call(value) == stringClass;
+  }
+
+  /*--------------------------------------------------------------------------*/
+
+  /**
+   * Iterates over a `collection`, executing the `callback` for each element in
+   * the `collection`. The `callback` is bound to `thisArg` and invoked with three
+   * arguments; (value, index|key, collection). Callbacks may exit iteration early
+   * by explicitly returning `false`.
+   *
+   * @static
+   * @memberOf _
+   * @alias each
+   * @category Collections
+   * @param {Array|Object|String} collection The collection to iterate over.
+   * @param {Function} [callback=identity] The function called per iteration.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Array|Object|String} Returns `collection`.
+   * @example
+   *
+   * _([1, 2, 3]).forEach(alert).join(',');
+   * // => alerts each number and returns '1,2,3'
+   *
+   * _.forEach({ 'one': 1, 'two': 2, 'three': 3 }, alert);
+   * // => alerts each number value (order is not guaranteed)
+   */
+  function forEach(collection, callback, thisArg) {
+    if (callback && typeof thisArg == 'undefined' && isArray(collection)) {
+      var index = -1,
+          length = collection.length;
+
+      while (++index < length) {
+        if (callback(collection[index], index, collection) === false) {
+          break;
+        }
+      }
+    } else {
+      each(collection, callback, thisArg);
+    }
+    return collection;
+  }
+
+  /**
+   * Creates an array of elements, sorted in ascending order by the results of
+   * running each element in the `collection` through the `callback`. This method
+   * performs a stable sort, that is, it will preserve the original sort order of
+   * equal elements. The `callback` is bound to `thisArg` and invoked with three
+   * arguments; (value, index|key, collection).
+   *
+   * If a property name is passed for `callback`, the created "_.pluck" style
+   * callback will return the property value of the given element.
+   *
+   * If an object is passed for `callback`, the created "_.where" style callback
+   * will return `true` for elements that have the properties of the given object,
+   * else `false`.
+   *
+   * @static
+   * @memberOf _
+   * @category Collections
+   * @param {Array|Object|String} collection The collection to iterate over.
+   * @param {Function|Object|String} [callback=identity] The function called per
+   *  iteration. If a property name or object is passed, it will be used to create
+   *  a "_.pluck" or "_.where" style callback, respectively.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @returns {Array} Returns a new array of sorted elements.
+   * @example
+   *
+   * _.sortBy([1, 2, 3], function(num) { return Math.sin(num); });
+   * // => [3, 1, 2]
+   *
+   * _.sortBy([1, 2, 3], function(num) { return this.sin(num); }, Math);
+   * // => [3, 1, 2]
+   *
+   * // using "_.pluck" callback shorthand
+   * _.sortBy(['banana', 'strawberry', 'apple'], 'length');
+   * // => ['apple', 'banana', 'strawberry']
+   */
+  function sortBy(collection, callback, thisArg) {
+    var index = -1,
+        length = collection ? collection.length : 0,
+        result = Array(typeof length == 'number' ? length : 0);
+
+    callback = lodash.createCallback(callback, thisArg);
+    forEach(collection, function(value, key, collection) {
+      result[++index] = {
+        'criteria': callback(value, key, collection),
+        'index': index,
+        'value': value
+      };
+    });
+
+    length = result.length;
+    result.sort(compareAscending);
+    while (length--) {
+      result[length] = result[length].value;
+    }
+    return result;
+  }
+
   /*--------------------------------------------------------------------------*/
 
   /**
@@ -1459,11 +1589,14 @@
   lodash.assign = assign;
   lodash.bind = bind;
   lodash.createCallback = createCallback;
+  lodash.forEach = forEach;
   lodash.forIn = forIn;
   lodash.forOwn = forOwn;
   lodash.keys = keys;
+  lodash.sortBy = sortBy;
   lodash.throttle = throttle;
 
+  lodash.each = forEach;
   lodash.extend = assign;
 
   /*--------------------------------------------------------------------------*/
@@ -1474,6 +1607,7 @@
   lodash.isEqual = isEqual;
   lodash.isFunction = isFunction;
   lodash.isObject = isObject;
+  lodash.isString = isString;
   lodash.sortedIndex = sortedIndex;
 
   /*--------------------------------------------------------------------------*/
@@ -4581,213 +4715,6 @@ Physics.behavior('body-impulse-response', function( parent ){
     };
 });
 
-// edge-bounce behavior
-Physics.behavior('edge-bounce', function( parent ){
-
-    var defaults = {
-
-        bounds: null,
-        restitution: 1.0
-    };
-
-    var PUBSUB_TOPIC = 'edge-bounce';
-
-    var perp = Physics.vector(); //tmp
-    var applyImpulse = function applyImpulse(state, n, r, moi, mass, cor, cof){
-
-        perp.clone( n ).perp( true );
-
-        // break up components along normal and perp-normal directions
-        var v = state.vel
-            ,angVel = state.angular.vel
-            ,vproj = v.proj( n ) // projection of v along n
-            ,vreg = v.proj( perp ) // rejection of v along n (perp of proj)
-            ,rproj = r.proj( n )
-            ,rreg = r.proj( perp )
-            ,impulse
-            ,sign
-            ,max
-            ,inContact = false
-            ,invMass = 1 / mass
-            ,invMoi = 1 / moi
-            ;
-
-        // account for rotation ... += (r omega) in the tangential direction
-        vproj += angVel * rreg;
-        vreg += angVel * rproj;
-
-        impulse =  - ((1 + cor) * vproj) / ( invMass + (invMoi * rreg * rreg) );
-        vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
-        angVel -= impulse * rreg * invMoi;
-        // inContact = (impulse < 0.004);
-        
-        // if we have friction and a relative velocity perpendicular to the normal
-        if ( cof && vreg ){
-
-            // maximum impulse allowed by friction
-            max = vreg / ( invMass + (invMoi * rproj * rproj) );
-
-            if (!inContact){
-                // the sign of vreg ( plus or minus 1 )
-                sign = vreg < 0 ? -1 : 1;
-
-                // get impulse due to friction
-                impulse *= sign * cof;
-                // make sure the impulse isn't giving the system energy
-                impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-                
-            } else {
-
-                impulse = max;
-            }
-
-            angVel -= impulse * rproj * invMoi;
-            vreg -= impulse * ( invMass + (invMoi * rproj * rproj) );
-        }
-
-        // adjust velocities
-        state.angular.vel = angVel;
-        v.clone( n ).mult( vproj - angVel * rreg ).vadd( perp.mult( vreg - angVel * rproj ) );
-    };
-
-    return {
-
-        priority: 2,
-
-        init: function( options ){
-
-            // call parent init method
-            parent.init.call(this, options);
-
-            options = Physics.util.extend({}, defaults, options);
-
-            this.setAABB( options.aabb );
-            this.restitution = options.restitution;
-        },
-
-        setAABB: function( aabb ){
-
-            if (!aabb) {
-                throw 'Error: aabb not set';
-            }
-
-            this.aabb = aabb;
-            this._edges = [
-                // set edges
-            ];
-        },
-        
-        behave: function( bodies, dt ){
-
-            var body
-                ,pos
-                ,state
-                ,scratch = Physics.scratchpad()
-                ,p = scratch.vector()
-                ,aabb = this.aabb.get()
-                ,minx = aabb.pos.x - aabb.halfWidth
-                ,maxx = aabb.pos.x + aabb.halfWidth
-                ,miny = aabb.pos.y - aabb.halfHeight
-                ,maxy = aabb.pos.y + aabb.halfHeight
-                ,world = this._world
-                ,dim
-                ,x
-                ,cor
-                ,cof = 0.6
-                ,norm = scratch.vector()
-                ,impulse
-                ;
-
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
-                body = bodies[ i ];
-                state = body.state;
-                pos = body.state.pos;
-                cor = body.restitution * this.restitution;
-
-                switch ( body.geometry.name ){
-
-                    case 'circle':
-                        dim = body.geometry.radius;
-                        x = body.moi / body.mass;
-
-                        // right
-                        if ( (pos._[ 0 ] + dim) >= maxx ){
-
-                            norm.set(-1, 0);
-                            p.set(dim, 0); // set perpendicular displacement from com to impact point
-                            
-                            // adjust position
-                            pos._[ 0 ] = maxx - dim;
-
-                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
-
-                            p.set( maxx, pos._[ 1 ] );
-                            if (world){
-                                world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
-                            }
-                        }
-                        
-                        // left
-                        if ( (pos._[ 0 ] - dim) <= minx ){
-
-                            norm.set(1, 0);
-                            p.set(-dim, 0); // set perpendicular displacement from com to impact point
-                            
-                            // adjust position
-                            pos._[ 0 ] = minx + dim;
-
-                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
-
-                            p.set( minx, pos._[ 1 ] );
-                            if (world){
-                                world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
-                            }
-                        }
-
-                        // bottom
-                        if ( (pos._[ 1 ] + dim) >= maxy ){
-
-                            norm.set(0, -1);
-                            p.set(0, dim); // set perpendicular displacement from com to impact point
-                            
-                            // adjust position
-                            pos._[ 1 ] = maxy - dim;
-
-                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
-
-                            p.set( pos._[ 0 ], maxy );
-                            if (world){
-                                world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
-                            }
-                        }
-                            
-                        // top
-                        if ( (pos._[ 1 ] - dim) <= miny ){
-
-                            norm.set(0, 1);
-                            p.set(0, -dim); // set perpendicular displacement from com to impact point
-                            
-                            // adjust position
-                            pos._[ 1 ] = miny + dim;
-
-                            applyImpulse(state, norm, p, body.moi, body.mass, cor, cof);
-
-                            p.set( pos._[ 0 ], miny );
-                            if (world){
-                                world.publish({ topic: PUBSUB_TOPIC, body: body, point: p.values() });
-                            }
-                        }
-
-                    break;
-                }
-            }
-
-            scratch.done();
-        }
-    };
-});
-
 Physics.behavior('edge-collision-detection', function( parent ){
 
     var PUBSUB_COLLISION = 'collisions:detected';
@@ -4802,10 +4729,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
             ,dir = scratch.vector()
             ,result = scratch.vector()
             ,collision = false
+            ,collisions = []
             ;
 
         // right
-        overlap = (aabb.pos.x + aabb.x) - (bounds.pos.x + bounds.x);
+        overlap = (aabb.pos.x + aabb.x) - bounds.max.x;
 
         if ( overlap >= 0 ){
 
@@ -4826,12 +4754,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // bottom
-        overlap = (aabb.pos.y + aabb.y) - (bounds.pos.y + bounds.y);
+        overlap = (aabb.pos.y + aabb.y) - bounds.max.y;
 
         if ( overlap >= 0 ){
 
@@ -4852,12 +4779,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // left
-        overlap = (bounds.pos.x - bounds.x) - (aabb.pos.x - aabb.x);
+        overlap = bounds.min.x - (aabb.pos.x - aabb.x)
 
         if ( overlap >= 0 ){
 
@@ -4878,12 +4804,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // top
-        overlap = (bounds.pos.y - bounds.y) - (aabb.pos.y - aabb.y);
+        overlap = bounds.min.y - (aabb.pos.y - aabb.y);
 
         if ( overlap >= 0 ){
 
@@ -4904,12 +4829,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         scratch.done();
-        return false;
+        return collisions;
     };
 
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
@@ -4950,7 +4874,18 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 throw 'Error: aabb not set';
             }
 
-            this._aabb = aabb.get && aabb.get() || aabb;
+            aabb = aabb.get && aabb.get() || aabb;
+
+            this._edges = {
+                min: {
+                    x: (aabb.pos.x - aabb.x),
+                    y: (aabb.pos.y - aabb.y)
+                },
+                max: {
+                    x: (aabb.pos.x + aabb.x),
+                    y: (aabb.pos.y + aabb.y)  
+                }
+            };
         },
 
         behave: function( bodies, dt ){
@@ -4958,7 +4893,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             var body
                 ,collisions = []
                 ,ret
-                ,bounds = this._aabb
+                ,bounds = this._edges
                 ,dummy = this._dummy
                 ;
 
@@ -4972,7 +4907,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     ret = checkEdgeCollide( body, bounds, dummy );
 
                     if ( ret ){
-                        collisions.push( ret );
+                        collisions.push.apply( collisions, ret );
                     }
                 }
             }
@@ -5080,6 +5015,8 @@ Physics.behavior('sweep-prune', function( parent ){
     }
     
     return {
+
+        priority: 10,
 
         // constructor
         init: function( options ){

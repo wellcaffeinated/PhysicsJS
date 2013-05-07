@@ -47,7 +47,7 @@ Physics({
 
     var circles = [];
     
-    for ( var i = 0, l = 280; i < l; ++i ){
+    for ( var i = 0, l = 180; i < l; ++i ){
         
         circles.push(
             Physics.body('circle', {
@@ -77,8 +77,11 @@ Physics({
     world.add( circles );
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    world.add( Physics.behavior('newtonian', { strength: .08 }) );
-    world.add( Physics.behavior('edge-bounce', { aabb: viewportBounds }) );
+    world.add( Physics.behavior('newtonian', { strength: .01 }) );
+    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.2, cof: 0.8 }) );
+    world.add( Physics.behavior('sweep-prune') );
+    world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
+    world.add( Physics.behavior('body-impulse-response') );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 

@@ -93,7 +93,8 @@ Physics({
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
     world.add( Physics.behavior('newtonian', { strength: .5 }) );
-    world.add( Physics.behavior('edge-bounce', { aabb: viewportBounds }) );
+    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.2, cof: 0.8 }) );
+    world.add( Physics.behavior('body-impulse-response') );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 

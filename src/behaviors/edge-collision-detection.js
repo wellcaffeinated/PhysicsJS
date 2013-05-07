@@ -12,10 +12,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
             ,dir = scratch.vector()
             ,result = scratch.vector()
             ,collision = false
+            ,collisions = []
             ;
 
         // right
-        overlap = (aabb.pos.x + aabb.x) - (bounds.pos.x + bounds.x);
+        overlap = (aabb.pos.x + aabb.x) - bounds.max.x;
 
         if ( overlap >= 0 ){
 
@@ -36,12 +37,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // bottom
-        overlap = (aabb.pos.y + aabb.y) - (bounds.pos.y + bounds.y);
+        overlap = (aabb.pos.y + aabb.y) - bounds.max.y;
 
         if ( overlap >= 0 ){
 
@@ -62,12 +62,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // left
-        overlap = (bounds.pos.x - bounds.x) - (aabb.pos.x - aabb.x);
+        overlap = bounds.min.x - (aabb.pos.x - aabb.x)
 
         if ( overlap >= 0 ){
 
@@ -88,12 +87,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         // top
-        overlap = (bounds.pos.y - bounds.y) - (aabb.pos.y - aabb.y);
+        overlap = bounds.min.y - (aabb.pos.y - aabb.y);
 
         if ( overlap >= 0 ){
 
@@ -114,12 +112,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
             };
 
-            scratch.done();
-            return collision;
+            collisions.push(collision);
         }
 
         scratch.done();
-        return false;
+        return collisions;
     };
 
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
@@ -160,7 +157,18 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 throw 'Error: aabb not set';
             }
 
-            this._aabb = aabb.get && aabb.get() || aabb;
+            aabb = aabb.get && aabb.get() || aabb;
+
+            this._edges = {
+                min: {
+                    x: (aabb.pos.x - aabb.x),
+                    y: (aabb.pos.y - aabb.y)
+                },
+                max: {
+                    x: (aabb.pos.x + aabb.x),
+                    y: (aabb.pos.y + aabb.y)  
+                }
+            };
         },
 
         behave: function( bodies, dt ){
@@ -168,7 +176,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             var body
                 ,collisions = []
                 ,ret
-                ,bounds = this._aabb
+                ,bounds = this._edges
                 ,dummy = this._dummy
                 ;
 
@@ -182,7 +190,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     ret = checkEdgeCollide( body, bounds, dummy );
 
                     if ( ret ){
-                        collisions.push( ret );
+                        collisions.push.apply( collisions, ret );
                     }
                 }
             }

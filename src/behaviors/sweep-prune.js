@@ -30,6 +30,8 @@ Physics.behavior('sweep-prune', function( parent ){
     
     return {
 
+        priority: 10,
+
         // constructor
         init: function( options ){
 
