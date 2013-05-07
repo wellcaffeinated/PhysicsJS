@@ -5,7 +5,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
     };
 
-    var PUBSUB_TOPIC = 'collision-detect';
+    var PUBSUB_COLLISION = 'collisions:detected';
 
     return {
 
@@ -13,12 +13,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
         init: function( options ){
 
-            this._collisions = [];
-        },
-
-        collect: function( data ){
-        
-            this._collisions.push( data );
+            
         },
 
         // custom set world in order to subscribe to events
@@ -26,10 +21,10 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             if (this._world){
 
-                this._world.unsubscribe( PUBSUB_TOPIC, this.collect );
+                this._world.unsubscribe( PUBSUB_COLLISION, this.respond );
             }
 
-            world.subscribe( PUBSUB_TOPIC, this.collect, this );
+            world.subscribe( PUBSUB_COLLISION, this.respond, this );
             parent.setWorld.call( this, world );
         },
 
@@ -194,32 +189,27 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
-        behave: function(){
-
+        respond: function( data ){
+            
             var self = this
                 ,col
-                ,collisions = self._collisions
+                ,collisions = data.collisions
                 ;
-
-            self._collisions = [];
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
                 
                 col = collisions[ i ];
-                self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv );
+                self.collideBodies( 
+                    col.bodyA,
+                    col.bodyB,
+                    col.norm,
+                    col.pos,
+                    col.mtv
+                );
             }
+        },
 
-            // self._world.publish({
-            //     topic: 'collision-detect:request-sweep',
-            //     callback: function( collisions ){
-
-            //         for ( var i = 0, l = collisions.length; i < l; ++i ){
-                        
-            //             col = collisions[ i ];
-            //             self.collideBodies( col.bodyA, col.bodyB, col.norm, col.pos, col.mtv, true );
-            //         }
-            //     }
-            // });
-        }
+        // don't need to "behave"
+        behave: false
     };
 });

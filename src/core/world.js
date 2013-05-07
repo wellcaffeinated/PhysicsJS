@@ -117,6 +117,10 @@ World.prototype = {
             ,listeners = this._pubsub[ topic ]
             ;
 
+        if (!topic){
+            throw 'Error: No topic specified in call to world.publish()';
+        }
+
         if (!listeners || !listeners.length){
             return this;
         }
@@ -194,12 +198,16 @@ World.prototype = {
         var behaviors = this._behaviorStack
             ,l = behaviors.length
             ,bodies = this._bodies
+            ,b
             ;
 
         // apply behaviors in reverse order... highest priority first
         while ( l-- ){
             
-            behaviors[ l ].behave( bodies, dt );
+            b = behaviors[ l ];
+            if ( b.behave ){
+                b.behave( bodies, dt );
+            }
         }
     },
 
