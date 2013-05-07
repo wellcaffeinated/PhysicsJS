@@ -12,6 +12,7 @@ Physics.renderer('canvas', function( proto ){
 
     var defaults = {
 
+        debug: false,
         bodyColor: '#fff',
         orientationLineColor: '#cc0000',
         offset: Physics.vector()
@@ -169,6 +170,7 @@ Physics.renderer('canvas', function( proto ){
             var ctx = this.ctx
                 ,pos = body.state.pos
                 ,offset = this.options.offset
+                ,aabb = body.aabb()
                 ;
 
             ctx.save();
@@ -176,6 +178,19 @@ Physics.renderer('canvas', function( proto ){
             ctx.rotate(body.state.angular.pos);
             ctx.drawImage(view, -view.width/2, -view.height/2);
             ctx.restore();
+
+            if ( this.options.debug ){
+                // draw bounding boxes
+                ctx.save();
+                ctx.translate(offset.get(0), offset.get(1));
+                this.drawPolygon([
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y + aabb.y },
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y + aabb.y }
+                    ], 'rgba(100, 255, 100, 0.3)');
+                ctx.restore();
+            }
         }
     };
 });
