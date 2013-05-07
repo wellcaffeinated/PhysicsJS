@@ -144,6 +144,10 @@ World.prototype = {
             ,notify
             ;
 
+        if ( !thing ){
+            return this;
+        }
+
         // we'll either cycle through an array
         // or just run this on the arg itself
         do {
