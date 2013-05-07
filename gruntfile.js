@@ -98,7 +98,7 @@ module.exports = function(grunt) {
             // category: ['collections', 'functions']
             exports: ['none'],
             iife: '(function(window,Physics,undefined){%output%;lodash.extend(Physics.util, lodash);}(this,Physics));',
-            include: ['extend', 'throttle', 'bind', 'sortedIndex', 'sortBy']
+            include: ['extend', 'throttle', 'bind', 'sortedIndex', 'shuffle']
             // minus: ['result', 'shuffle']
             // plus: ['random', 'template'],
             // template: './*.jst'

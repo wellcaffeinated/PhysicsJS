@@ -1249,59 +1249,29 @@
   }
 
   /**
-   * Creates an array of elements, sorted in ascending order by the results of
-   * running each element in the `collection` through the `callback`. This method
-   * performs a stable sort, that is, it will preserve the original sort order of
-   * equal elements. The `callback` is bound to `thisArg` and invoked with three
-   * arguments; (value, index|key, collection).
-   *
-   * If a property name is passed for `callback`, the created "_.pluck" style
-   * callback will return the property value of the given element.
-   *
-   * If an object is passed for `callback`, the created "_.where" style callback
-   * will return `true` for elements that have the properties of the given object,
-   * else `false`.
+   * Creates an array of shuffled `array` values, using a version of the
+   * Fisher-Yates shuffle. See http://en.wikipedia.org/wiki/Fisher-Yates_shuffle.
    *
    * @static
    * @memberOf _
    * @category Collections
-   * @param {Array|Object|String} collection The collection to iterate over.
-   * @param {Function|Object|String} [callback=identity] The function called per
-   *  iteration. If a property name or object is passed, it will be used to create
-   *  a "_.pluck" or "_.where" style callback, respectively.
-   * @param {Mixed} [thisArg] The `this` binding of `callback`.
-   * @returns {Array} Returns a new array of sorted elements.
+   * @param {Array|Object|String} collection The collection to shuffle.
+   * @returns {Array} Returns a new shuffled collection.
    * @example
    *
-   * _.sortBy([1, 2, 3], function(num) { return Math.sin(num); });
-   * // => [3, 1, 2]
-   *
-   * _.sortBy([1, 2, 3], function(num) { return this.sin(num); }, Math);
-   * // => [3, 1, 2]
-   *
-   * // using "_.pluck" callback shorthand
-   * _.sortBy(['banana', 'strawberry', 'apple'], 'length');
-   * // => ['apple', 'banana', 'strawberry']
+   * _.shuffle([1, 2, 3, 4, 5, 6]);
+   * // => [4, 1, 6, 3, 5, 2]
    */
-  function sortBy(collection, callback, thisArg) {
+  function shuffle(collection) {
     var index = -1,
         length = collection ? collection.length : 0,
         result = Array(typeof length == 'number' ? length : 0);
 
-    callback = lodash.createCallback(callback, thisArg);
-    forEach(collection, function(value, key, collection) {
-      result[++index] = {
-        'criteria': callback(value, key, collection),
-        'index': index,
-        'value': value
-      };
+    forEach(collection, function(value) {
+      var rand = floor(nativeRandom() * (++index + 1));
+      result[index] = result[rand];
+      result[rand] = value;
     });
-
-    length = result.length;
-    result.sort(compareAscending);
-    while (length--) {
-      result[length] = result[length].value;
-    }
     return result;
   }
 
@@ -1593,7 +1563,7 @@
   lodash.forIn = forIn;
   lodash.forOwn = forOwn;
   lodash.keys = keys;
-  lodash.sortBy = sortBy;
+  lodash.shuffle = shuffle;
   lodash.throttle = throttle;
 
   lodash.each = forEach;
@@ -4691,10 +4661,10 @@ Physics.behavior('body-impulse-response', function( parent ){
         },
 
         respond: function( data ){
-            
+
             var self = this
                 ,col
-                ,collisions = data.collisions
+                ,collisions = Physics.util.shuffle(data.collisions)
                 ;
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){

@@ -190,10 +190,10 @@ Physics.behavior('body-impulse-response', function( parent ){
         },
 
         respond: function( data ){
-            
+
             var self = this
                 ,col
-                ,collisions = data.collisions
+                ,collisions = Physics.util.shuffle(data.collisions)
                 ;
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
