@@ -32,10 +32,17 @@
 
     AABB.prototype.get = function get(){
 
+        var hw = this.halfWidth()
+            ,hh = this.halfHeight()
+            ;
+
         return {
             pos: this._pos.values(),
-            halfWidth: this.halfWidth(),
-            halfHeight: this.halfHeight()
+            halfWidth: hw,
+            halfHeight: hh,
+            // useful for vector operations
+            x: hw,
+            y: hh
         };
     };
 
@@ -61,7 +68,26 @@
     // apply a transformation to both vectors
     AABB.prototype.transform = function transform( trans ){
 
-        this._pos.transform( trans );
+        var hw = this._hw
+            ,hh = this._hh
+            ,scratch = Physics.scratchpad()
+            ,bottomRight = scratch.vector().set( hw, hh )
+            ,topRight = scratch.vector().set( hw, -hh )
+            ;
+
+        // translate the center
+        this._pos.translate( trans );
+
+        // rotate the corners
+        bottomRight.rotate( trans );
+        topRight.rotate( trans );
+
+        // we need to keep the box oriented with the axis, but expand it to
+        // accomodate the rotation
+        this._hw = Math.max( Math.abs(bottomRight.get(0)), Math.abs(topRight.get(0)) );
+        this._hh = Math.max( Math.abs(bottomRight.get(1)), Math.abs(topRight.get(1)) );
+
+        scratch.done();
         return this;
     };
 

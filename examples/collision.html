@@ -56,11 +56,11 @@ Physics({
     var squares = [];
     var polygons = [];
     
-    for ( var i = 0, l = 20; i < l; ++i ){
+    for ( var i = 0, l = 15; i < l; ++i ){
         circles.push(
             Physics.body('circle', {
-                x: 30 * i % 380 + 10,
-                y: Math.floor(10 * i / 380)* 10 + 100,
+                x: 30 * (i % 6) + 20,
+                y: Math.floor(10 * (i / 6))* 10 + 100,
                 vx: 0.05,
                 radius: 10,
                 restitution: 0.7,
@@ -70,7 +70,7 @@ Physics({
     }
     
     // squares
-    for ( var i = 0, l = 20; i < l; ++i ){
+    for ( var i = 0, l = 15; i < l; ++i ){
         
         squares.push( Physics.body('convex-polygon', {
             // vertices: pent,
@@ -89,7 +89,7 @@ Physics({
         }));
     }
 
-    for ( var i = 0, l = 20; i < l; ++i ){
+    for ( var i = 0, l = 15; i < l; ++i ){
         
         polygons.push(Physics.body('convex-polygon', {
             vertices: pent,
@@ -106,6 +106,7 @@ Physics({
     
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
+        // debug: true,
         width: viewWidth,
         height: viewHeight
     });
@@ -168,7 +169,8 @@ Physics({
         };
     }, {}) );
 
-    world.add( Physics.behavior('body-collision-detection', { checkAll: true }) );
+    world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
+    world.add( Physics.behavior('sweep-prune') );
 
     window.runningMaxOverlap = 0;
     world.subscribe( 'collisions:detected', function(data){

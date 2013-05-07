@@ -1722,10 +1722,17 @@ Physics.util.ticker = {
 
     AABB.prototype.get = function get(){
 
+        var hw = this.halfWidth()
+            ,hh = this.halfHeight()
+            ;
+
         return {
             pos: this._pos.values(),
-            halfWidth: this.halfWidth(),
-            halfHeight: this.halfHeight()
+            halfWidth: hw,
+            halfHeight: hh,
+            // useful for vector operations
+            x: hw,
+            y: hh
         };
     };
 
@@ -1751,7 +1758,26 @@ Physics.util.ticker = {
     // apply a transformation to both vectors
     AABB.prototype.transform = function transform( trans ){
 
-        this._pos.transform( trans );
+        var hw = this._hw
+            ,hh = this._hh
+            ,scratch = Physics.scratchpad()
+            ,bottomRight = scratch.vector().set( hw, hh )
+            ,topRight = scratch.vector().set( hw, -hh )
+            ;
+
+        // translate the center
+        this._pos.translate( trans );
+
+        // rotate the corners
+        bottomRight.rotate( trans );
+        topRight.rotate( trans );
+
+        // we need to keep the box oriented with the axis, but expand it to
+        // accomodate the rotation
+        this._hw = Math.max( Math.abs(bottomRight.get(0)), Math.abs(topRight.get(0)) );
+        this._hh = Math.max( Math.abs(bottomRight.get(1)), Math.abs(topRight.get(1)) );
+
+        scratch.done();
         return this;
     };
 
@@ -2820,10 +2846,11 @@ Physics.vector = Vector;
 
             var scratch = Physics.scratchpad()
                 ,trans = scratch.transform()
-                ,aabb = Physics.aabb(this.geometry.aabb())
+                ,angle = this.state.angular.pos
+                ,aabb = Physics.aabb(this.geometry.aabb( angle ))
                 ;
 
-            trans.setRotation(this.state.angular.pos).setTranslation(this.state.pos);
+            trans.setRotation( 0 ).setTranslation(this.state.pos);
             aabb.transform( trans );
 
             scratch.done();
@@ -2849,9 +2876,9 @@ Physics.vector = Vector;
             this._aabb = new Physics.aabb();
         },
         
-        // get axis-aligned bounding box for this object.
+        // get axis-aligned bounding box for this object (rotated by angle if specified).
         // Intended to be overridden.
-        aabb: function(){
+        aabb: function( angle ){
 
             return this._aabb.get();
         },
@@ -3527,6 +3554,7 @@ World.prototype = {
         var i = 0
             ,len = arg && arg.length || 0
             ,thing = len ? arg[ 0 ] : arg
+            ,notify
             ;
 
         // we'll either cycle through an array
@@ -3556,11 +3584,14 @@ World.prototype = {
             }
 
             // notify
-            this.publish({
-                topic: 'add:' + thing.type,
-                data: thing 
-            });
-            
+            notify = {
+                topic: 'add:' + thing.type
+            };
+
+            notify[ thing.type ] = thing;
+
+            this.publish( notify );
+
         } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
@@ -3584,6 +3615,12 @@ World.prototype = {
         body.setWorld( this );
         this._bodies.push( body );
         return this;
+    },
+
+    getBodies: function(){
+
+        // return the copied array
+        return [].concat(this._bodies);
     },
 
     applyBehaviors: function( dt ){
@@ -3745,8 +3782,9 @@ Physics.geometry('circle', function( parent ){
             this.radius = options.radius;
             this._aabb = Physics.aabb();
         },
-        
-        aabb: function(){
+            
+        // circles are symetric... so angle has no effect
+        aabb: function( angle ){
 
             var r = this.radius
                 ,aabb = this._aabb
@@ -3847,25 +3885,32 @@ Physics.geometry('convex-polygon', function( parent ){
             return this;
         },
         
-        aabb: function(){
+        aabb: function( angle ){
 
-            if (this._aabb){
+            if (!angle && this._aabb){
                 return this._aabb.get();
             }
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,xaxis = scratch.vector().clone(Physics.vector.axis[0])
-                ,yaxis = scratch.vector().clone(Physics.vector.axis[1])
-                ,xmax = this.getFarthestHullPoint( xaxis, p ).get(0)
-                ,xmin = this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
-                ,ymax = this.getFarthestHullPoint( yaxis, p ).get(1)
-                ,ymin = this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
+                ,trans = scratch.transform().setRotation( angle || 0 )
+                ,xaxis = scratch.vector().clone(Physics.vector.axis[0]).rotateInv( trans )
+                ,yaxis = scratch.vector().clone(Physics.vector.axis[1]).rotateInv( trans )
+                ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
+                ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
+                ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
+                ,ymin = - this.getFarthestHullPoint( yaxis.negate(), p ).proj( yaxis )
+                ,aabb
                 ;
 
-            this._aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+            aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+
+            if (!angle){
+                this._aabb = aabb;
+            }
+
             scratch.done();
-            return this._aabb.get();
+            return aabb.get();
         },
 
         /**
@@ -4161,6 +4206,12 @@ Physics.behavior('body-collision-detection', function( parent ){
         d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
+        // hmm... they overlap exactly... choose a direction
+        if ( d.equals( Physics.vector.zero ) ){
+
+            d.set( 1, 0 );
+        }
+
         // if ( overlap > 0 ){
         //     // check the future
         //     d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
@@ -4175,7 +4226,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 norm: d.normalize().values(),
                 mtv: d.mult( -overlap ).values(),
                 pos: d.normalize().mult( bodyA.geometry.radius ).values(),
-                overlap: overlap
+                overlap: -overlap
             };
         }
     
@@ -4222,23 +4273,47 @@ Physics.behavior('body-collision-detection', function( parent ){
             parent.init.call(this, options);
 
             this.options = Physics.util.extend({}, this.options, defaults, options);
-
-            this.sweep = Physics.util.bind(this.sweep, this);
         },
 
         setWorld: function( world ){
 
             if (this._world){
 
-                this._world.unsubscribe( PUBSUB_COLLISION + ':request-sweep', this.sweep );
+                this._world.unsubscribe( PUBSUB_CANDIDATES, this.check );
             }
 
-            world.subscribe( PUBSUB_COLLISION + ':request-sweep', this.sweep );
+            world.subscribe( PUBSUB_CANDIDATES, this.check, this );
 
             parent.setWorld.call( this, world );
         },
 
-        sweep: sweep,
+        check: function( data ){
+
+            var candidates = data.candidates
+                ,pair
+                ,collisions = []
+                ,ret
+                ;
+
+            for ( var i = 0, l = candidates.length; i < l; ++i ){
+                
+                pair = candidates[ i ];
+
+                ret = checkPair( pair.bodyA, pair.bodyB );
+
+                if ( ret ){
+                    collisions.push( ret );
+                }
+            }
+
+            if ( collisions.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_COLLISION,
+                    collisions: collisions
+                });
+            }
+        },
 
         behave: function( bodies, dt ){
             
@@ -4767,6 +4842,356 @@ Physics.behavior('newtonian', function( parent ){
     };
 });
 
+//
+// Sweep and Prune implementation for broad phase collision detection
+//
+Physics.behavior('sweep-prune', function( parent ){
+
+    var PUBSUB_CANDIDATES = 'collisions:candidates';
+    var uid = 1;
+    var getUniqueId = function getUniqueId(){
+
+        return uid++;
+    };
+
+    // add z: 2 to get this to work in 3D
+    var dof = { x: 0, y: 1 }; // degrees of freedom
+
+    // return hash for a pair of ids
+    function pairHash( id1, id2 ){
+
+        if ( id1 === id2 ){
+
+            return false;
+        }
+
+        // valid for values < 2^16
+        return id1 > id2? 
+            (id1 << 16) | (id2 & 0xFFFF) : 
+            (id2 << 16) | (id1 & 0xFFFF)
+            ;
+    }
+    
+    return {
+
+        // constructor
+        init: function( options ){
+
+            parent.init.call(this, options);
+
+            this.clear();
+        },
+
+        clear: function(){
+
+            this.tracked = [];
+            this.pairs = []; // pairs selected as candidate collisions by broad phase
+            this.intervalLists = {}; // stores lists of aabb projection intervals to be sorted
+            
+            // init intervalLists
+            for ( var xyz in dof ){
+
+                this.intervalLists[ xyz ] = [];
+            }
+        },
+
+        setWorld: function( world ){
+
+            this.clear();
+
+            // subscribe to notifications of new bodies added to world
+            if (this._world){
+
+                this._world.unsubscribe( 'add:body', this.trackBody );
+            }
+
+            world.subscribe( 'add:body', this.trackBody, this );
+
+            // add current bodies
+            var bodies = world.getBodies();
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                this.trackBody({ body: bodies[ i ] });
+            }
+
+            parent.setWorld.call( this, world );
+        },
+
+        broadPhase: function(){
+
+            this.updateIntervals();
+            this.sortIntervalLists();
+            return this.checkOverlaps();
+        },
+
+        // simple insertion sort for each axis
+        sortIntervalLists: function(){
+
+            var list
+                ,len
+                ,i
+                ,hole
+                ,bound
+                ,boundVal
+                ,left
+                ,leftVal
+                ,axis
+                ;
+
+            // for each axis...
+            for ( var xyz in dof ){
+
+                // get the intervals for that axis
+                list = this.intervalLists[ xyz ];
+                i = 0;
+                len = list.length;
+                axis = dof[ xyz ];
+
+                // for each interval bound...
+                while ( (++i) < len ){
+
+                    // store bound
+                    bound = list[ i ];
+                    boundVal = bound.val.get( axis );
+                    hole = i;
+
+                    left = list[ hole - 1 ];
+                    leftVal = left && left.val.get( axis );
+
+                    // while others are greater than bound...
+                    while ( 
+                        hole > 0 && 
+                        (
+                            leftVal > boundVal ||
+                            // if it's an equality, only move it over if 
+                            // the hole was created by a minimum
+                            // and the previous is a maximum
+                            // so that we detect contacts also
+                            leftVal === boundVal &&
+                            ( left.type && !bound.type )
+                        )
+                    ) {
+
+                        // move others greater than bound to the right
+                        list[ hole ] = left;
+                        hole--;
+                        left = list[ hole - 1 ];
+                        leftVal = left && left.val.get( axis );
+                    }
+
+                    // insert bound in the hole
+                    list[ hole ] = bound;
+                }
+            }
+        },
+
+        getPair: function(tr1, tr2, doCreate){
+
+            var hash = pairHash( tr1.id, tr2.id );
+
+            if ( hash === false ){
+                return null;
+            }
+
+            var c = this.pairs[ hash ];
+
+            if ( !c ){
+
+                if ( !doCreate ){
+                    return null;
+                }
+
+                c = this.pairs[ hash ] = {
+                    bodyA: tr1.body,
+                    bodyB: tr2.body,
+                    flag: 0
+                }
+            }
+
+            return c;
+        },
+
+        checkOverlaps: function(){
+
+            var isX
+                ,hash
+                ,tr1
+                ,tr2
+                ,bound
+                ,list
+                ,len
+                ,i
+                ,j
+                ,c
+                // determine which axis is the last we need to check
+                ,collisionFlag = ( dof.z || dof.y || dof.x )
+                ,encounters = []
+                ,enclen = 0
+                ,candidates = []
+                ;
+
+            for ( var xyz in dof ){
+
+                // is the x coord
+                isX = (xyz === 'x');
+                // get the interval list for this axis
+                list = this.intervalLists[ xyz ];
+                i = -1;
+                len = list.length;
+
+                // for each interval bound
+                while ( (++i) < len ){
+                    
+                    bound = list[ i ];
+                    tr1 = bound.tracker;
+
+                    if ( bound.type ){
+
+                        // is a max
+
+                        j = enclen;
+
+                        while ( (--j) >= 0 ){
+
+                            tr2 = encounters[ j ];
+
+                            // if they are the same tracked interval
+                            if ( tr2 === tr1 ){
+
+                                // remove the interval from the encounters list
+                                // faster than .splice()
+                                if ( j < enclen - 1 ) {
+                                    
+                                    encounters[ j ] = encounters.pop();
+
+                                } else {
+
+                                    // encountered a max right after a min... no overlap
+                                    encounters.pop()
+                                }
+
+                                enclen--;
+
+                            } else {
+
+                                // check if we have flagged this pair before
+                                // if it's the x axis, create a pair
+                                c = this.getPair( tr1, tr2, isX );
+
+                                if ( c ){
+                                    
+                                    // if it's the x axis, set the flag
+                                    // to = 1.
+                                    // if not, increment the flag by one.
+                                    c.flag = isX? 0 : c.flag + 1;
+
+                                    // c.flag will equal collisionFlag 
+                                    // if we've incremented the flag
+                                    // enough that all axes are overlapping
+                                    if ( c.flag === collisionFlag ){
+
+                                        // overlaps on all axes.
+                                        // add it to possible collision
+                                        // candidates list for narrow phase
+
+                                        candidates.push( c );
+                                    }
+                                }
+                            }
+                        }
+
+                    } else {
+
+                        // is a min
+                        // just add this minimum to the encounters list
+                        enclen = encounters.push( tr1 );
+                    }
+                }
+            }
+
+            return candidates;
+        },
+
+        updateIntervals: function(){
+
+            var tr
+                ,intr
+                ,scratch = Physics.scratchpad()
+                ,pos = scratch.vector()
+                ,aabb = scratch.vector()
+                ,list = this.tracked
+                ,i = list.length
+                ;
+
+            // for all tracked bodies
+            while ( (--i) >= 0 ){
+
+                tr = list[ i ];
+                intr = tr.interval;
+                pos.clone( tr.body.state.pos );
+                aabb.clone( tr.body.aabb() );
+
+                // copy the position (plus or minus) the aabb bounds
+                // into the min/max intervals
+                intr.min.val.clone( pos ).vsub( aabb );
+                intr.max.val.clone( pos ).vadd( aabb );
+            }
+
+            scratch.done();
+        },
+
+        // add body to list of those tracked by sweep and prune
+        trackBody: function( data ){
+
+            var body = data.body
+                ,tracker = {
+
+                    id: getUniqueId(),
+                    body: body
+                }
+                ,intr = {
+
+                    min: {
+                        type: false, //min
+                        val: Physics.vector(),
+                        tracker: tracker
+                    },
+
+                    max: {
+                        type: true, //max
+                        val: Physics.vector(),
+                        tracker: tracker
+                    }
+                }
+                ;
+
+            tracker.interval = intr;
+            this.tracked.push( tracker );
+            
+            for ( var xyz in dof ){
+
+                this.intervalLists[ xyz ].push( intr.min, intr.max );
+            }
+        },
+
+        behave: function( bodies, dt ){
+
+            var self = this
+                ,candidates
+                ;
+
+            candidates = self.broadPhase();
+            
+            if ( candidates.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_CANDIDATES,
+                    candidates: candidates
+                });
+            }
+        }
+    };
+});
 Physics.integrator('improved-euler', function( parent ){
 
     return {
@@ -4985,6 +5410,7 @@ Physics.renderer('canvas', function( proto ){
 
     var defaults = {
 
+        debug: false,
         bodyColor: '#fff',
         orientationLineColor: '#cc0000',
         offset: Physics.vector()
@@ -5142,6 +5568,7 @@ Physics.renderer('canvas', function( proto ){
             var ctx = this.ctx
                 ,pos = body.state.pos
                 ,offset = this.options.offset
+                ,aabb = body.aabb()
                 ;
 
             ctx.save();
@@ -5149,6 +5576,19 @@ Physics.renderer('canvas', function( proto ){
             ctx.rotate(body.state.angular.pos);
             ctx.drawImage(view, -view.width/2, -view.height/2);
             ctx.restore();
+
+            if ( this.options.debug ){
+                // draw bounding boxes
+                ctx.save();
+                ctx.translate(offset.get(0), offset.get(1));
+                this.drawPolygon([
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y + aabb.y },
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y + aabb.y }
+                    ], 'rgba(100, 255, 100, 0.3)');
+                ctx.restore();
+            }
         }
     };
 });

@@ -11,9 +11,9 @@
             this._aabb = new Physics.aabb();
         },
         
-        // get axis-aligned bounding box for this object.
+        // get axis-aligned bounding box for this object (rotated by angle if specified).
         // Intended to be overridden.
-        aabb: function(){
+        aabb: function( angle ){
 
             return this._aabb.get();
         },

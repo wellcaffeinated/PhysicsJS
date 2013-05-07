@@ -141,6 +141,7 @@ World.prototype = {
         var i = 0
             ,len = arg && arg.length || 0
             ,thing = len ? arg[ 0 ] : arg
+            ,notify
             ;
 
         // we'll either cycle through an array
@@ -170,11 +171,14 @@ World.prototype = {
             }
 
             // notify
-            this.publish({
-                topic: 'add:' + thing.type,
-                data: thing 
-            });
-            
+            notify = {
+                topic: 'add:' + thing.type
+            };
+
+            notify[ thing.type ] = thing;
+
+            this.publish( notify );
+
         } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
@@ -198,6 +202,12 @@ World.prototype = {
         body.setWorld( this );
         this._bodies.push( body );
         return this;
+    },
+
+    getBodies: function(){
+
+        // return the copied array
+        return [].concat(this._bodies);
     },
 
     applyBehaviors: function( dt ){

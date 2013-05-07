@@ -46,25 +46,32 @@ Physics.geometry('convex-polygon', function( parent ){
             return this;
         },
         
-        aabb: function(){
+        aabb: function( angle ){
 
-            if (this._aabb){
+            if (!angle && this._aabb){
                 return this._aabb.get();
             }
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,xaxis = scratch.vector().clone(Physics.vector.axis[0])
-                ,yaxis = scratch.vector().clone(Physics.vector.axis[1])
-                ,xmax = this.getFarthestHullPoint( xaxis, p ).get(0)
-                ,xmin = this.getFarthestHullPoint( xaxis.negate(), p ).get(0)
-                ,ymax = this.getFarthestHullPoint( yaxis, p ).get(1)
-                ,ymin = this.getFarthestHullPoint( yaxis.negate(), p ).get(1)
+                ,trans = scratch.transform().setRotation( angle || 0 )
+                ,xaxis = scratch.vector().clone(Physics.vector.axis[0]).rotateInv( trans )
+                ,yaxis = scratch.vector().clone(Physics.vector.axis[1]).rotateInv( trans )
+                ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
+                ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
+                ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
+                ,ymin = - this.getFarthestHullPoint( yaxis.negate(), p ).proj( yaxis )
+                ,aabb
                 ;
 
-            this._aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+            aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+
+            if (!angle){
+                this._aabb = aabb;
+            }
+
             scratch.done();
-            return this._aabb.get();
+            return aabb.get();
         },
 
         /**

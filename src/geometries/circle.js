@@ -17,8 +17,9 @@ Physics.geometry('circle', function( parent ){
             this.radius = options.radius;
             this._aabb = Physics.aabb();
         },
-        
-        aabb: function(){
+            
+        // circles are symetric... so angle has no effect
+        aabb: function( angle ){
 
             var r = this.radius
                 ,aabb = this._aabb

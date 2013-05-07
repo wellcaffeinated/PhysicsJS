@@ -89,10 +89,11 @@
 
             var scratch = Physics.scratchpad()
                 ,trans = scratch.transform()
-                ,aabb = Physics.aabb(this.geometry.aabb())
+                ,angle = this.state.angular.pos
+                ,aabb = Physics.aabb(this.geometry.aabb( angle ))
                 ;
 
-            trans.setRotation(this.state.angular.pos).setTranslation(this.state.pos);
+            trans.setRotation( 0 ).setTranslation(this.state.pos);
             aabb.transform( trans );
 
             scratch.done();

@@ -106,6 +106,12 @@ Physics.behavior('body-collision-detection', function( parent ){
         d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
+        // hmm... they overlap exactly... choose a direction
+        if ( d.equals( Physics.vector.zero ) ){
+
+            d.set( 1, 0 );
+        }
+
         // if ( overlap > 0 ){
         //     // check the future
         //     d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
@@ -120,7 +126,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 norm: d.normalize().values(),
                 mtv: d.mult( -overlap ).values(),
                 pos: d.normalize().mult( bodyA.geometry.radius ).values(),
-                overlap: overlap
+                overlap: -overlap
             };
         }
     
@@ -167,23 +173,47 @@ Physics.behavior('body-collision-detection', function( parent ){
             parent.init.call(this, options);
 
             this.options = Physics.util.extend({}, this.options, defaults, options);
-
-            this.sweep = Physics.util.bind(this.sweep, this);
         },
 
         setWorld: function( world ){
 
             if (this._world){
 
-                this._world.unsubscribe( PUBSUB_COLLISION + ':request-sweep', this.sweep );
+                this._world.unsubscribe( PUBSUB_CANDIDATES, this.check );
             }
 
-            world.subscribe( PUBSUB_COLLISION + ':request-sweep', this.sweep );
+            world.subscribe( PUBSUB_CANDIDATES, this.check, this );
 
             parent.setWorld.call( this, world );
         },
 
-        sweep: sweep,
+        check: function( data ){
+
+            var candidates = data.candidates
+                ,pair
+                ,collisions = []
+                ,ret
+                ;
+
+            for ( var i = 0, l = candidates.length; i < l; ++i ){
+                
+                pair = candidates[ i ];
+
+                ret = checkPair( pair.bodyA, pair.bodyB );
+
+                if ( ret ){
+                    collisions.push( ret );
+                }
+            }
+
+            if ( collisions.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_COLLISION,
+                    collisions: collisions
+                });
+            }
+        },
 
         behave: function( bodies, dt ){
             
