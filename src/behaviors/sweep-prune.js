@@ -332,9 +332,21 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        behave: function( bodies, dt ){
+        connect: function( world ){
+
+            world.subscribe( 'integrate:velocities', this.sweep, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( 'integrate:velocities', this.sweep );
+        },
+
+        sweep: function( data ){
 
             var self = this
+                ,bodies = data.bodies
+                ,dt = data.dt
                 ,candidates
                 ;
 
@@ -347,6 +359,8 @@ Physics.behavior('sweep-prune', function( parent ){
                     candidates: candidates
                 });
             }
-        }
+        },
+
+        behave: false
     };
 });

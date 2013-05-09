@@ -187,16 +187,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             this.options = Physics.util.extend({}, this.options, defaults, options);
         },
 
-        setWorld: function( world ){
-
-            if (this._world){
-
-                this._world.unsubscribe( PUBSUB_CANDIDATES, this.check );
-            }
+        connect: function( world ){
 
             world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+            world.subscribe( 'integrate:velocities', this.checkAll, this );
+        },
 
-            parent.setWorld.call( this, world );
+        disconnect: function( world ){
+
+            world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+            world.unsubscribe( 'integrate:velocities', this.checkAll );
         },
 
         check: function( data ){
@@ -227,7 +227,11 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        behave: function( bodies, dt ){
+        checkAll: function( data ){
+
+            var bodies = data.bodies
+                ,dt = data.dt
+                ;
             
             if ( !this.options.checkAll ){
                 return;
@@ -266,7 +270,9 @@ Physics.behavior('body-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        }
+        },
+
+        behave: false
     };
 
 });

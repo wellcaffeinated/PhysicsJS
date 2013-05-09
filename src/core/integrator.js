@@ -15,7 +15,6 @@
             this.options = Physics.util.extend({}, defaults, options);
         },
 
-        // prototype
         integrate: function( bodies, dt ){
 
             var world = this._world;
@@ -24,7 +23,7 @@
             
             if ( world ){
                 world.publish({
-                    topic: 'integrate:velocies',
+                    topic: 'integrate:velocities',
                     bodies: bodies,
                     dt: dt
                 });

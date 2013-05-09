@@ -37,13 +37,13 @@ var Decorator = function Decorator( type, proto ){
     // little function to set the world
     proto.setWorld = function( world ){
 
-        if ( this.disconnect ){
+        if ( this.disconnect && this._world ){
             this.disconnect( this._world );
         }
 
         this._world = world;
-        
-        if ( this.connect ){
+
+        if ( this.connect && world ){
             this.connect( world );
         }
     };

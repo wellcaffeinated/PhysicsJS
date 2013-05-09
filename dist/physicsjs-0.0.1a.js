@@ -1608,13 +1608,13 @@ var Decorator = function Decorator( type, proto ){
     // little function to set the world
     proto.setWorld = function( world ){
 
-        if ( this.disconnect ){
+        if ( this.disconnect && this._world ){
             this.disconnect( this._world );
         }
 
         this._world = world;
-        
-        if ( this.connect ){
+
+        if ( this.connect && world ){
             this.connect( world );
         }
     };
@@ -3325,7 +3325,6 @@ Physics.vector = Vector;
             this.options = Physics.util.extend({}, defaults, options);
         },
 
-        // prototype
         integrate: function( bodies, dt ){
 
             var world = this._world;
@@ -3334,7 +3333,7 @@ Physics.vector = Vector;
             
             if ( world ){
                 world.publish({
-                    topic: 'integrate:velocies',
+                    topic: 'integrate:velocities',
                     bodies: bodies,
                     dt: dt
                 });
@@ -3717,11 +3716,11 @@ World.prototype = {
                 break; // end behavior
 
                 case 'integrator':
-                    this._integrator = thing;
+                    this.setIntegrator(thing);
                 break; // end integrator
 
                 case 'renderer':
-                    this._renderer = thing;
+                    this.addRenderer(thing);
                 break; // end renderer
 
                 case 'body':
@@ -3745,6 +3744,28 @@ World.prototype = {
         } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
+    },
+
+    setIntegrator: function( integrator ){
+
+        if ( this._integrator ){
+
+            this._integrator.setWorld( null );
+        }
+
+        this._integrator = integrator;
+        this._integrator.setWorld( this );
+    },
+
+    addRenderer: function( renderer ){
+
+        if ( this._renderer ){
+
+            this._renderer.setWorld( null );
+        }
+
+        this._renderer = renderer;
+        this._renderer.setWorld( this );
     },
 
     // add a behavior
@@ -4437,16 +4458,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             this.options = Physics.util.extend({}, this.options, defaults, options);
         },
 
-        setWorld: function( world ){
-
-            if (this._world){
-
-                this._world.unsubscribe( PUBSUB_CANDIDATES, this.check );
-            }
+        connect: function( world ){
 
             world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+            world.subscribe( 'integrate:velocities', this.checkAll, this );
+        },
 
-            parent.setWorld.call( this, world );
+        disconnect: function( world ){
+
+            world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+            world.unsubscribe( 'integrate:velocities', this.checkAll );
         },
 
         check: function( data ){
@@ -4477,7 +4498,11 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        behave: function( bodies, dt ){
+        checkAll: function( data ){
+
+            var bodies = data.bodies
+                ,dt = data.dt
+                ;
             
             if ( !this.options.checkAll ){
                 return;
@@ -4516,7 +4541,9 @@ Physics.behavior('body-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        }
+        },
+
+        behave: false
     };
 
 });
@@ -5339,9 +5366,21 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        behave: function( bodies, dt ){
+        connect: function( world ){
+
+            world.subscribe( 'integrate:velocities', this.sweep, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( 'integrate:velocities', this.sweep );
+        },
+
+        sweep: function( data ){
 
             var self = this
+                ,bodies = data.bodies
+                ,dt = data.dt
                 ,candidates
                 ;
 
@@ -5354,7 +5393,9 @@ Physics.behavior('sweep-prune', function( parent ){
                     candidates: candidates
                 });
             }
-        }
+        },
+
+        behave: false
     };
 });
 Physics.integrator('improved-euler', function( parent ){

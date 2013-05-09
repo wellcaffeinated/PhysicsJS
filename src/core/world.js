@@ -158,11 +158,11 @@ World.prototype = {
                 break; // end behavior
 
                 case 'integrator':
-                    this._integrator = thing;
+                    this.setIntegrator(thing);
                 break; // end integrator
 
                 case 'renderer':
-                    this._renderer = thing;
+                    this.addRenderer(thing);
                 break; // end renderer
 
                 case 'body':
@@ -186,6 +186,28 @@ World.prototype = {
         } while ( ++i < len && (thing = arg[ i ]) );
 
         return this;
+    },
+
+    setIntegrator: function( integrator ){
+
+        if ( this._integrator ){
+
+            this._integrator.setWorld( null );
+        }
+
+        this._integrator = integrator;
+        this._integrator.setWorld( this );
+    },
+
+    addRenderer: function( renderer ){
+
+        if ( this._renderer ){
+
+            this._renderer.setWorld( null );
+        }
+
+        this._renderer = renderer;
+        this._renderer.setWorld( this );
     },
 
     // add a behavior
