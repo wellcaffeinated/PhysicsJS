@@ -272,7 +272,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 
 });

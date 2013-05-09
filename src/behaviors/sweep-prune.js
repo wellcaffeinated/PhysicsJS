@@ -361,6 +361,6 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 });

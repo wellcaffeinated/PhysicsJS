@@ -1594,15 +1594,49 @@
   /*--------------------------------------------------------------------------*/
 
 ;lodash.extend(Physics.util, lodash);}(this,Physics));
-var Decorator = function Decorator( type, proto ){
+var Decorator = Physics.util.decorator = function Decorator( type, proto ){
 
     var registry = {}
-        ,base = function(){}
         ;
+
+    var copyFn = function copyFn( a, b ){
+
+        return Physics.util.isFunction( b ) ? b : a;
+    };
+
+    // http://ejohn.org/blog/objectgetprototypeof/
+    var getProto = Object.getPrototypeOf;
+    if ( typeof getProto !== 'function' ) {
+        if ( typeof 'test'.__proto__ === 'object' ) {
+            getProto = function(object){
+              return object.__proto__;
+            };
+        } else {
+            getProto = function(object){
+              // May break if the constructor has been tampered with
+              return object.constructor.prototype;
+            };
+        }
+    }
+
+    var getExtension = function getExtension( constructor ){
+
+        var ret, proto = constructor;
+
+        if ( typeof constructor === 'function' ){
+
+            proto = constructor.prototype;
+            constructor = new constructor();
+        }
+
+        ret = Physics.util.extend({}, constructor, copyFn);
+        ret.__proto__ = proto;
+        return ret;
+    };
 
     // TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
-    proto = proto || {};
+    proto = Physics.util.extend({}, proto, copyFn);
     proto.type = type;
 
     // little function to set the world
@@ -1618,35 +1652,62 @@ var Decorator = function Decorator( type, proto ){
             this.connect( world );
         }
     };
-    
-    return function factory( name, parentName, decorator, cfg ){
+
+    var factory = function factory( name, parentName, decorator, cfg ){
 
         var instance
             ,result
             ,parent = proto
+            ,tmp
             ;
 
+        // set parent if specified
         if ( typeof parentName !== 'string' ){
 
+            // ... otherwise reassign parameters
             cfg = decorator;
             decorator = parentName;
 
         } else {
 
-            parent = registry[ parentName ].prototype;
+            // extend the specified module
+            parent = registry[ parentName ];
+
+            if ( !parent ){
+
+                throw 'Error: "' + parentName + '" ' + type + ' not defined';
+            }
         }
 
         if ( typeof decorator === 'function' ){
 
-            // store the new class
-            result = registry[ name ] = function constructor( opts ){
-                if (this.init){
-                    this.init( opts );
-                }
-            };
+            result = registry[ name ];
 
-            result.prototype = Physics.util.extend({}, parent, decorator( parent ));
+            if ( result ){
+                // previously defined. just extend
+                parent = result.prototype.__parent__;
+                tmp = result.prototype.__proto__;
+                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
+                result.prototype.__proto__ = tmp;
+
+            } else {
+                // newly defined
+                // store the new class
+                result = registry[ name ] = function constructor( opts ){
+                    if (this.init){
+                        this.init( opts );
+                    }
+                };
+
+                parent = getExtension( parent );
+
+                result.prototype = Physics.util.extend({}, parent, decorator( parent ), copyFn);
+                result.prototype.__proto__ = getProto( parent );
+            }
+
+            result.prototype.type = type;
             result.prototype.name = name;
+            result.prototype.__parent__ = parent;
             
         } else {
 
@@ -1664,6 +1725,15 @@ var Decorator = function Decorator( type, proto ){
             return new result( cfg );
         }
     };
+
+    factory.mixin = function( key, val ){
+
+        if ( key !== 'type' && Physics.util.isFunction( val ) ){
+            proto[ key ] = val;
+        }
+    };
+
+    return factory;
 };
 (function(window){
     var log;
@@ -4543,7 +4613,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 
 });
@@ -4759,7 +4829,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         },
 
         // don't need to "behave"
-        behave: false
+        behave: function(){}
     };
 });
 
@@ -4981,7 +5051,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 
 });
@@ -5409,7 +5479,7 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 });
 Physics.integrator('improved-euler', function( parent ){

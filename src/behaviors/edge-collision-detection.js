@@ -216,7 +216,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             }
         },
 
-        behave: false
+        behave: function(){}
     };
 
 });

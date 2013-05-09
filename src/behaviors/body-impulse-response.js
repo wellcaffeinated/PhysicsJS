@@ -210,6 +210,6 @@ Physics.behavior('body-impulse-response', function( parent ){
         },
 
         // don't need to "behave"
-        behave: false
+        behave: function(){}
     };
 });
