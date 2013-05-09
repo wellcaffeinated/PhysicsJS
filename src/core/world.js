@@ -1,5 +1,24 @@
 (function(){
 
+// bodies, behaviors, integrators, and renderers all need the setWorld method
+var setWorld = function( world ){
+
+    if ( this.disconnect && this._world ){
+        this.disconnect( this._world );
+    }
+
+    this._world = world;
+
+    if ( this.connect && world ){
+        this.connect( world );
+    }
+};
+
+Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
+
+    Physics[ key ].mixin('setWorld', setWorld);
+});
+
 var PRIORITY_PROP_NAME = 'priority';
 
 var defaults = {
@@ -9,6 +28,8 @@ var defaults = {
     webworker: false, // to implement
     integrator: 'verlet'
 };
+
+// begin world definitions
 
 var World = function World( cfg, fn ){
 

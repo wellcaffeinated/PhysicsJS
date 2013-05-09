@@ -63,24 +63,22 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         return ret;
     };
 
-    // TODO: not sure of the best way to make the constructor names
-    // transparent and readable in debug consoles...
-    proto = Physics.util.extend({}, proto, copyFn);
-    proto.type = type;
+    var mixin = function mixin( key, val ){
 
-    // little function to set the world
-    proto.setWorld = function( world ){
-
-        if ( this.disconnect && this._world ){
-            this.disconnect( this._world );
+        if ( typeof key === 'object' ){
+            proto = Physics.util.extend(proto || {}, key, copyFn);
+            proto.type = type;
+            return;
         }
 
-        this._world = world;
-
-        if ( this.connect && world ){
-            this.connect( world );
+        if ( key !== 'type' && Physics.util.isFunction( val ) ){
+            proto[ key ] = val;
         }
     };
+
+    // TODO: not sure of the best way to make the constructor names
+    // transparent and readable in debug consoles...
+    mixin( proto );
 
     var factory = function factory( name, parentName, decorator, cfg ){
 
@@ -155,12 +153,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         }
     };
 
-    factory.mixin = function( key, val ){
-
-        if ( key !== 'type' && Physics.util.isFunction( val ) ){
-            proto[ key ] = val;
-        }
-    };
+    factory.mixin = mixin;
 
     return factory;
 };

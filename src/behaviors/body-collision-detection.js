@@ -158,18 +158,6 @@ Physics.behavior('body-collision-detection', function( parent ){
         }
     };
 
-    var sweep = function sweep( data ){
-        if (!data.callback || !this._world){
-            return;
-        }
-        
-        var list = [];
-        detectCollisions( this._world._bodies, this._world.timeStep(), function( data ){
-            list.push( data );
-        });
-        data.callback( list );
-    }
-
     var defaults = {
 
         // force check every pair of bodies in the world

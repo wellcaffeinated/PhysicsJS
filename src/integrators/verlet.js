@@ -1,5 +1,20 @@
 Physics.integrator('verlet', function( parent ){
 
+    // for this integrator we need to know if the object has been integrated before
+    // so let's add a mixin to bodies
+
+    Physics.body.mixin({
+
+        started: function( val ){
+            if ( val !== undefined ){
+                this._started = true;
+            }
+
+            return !!this._started;
+        }
+    });
+
+
     return {
 
         init: function( options ){
@@ -32,7 +47,7 @@ Physics.integrator('verlet', function( parent ){
                     // x = x + (v + a * dt * dt)
 
                     // use the velocity in vel if the velocity has been changed manually
-                    if (state.vel.equals( state.old.vel ) && state.started){
+                    if (state.vel.equals( state.old.vel ) && body.started()){
                             
                         // Get velocity by subtracting old position from curr position
                         state.vel.clone( state.pos ).vsub( state.old.pos );
@@ -68,7 +83,7 @@ Physics.integrator('verlet', function( parent ){
                     // Angular components
                     // 
 
-                    if (state.angular.vel === state.old.angular.vel && state.started){
+                    if (state.angular.vel === state.old.angular.vel && body.started()){
 
                         state.angular.vel = (state.angular.pos - state.old.angular.pos);
 
@@ -83,7 +98,7 @@ Physics.integrator('verlet', function( parent ){
                     state.old.angular.vel = state.angular.vel;
                     state.angular.acc = 0;
 
-                    state.started = true;
+                    body.started( true );
 
                 } else {
                     // set the velocity and acceleration to zero!
@@ -102,7 +117,7 @@ Physics.integrator('verlet', function( parent ){
                 ,body = null
                 ,state
                 ;
-// return;
+
             for ( var i = 0, l = bodies.length; i < l; ++i ){
 
                 body = bodies[ i ];

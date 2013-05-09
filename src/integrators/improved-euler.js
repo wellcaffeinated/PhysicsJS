@@ -62,8 +62,6 @@ Physics.integrator('improved-euler', function( parent ){
                     state.angular.vel += state.angular.acc * dt;
                     state.angular.acc = 0;
 
-                    state.started = true;
-
                 } else {
                     // set the velocity and acceleration to zero!
                     state.vel.zero();

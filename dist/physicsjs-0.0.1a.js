@@ -1634,24 +1634,22 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         return ret;
     };
 
-    // TODO: not sure of the best way to make the constructor names
-    // transparent and readable in debug consoles...
-    proto = Physics.util.extend({}, proto, copyFn);
-    proto.type = type;
+    var mixin = function mixin( key, val ){
 
-    // little function to set the world
-    proto.setWorld = function( world ){
-
-        if ( this.disconnect && this._world ){
-            this.disconnect( this._world );
+        if ( typeof key === 'object' ){
+            proto = Physics.util.extend(proto || {}, key, copyFn);
+            proto.type = type;
+            return;
         }
 
-        this._world = world;
-
-        if ( this.connect && world ){
-            this.connect( world );
+        if ( key !== 'type' && Physics.util.isFunction( val ) ){
+            proto[ key ] = val;
         }
     };
+
+    // TODO: not sure of the best way to make the constructor names
+    // transparent and readable in debug consoles...
+    mixin( proto );
 
     var factory = function factory( name, parentName, decorator, cfg ){
 
@@ -1726,12 +1724,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         }
     };
 
-    factory.mixin = function( key, val ){
-
-        if ( key !== 'type' && Physics.util.isFunction( val ) ){
-            proto[ key ] = val;
-        }
-    };
+    factory.mixin = mixin;
 
     return factory;
 };
@@ -2977,8 +2970,7 @@ Physics.vector = Vector;
                         vel: 0.0,
                         acc: 0.0
                     }
-                },
-                started: false
+                }
             };
 
             if (this.mass === 0){
@@ -3628,6 +3620,25 @@ Physics.vector = Vector;
 })();
 (function(){
 
+// bodies, behaviors, integrators, and renderers all need the setWorld method
+var setWorld = function( world ){
+
+    if ( this.disconnect && this._world ){
+        this.disconnect( this._world );
+    }
+
+    this._world = world;
+
+    if ( this.connect && world ){
+        this.connect( world );
+    }
+};
+
+Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
+
+    Physics[ key ].mixin('setWorld', setWorld);
+});
+
 var PRIORITY_PROP_NAME = 'priority';
 
 var defaults = {
@@ -3637,6 +3648,8 @@ var defaults = {
     webworker: false, // to implement
     integrator: 'verlet'
 };
+
+// begin world definitions
 
 var World = function World( cfg, fn ){
 
@@ -4498,18 +4511,6 @@ Physics.behavior('body-collision-detection', function( parent ){
             return checkGJK( bodyA, bodyB );
         }
     };
-
-    var sweep = function sweep( data ){
-        if (!data.callback || !this._world){
-            return;
-        }
-        
-        var list = [];
-        detectCollisions( this._world._bodies, this._world.timeStep(), function( data ){
-            list.push( data );
-        });
-        data.callback( list );
-    }
 
     var defaults = {
 
@@ -5546,8 +5547,6 @@ Physics.integrator('improved-euler', function( parent ){
                     state.angular.vel += state.angular.acc * dt;
                     state.angular.acc = 0;
 
-                    state.started = true;
-
                 } else {
                     // set the velocity and acceleration to zero!
                     state.vel.zero();
@@ -5612,6 +5611,21 @@ Physics.integrator('improved-euler', function( parent ){
 
 Physics.integrator('verlet', function( parent ){
 
+    // for this integrator we need to know if the object has been integrated before
+    // so let's add a mixin to bodies
+
+    Physics.body.mixin({
+
+        started: function( val ){
+            if ( val !== undefined ){
+                this._started = true;
+            }
+
+            return !!this._started;
+        }
+    });
+
+
     return {
 
         init: function( options ){
@@ -5644,7 +5658,7 @@ Physics.integrator('verlet', function( parent ){
                     // x = x + (v + a * dt * dt)
 
                     // use the velocity in vel if the velocity has been changed manually
-                    if (state.vel.equals( state.old.vel ) && state.started){
+                    if (state.vel.equals( state.old.vel ) && body.started()){
                             
                         // Get velocity by subtracting old position from curr position
                         state.vel.clone( state.pos ).vsub( state.old.pos );
@@ -5680,7 +5694,7 @@ Physics.integrator('verlet', function( parent ){
                     // Angular components
                     // 
 
-                    if (state.angular.vel === state.old.angular.vel && state.started){
+                    if (state.angular.vel === state.old.angular.vel && body.started()){
 
                         state.angular.vel = (state.angular.pos - state.old.angular.pos);
 
@@ -5695,7 +5709,7 @@ Physics.integrator('verlet', function( parent ){
                     state.old.angular.vel = state.angular.vel;
                     state.angular.acc = 0;
 
-                    state.started = true;
+                    body.started( true );
 
                 } else {
                     // set the velocity and acceleration to zero!
@@ -5714,7 +5728,7 @@ Physics.integrator('verlet', function( parent ){
                 ,body = null
                 ,state
                 ;
-// return;
+
             for ( var i = 0, l = bodies.length; i < l; ++i ){
 
                 body = bodies[ i ];
