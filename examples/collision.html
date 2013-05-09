@@ -37,7 +37,7 @@
 Physics({
 
     // config
-    timestep: 1000 / 160 
+    timestep: 1000 / 160
 
 }, function( world ){
 
@@ -59,11 +59,11 @@ Physics({
     for ( var i = 0, l = 15; i < l; ++i ){
         circles.push(
             Physics.body('circle', {
-                x: 30 * (i % 6) + 20,
-                y: Math.floor(10 * (i / 6))* 10 + 100,
-                vx: 0.05,
+                x: 25*(i/6|0)+300,
+                y: 22*(i%6)+50,
+                // vx: 0.05,
                 radius: 10,
-                restitution: 0.7,
+                restitution: 0.9,
                 angularVelocity: 0
             })
         );
@@ -83,8 +83,8 @@ Physics({
             x: 40*(i/6|0)+100,
             y: 21*(i%6)+100,
             vx: 0,
-            // cof: 0.7,
-            restitution: 0.7,
+            // cof: 0.9,
+            restitution: 0.9,
             fixed: false
         }));
     }
@@ -93,12 +93,12 @@ Physics({
         
         polygons.push(Physics.body('convex-polygon', {
             vertices: pent,
-            x: 60*(i/6|0)+300,
-            y: 60*(i%6)+200,
+            x: 40*(i/3|0)+300,
+            y: 40*(i%3)+200,
             vx: 0,
             angle: Math.random(),
-            // cof: 0.7,
-            restitution: 0.7,
+            // cof: 0.9,
+            restitution: 0.9,
             fixed: false
         }));
     }
@@ -112,7 +112,6 @@ Physics({
     });
 
     // add things to world
-    // world.add( constrain );
     world.add( circles );
     world.add( squares );
     world.add( polygons );
@@ -166,7 +165,7 @@ Physics({
     
     // world.add( Physics.behavior('newtonian', { strength: .02 }) );
     world.add( Physics.behavior('body-impulse-response') );
-    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.2, cof: 0.8 }) );
+    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.4, cof: 0.8 }) );
 
     Physics.util.ticker.subscribe(function( time, dt ){
 

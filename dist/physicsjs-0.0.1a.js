@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-05-07
+ * physicsjs v0.0.1a - 2013-05-09
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -1608,7 +1608,15 @@ var Decorator = function Decorator( type, proto ){
     // little function to set the world
     proto.setWorld = function( world ){
 
+        if ( this.disconnect ){
+            this.disconnect( this._world );
+        }
+
         this._world = world;
+        
+        if ( this.connect ){
+            this.connect( world );
+        }
     };
     
     return function factory( name, parentName, decorator, cfg ){
@@ -2899,7 +2907,8 @@ Physics.vector = Vector;
                         vel: 0.0,
                         acc: 0.0
                     }
-                }
+                },
+                started: false
             };
 
             if (this.mass === 0){
@@ -3319,7 +3328,37 @@ Physics.vector = Vector;
         // prototype
         integrate: function( bodies, dt ){
 
-            throw 'The integrator.integrate() method must be overriden';
+            var world = this._world;
+
+            this.integrateVelocities( bodies, dt );
+            
+            if ( world ){
+                world.publish({
+                    topic: 'integrate:velocies',
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+
+            this.integratePositions( bodies, dt );
+            
+            if ( world ){
+                world.publish({
+                    topic: 'integrate:positions',
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+        },
+
+        integrateVelocities: function( bodies, dt ){
+
+            throw 'The integrator.integrateVelocities() method must be overriden';
+        },
+
+        integratePositions: function( bodies, dt ){
+
+            throw 'The integrator.integratePositions() method must be overriden';
         }
     });
 
@@ -4260,6 +4299,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,result
             ,support
             ,collision = false
+            ,aabb = bodyA.aabb()
             ;
 
         // just check the overlap first
@@ -4279,7 +4319,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             support.useCore = true;
             support.margin = 0;
 
-            while ( result.overlap ){
+            while ( result.overlap && support.margin < aabb.halfHeight ){
                 support.margin += 1;
                 result = Physics.gjk(support, d);
             }
@@ -5316,11 +5356,76 @@ Physics.integrator('improved-euler', function( parent ){
             parent.init.call(this, options);
         },
 
-        integrate: function( bodies, dt ){
+        integrateVelocities: function( bodies, dt ){
 
-            // half the timestep
-            var halfdt = 0.5 * dt
-                ,drag = 1 - this.options.drag
+            // half the timestep squared
+            var drag = 1 - this.options.drag
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+                    // Inspired from https://github.com/soulwire/Coffee-Physics
+                    // @licence MIT
+                    // 
+                    // x += (v * dt) + (a * 0.5 * dt * dt)
+                    // v += a * dt
+
+                    
+                    // Scale force to mass.
+                    // state.acc.mult( body.massInv );
+
+                    // Remember velocity for future use.
+                    state.old.vel.clone( state.vel );
+
+                    // remember original acc
+                    state.old.acc.clone( state.acc );
+
+                    // Update velocity first so we can reuse the acc vector.
+                    // a *= dt
+                    // v += a ...
+                    state.vel.vadd( state.acc.mult( dt ) );
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Reset accel
+                    state.acc.zero();
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.vel = state.angular.vel;
+                    state.angular.vel += state.angular.acc * dt;
+                    state.angular.acc = 0;
+
+                    state.started = true;
+
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
+            }
+        },
+
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep squared
+            var halfdtdt = 0.5 * dt * dt
                 ,body = null
                 ,state
                 // use cached vector instances
@@ -5338,59 +5443,28 @@ Physics.integrator('improved-euler', function( parent ){
                 // only integrate if the body isn't fixed
                 if ( !body.fixed ){
 
-                    // Inspired from https://github.com/soulwire/Coffee-Physics
-                    // @licence MIT
-                    // 
-                    // x += (v * dt) + (a * 0.5 * dt * dt)
-                    // v += a * dt
 
                     // Store previous location.
                     state.old.pos.clone( state.pos );
-
-                    // Scale force to mass.
-                    // state.acc.mult( body.massInv );
-
-                    // Duplicate velocity to preserve momentum.
-                    vel.clone( state.vel );
-
-                    // Update velocity first so we can reuse the acc vector.
-                    // a *= dt
-                    // v += a ...
-                    state.vel.vadd( state.acc.mult( dt ) );
 
                     // Update position.
                     // ...
                     // oldV *= dt
                     // a *= 0.5 * dt
                     // x += oldV + a
-                    state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
+                    vel.clone( state.old.vel );
+                    state.pos.vadd( vel.mult( dt ) ).vadd( state.old.acc.mult( halfdtdt ) );
 
-                    // Apply "air resistance".
-                    if ( drag ){
-
-                        state.vel.mult( drag );
-                    }
-
-                    // Reset accel
-                    state.acc.zero();
+                    state.old.acc.zero();
 
                     //
                     // Angular components
                     // 
 
                     state.old.angular.pos = state.angular.pos;
-                    angVel = state.old.angular.vel = state.angular.vel;
-                    state.angular.acc *= dt;
-                    angVel += state.angular.acc;
-                    state.angular.pos += angVel * dt + state.angular.acc * halfdt;
-                    state.angular.acc = 0;
+                    state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
+                    state.old.angular.acc = 0;
 
-                } else {
-                    // set the velocity and acceleration to zero!
-                    state.vel.zero();
-                    state.acc.zero();
-                    state.angular.vel = 0;
-                    state.angular.acc = 0;
                 }
             }
 
@@ -5410,17 +5484,13 @@ Physics.integrator('verlet', function( parent ){
             parent.init.call(this, options);
         },
 
-        integrate: function( bodies, dt ){
+        integrateVelocities: function( bodies, dt ){
 
             // half the timestep
             var dtdt = dt * dt
                 ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
-                // use cached vector instances
-                // so we don't need to recreate them in a loop
-                ,scratch = Physics.scratchpad()
-                ,vel = scratch.vector()
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -5437,18 +5507,19 @@ Physics.integrator('verlet', function( parent ){
                     // v = x - ox
                     // x = x + (v + a * dt * dt)
 
-                    // Get velocity by subtracting old position from curr position
-                    state.old.vel.clone( state.pos ).vsub( state.old.pos ).mult( 1/dt );
+                    // use the velocity in vel if the velocity has been changed manually
+                    if (state.vel.equals( state.old.vel ) && state.started){
+                            
+                        // Get velocity by subtracting old position from curr position
+                        state.vel.clone( state.pos ).vsub( state.old.pos );
 
-                    // only use this velocity if the velocity hasn't been changed manually
-                    if (state.old.vel.equals( state.vel )){
-                        
-                        state.vel.clone( state.old.vel );
+                    } else {
+
+                        state.old.pos.clone( state.pos ).vsub( state.vel );
+                        // so we need to scale the value by dt so it 
+                        // complies with other integration methods
+                        state.vel.mult( dt );
                     }
-
-                    // so we need to scale the value by dt so it 
-                    // complies with other integration methods
-                    state.vel.mult( dt );
 
                     // Apply "air resistance".
                     if ( drag ){
@@ -5456,44 +5527,39 @@ Physics.integrator('verlet', function( parent ){
                         state.vel.mult( drag );
                     }
 
-                    // Store old position.
-                    // xold = x
-                    state.old.pos.clone( state.pos );
-
                     // Apply acceleration
-                    // x = x + (v + a * dt * dt)
-                    state.pos.vadd( state.vel.vadd( state.acc.mult( dtdt ) ) );
+                    // v += a * dt * dt
+                    state.vel.vadd( state.acc.mult( dtdt ) );
 
                     // normalize velocity 
                     state.vel.mult( 1/dt );
 
-                    // Reset accel
-                    state.acc.zero();
-
-                    // store old velocity
+                    // store calculated velocity
                     state.old.vel.clone( state.vel );
 
+                    // Reset accel
+                    state.acc.zero();
 
                     //
                     // Angular components
                     // 
 
-                    state.old.angular.vel = (state.angular.pos - state.old.angular.pos) / dt;
+                    if (state.angular.vel === state.old.angular.vel && state.started){
 
-                    if (state.old.angular.vel === state.angular.vel){
+                        state.angular.vel = (state.angular.pos - state.old.angular.pos);
 
-                        state.angular.vel = state.old.angular.vel;
+                    } else {
+
+                        state.old.angular.pos = state.angular.pos - state.angular.vel;
+                        state.angular.vel *= dt;
                     }
 
-                    state.angular.vel *= dt;
-
-                    state.old.angular.pos = state.angular.pos;
-
                     state.angular.vel += state.angular.acc * dtdt;
-                    state.angular.pos += state.angular.vel;
                     state.angular.vel /= dt;
-                    state.angular.acc = 0;
                     state.old.angular.vel = state.angular.vel;
+                    state.angular.acc = 0;
+
+                    state.started = true;
 
                 } else {
                     // set the velocity and acceleration to zero!
@@ -5503,8 +5569,54 @@ Physics.integrator('verlet', function( parent ){
                     state.angular.acc = 0;
                 }
             }
+        },
 
-            scratch.done();
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,body = null
+                ,state
+                ;
+// return;
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+                    // so we need to scale the value by dt so it 
+                    // complies with other integration methods
+                    state.vel.mult( dt );
+                
+                    // Store old position.
+                    // xold = x
+                    state.old.pos.clone( state.pos );
+
+                    state.pos.vadd( state.vel );
+
+                    // normalize velocity 
+                    state.vel.mult( 1/dt );
+
+                    // store calculated velocity
+                    state.old.vel.clone( state.vel );
+
+                    //
+                    // Angular components
+                    // 
+
+                    
+                    state.angular.vel *= dt;
+                
+                    state.old.angular.pos = state.angular.pos;
+
+                    state.angular.pos += state.angular.vel;
+                    state.angular.vel /= dt;
+                    state.old.angular.vel = state.angular.vel;
+                }
+            }
         }
     };
 });

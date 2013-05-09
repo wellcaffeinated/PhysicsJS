@@ -37,7 +37,15 @@ var Decorator = function Decorator( type, proto ){
     // little function to set the world
     proto.setWorld = function( world ){
 
+        if ( this.disconnect ){
+            this.disconnect( this._world );
+        }
+
         this._world = world;
+        
+        if ( this.connect ){
+            this.connect( world );
+        }
     };
     
     return function factory( name, parentName, decorator, cfg ){

@@ -49,6 +49,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,result
             ,support
             ,collision = false
+            ,aabb = bodyA.aabb()
             ;
 
         // just check the overlap first
@@ -68,7 +69,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             support.useCore = true;
             support.margin = 0;
 
-            while ( result.overlap ){
+            while ( result.overlap && support.margin < aabb.halfHeight ){
                 support.margin += 1;
                 result = Physics.gjk(support, d);
             }

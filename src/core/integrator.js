@@ -18,7 +18,37 @@
         // prototype
         integrate: function( bodies, dt ){
 
-            throw 'The integrator.integrate() method must be overriden';
+            var world = this._world;
+
+            this.integrateVelocities( bodies, dt );
+            
+            if ( world ){
+                world.publish({
+                    topic: 'integrate:velocies',
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+
+            this.integratePositions( bodies, dt );
+            
+            if ( world ){
+                world.publish({
+                    topic: 'integrate:positions',
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+        },
+
+        integrateVelocities: function( bodies, dt ){
+
+            throw 'The integrator.integrateVelocities() method must be overriden';
+        },
+
+        integratePositions: function( bodies, dt ){
+
+            throw 'The integrator.integratePositions() method must be overriden';
         }
     });
 

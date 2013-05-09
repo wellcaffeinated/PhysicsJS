@@ -38,7 +38,8 @@
                         vel: 0.0,
                         acc: 0.0
                     }
-                }
+                },
+                started: false
             };
 
             if (this.mass === 0){

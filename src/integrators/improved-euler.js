@@ -8,11 +8,76 @@ Physics.integrator('improved-euler', function( parent ){
             parent.init.call(this, options);
         },
 
-        integrate: function( bodies, dt ){
+        integrateVelocities: function( bodies, dt ){
 
-            // half the timestep
-            var halfdt = 0.5 * dt
-                ,drag = 1 - this.options.drag
+            // half the timestep squared
+            var drag = 1 - this.options.drag
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+                    // Inspired from https://github.com/soulwire/Coffee-Physics
+                    // @licence MIT
+                    // 
+                    // x += (v * dt) + (a * 0.5 * dt * dt)
+                    // v += a * dt
+
+                    
+                    // Scale force to mass.
+                    // state.acc.mult( body.massInv );
+
+                    // Remember velocity for future use.
+                    state.old.vel.clone( state.vel );
+
+                    // remember original acc
+                    state.old.acc.clone( state.acc );
+
+                    // Update velocity first so we can reuse the acc vector.
+                    // a *= dt
+                    // v += a ...
+                    state.vel.vadd( state.acc.mult( dt ) );
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Reset accel
+                    state.acc.zero();
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.vel = state.angular.vel;
+                    state.angular.vel += state.angular.acc * dt;
+                    state.angular.acc = 0;
+
+                    state.started = true;
+
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
+            }
+        },
+
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep squared
+            var halfdtdt = 0.5 * dt * dt
                 ,body = null
                 ,state
                 // use cached vector instances
@@ -30,59 +95,28 @@ Physics.integrator('improved-euler', function( parent ){
                 // only integrate if the body isn't fixed
                 if ( !body.fixed ){
 
-                    // Inspired from https://github.com/soulwire/Coffee-Physics
-                    // @licence MIT
-                    // 
-                    // x += (v * dt) + (a * 0.5 * dt * dt)
-                    // v += a * dt
 
                     // Store previous location.
                     state.old.pos.clone( state.pos );
-
-                    // Scale force to mass.
-                    // state.acc.mult( body.massInv );
-
-                    // Duplicate velocity to preserve momentum.
-                    vel.clone( state.vel );
-
-                    // Update velocity first so we can reuse the acc vector.
-                    // a *= dt
-                    // v += a ...
-                    state.vel.vadd( state.acc.mult( dt ) );
 
                     // Update position.
                     // ...
                     // oldV *= dt
                     // a *= 0.5 * dt
                     // x += oldV + a
-                    state.pos.vadd( vel.mult( dt ) ).vadd( state.acc.mult( halfdt ) );
+                    vel.clone( state.old.vel );
+                    state.pos.vadd( vel.mult( dt ) ).vadd( state.old.acc.mult( halfdtdt ) );
 
-                    // Apply "air resistance".
-                    if ( drag ){
-
-                        state.vel.mult( drag );
-                    }
-
-                    // Reset accel
-                    state.acc.zero();
+                    state.old.acc.zero();
 
                     //
                     // Angular components
                     // 
 
                     state.old.angular.pos = state.angular.pos;
-                    angVel = state.old.angular.vel = state.angular.vel;
-                    state.angular.acc *= dt;
-                    angVel += state.angular.acc;
-                    state.angular.pos += angVel * dt + state.angular.acc * halfdt;
-                    state.angular.acc = 0;
+                    state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
+                    state.old.angular.acc = 0;
 
-                } else {
-                    // set the velocity and acceleration to zero!
-                    state.vel.zero();
-                    state.acc.zero();
-                    state.angular.vel = 0;
-                    state.angular.acc = 0;
                 }
             }
 

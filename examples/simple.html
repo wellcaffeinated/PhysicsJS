@@ -127,7 +127,7 @@ Physics({
         };
     }, {}) );
 
-    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.2, cof: 0.8 }) );
+    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.99, cof: 0.99 }) );
     world.add( Physics.behavior('body-impulse-response') );
 
     Physics.util.ticker.subscribe(function( time, dt ){
