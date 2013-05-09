@@ -1,10 +1,3 @@
-/*
- * PhysicsJS physics library
- * https://github.com/wellcaffeinated/physicsjs
- * 
- * Copyright 2013, Jasper Palfree
- * Licensed under the MIT license.
- */
 (function (root, factory) {
     if (typeof exports === 'object') {
         // Node. 
@@ -17,11 +10,12 @@
         root.Physics = factory.call(root);
     }
 }(this, function () {
-    'use strict';
 
-    var Physics = function Physics(){
+'use strict';
 
-        return Physics.world.apply(Physics, arguments);
-    };
+var Physics = function Physics(){
 
-    Physics.util = {};
+    return Physics.world.apply(Physics, arguments);
+};
+
+Physics.util = {};

@@ -1,3 +1,5 @@
+define(['physicsjs', '../geometries/circle'], function( Physics ){
+
 /**
  * Circle body definition
  * @module bodies/circle
@@ -31,3 +33,6 @@ Physics.body('circle', function( parent ){
         }
     };
 });
+
+// end module: bodies/circle.js
+}); // define 

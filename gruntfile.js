@@ -22,22 +22,62 @@ module.exports = function(grunt) {
             'lib/lodash.js',
             'src/util/*.js',
             'src/math/*.js',
-            'src/core/*.js',
+
+            'src/core/behavior.js',
+            'src/core/body.js',
+            'src/core/geometry.js',
+            'src/core/geometry-helpers.js',
+            'src/core/integrator.js',
+            'src/core/renderer.js',
+            'src/core/world.js',
+
+            // default integrator
+            'src/integrators/verlet.js',
+            
+            'src/outro.js'
+        ],
+
+        moduleSources : [
             'src/geometries/*.js',
             'src/bodies/*.js',
             'src/behaviors/*.js',
-            'src/integrators/*.js',
-            'src/renderers/*.js',
-            'src/outro.js'
+            'src/integrators/improved-euler.js',
+            'src/renderers/*.js'
         ],
+
         pkg : pkg,
         uglifyFiles : {}
     };
 
     // setup dynamic filenames
     config.versioned = [config.pkg.name, config.pkg.version].join('-');
+    config.versionedFull = [config.pkg.name, 'full', config.pkg.version].join('-');
     config.dist = ['dist/', '.js'].join(config.versioned);
+    config.distFull = ['dist/', '.js'].join(config.versionedFull);
     config.uglifyFiles[['dist/', '.min.js'].join(config.versioned)] = config.dist;
+    config.uglifyFiles[['dist/', '.min.js'].join(config.versionedFull)] = config.distFull;
+
+    // search for pragmas to figure out dependencies and add a umd declaration
+    function wrapDefine( src, path ){
+
+        path = path.replace('src/', '');
+
+        var deps = ['physicsjs'];
+        var l = path.split('/').length;
+        var pfx = l > 0 ? (new Array( l )).join('../') : './';
+        src.replace(/@requires\s([\w\/]+)/g, function( match, dep ){
+
+            // just get the dependency
+            deps.push( pfx + dep );
+            // no effect
+            return match;
+        });
+
+        return "define(['" + deps.join("', '") + "'], function( Physics ){\n\n" + 
+                src + '\n' +
+                '// end module: ' + path + '\n' +
+            "}); // define ";
+    }
 
     // Project configuration.
     grunt.initConfig({
@@ -54,13 +94,44 @@ module.exports = function(grunt) {
                 banner : config.banner
             },
             dist : {
+                options: {
+                    process: function(src, path){
+
+                        return '// Source file: ' + path + '\n' + src;
+                    }
+                },
                 src : config.sources,
                 dest : config.dist
+            },
+            distFull : {
+                options: {
+                    process: function(src, path){
+
+                        return '// Source file: ' + path + '\n' + src;
+                    }
+                },
+                src : [].concat(config.sources, config.moduleSources),
+                dest : config.distFull
+            }
+        },
+        copy: {
+            modules: {
+                options: {
+                    processContent: wrapDefine
+                },
+                expand: true,
+                cwd: 'src/',
+                src: config.moduleSources.join(' ').split(' src/'),
+                dest: 'dist/'
+            },
+            examples: {
+                src: config.distFull,
+                dest: 'examples/' + config.pkg.name + '-full.js'
             }
         },
         watch: {
           files: 'src/**/*.js',
-          tasks: ['lodash', 'concat']
+          tasks: ['lodash', 'concat', 'copy']
         },
         uglify : {
             options : { mangle : true },
@@ -70,7 +141,7 @@ module.exports = function(grunt) {
         },
         jasmine : {
             tests : {
-                src : ['dist/', '.js'].join(config.versioned),
+                src : config.distFull,
                 options : {
                     specs : 'test/spec/*.spec.js',
                     template : 'test/grunt.tmpl'
@@ -97,7 +168,7 @@ module.exports = function(grunt) {
             // More information can be found in the [Lo-Dash custom builds section](http://lodash.com/#custom-builds)
             // category: ['collections', 'functions']
             exports: ['none'],
-            iife: '(function(window,Physics,undefined){%output%;lodash.extend(Physics.util, lodash);}(this,Physics));',
+            iife: '(function(){%output%;lodash.extend(Physics.util, lodash);}());',
             include: ['extend', 'throttle', 'bind', 'sortedIndex', 'shuffle']
             // minus: ['result', 'shuffle']
             // plus: ['random', 'template'],
@@ -118,7 +189,7 @@ module.exports = function(grunt) {
 
 
     // Default task.
-    grunt.registerTask('default', ['clean', 'concat', 'jshint', 'uglify', 'jasmine']);
+    grunt.registerTask('default', ['clean', 'concat', 'copy', 'jshint', 'uglify', 'jasmine']);
 
     
 };

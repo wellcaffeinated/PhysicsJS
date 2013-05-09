@@ -1,3 +1,5 @@
+define(['physicsjs'], function( Physics ){
+
 Physics.behavior('edge-collision-detection', function( parent ){
 
     var PUBSUB_COLLISION = 'collisions:detected';
@@ -220,3 +222,5 @@ Physics.behavior('edge-collision-detection', function( parent ){
     };
 
 });
+// end module: behaviors/edge-collision-detection.js
+}); // define 

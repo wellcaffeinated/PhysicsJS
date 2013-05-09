@@ -1,9 +1,7 @@
-/**
- * Circle body definition
- * @module bodies/circle
- * @requires geometries/circle
- */
-Physics.body('circle', function( parent ){
+define(['physicsjs'], function( Physics ){
+
+// circle body
+Physics.body('convex-polygon', function( parent ){
 
     var defaults = {
         
@@ -17,8 +15,8 @@ Physics.body('circle', function( parent ){
 
             options = Physics.util.extend({}, defaults, options);
 
-            this.geometry = Physics.geometry('circle', {
-                radius: options.radius
+            this.geometry = Physics.geometry('convex-polygon', {
+                vertices: options.vertices
             });
 
             this.recalc();
@@ -27,7 +25,10 @@ Physics.body('circle', function( parent ){
         recalc: function(){
             parent.recalc.call(this);
             // moment of inertia
-            this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
+            this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
         }
     };
 });
+
+// end module: bodies/convex-polygon.js
+}); // define 
