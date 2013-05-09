@@ -4266,12 +4266,13 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,vA = scratch.vector()
                 ,vB = scratch.vector()
                 ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
-                ,margin = fn.margin
+                ,marginA = fn.marginA
+                ,marginB = fn.marginB
                 ,ret
                 ;
 
-            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, margin ).transform( tA );
-            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, margin ).transform( tB );
+            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
 
             searchDir.negate().rotate( tB );
 
@@ -4299,7 +4300,10 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,result
             ,support
             ,collision = false
-            ,aabb = bodyA.aabb()
+            ,aabbA = bodyA.aabb()
+            ,dimA = Math.min( aabbA.halfWidth, aabbA.halfHeight )
+            ,aabbB = bodyB.aabb()
+            ,dimB = Math.min( aabbB.halfWidth, aabbB.halfHeight )
             ;
 
         // just check the overlap first
@@ -4317,10 +4321,17 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             // first get the min distance of between core objects
             support.useCore = true;
-            support.margin = 0;
+            support.marginA = 0;
+            support.marginB = 0;
 
-            while ( result.overlap && support.margin < aabb.halfHeight ){
-                support.margin += 1;
+            while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
+                if ( support.marginA < dimA ){
+                    support.marginA += 1;
+                }
+                if ( support.marginB < dimB ){
+                    support.marginB += 1;
+                }
+
                 result = Physics.gjk(support, d);
             }
 
@@ -4331,7 +4342,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             // calc overlap
-            overlap = Math.max(0, 2 * support.margin - result.distance);
+            overlap = Math.max(0, (support.marginA + support.marginB) - result.distance);
             collision.overlap = overlap;
             // @TODO: for now, just let the normal be the mtv
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
