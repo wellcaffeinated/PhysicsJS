@@ -4936,9 +4936,21 @@ Physics.behavior('edge-collision-detection', function( parent ){
             };
         },
 
-        behave: function( bodies, dt ){
+        connect: function( world ){
+
+            world.subscribe( 'integrate:velocities', this.checkAll, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( 'integrate:velocities', this.checkAll );
+        },
+
+        checkAll: function( data ){
             
-            var body
+            var bodies = data.bodies
+                ,dt = data.dt
+                ,body
                 ,collisions = []
                 ,ret
                 ,bounds = this._edges
@@ -4967,7 +4979,9 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        }
+        },
+
+        behave: false
     };
 
 });
