@@ -41,7 +41,8 @@ module.exports = function(grunt) {
             'src/geometries/*.js',
             'src/bodies/*.js',
             'src/behaviors/*.js',
-            'src/integrators/improved-euler.js',
+            'src/integrators/*.js',
+            '!src/integrators/verlet.js',
             'src/renderers/*.js'
         ],
 
@@ -56,6 +57,9 @@ module.exports = function(grunt) {
     config.distFull = ['dist/', '.js'].join(config.versionedFull);
     config.uglifyFiles[['dist/', '.min.js'].join(config.versioned)] = config.dist;
     config.uglifyFiles[['dist/', '.min.js'].join(config.versionedFull)] = config.distFull;
+
+    config.sourcesFull = [].concat(config.sources);
+    Array.prototype.splice.apply(config.sourcesFull, [-1, 0].concat(config.moduleSources));
 
     // search for pragmas to figure out dependencies and add a umd declaration
     function wrapDefine( src, path ){
@@ -73,10 +77,25 @@ module.exports = function(grunt) {
             return match;
         });
 
-        return "define(['" + deps.join("', '") + "'], function( Physics ){\n\n" + 
-                src + '\n' +
-                '// end module: ' + path + '\n' +
-            "}); // define ";
+        return "(function (root, factory) {\n" +
+        "    var deps = ['" + deps.join("', '") + "'];\n" +
+        "    if (typeof exports === 'object') {\n" +
+        "        // Node. \n" +
+        "        var mods = deps.map(require);\n" +
+        "        module.exports = factory.call(root, mods[ 0 ]);\n" +
+        "    } else if (typeof define === 'function' && define.amd) {\n" +
+        "        // AMD. Register as an anonymous module.\n" +
+        "        define(deps, function( p ){ return factory.call(root, p); });\n" +
+        "    } else {\n" +
+        "        // Browser globals (root is window). Dependency management is up to you.\n" +
+        "        root.Physics = factory.call(root, root.Physics);\n" +
+        "    }\n" +
+        "}(this, function ( Physics ) {\n" +
+        "    'use strict';\n" +
+        "    " + src.replace(/\n/g, '\n    ') + '\n' +
+        '    // end module: ' + path + '\n' +
+        '    return Physics;\n' +
+        "})); // UMD ";
     }
 
     // Project configuration.
@@ -110,7 +129,7 @@ module.exports = function(grunt) {
                         return '// Source file: ' + path + '\n' + src;
                     }
                 },
-                src : [].concat(config.sources, config.moduleSources),
+                src : config.sourcesFull,
                 dest : config.distFull
             }
         },
@@ -121,7 +140,7 @@ module.exports = function(grunt) {
                 },
                 expand: true,
                 cwd: 'src/',
-                src: config.moduleSources.join(' ').split(' src/'),
+                src: config.moduleSources.join(' ').replace(/src\//g, '').split(' '),
                 dest: 'dist/'
             },
             examples: {
@@ -146,6 +165,21 @@ module.exports = function(grunt) {
                     specs : 'test/spec/*.spec.js',
                     template : 'test/grunt.tmpl'
                 }
+            },
+            requireJSTests : {
+                options : {
+                    helpers: 'test/requirejs.spec.helper.js',
+                    specs : 'test/requirejs.spec.js',
+                    template : require('grunt-template-jasmine-requirejs'),
+                    templateOptions: {
+                        requireConfig: {
+                            baseUrl: 'dist/',
+                            paths: {
+                                'physicsjs': 'physicsjs-'+config.pkg.version
+                            }
+                        }
+                    }
+                }
             }
         },
         jshint : {
@@ -168,7 +202,7 @@ module.exports = function(grunt) {
             // More information can be found in the [Lo-Dash custom builds section](http://lodash.com/#custom-builds)
             // category: ['collections', 'functions']
             exports: ['none'],
-            iife: '(function(){%output%;lodash.extend(Physics.util, lodash);}());',
+            iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
             include: ['extend', 'throttle', 'bind', 'sortedIndex', 'shuffle']
             // minus: ['result', 'shuffle']
             // plus: ['random', 'template'],
@@ -187,9 +221,18 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
 
+    grunt.registerTask('jasmine-module-list', function(){
+
+        var cfg = {
+            modules: grunt.file.expand({ cwd: 'dist/' }, config.moduleSources.join(' ').replace(/src\//g, '').split(' ') )
+        }
+
+        grunt.file.write('test/requirejs.spec.helper.js', 'var cfg = ' + JSON.stringify( cfg ) + ';' );
+
+    });
 
     // Default task.
-    grunt.registerTask('default', ['clean', 'concat', 'copy', 'jshint', 'uglify', 'jasmine']);
+    grunt.registerTask('default', ['clean', 'concat', 'copy', 'jshint', 'uglify', 'jasmine-module-list', 'jasmine']);
 
     
 };

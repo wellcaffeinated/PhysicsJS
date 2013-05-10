@@ -12,7 +12,7 @@
         module.exports = factory.call(root);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory);
+        define(function(){ return factory.call(root) });
     } else {
         // Browser globals (root is window)
         root.Physics = factory.call(root);
@@ -32,13 +32,13 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-64352-y25m04 exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-66847-173c52h exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
  * Available under MIT license <http://lodash.com/license>
  */
-(function(){
+(function(window){
 
   /** Used as a safe reference for `undefined` in pre ES5 environments */
   var undefined;
@@ -1605,7 +1605,7 @@ Physics.util = {};
 
   /*--------------------------------------------------------------------------*/
 
-;lodash.extend(Physics.util, lodash);}());
+;lodash.extend(Physics.util, lodash);}(this));
 // Source file: src/util/decorator.js
 /**
  * Facilitates creation of decorator service functions
@@ -3707,8 +3707,10 @@ World.prototype = {
 
     init: function( cfg, fn ){
 
-        // prevent double initialization
-        this.init = true;
+        if ( Physics.util.isFunction( cfg ) ){
+            fn = cfg;
+            cfg = {};
+        }
 
         this._stats = {
            // statistics (fps, etc)
@@ -3724,10 +3726,10 @@ World.prototype = {
         this._pubsub = {};
 
         // set options
-        this.options( cfg );
+        this.options( cfg || {} );
 
         // apply the callback function
-        if (typeof fn === 'function'){
+        if ( Physics.util.isFunction( fn ) ){
 
             fn.apply(this, [ this ]);
         }

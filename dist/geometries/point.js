@@ -13,8 +13,12 @@
     }
 }(this, function ( Physics ) {
     'use strict';
-    // define a point body
-    Physics.body('point', function(){});
-    // end module: bodies/point.js
+    // point geometry
+    Physics.geometry('point', function( parent ){
+    
+        // alias of default
+    });
+    
+    // end module: geometries/point.js
     return Physics;
 })); // UMD 

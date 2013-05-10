@@ -4,7 +4,7 @@
         module.exports = factory.call(root);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory);
+        define(function(){ return factory.call(root) });
     } else {
         // Browser globals (root is window)
         root.Physics = factory.call(root);

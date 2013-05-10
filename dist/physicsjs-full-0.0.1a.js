@@ -12,7 +12,7 @@
         module.exports = factory.call(root);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory);
+        define(function(){ return factory.call(root) });
     } else {
         // Browser globals (root is window)
         root.Physics = factory.call(root);
@@ -32,13 +32,13 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-64352-y25m04 exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-66847-173c52h exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
  * Available under MIT license <http://lodash.com/license>
  */
-(function(){
+(function(window){
 
   /** Used as a safe reference for `undefined` in pre ES5 environments */
   var undefined;
@@ -1605,7 +1605,7 @@ Physics.util = {};
 
   /*--------------------------------------------------------------------------*/
 
-;lodash.extend(Physics.util, lodash);}());
+;lodash.extend(Physics.util, lodash);}(this));
 // Source file: src/util/decorator.js
 /**
  * Facilitates creation of decorator service functions
@@ -3707,8 +3707,10 @@ World.prototype = {
 
     init: function( cfg, fn ){
 
-        // prevent double initialization
-        this.init = true;
+        if ( Physics.util.isFunction( cfg ) ){
+            fn = cfg;
+            cfg = {};
+        }
 
         this._stats = {
            // statistics (fps, etc)
@@ -3724,10 +3726,10 @@ World.prototype = {
         this._pubsub = {};
 
         // set options
-        this.options( cfg );
+        this.options( cfg || {} );
 
         // apply the callback function
-        if (typeof fn === 'function'){
+        if ( Physics.util.isFunction( fn ) ){
 
             fn.apply(this, [ this ]);
         }
@@ -4060,173 +4062,6 @@ World.prototype = {
 Physics.world = World;
     
 }());
-// Source file: src/integrators/verlet.js
-Physics.integrator('verlet', function( parent ){
-
-    // for this integrator we need to know if the object has been integrated before
-    // so let's add a mixin to bodies
-
-    Physics.body.mixin({
-
-        started: function( val ){
-            if ( val !== undefined ){
-                this._started = true;
-            }
-
-            return !!this._started;
-        }
-    });
-
-
-    return {
-
-        init: function( options ){
-
-            // call parent init
-            parent.init.call(this, options);
-        },
-
-        integrateVelocities: function( bodies, dt ){
-
-            // half the timestep
-            var dtdt = dt * dt
-                ,drag = 1 - this.options.drag
-                ,body = null
-                ,state
-                ;
-
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-
-                body = bodies[ i ];
-                state = body.state;
-
-                // only integrate if the body isn't fixed
-                if ( !body.fixed ){
-
-                    // Inspired from https://github.com/soulwire/Coffee-Physics
-                    // @licence MIT
-                    // 
-                    // v = x - ox
-                    // x = x + (v + a * dt * dt)
-
-                    // use the velocity in vel if the velocity has been changed manually
-                    if (state.vel.equals( state.old.vel ) && body.started()){
-                            
-                        // Get velocity by subtracting old position from curr position
-                        state.vel.clone( state.pos ).vsub( state.old.pos );
-
-                    } else {
-
-                        state.old.pos.clone( state.pos ).vsub( state.vel );
-                        // so we need to scale the value by dt so it 
-                        // complies with other integration methods
-                        state.vel.mult( dt );
-                    }
-
-                    // Apply "air resistance".
-                    if ( drag ){
-
-                        state.vel.mult( drag );
-                    }
-
-                    // Apply acceleration
-                    // v += a * dt * dt
-                    state.vel.vadd( state.acc.mult( dtdt ) );
-
-                    // normalize velocity 
-                    state.vel.mult( 1/dt );
-
-                    // store calculated velocity
-                    state.old.vel.clone( state.vel );
-
-                    // Reset accel
-                    state.acc.zero();
-
-                    //
-                    // Angular components
-                    // 
-
-                    if (state.angular.vel === state.old.angular.vel && body.started()){
-
-                        state.angular.vel = (state.angular.pos - state.old.angular.pos);
-
-                    } else {
-
-                        state.old.angular.pos = state.angular.pos - state.angular.vel;
-                        state.angular.vel *= dt;
-                    }
-
-                    state.angular.vel += state.angular.acc * dtdt;
-                    state.angular.vel /= dt;
-                    state.old.angular.vel = state.angular.vel;
-                    state.angular.acc = 0;
-
-                    body.started( true );
-
-                } else {
-                    // set the velocity and acceleration to zero!
-                    state.vel.zero();
-                    state.acc.zero();
-                    state.angular.vel = 0;
-                    state.angular.acc = 0;
-                }
-            }
-        },
-
-        integratePositions: function( bodies, dt ){
-
-            // half the timestep
-            var dtdt = dt * dt
-                ,body = null
-                ,state
-                ;
-
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-
-                body = bodies[ i ];
-                state = body.state;
-
-                // only integrate if the body isn't fixed
-                if ( !body.fixed ){
-
-                    // so we need to scale the value by dt so it 
-                    // complies with other integration methods
-                    state.vel.mult( dt );
-                
-                    // Store old position.
-                    // xold = x
-                    state.old.pos.clone( state.pos );
-
-                    state.pos.vadd( state.vel );
-
-                    // normalize velocity 
-                    state.vel.mult( 1/dt );
-
-                    // store calculated velocity
-                    state.old.vel.clone( state.vel );
-
-                    //
-                    // Angular components
-                    // 
-
-                    
-                    state.angular.vel *= dt;
-                
-                    state.old.angular.pos = state.angular.pos;
-
-                    state.angular.pos += state.angular.vel;
-                    state.angular.vel /= dt;
-                    state.old.angular.vel = state.angular.vel;
-                }
-            }
-        }
-    };
-});
-
-
-// Source file: src/outro.js
-    return Physics;
-}));
 // Source file: src/geometries/circle.js
 // circle geometry
 Physics.geometry('circle', function( parent ){
@@ -6168,3 +6003,6 @@ Physics.renderer('dom', function( proto ){
         drawBody: drawBody
     };
 });
+// Source file: src/outro.js
+    return Physics;
+}));

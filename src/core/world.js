@@ -44,8 +44,10 @@ World.prototype = {
 
     init: function( cfg, fn ){
 
-        // prevent double initialization
-        this.init = true;
+        if ( Physics.util.isFunction( cfg ) ){
+            fn = cfg;
+            cfg = {};
+        }
 
         this._stats = {
            // statistics (fps, etc)
@@ -61,10 +63,10 @@ World.prototype = {
         this._pubsub = {};
 
         // set options
-        this.options( cfg );
+        this.options( cfg || {} );
 
         // apply the callback function
-        if (typeof fn === 'function'){
+        if ( Physics.util.isFunction( fn ) ){
 
             fn.apply(this, [ this ]);
         }
