@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-05-10
+ * physicsjs v0.5.0 - 2013-05-10
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -4226,6 +4226,1947 @@ Physics.integrator('verlet', function( parent ){
 });
 
 
+// Source file: src/geometries/circle.js
+// circle geometry
+Physics.geometry('circle', function( parent ){
+
+    var defaults = {
+
+        radius: 1.0
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+            this.radius = options.radius;
+            this._aabb = Physics.aabb();
+        },
+            
+        // circles are symetric... so angle has no effect
+        aabb: function( angle ){
+
+            var r = this.radius
+                ,aabb = this._aabb
+                ;
+
+            if ( aabb.halfWidth() === r ){
+                // don't recalculate
+                return aabb.get();
+            }
+
+            return aabb.set( -r, -r, r, r ).get();
+        },
+
+        /**
+         * Get farthest point on the hull of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest hull point in local coordinates
+         */
+        getFarthestHullPoint: function( dir, result ){
+
+            result = result || Physics.vector();
+
+            return result.clone( dir ).normalize().mult( this.radius );
+        },
+
+        /**
+         * Get farthest point on the core of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest core point in local coordinates
+         */
+        getFarthestCorePoint: function( dir, result, margin ){
+
+            result = result || Physics.vector();
+
+            // we can use the center of the circle as the core object
+            // because we can project a point to the hull in any direction
+            // ... yay circles!
+            // but since the caller is expecting a certain margin... give it
+            // to them
+            return result.clone( dir ).normalize().mult( this.radius - margin );
+        }
+    };
+});
+
+// Source file: src/geometries/convex-polygon.js
+// circle geometry
+Physics.geometry('convex-polygon', function( parent ){
+
+    var ERROR_NOT_CONVEX = 'Error: The vertices specified do not match that of a _convex_ polygon.';
+
+    var defaults = {
+
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+            options = Physics.util.extend({}, defaults, options);
+
+            this.setVertices( options.vertices || [Physics.vector()] );
+        },
+
+        setVertices: function( hull ){
+
+            var scratch = Physics.scratchpad()
+                ,transl = scratch.transform()
+                ,verts = this.vertices = []
+                ;
+
+            if ( !Physics.geometry.isPolygonConvex( hull ) ){
+                throw ERROR_NOT_CONVEX;
+            }
+
+            transl.setRotation( 0 );
+            transl.setTranslation( Physics.geometry.getPolygonCentroid( hull ).negate() );
+
+            // translate each vertex so that the centroid is at the origin
+            // then add the vertex as a vector to this.vertices
+            for ( var i = 0, l = hull.length; i < l; ++i ){
+                
+                verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
+            }
+
+            this._area = Physics.geometry.getPolygonArea( verts );
+
+            this._aabb = false;
+            scratch.done();
+            return this;
+        },
+        
+        aabb: function( angle ){
+
+            if (!angle && this._aabb){
+                return this._aabb.get();
+            }
+
+            var scratch = Physics.scratchpad()
+                ,p = scratch.vector()
+                ,trans = scratch.transform().setRotation( angle || 0 )
+                ,xaxis = scratch.vector().clone(Physics.vector.axis[0]).rotateInv( trans )
+                ,yaxis = scratch.vector().clone(Physics.vector.axis[1]).rotateInv( trans )
+                ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
+                ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
+                ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
+                ,ymin = - this.getFarthestHullPoint( yaxis.negate(), p ).proj( yaxis )
+                ,aabb
+                ;
+
+            aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+
+            if (!angle){
+                this._aabb = aabb;
+            }
+
+            scratch.done();
+            return aabb.get();
+        },
+
+        /**
+         * Get farthest point on the hull of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest hull point in local coordinates
+         */
+        getFarthestHullPoint: function( dir, result, data ){
+
+            var verts = this.vertices
+                ,val
+                ,prev
+                ,l = verts.length
+                ,i = 2
+                ,idx
+                ;
+
+            result = result || Physics.vector();
+
+            if ( l < 2 ){
+                if ( data ){
+                    data.idx = 0;
+                }
+                return result.clone( verts[0] );
+            }
+
+            prev = verts[ 0 ].dot( dir );
+            val = verts[ 1 ].dot( dir );
+
+            if ( l === 2 ){
+                idx = (val >= prev) ? 1 : 0;
+                if ( data ){
+                    data.idx = idx;
+                }
+                return result.clone( verts[ idx ] );
+            }
+
+            if ( val >= prev ){
+                // go up
+                // search until the next dot product 
+                // is less than the previous
+                while ( i < l && val >= prev ){
+                    prev = val;
+                    val = verts[ i ].dot( dir );
+                    i++;
+                }
+
+                if (val >= prev){
+                    i++;
+                }
+
+                // return the previous (furthest with largest dot product)
+                idx = i - 2;
+                if ( data ){
+                    data.idx = i - 2;
+                }
+                return result.clone( verts[ idx ] );
+
+            } else {
+                // go down
+
+                i = l;
+                while ( i > 2 && prev >= val ){
+                    i--;
+                    val = prev;
+                    prev = verts[ i ].dot( dir );
+                }
+
+                // return the previous (furthest with largest dot product)
+                idx = (i + 1) % l;
+                if ( data ){
+                    data.idx = idx;
+                }
+                return result.clone( verts[ idx ] );                
+            }
+        },
+
+        /**
+         * Get farthest point on the core of this geometry
+         * along the direction vector "dir"
+         * returns local coordinates
+         * replaces result if provided
+         * @param {Vector} dir Direction to look
+         * @param {Vector} result (optional) A vector to write result to
+         * @return {Vector} The farthest core point in local coordinates
+         */
+        getFarthestCorePoint: function( dir, result, margin ){
+
+            var norm
+                ,scratch = Physics.scratchpad()
+                ,next = scratch.vector()
+                ,prev = scratch.vector()
+                ,verts = this.vertices
+                ,l = verts.length
+                ,mag
+                ,sign = this._area > 0
+                ,data = {}
+                ;
+
+            result = this.getFarthestHullPoint( dir, result, data );
+
+            // get normalized directions to next and previous vertices
+            next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( !sign );
+            prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( sign );
+
+            // get the magnitude of a vector from the result vertex 
+            // that splits down the middle
+            // creating a margin of "m" to each edge
+            mag = margin / (1 + next.dot(prev));
+
+            result.vadd( next.vadd( prev ).mult( mag ) );
+            scratch.done();
+            return result;
+        }
+    };
+});
+
+// Source file: src/geometries/point.js
+// point geometry
+Physics.geometry('point', function( parent ){
+
+    // alias of default
+});
+
+// Source file: src/bodies/circle.js
+/**
+ * Circle body definition
+ * @module bodies/circle
+ * @requires geometries/circle
+ */
+Physics.body('circle', function( parent ){
+
+    var defaults = {
+        
+    };
+
+    return {
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.geometry = Physics.geometry('circle', {
+                radius: options.radius
+            });
+
+            this.recalc();
+        },
+
+        recalc: function(){
+            parent.recalc.call(this);
+            // moment of inertia
+            this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
+        }
+    };
+});
+
+// Source file: src/bodies/convex-polygon.js
+// circle body
+Physics.body('convex-polygon', function( parent ){
+
+    var defaults = {
+        
+    };
+
+    return {
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.geometry = Physics.geometry('convex-polygon', {
+                vertices: options.vertices
+            });
+
+            this.recalc();
+        },
+
+        recalc: function(){
+            parent.recalc.call(this);
+            // moment of inertia
+            this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
+        }
+    };
+});
+
+// Source file: src/bodies/point.js
+// define a point body
+Physics.body('point', function(){});
+// Source file: src/behaviors/body-collision-detection.js
+Physics.behavior('body-collision-detection', function( parent ){
+
+    var PUBSUB_CANDIDATES = 'collisions:candidates';
+    var PUBSUB_COLLISION = 'collisions:detected';
+
+    // get general support function
+    var getSupportFn = function getSupportFn( bodyA, bodyB ){
+
+        var fn;
+
+        fn = function( searchDir ){
+
+            var scratch = Physics.scratchpad()
+                ,tA = scratch.transform().setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos )
+                ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
+                ,vA = scratch.vector()
+                ,vB = scratch.vector()
+                ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
+                ,marginA = fn.marginA
+                ,marginB = fn.marginB
+                ,ret
+                ;
+
+            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+
+            searchDir.negate().rotate( tB );
+
+            ret = {
+                a: vA.values(),
+                b: vB.values(),
+                pt: vA.vsub( vB ).values() 
+            };
+            scratch.done();
+            return ret;
+        };
+
+        fn.useCore = false;
+        fn.margin = 0;
+
+        return fn;
+    };
+
+    var checkGJK = function checkGJK( bodyA, bodyB ){
+
+        var scratch = Physics.scratchpad()
+            ,d = scratch.vector()
+            ,tmp = scratch.vector()
+            ,overlap
+            ,result
+            ,support
+            ,collision = false
+            ,aabbA = bodyA.aabb()
+            ,dimA = Math.min( aabbA.halfWidth, aabbA.halfHeight )
+            ,aabbB = bodyB.aabb()
+            ,dimB = Math.min( aabbB.halfWidth, aabbB.halfHeight )
+            ;
+
+        // just check the overlap first
+        support = getSupportFn( bodyA, bodyB );
+        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+        result = Physics.gjk(support, d, true);
+
+        if ( result.overlap ){
+
+            // there is a collision. let's do more work.
+            collision = {
+                bodyA: bodyA,
+                bodyB: bodyB
+            };
+
+            // first get the min distance of between core objects
+            support.useCore = true;
+            support.marginA = 0;
+            support.marginB = 0;
+
+            while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
+                if ( support.marginA < dimA ){
+                    support.marginA += 1;
+                }
+                if ( support.marginB < dimB ){
+                    support.marginB += 1;
+                }
+
+                result = Physics.gjk(support, d);
+            }
+
+            if ( result.overlap || result.maxIterationsReached ){
+                scratch.done();
+                // This implementation can't deal with a core overlap yet
+                return false;
+            }
+
+            // calc overlap
+            overlap = Math.max(0, (support.marginA + support.marginB) - result.distance);
+            collision.overlap = overlap;
+            // @TODO: for now, just let the normal be the mtv
+            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+            collision.mtv = d.mult( overlap ).values();
+            // get a corresponding hull point for one of the core points.. relative to body A
+            collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+        }
+
+        scratch.done();
+        return collision;
+    };
+
+    // both expected to be circles
+    var checkCircles = function checkCircles( bodyA, bodyB ){
+
+        var scratch = Physics.scratchpad()
+            ,d = scratch.vector()
+            ,tmp = scratch.vector()
+            ,overlap
+            ,collision = false
+            ;
+        
+        d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
+        overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
+
+        // hmm... they overlap exactly... choose a direction
+        if ( d.equals( Physics.vector.zero ) ){
+
+            d.set( 1, 0 );
+        }
+
+        // if ( overlap > 0 ){
+        //     // check the future
+        //     d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
+        //     overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
+        // }
+
+        if ( overlap <= 0 ){
+
+            collision = {
+                bodyA: bodyA,
+                bodyB: bodyB,
+                norm: d.normalize().values(),
+                mtv: d.mult( -overlap ).values(),
+                pos: d.normalize().mult( bodyA.geometry.radius ).values(),
+                overlap: -overlap
+            };
+        }
+    
+        scratch.done();
+        return collision;
+    };
+
+    var checkPair = function checkPair( bodyA, bodyB ){
+
+        if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
+
+            return checkCircles( bodyA, bodyB );
+
+        } else {
+
+            return checkGJK( bodyA, bodyB );
+        }
+    };
+
+    var defaults = {
+
+        // force check every pair of bodies in the world
+        checkAll: false
+    };
+
+    return {
+
+        priority: 10,
+
+        init: function( options ){
+
+            parent.init.call(this, options);
+
+            this.options = Physics.util.extend({}, this.options, defaults, options);
+        },
+
+        connect: function( world ){
+
+            world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+            world.subscribe( 'integrate:velocities', this.checkAll, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+            world.unsubscribe( 'integrate:velocities', this.checkAll );
+        },
+
+        check: function( data ){
+
+            var candidates = data.candidates
+                ,pair
+                ,collisions = []
+                ,ret
+                ;
+
+            for ( var i = 0, l = candidates.length; i < l; ++i ){
+                
+                pair = candidates[ i ];
+
+                ret = checkPair( pair.bodyA, pair.bodyB );
+
+                if ( ret ){
+                    collisions.push( ret );
+                }
+            }
+
+            if ( collisions.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_COLLISION,
+                    collisions: collisions
+                });
+            }
+        },
+
+        checkAll: function( data ){
+
+            var bodies = data.bodies
+                ,dt = data.dt
+                ;
+            
+            if ( !this.options.checkAll ){
+                return;
+            }
+
+            var bodyA
+                ,bodyB
+                ,collisions = []
+                ,ret
+                ;
+
+            for ( var j = 0, l = bodies.length; j < l; j++ ){
+                
+                bodyA = bodies[ j ];
+
+                for ( var i = j + 1; i < l; i++ ){
+
+                    bodyB = bodies[ i ];
+
+                    // don't detect two fixed bodies
+                    if ( !bodyA.fixed || !bodyB.fixed ){
+                        
+                        ret = checkPair( bodyA, bodyB );
+
+                        if ( ret ){
+                            collisions.push( ret );
+                        }
+                    }
+                }
+            }
+
+            if ( collisions.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_COLLISION,
+                    collisions: collisions
+                });
+            }
+        },
+
+        behave: function(){}
+    };
+
+});
+// Source file: src/behaviors/body-impulse-response.js
+// object bouncing collision response
+Physics.behavior('body-impulse-response', function( parent ){
+    
+    var defaults = {
+
+    };
+
+    var PUBSUB_COLLISION = 'collisions:detected';
+
+    return {
+
+        priority: 1,
+
+        init: function( options ){
+
+            
+        },
+
+        // custom set world in order to subscribe to events
+        setWorld: function( world ){
+
+            if (this._world){
+
+                this._world.unsubscribe( PUBSUB_COLLISION, this.respond );
+            }
+
+            world.subscribe( PUBSUB_COLLISION, this.respond, this );
+            parent.setWorld.call( this, world );
+        },
+
+        collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
+
+            var fixedA = bodyA.fixed
+                ,fixedB = bodyB.fixed
+                ,scratch = Physics.scratchpad()
+                // minimum transit vector for each body
+                ,mtv = scratch.vector().clone( mtrans )
+                ;
+
+            // do nothing if both are fixed
+            if ( fixedA && fixedB ){
+                return;
+            }
+
+            if ( fixedA ){
+
+                // extract bodies
+                bodyB.state.pos.vadd( mtv );
+                
+            } else if ( fixedB ){
+
+                // extract bodies
+                bodyA.state.pos.vsub( mtv );
+
+            } else {
+
+                // extract bodies
+                mtv.mult( 0.5 );
+                bodyA.state.pos.vsub( mtv );
+                bodyB.state.pos.vadd( mtv );
+            }
+
+            // inverse masses and moments of inertia.
+            // give fixed bodies infinite mass and moi
+            var invMoiA = fixedA ? 0 : 1 / bodyA.moi
+                ,invMoiB = fixedB ? 0 : 1 / bodyB.moi
+                ,invMassA = fixedA ? 0 : 1 / bodyA.mass
+                ,invMassB = fixedB ? 0 : 1 / bodyB.mass
+                // coefficient of restitution between bodies
+                ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
+                // coefficient of friction between bodies
+                ,cof = bodyA.cof * bodyB.cof
+                // normal vector
+                ,n = scratch.vector().clone( normal )
+                // vector perpendicular to n
+                ,perp = scratch.vector().clone( n ).perp( true )
+                // collision point from A's center
+                ,rA = scratch.vector().clone( point )
+                // collision point from B's center
+                ,rB = scratch.vector().clone( point ).vadd( bodyA.state.pos ).vsub( bodyB.state.pos )
+                ,tmp = scratch.vector()
+                ,angVelA = bodyA.state.angular.vel
+                ,angVelB = bodyB.state.angular.vel
+                // relative velocity towards B at collision point
+                ,vAB = scratch.vector().clone( bodyB.state.vel )
+                        .vadd( tmp.clone(rB).perp( true ).mult( angVelB ) )
+                        .vsub( bodyA.state.vel )
+                        .vsub( tmp.clone(rA).perp( true ).mult( angVelA ) )
+                // break up components along normal and perp-normal directions
+                ,rAproj = rA.proj( n )
+                ,rAreg = rA.proj( perp )
+                ,rBproj = rB.proj( n )
+                ,rBreg = rB.proj( perp )
+                ,vproj = vAB.proj( n ) // projection of vAB along n
+                ,vreg = vAB.proj( perp ) // rejection of vAB along n (perp of proj)
+                ,impulse
+                ,sign
+                ,max
+                ,inContact = false
+                ;
+
+            // if moving away from each other... don't bother.
+            if (vproj >= 0){
+                scratch.done();
+                return;
+            }
+
+            impulse =  - ((1 + cor) * vproj) / ( invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg) );
+            // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
+            // angVel -= impulse * rreg * invMoi;
+
+            
+            if ( fixedA ){
+
+                // apply impulse
+                bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
+                bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
+                
+            } else if ( fixedB ){
+
+                // apply impulse
+                bodyA.state.vel.vsub( n.mult( impulse * invMassA ) );
+                bodyA.state.angular.vel += impulse * invMoiA * rAreg;
+
+            } else {
+
+                // apply impulse
+                bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
+                bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
+                bodyA.state.vel.vsub( n.mult( invMassA * bodyB.mass ) );
+                bodyA.state.angular.vel += impulse * invMoiA * rAreg;
+            }
+
+            // inContact = (impulse < 0.004);
+            
+            // if we have friction and a relative velocity perpendicular to the normal
+            if ( cof && vreg ){
+
+
+                // TODO: here, we could first assume static friction applies
+                // and that the tangential relative velocity is zero.
+                // Then we could calculate the impulse and check if the
+                // tangential impulse is less than that allowed by static
+                // friction. If not, _then_ apply kinetic friction.
+
+                // instead we're just applying kinetic friction and making
+                // sure the impulse we apply is less than the maximum
+                // allowed amount
+
+                // maximum impulse allowed by kinetic friction
+                max = vreg / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
+
+                if (!inContact){
+                    // the sign of vreg ( plus or minus 1 )
+                    sign = vreg < 0 ? -1 : 1;
+
+                    // get impulse due to friction
+                    impulse *= sign * cof;
+                    // make sure the impulse isn't giving the system energy
+                    impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
+                    
+                } else {
+
+                    impulse = max;
+                }
+
+                if ( fixedA ){
+
+                    // apply frictional impulse
+                    bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
+                    bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
+                    
+                } else if ( fixedB ){
+
+                    // apply frictional impulse
+                    bodyA.state.vel.vadd( perp.mult( impulse * invMassA ) );
+                    bodyA.state.angular.vel += impulse * invMoiA * rAproj;
+
+                } else {
+
+                    // apply frictional impulse
+                    bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
+                    bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
+                    bodyA.state.vel.vadd( perp.mult( invMassA * bodyB.mass ) );
+                    bodyA.state.angular.vel += impulse * invMoiA * rAproj;
+                }  
+            }
+
+            scratch.done();
+        },
+
+        respond: function( data ){
+
+            var self = this
+                ,col
+                ,collisions = Physics.util.shuffle(data.collisions)
+                ;
+
+            for ( var i = 0, l = collisions.length; i < l; ++i ){
+                
+                col = collisions[ i ];
+                self.collideBodies( 
+                    col.bodyA,
+                    col.bodyB,
+                    col.norm,
+                    col.pos,
+                    col.mtv
+                );
+            }
+        },
+
+        // don't need to "behave"
+        behave: function(){}
+    };
+});
+
+// Source file: src/behaviors/edge-collision-detection.js
+Physics.behavior('edge-collision-detection', function( parent ){
+
+    var PUBSUB_COLLISION = 'collisions:detected';
+
+    // dummy body
+    var checkGeneral = function checkGeneral( body, bounds, dummy ){
+
+        var overlap
+            ,aabb = body.aabb()
+            ,scratch = Physics.scratchpad()
+            ,trans = scratch.transform()
+            ,dir = scratch.vector()
+            ,result = scratch.vector()
+            ,collision = false
+            ,collisions = []
+            ;
+
+        // right
+        overlap = (aabb.pos.x + aabb.x) - bounds.max.x;
+
+        if ( overlap >= 0 ){
+
+            dir.set( 1, 0 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+
+            collision = {
+                bodyA: body,
+                bodyB: dummy,
+                overlap: overlap,
+                norm: {
+                    x: 1,
+                    y: 0
+                },
+                mtv: {
+                    x: overlap,
+                    y: 0
+                },
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+            };
+
+            collisions.push(collision);
+        }
+
+        // bottom
+        overlap = (aabb.pos.y + aabb.y) - bounds.max.y;
+
+        if ( overlap >= 0 ){
+
+            dir.set( 0, 1 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+
+            collision = {
+                bodyA: body,
+                bodyB: dummy,
+                overlap: overlap,
+                norm: {
+                    x: 0,
+                    y: 1
+                },
+                mtv: {
+                    x: 0,
+                    y: overlap
+                },
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+            };
+
+            collisions.push(collision);
+        }
+
+        // left
+        overlap = bounds.min.x - (aabb.pos.x - aabb.x);
+
+        if ( overlap >= 0 ){
+
+            dir.set( -1, 0 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+
+            collision = {
+                bodyA: body,
+                bodyB: dummy,
+                overlap: overlap,
+                norm: {
+                    x: -1,
+                    y: 0
+                },
+                mtv: {
+                    x: -overlap,
+                    y: 0
+                },
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+            };
+
+            collisions.push(collision);
+        }
+
+        // top
+        overlap = bounds.min.y - (aabb.pos.y - aabb.y);
+
+        if ( overlap >= 0 ){
+
+            dir.set( 0, -1 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+
+            collision = {
+                bodyA: body,
+                bodyB: dummy,
+                overlap: overlap,
+                norm: {
+                    x: 0,
+                    y: -1
+                },
+                mtv: {
+                    x: 0,
+                    y: -overlap
+                },
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+            };
+
+            collisions.push(collision);
+        }
+
+        scratch.done();
+        return collisions;
+    };
+
+    var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
+
+        return checkGeneral( body, bounds, dummy );
+    };
+
+    var defaults = {
+
+        aabb: null,
+        restitution: 0.99,
+        cof: 1.0
+    };
+
+    return {
+
+        priority: 12,
+
+        init: function( options ){
+
+            parent.init.call(this, options);
+
+            this.options = Physics.util.extend({}, this.options, defaults, options);
+
+            this.setAABB( options.aabb );
+            this.restitution = options.restitution;
+            
+            this._dummy = Physics.body('_dummy', function(){}, { 
+                fixed: true,
+                restitution: this.options.restitution,
+                cof: this.options.cof
+            });
+        },
+
+        setAABB: function( aabb ){
+
+            if (!aabb) {
+                throw 'Error: aabb not set';
+            }
+
+            aabb = aabb.get && aabb.get() || aabb;
+
+            this._edges = {
+                min: {
+                    x: (aabb.pos.x - aabb.x),
+                    y: (aabb.pos.y - aabb.y)
+                },
+                max: {
+                    x: (aabb.pos.x + aabb.x),
+                    y: (aabb.pos.y + aabb.y)  
+                }
+            };
+        },
+
+        connect: function( world ){
+
+            world.subscribe( 'integrate:velocities', this.checkAll, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( 'integrate:velocities', this.checkAll );
+        },
+
+        checkAll: function( data ){
+            
+            var bodies = data.bodies
+                ,dt = data.dt
+                ,body
+                ,collisions = []
+                ,ret
+                ,bounds = this._edges
+                ,dummy = this._dummy
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; i++ ){
+
+                body = bodies[ i ];
+
+                // don't detect fixed bodies
+                if ( !body.fixed ){
+                    
+                    ret = checkEdgeCollide( body, bounds, dummy );
+
+                    if ( ret ){
+                        collisions.push.apply( collisions, ret );
+                    }
+                }
+            }
+
+            if ( collisions.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_COLLISION,
+                    collisions: collisions
+                });
+            }
+        },
+
+        behave: function(){}
+    };
+
+});
+// Source file: src/behaviors/newtonian.js
+// newtonian gravity
+Physics.behavior('newtonian', function( parent ){
+
+    var defaults = {
+
+        strength: 1
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            options = Physics.util.extend({}, defaults, options);
+
+            this.strength = options.strength;
+            this.tolerance = options.tolerance || 100 * this.strength;
+        },
+        
+        behave: function( bodies, dt ){
+
+            var body
+                ,other
+                ,strength = this.strength
+                ,tolerance = this.tolerance
+                ,scratch = Physics.scratchpad()
+                ,pos = scratch.vector()
+                ,normsq
+                ,g
+                ;
+
+            for ( var j = 0, l = bodies.length; j < l; j++ ){
+                
+                body = bodies[ j ];
+
+                for ( var i = j + 1; i < l; i++ ){
+                    
+                    other = bodies[ i ];
+                    // clone the position
+                    pos.clone( other.state.pos );
+                    pos.vsub( body.state.pos );
+                    // get the square distance
+                    normsq = pos.normSq();
+
+                    if (normsq > tolerance){
+
+                        g = strength / normsq;
+
+                        body.accelerate( pos.normalize().mult( g * other.mass ) );
+                        other.accelerate( pos.mult( body.mass/other.mass ).negate() );
+                    }
+                }
+            }
+
+            scratch.done();
+        }
+    };
+});
+
+// Source file: src/behaviors/sweep-prune.js
+//
+// Sweep and Prune implementation for broad phase collision detection
+//
+Physics.behavior('sweep-prune', function( parent ){
+
+    var PUBSUB_CANDIDATES = 'collisions:candidates';
+    var uid = 1;
+    var getUniqueId = function getUniqueId(){
+
+        return uid++;
+    };
+
+    // add z: 2 to get this to work in 3D
+    var dof = { x: 0, y: 1 }; // degrees of freedom
+
+    // return hash for a pair of ids
+    function pairHash( id1, id2 ){
+
+        if ( id1 === id2 ){
+
+            return false;
+        }
+
+        // valid for values < 2^16
+        return id1 > id2? 
+            (id1 << 16) | (id2 & 0xFFFF) : 
+            (id2 << 16) | (id1 & 0xFFFF)
+            ;
+    }
+    
+    return {
+
+        priority: 10,
+
+        // constructor
+        init: function( options ){
+
+            parent.init.call(this, options);
+
+            this.clear();
+        },
+
+        clear: function(){
+
+            this.tracked = [];
+            this.pairs = []; // pairs selected as candidate collisions by broad phase
+            this.intervalLists = {}; // stores lists of aabb projection intervals to be sorted
+            
+            // init intervalLists
+            for ( var xyz in dof ){
+
+                this.intervalLists[ xyz ] = [];
+            }
+        },
+
+        setWorld: function( world ){
+
+            this.clear();
+
+            // subscribe to notifications of new bodies added to world
+            if (this._world){
+
+                this._world.unsubscribe( 'add:body', this.trackBody );
+            }
+
+            world.subscribe( 'add:body', this.trackBody, this );
+
+            // add current bodies
+            var bodies = world.getBodies();
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                this.trackBody({ body: bodies[ i ] });
+            }
+
+            parent.setWorld.call( this, world );
+        },
+
+        broadPhase: function(){
+
+            this.updateIntervals();
+            this.sortIntervalLists();
+            return this.checkOverlaps();
+        },
+
+        // simple insertion sort for each axis
+        sortIntervalLists: function(){
+
+            var list
+                ,len
+                ,i
+                ,hole
+                ,bound
+                ,boundVal
+                ,left
+                ,leftVal
+                ,axis
+                ;
+
+            // for each axis...
+            for ( var xyz in dof ){
+
+                // get the intervals for that axis
+                list = this.intervalLists[ xyz ];
+                i = 0;
+                len = list.length;
+                axis = dof[ xyz ];
+
+                // for each interval bound...
+                while ( (++i) < len ){
+
+                    // store bound
+                    bound = list[ i ];
+                    boundVal = bound.val.get( axis );
+                    hole = i;
+
+                    left = list[ hole - 1 ];
+                    leftVal = left && left.val.get( axis );
+
+                    // while others are greater than bound...
+                    while ( 
+                        hole > 0 && 
+                        (
+                            leftVal > boundVal ||
+                            // if it's an equality, only move it over if 
+                            // the hole was created by a minimum
+                            // and the previous is a maximum
+                            // so that we detect contacts also
+                            leftVal === boundVal &&
+                            ( left.type && !bound.type )
+                        )
+                    ) {
+
+                        // move others greater than bound to the right
+                        list[ hole ] = left;
+                        hole--;
+                        left = list[ hole - 1 ];
+                        leftVal = left && left.val.get( axis );
+                    }
+
+                    // insert bound in the hole
+                    list[ hole ] = bound;
+                }
+            }
+        },
+
+        getPair: function(tr1, tr2, doCreate){
+
+            var hash = pairHash( tr1.id, tr2.id );
+
+            if ( hash === false ){
+                return null;
+            }
+
+            var c = this.pairs[ hash ];
+
+            if ( !c ){
+
+                if ( !doCreate ){
+                    return null;
+                }
+
+                c = this.pairs[ hash ] = {
+                    bodyA: tr1.body,
+                    bodyB: tr2.body,
+                    flag: 0
+                };
+            }
+
+            return c;
+        },
+
+        checkOverlaps: function(){
+
+            var isX
+                ,hash
+                ,tr1
+                ,tr2
+                ,bound
+                ,list
+                ,len
+                ,i
+                ,j
+                ,c
+                // determine which axis is the last we need to check
+                ,collisionFlag = ( dof.z || dof.y || dof.x )
+                ,encounters = []
+                ,enclen = 0
+                ,candidates = []
+                ;
+
+            for ( var xyz in dof ){
+
+                // is the x coord
+                isX = (xyz === 'x');
+                // get the interval list for this axis
+                list = this.intervalLists[ xyz ];
+                i = -1;
+                len = list.length;
+
+                // for each interval bound
+                while ( (++i) < len ){
+                    
+                    bound = list[ i ];
+                    tr1 = bound.tracker;
+
+                    if ( bound.type ){
+
+                        // is a max
+
+                        j = enclen;
+
+                        while ( (--j) >= 0 ){
+
+                            tr2 = encounters[ j ];
+
+                            // if they are the same tracked interval
+                            if ( tr2 === tr1 ){
+
+                                // remove the interval from the encounters list
+                                // faster than .splice()
+                                if ( j < enclen - 1 ) {
+                                    
+                                    encounters[ j ] = encounters.pop();
+
+                                } else {
+
+                                    // encountered a max right after a min... no overlap
+                                    encounters.pop();
+                                }
+
+                                enclen--;
+
+                            } else {
+
+                                // check if we have flagged this pair before
+                                // if it's the x axis, create a pair
+                                c = this.getPair( tr1, tr2, isX );
+
+                                if ( c ){
+                                    
+                                    // if it's the x axis, set the flag
+                                    // to = 1.
+                                    // if not, increment the flag by one.
+                                    c.flag = isX? 0 : c.flag + 1;
+
+                                    // c.flag will equal collisionFlag 
+                                    // if we've incremented the flag
+                                    // enough that all axes are overlapping
+                                    if ( c.flag === collisionFlag ){
+
+                                        // overlaps on all axes.
+                                        // add it to possible collision
+                                        // candidates list for narrow phase
+
+                                        candidates.push( c );
+                                    }
+                                }
+                            }
+                        }
+
+                    } else {
+
+                        // is a min
+                        // just add this minimum to the encounters list
+                        enclen = encounters.push( tr1 );
+                    }
+                }
+            }
+
+            return candidates;
+        },
+
+        updateIntervals: function(){
+
+            var tr
+                ,intr
+                ,scratch = Physics.scratchpad()
+                ,pos = scratch.vector()
+                ,aabb = scratch.vector()
+                ,list = this.tracked
+                ,i = list.length
+                ;
+
+            // for all tracked bodies
+            while ( (--i) >= 0 ){
+
+                tr = list[ i ];
+                intr = tr.interval;
+                pos.clone( tr.body.state.pos );
+                aabb.clone( tr.body.aabb() );
+
+                // copy the position (plus or minus) the aabb bounds
+                // into the min/max intervals
+                intr.min.val.clone( pos ).vsub( aabb );
+                intr.max.val.clone( pos ).vadd( aabb );
+            }
+
+            scratch.done();
+        },
+
+        // add body to list of those tracked by sweep and prune
+        trackBody: function( data ){
+
+            var body = data.body
+                ,tracker = {
+
+                    id: getUniqueId(),
+                    body: body
+                }
+                ,intr = {
+
+                    min: {
+                        type: false, //min
+                        val: Physics.vector(),
+                        tracker: tracker
+                    },
+
+                    max: {
+                        type: true, //max
+                        val: Physics.vector(),
+                        tracker: tracker
+                    }
+                }
+                ;
+
+            tracker.interval = intr;
+            this.tracked.push( tracker );
+            
+            for ( var xyz in dof ){
+
+                this.intervalLists[ xyz ].push( intr.min, intr.max );
+            }
+        },
+
+        connect: function( world ){
+
+            world.subscribe( 'integrate:velocities', this.sweep, this );
+        },
+
+        disconnect: function( world ){
+
+            world.unsubscribe( 'integrate:velocities', this.sweep );
+        },
+
+        sweep: function( data ){
+
+            var self = this
+                ,bodies = data.bodies
+                ,dt = data.dt
+                ,candidates
+                ;
+
+            candidates = self.broadPhase();
+            
+            if ( candidates.length ){
+
+                this._world.publish({
+                    topic: PUBSUB_CANDIDATES,
+                    candidates: candidates
+                });
+            }
+        },
+
+        behave: function(){}
+    };
+});
+// Source file: src/integrators/improved-euler.js
+Physics.integrator('improved-euler', function( parent ){
+
+    return {
+
+        init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+        },
+
+        integrateVelocities: function( bodies, dt ){
+
+            // half the timestep squared
+            var drag = 1 - this.options.drag
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+                    // Inspired from https://github.com/soulwire/Coffee-Physics
+                    // @licence MIT
+                    // 
+                    // x += (v * dt) + (a * 0.5 * dt * dt)
+                    // v += a * dt
+
+                    
+                    // Scale force to mass.
+                    // state.acc.mult( body.massInv );
+
+                    // Remember velocity for future use.
+                    state.old.vel.clone( state.vel );
+
+                    // remember original acc
+                    state.old.acc.clone( state.acc );
+
+                    // Update velocity first so we can reuse the acc vector.
+                    // a *= dt
+                    // v += a ...
+                    state.vel.vadd( state.acc.mult( dt ) );
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Reset accel
+                    state.acc.zero();
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.vel = state.angular.vel;
+                    state.angular.vel += state.angular.acc * dt;
+                    state.angular.acc = 0;
+
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
+            }
+        },
+
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep squared
+            var halfdtdt = 0.5 * dt * dt
+                ,body = null
+                ,state
+                // use cached vector instances
+                // so we don't need to recreate them in a loop
+                ,scratch = Physics.scratchpad()
+                ,vel = scratch.vector()
+                ,angVel
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't fixed
+                if ( !body.fixed ){
+
+
+                    // Store previous location.
+                    state.old.pos.clone( state.pos );
+
+                    // Update position.
+                    // ...
+                    // oldV *= dt
+                    // a *= 0.5 * dt
+                    // x += oldV + a
+                    vel.clone( state.old.vel );
+                    state.pos.vadd( vel.mult( dt ) ).vadd( state.old.acc.mult( halfdtdt ) );
+
+                    state.old.acc.zero();
+
+                    //
+                    // Angular components
+                    // 
+
+                    state.old.angular.pos = state.angular.pos;
+                    state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
+                    state.old.angular.acc = 0;
+
+                }
+            }
+
+            scratch.done();
+        }
+    };
+});
+
+
+// Source file: src/renderers/canvas.js
+Physics.renderer('canvas', function( proto ){
+
+    var Pi2 = Math.PI * 2
+        ,newEl = function( node, content ){
+            var el = document.createElement(node || 'div');
+            if (content){
+                el.innerHTML = content;
+            }
+            return el;
+        }
+        ;
+
+    var defaults = {
+
+        debug: false,
+        bodyColor: '#fff',
+        orientationLineColor: '#cc0000',
+        offset: Physics.vector()
+    };
+
+    return {
+
+        init: function( options ){
+
+            // call proto init
+            proto.init.call(this, options);
+
+            // further options
+            this.options = Physics.util.extend({}, defaults, this.options);
+
+            // hidden canvas
+            this.hiddenCanvas = document.createElement('canvas');
+            this.hiddenCanvas.width = this.hiddenCanvas.height = 100;
+            
+            if (!this.hiddenCanvas.getContext){
+                throw "Canvas not supported";
+            }
+
+            this.hiddenCtx = this.hiddenCanvas.getContext('2d');
+
+            // actual viewport
+            var viewport = this.el;
+            if (viewport.nodeName.toUpperCase() !== "CANVAS"){
+
+                viewport = document.createElement('canvas');
+                this.el.appendChild( viewport );
+                this.el = viewport;
+            }
+
+            viewport.width = this.options.width;
+            viewport.height = this.options.height;
+
+            this.ctx = viewport.getContext("2d");
+
+            this.els = {};
+
+            var stats = newEl();
+            stats.className = 'pjs-meta';
+            this.els.fps = newEl('span');
+            this.els.steps = newEl('span');
+            stats.appendChild(newEl('span', 'fps: '));
+            stats.appendChild(this.els.fps);
+            stats.appendChild(newEl('br'));
+            stats.appendChild(newEl('span', 'steps: '));
+            stats.appendChild(this.els.steps);
+
+            viewport.parentNode.insertBefore(stats, viewport);
+        },
+
+        drawCircle: function(x, y, r, color, ctx){
+
+            ctx = ctx || this.ctx;
+
+            ctx.beginPath();
+            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            ctx.arc(x, y, r, 0, Pi2, false);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+        },
+
+        drawPolygon: function(verts, color, ctx){
+
+            var vert = verts[0]
+                ,x = vert.x === undefined ? vert.get(0) : vert.x
+                ,y = vert.y === undefined ? vert.get(1) : vert.y
+                ,l = verts.length
+                ;
+
+            ctx = ctx || this.ctx;
+            ctx.beginPath();
+            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+
+            ctx.moveTo(x, y);
+
+            for ( var i = 1; i < l; ++i ){
+                
+                vert = verts[ i ];
+                x = vert.x === undefined ? vert.get(0) : vert.x;
+                y = vert.y === undefined ? vert.get(1) : vert.y;
+                ctx.lineTo(x, y);
+            }
+
+            if (l > 2){
+                ctx.closePath();
+            }
+
+            ctx.stroke();
+            ctx.fill();
+        },
+
+        createView: function( geometry ){
+
+            var view = new Image()
+                ,aabb = geometry.aabb()
+                ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
+                ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
+                ,x = hw + 1
+                ,y = hh + 1
+                ,hiddenCtx = this.hiddenCtx
+                ,hiddenCanvas = this.hiddenCanvas
+                ;
+            
+            // clear
+            hiddenCanvas.width = 2 * hw + 2;
+            hiddenCanvas.height = 2 * hh + 2;
+
+            hiddenCtx.save();
+            hiddenCtx.translate(x, y);
+
+            if (geometry.name === 'circle'){
+
+                this.drawCircle(0, 0, geometry.radius, false, hiddenCtx);
+
+            } else if (geometry.name === 'convex-polygon'){
+
+                this.drawPolygon(geometry.vertices, false, hiddenCtx);
+            }
+
+            if (this.options.orientationLineColor){
+
+                hiddenCtx.beginPath();
+                hiddenCtx.strokeStyle = this.options.orientationLineColor;
+                hiddenCtx.moveTo(0, 0);
+                hiddenCtx.lineTo(hw, 0);
+                hiddenCtx.closePath();
+                hiddenCtx.stroke();
+            }
+
+            hiddenCtx.restore();
+
+            view.src = hiddenCanvas.toDataURL("image/png");
+            return view;
+        },
+
+        drawMeta: function( stats ){
+
+            this.els.fps.innerHTML = stats.fps.toFixed(2);
+            this.els.steps.innerHTML = stats.steps;
+        },
+
+        beforeRender: function(){
+
+            // clear canvas
+            this.el.width = this.el.width;
+        },
+
+        drawBody: function( body, view ){
+
+            var ctx = this.ctx
+                ,pos = body.state.pos
+                ,offset = this.options.offset
+                ,aabb = body.aabb()
+                ;
+
+            ctx.save();
+            ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
+            ctx.rotate(body.state.angular.pos);
+            ctx.drawImage(view, -view.width/2, -view.height/2);
+            ctx.restore();
+
+            if ( this.options.debug ){
+                // draw bounding boxes
+                ctx.save();
+                ctx.translate(offset.get(0), offset.get(1));
+                this.drawPolygon([
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y - aabb.y },
+                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y + aabb.y },
+                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y + aabb.y }
+                    ], 'rgba(100, 255, 100, 0.3)');
+                ctx.restore();
+            }
+        }
+    };
+});
+// Source file: src/renderers/dom.js
+Physics.renderer('dom', function( proto ){
+
+    // utility methods
+    var thePrefix = {}
+        ,tmpdiv = document.createElement("div")
+        ,toTitleCase = function toTitleCase(str) {
+            return str.replace(/(?:^|\s)\w/g, function(match) {
+                return match.toUpperCase();
+            });
+        }
+        ,pfx = function pfx(prop) {
+
+            if (thePrefix[prop]){
+                return thePrefix[prop];
+            }
+
+            var arrayOfPrefixes = ['Webkit', 'Moz', 'Ms', 'O']
+                ,name
+                ;
+
+            for (var i = 0, l = arrayOfPrefixes.length; i < l; ++i) {
+
+                name = arrayOfPrefixes[i] + toTitleCase(prop);
+
+                if (name in tmpdiv.style){
+                    return thePrefix[prop] = name;
+                }
+            }
+
+            if (name in tmpdiv.style){
+                return thePrefix[prop] = prop;
+            }
+
+            return false;
+        }
+        ;
+
+    var classpfx = 'pjs-'
+        ,px = 'px'
+        ,cssTransform = pfx('transform')
+        ;
+
+    var newEl = function( node, content ){
+            var el = document.createElement(node || 'div');
+            if (content){
+                el.innerHTML = content;
+            }
+            return el;
+        }
+        ,drawBody
+        ;
+
+    if (cssTransform){
+        drawBody = function( body, view ){
+
+            var pos = body.state.pos;
+            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px) rotate('+body.state.angular.pos+'rad)';
+        };
+    } else {
+        drawBody = function( body, view ){
+
+            var pos = body.state.pos;
+            view.style.left = pos.get(0) + px;
+            view.style.top = pos.get(1) + px;
+        };
+    }
+
+    return {
+
+        init: function( options ){
+
+            // call proto init
+            proto.init.call(this, options);
+
+            var viewport = this.el;
+            viewport.style.position = 'relative';
+            viewport.style.overflow = 'hidden';
+            viewport.style.width = this.options.width + px;
+            viewport.style.height = this.options.height + px;
+
+            this.els = {};
+
+            var stats = newEl();
+            stats.className = 'pjs-meta';
+            this.els.fps = newEl('span');
+            this.els.steps = newEl('span');
+            stats.appendChild(newEl('span', 'fps: '));
+            stats.appendChild(this.els.fps);
+            stats.appendChild(newEl('br'));
+            stats.appendChild(newEl('span', 'steps: '));
+            stats.appendChild(this.els.steps);
+
+            viewport.appendChild(stats);
+        },
+
+        circleProperties: function( el, geometry ){
+
+            var aabb = geometry.aabb();
+
+            el.style.width = (aabb.halfWidth * 2) + px;
+            el.style.height = (aabb.halfHeight * 2) + px;
+            el.style.marginLeft = (-aabb.halfWidth) + px;
+            el.style.marginTop = (-aabb.halfHeight) + px;
+        },
+
+        createView: function( geometry ){
+
+            var el = newEl()
+                ,fn = geometry.name + 'Properties'
+                ;
+
+            el.className = classpfx + geometry.name;
+            el.style.position = 'absolute';            
+            el.style.top = '0px';
+            el.style.left = '0px';
+            
+            if (this[ fn ]){
+                this[ fn ](el, geometry);
+            }
+            
+            this.el.appendChild( el );
+            return el;
+        },
+
+        drawMeta: function( stats ){
+
+            this.els.fps.innerHTML = stats.fps.toFixed(2);
+            this.els.steps.innerHTML = stats.steps;
+        },
+
+        drawBody: drawBody
+    };
+});
 // Source file: src/outro.js
     return Physics;
 }));

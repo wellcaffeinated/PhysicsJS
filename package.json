@@ -1,6 +1,6 @@
 {
   "name": "physicsjs",
-  "version": "0.0.1a",
+  "version": "0.5.0",
   "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
   "description": "A decent javascript physics engine",
   "contributors": [
