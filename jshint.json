@@ -12,7 +12,6 @@
     "eqnull" : true,
     "browser" : true,
     "globals" : {
-        "_" : true,
         "Decorator": true,
         "module" : true,
         "exports" : true,

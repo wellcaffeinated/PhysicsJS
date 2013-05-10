@@ -35,19 +35,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     };
 
     // http://ejohn.org/blog/objectgetprototypeof/
+    /* jshint -W103 */
     var getProto = Object.getPrototypeOf;
     if ( typeof getProto !== 'function' ) {
         if ( typeof 'test'.__proto__ === 'object' ) {
             getProto = function(object){
-              return object.__proto__;
+                return object.__proto__;
             };
         } else {
             getProto = function(object){
-              // May break if the constructor has been tampered with
-              return object.constructor.prototype;
+                // May break if the constructor has been tampered with
+                return object.constructor.prototype;
             };
         }
     }
+    /* jshint +W103 */
 
     var objectCreate = Object.create;
     if (typeof objectCreate !== 'function') {

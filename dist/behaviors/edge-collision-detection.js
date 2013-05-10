@@ -68,7 +68,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // left
-        overlap = bounds.min.x - (aabb.pos.x - aabb.x)
+        overlap = bounds.min.x - (aabb.pos.x - aabb.x);
 
         if ( overlap >= 0 ){
 

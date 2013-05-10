@@ -163,7 +163,7 @@ Physics.behavior('sweep-prune', function( parent ){
                     bodyA: tr1.body,
                     bodyB: tr2.body,
                     flag: 0
-                }
+                };
             }
 
             return c;
@@ -225,7 +225,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                 } else {
 
                                     // encountered a max right after a min... no overlap
-                                    encounters.pop()
+                                    encounters.pop();
                                 }
 
                                 enclen--;

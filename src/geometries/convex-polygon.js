@@ -30,7 +30,7 @@ Physics.geometry('convex-polygon', function( parent ){
             }
 
             transl.setRotation( 0 );
-            transl.setTranslation( Physics.geometry.getPolygonCentroid( hull ).negate() )
+            transl.setTranslation( Physics.geometry.getPolygonCentroid( hull ).negate() );
 
             // translate each vertex so that the centroid is at the origin
             // then add the vertex as a vector to this.vertices

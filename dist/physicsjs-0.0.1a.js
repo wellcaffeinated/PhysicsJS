@@ -32,7 +32,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-62591-1xhk9z9 exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-64352-y25m04 exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -1644,19 +1644,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     };
 
     // http://ejohn.org/blog/objectgetprototypeof/
+    /* jshint -W103 */
     var getProto = Object.getPrototypeOf;
     if ( typeof getProto !== 'function' ) {
         if ( typeof 'test'.__proto__ === 'object' ) {
             getProto = function(object){
-              return object.__proto__;
+                return object.__proto__;
             };
         } else {
             getProto = function(object){
-              // May break if the constructor has been tampered with
-              return object.constructor.prototype;
+                // May break if the constructor has been tampered with
+                return object.constructor.prototype;
             };
         }
     }
+    /* jshint +W103 */
 
     var objectCreate = Object.create;
     if (typeof objectCreate !== 'function') {
