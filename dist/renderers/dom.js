@@ -1,3 +1,10 @@
+/**
+ * physicsjs v0.0.1a - 2013-05-10
+ * A decent javascript physics engine
+ *
+ * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Licensed MIT
+ */
 (function (root, factory) {
     var deps = ['physicsjs'];
     if (typeof exports === 'object') {

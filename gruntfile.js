@@ -58,8 +58,19 @@ module.exports = function(grunt) {
     config.uglifyFiles[['dist/', '.min.js'].join(config.versioned)] = config.dist;
     config.uglifyFiles[['dist/', '.min.js'].join(config.versionedFull)] = config.distFull;
 
+    // build source globs for full package
     config.sourcesFull = [].concat(config.sources);
     Array.prototype.splice.apply(config.sourcesFull, [-1, 0].concat(config.moduleSources));
+
+    // remove the exclusions. we want it to match all files.
+    for ( var i = 0, l = config.sourcesFull.length; i < l; ++i ){
+        
+        if (config.sourcesFull[ i ].charAt(0) === '!'){
+            config.sourcesFull.splice( i, 1 );
+            i--;
+            l--;
+        }
+    }
 
     // search for pragmas to figure out dependencies and add a umd declaration
     function wrapDefine( src, path ){
@@ -77,7 +88,7 @@ module.exports = function(grunt) {
             return match;
         });
 
-        return "(function (root, factory) {\n" +
+        return grunt.template.process(config.banner, config) + "(function (root, factory) {\n" +
         "    var deps = ['" + deps.join("', '") + "'];\n" +
         "    if (typeof exports === 'object') {\n" +
         "        // Node. \n" +
