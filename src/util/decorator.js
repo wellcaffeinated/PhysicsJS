@@ -23,9 +23,10 @@
  * // instantiate
  * var instance = service( 'name', options );
  */
-var Decorator = Physics.util.decorator = function Decorator( type, proto ){
+var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     var registry = {}
+        ,proto = {}
         ;
 
     var copyFn = function copyFn( a, b ){
@@ -48,25 +49,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         }
     }
 
-    var getExtension = function getExtension( constructor ){
-
-        var ret, proto = constructor;
-
-        if ( typeof constructor === 'function' ){
-
-            proto = constructor.prototype;
-            constructor = new constructor();
-        }
-
-        ret = Physics.util.extend({}, constructor, copyFn);
-        ret.__proto__ = proto;
-        return ret;
-    };
+    var objectCreate = Object.create;
+    if (typeof objectCreate !== 'function') {
+        objectCreate = function (o) {
+            function F() {}
+            F.prototype = o;
+            return new F();
+        };
+    }
 
     var mixin = function mixin( key, val ){
 
         if ( typeof key === 'object' ){
-            proto = Physics.util.extend(proto || {}, key, copyFn);
+            proto = Physics.util.extend(proto, key, copyFn);
             proto.type = type;
             return;
         }
@@ -78,7 +73,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
 
     // TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
-    mixin( proto );
+    mixin( baseProto );
 
     var factory = function factory( name, parentName, decorator, cfg ){
 
@@ -104,6 +99,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
 
                 throw 'Error: "' + parentName + '" ' + type + ' not defined';
             }
+
+            parent = parent.prototype;
         }
 
         if ( typeof decorator === 'function' ){
@@ -111,12 +108,9 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
             result = registry[ name ];
 
             if ( result ){
-                // previously defined. just extend
-                parent = result.prototype.__parent__;
-                tmp = result.prototype.__proto__;
-                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
-                result.prototype.__proto__ = tmp;
 
+                result.prototype = Physics.util.extend(result.prototype, decorator( getProto(result.prototype) ), copyFn);
+                
             } else {
                 // newly defined
                 // store the new class
@@ -126,15 +120,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
                     }
                 };
 
-                parent = getExtension( parent );
-
-                result.prototype = Physics.util.extend({}, parent, decorator( parent ), copyFn);
-                result.prototype.__proto__ = getProto( parent );
+                result.prototype = objectCreate( parent );
+                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
             }
 
             result.prototype.type = type;
             result.prototype.name = name;
-            result.prototype.__parent__ = parent;
             
         } else {
 

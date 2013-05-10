@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.0.1a - 2013-05-09
+ * physicsjs v0.0.1a - 2013-05-10
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -32,7 +32,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11344-59443-1squ50s exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-62591-1xhk9z9 exports="none" iife="(function(){%output%;lodash.extend(Physics.util, lodash);}());" include="extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -1632,9 +1632,10 @@ Physics.util = {};
  * // instantiate
  * var instance = service( 'name', options );
  */
-var Decorator = Physics.util.decorator = function Decorator( type, proto ){
+var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     var registry = {}
+        ,proto = {}
         ;
 
     var copyFn = function copyFn( a, b ){
@@ -1657,25 +1658,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
         }
     }
 
-    var getExtension = function getExtension( constructor ){
-
-        var ret, proto = constructor;
-
-        if ( typeof constructor === 'function' ){
-
-            proto = constructor.prototype;
-            constructor = new constructor();
-        }
-
-        ret = Physics.util.extend({}, constructor, copyFn);
-        ret.__proto__ = proto;
-        return ret;
-    };
+    var objectCreate = Object.create;
+    if (typeof objectCreate !== 'function') {
+        objectCreate = function (o) {
+            function F() {}
+            F.prototype = o;
+            return new F();
+        };
+    }
 
     var mixin = function mixin( key, val ){
 
         if ( typeof key === 'object' ){
-            proto = Physics.util.extend(proto || {}, key, copyFn);
+            proto = Physics.util.extend(proto, key, copyFn);
             proto.type = type;
             return;
         }
@@ -1687,7 +1682,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
 
     // TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
-    mixin( proto );
+    mixin( baseProto );
 
     var factory = function factory( name, parentName, decorator, cfg ){
 
@@ -1713,6 +1708,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
 
                 throw 'Error: "' + parentName + '" ' + type + ' not defined';
             }
+
+            parent = parent.prototype;
         }
 
         if ( typeof decorator === 'function' ){
@@ -1720,12 +1717,9 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
             result = registry[ name ];
 
             if ( result ){
-                // previously defined. just extend
-                parent = result.prototype.__parent__;
-                tmp = result.prototype.__proto__;
-                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
-                result.prototype.__proto__ = tmp;
 
+                result.prototype = Physics.util.extend(result.prototype, decorator( getProto(result.prototype) ), copyFn);
+                
             } else {
                 // newly defined
                 // store the new class
@@ -1735,15 +1729,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, proto ){
                     }
                 };
 
-                parent = getExtension( parent );
-
-                result.prototype = Physics.util.extend({}, parent, decorator( parent ), copyFn);
-                result.prototype.__proto__ = getProto( parent );
+                result.prototype = objectCreate( parent );
+                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
             }
 
             result.prototype.type = type;
             result.prototype.name = name;
-            result.prototype.__parent__ = parent;
             
         } else {
 
