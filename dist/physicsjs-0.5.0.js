@@ -5,7 +5,10 @@
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
-// Source file: src/intro.js
+
+// ---
+// inside: src/intro.js
+
 (function (root, factory) {
     if (typeof exports === 'object') {
         // Node. 
@@ -28,7 +31,10 @@ var Physics = function Physics(){
 
 Physics.util = {};
 
-// Source file: lib/lodash.js
+
+// ---
+// inside: lib/lodash.js
+
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
@@ -1606,7 +1612,10 @@ Physics.util = {};
   /*--------------------------------------------------------------------------*/
 
 ;lodash.extend(Physics.util, lodash);}(this));
-// Source file: src/util/decorator.js
+
+// ---
+// inside: src/util/decorator.js
+
 /**
  * Facilitates creation of decorator service functions
  *
@@ -1759,7 +1768,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     return factory;
 };
-// Source file: src/util/log.js
+
+// ---
+// inside: src/util/log.js
+
 (function(window){
     var log;
 
@@ -1773,7 +1785,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     Physics.util.log = log;
 }(this));
-// Source file: src/util/request-anim-frame.js
+
+// ---
+// inside: src/util/request-anim-frame.js
+
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
  
@@ -1805,7 +1820,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         };
     }
 }(this));
-// Source file: src/util/scratchpad.js
+
+// ---
+// inside: src/util/scratchpad.js
+
 // scratchpad
 // thread-safe management of temporary (voletile)
 // objects for use in calculations
@@ -1919,99 +1937,105 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     };
 
 })();
-// Source file: src/util/ticker.js
+
+// ---
+// inside: src/util/ticker.js
+
 (function(window){
         
-var lastTime = 0
-    ,active = false
-    ,listeners = []
-    ;
+    var lastTime = 0
+        ,active = false
+        ,listeners = []
+        ;
 
-function step( time ){
+    function step( time ){
 
-    var fns = listeners;
+        var fns = listeners;
 
-    if (!active){
-        return;
-    }
+        if (!active){
+            return;
+        }
 
-    window.requestAnimationFrame( step );
-    
-    for ( var i = 0, l = fns.length; i < l; ++i ){
+        window.requestAnimationFrame( step );
         
-        fns[ i ]( time, time - lastTime );
+        for ( var i = 0, l = fns.length; i < l; ++i ){
+            
+            fns[ i ]( time, time - lastTime );
+        }
+
+        lastTime = time;
     }
 
-    lastTime = time;
-}
+    function start(){
+        
+        lastTime = (new Date()).getTime();
+        active = true;
+        step();
 
-function start(){
-    
-    lastTime = (new Date()).getTime();
-    active = true;
-    step();
+        return this;
+    }
 
-    return this;
-}
+    function stop(){
 
-function stop(){
+        active = false;
+        return this;
+    }
 
-    active = false;
-    return this;
-}
+    function subscribe( listener ){
 
-function subscribe( listener ){
+        // if function and not already in listeners...
+        if ( typeof listener === 'function' ){
 
-    // if function and not already in listeners...
-    if ( typeof listener === 'function' ){
+            for ( var i = 0, l = listeners.length; i < l; ++i ){
+                
+                if (listener === listeners[ i ]){
+                    return this;
+                }
+            }
 
-        for ( var i = 0, l = listeners.length; i < l; ++i ){
+            // add it
+            listeners.push( listener );
+        }
+        
+        return this;
+    }
+
+    function unsubscribe( listener ){
+
+        var fns = listeners;
+
+        for ( var i = 0, l = fns.length; i < l; ++i ){
             
-            if (listener === listeners[ i ]){
+            if ( fns[ i ] === listener ){
+
+                // remove it
+                fns.splice( i, 1 );
                 return this;
             }
         }
 
-        // add it
-        listeners.push( listener );
-    }
-    
-    return this;
-}
-
-function unsubscribe( listener ){
-
-    var fns = listeners;
-
-    for ( var i = 0, l = fns.length; i < l; ++i ){
-        
-        if ( fns[ i ] === listener ){
-
-            // remove it
-            fns.splice( i, 1 );
-            return this;
-        }
+        return this;
     }
 
-    return this;
-}
+    function isActive(){
 
-function isActive(){
+        return !!active;
+    }
 
-    return !!active;
-}
-
-// API
-Physics.util.ticker = {
-    start: start,
-    stop: stop,
-    subscribe: subscribe,
-    unsubscribe: unsubscribe,
-    isActive: isActive
-};
+    // API
+    Physics.util.ticker = {
+        start: start,
+        stop: stop,
+        subscribe: subscribe,
+        unsubscribe: unsubscribe,
+        isActive: isActive
+    };
 
 }(this));
-// Source file: src/math/aabb.js
+
+// ---
+// inside: src/math/aabb.js
+
 (function(){
 
     var AABB = function AABB( minX, minY, maxX, maxY ){
@@ -2107,963 +2131,968 @@ Physics.util.ticker = {
 
     Physics.aabb = AABB;
 }());
-// Source file: src/math/gjk.js
-// Gilbert–Johnson–Keerthi object collison algorithm
-// For general information about GJK see: 
-// * http://www.codezealot.org/archives/88
-// * http://mollyrocket.com/849
+
+// ---
+// inside: src/math/gjk.js
+
+/**
+ * Gilbert–Johnson–Keerthi object collison algorithm
+ * For general information about GJK see: 
+ *  - http://www.codezealot.org/archives/88
+ *  - http://mollyrocket.com/849
+ */
 (function(){
 
-// the algorithm doesn't always converge for curved shapes.
-// need these constants to dictate how accurate we want to be.
-var gjkAccuracy = 0.0001;
-var gjkMaxIterations = 100;
+    // the algorithm doesn't always converge for curved shapes.
+    // need these constants to dictate how accurate we want to be.
+    var gjkAccuracy = 0.0001;
+    var gjkMaxIterations = 100;
 
-// get the next search direction from two simplex points
-var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
+    // get the next search direction from two simplex points
+    var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
 
-    var ABdotB = ptB.normSq() - ptB.dot( ptA )
-        ,ABdotA = ptB.dot( ptA ) - ptA.normSq()
-        ;
+        var ABdotB = ptB.normSq() - ptB.dot( ptA )
+            ,ABdotA = ptB.dot( ptA ) - ptA.normSq()
+            ;
 
-    // if the origin is farther than either of these points
-    // get the direction from one of those points to the origin
-    if ( ABdotB < 0 ){
+        // if the origin is farther than either of these points
+        // get the direction from one of those points to the origin
+        if ( ABdotB < 0 ){
 
-        return dir.clone( ptB ).negate();
+            return dir.clone( ptB ).negate();
 
-    } else if ( ABdotA > 0 ){
+        } else if ( ABdotA > 0 ){
 
-        return dir.clone( ptA ).negate();
+            return dir.clone( ptA ).negate();
 
-    // otherwise, use the perpendicular direction from the simplex
-    } else {
+        // otherwise, use the perpendicular direction from the simplex
+        } else {
 
-        // dir = AB = B - A
-        dir.clone( ptB ).vsub( ptA );
-        // if (left handed coordinate system) 
-        // A cross AB < 0 then get perpendicular counter clockwise 
-        return dir.perp( (ptA.cross( dir ) < 0) );
-    }
-};
-
-/**
- * Figure out the closest points on the original objects
- * from the last two entries of the simplex
- * @param  {Array} simplex
- * @return {Object}
- */
-var getClosestPoints = function getClosestPoints( simplex ){
-
-    // see http://www.codezealot.org/archives/153
-    // for algorithm details
-
-    // we know that the position of the last point 
-    // is very close to the previous. (by nature of the distance test)
-    // this won't give great results for the closest
-    // points algorithm, so let's use the previous two
-    var len = simplex.length
-        ,last = simplex[ len - 2 ]
-        ,prev = simplex[ len - 3 ]
-        ,scratch = Physics.scratchpad()
-        ,A = scratch.vector().clone( last.pt )
-        // L = B - A
-        ,L = scratch.vector().clone( prev.pt ).vsub( A )
-        ,lambdaB
-        ,lambdaA
-        ;
-
-    if ( L.equals(Physics.vector.zero) ){
-
-        // oh.. it's a zero vector. So A and B are both the closest.
-        // just use one of them
-        scratch.done();
-        return {
-
-            a: last.a,
-            b: last.b
-        };
-    }
-
-    lambdaB = - L.dot( A ) / L.normSq();
-    lambdaA = 1 - lambdaB;
-
-    if ( lambdaA <= 0 ){
-        // woops.. that means the closest simplex point
-        // isn't on the line it's point B itself
-        scratch.done();
-        return {
-            a: prev.a,
-            b: prev.b
-        };
-    } else if ( lambdaB <= 0 ){
-        // vice versa
-        scratch.done();
-        return {
-            a: last.a,
-            b: last.b
-        };
-    }
-
-    // guess we'd better do the math now...
-    var ret = {
-        // a closest = lambdaA * Aa + lambdaB * Ba
-        a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
-        // b closest = lambdaA * Ab + lambdaB * Bb
-        b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
+            // dir = AB = B - A
+            dir.clone( ptB ).vsub( ptA );
+            // if (left handed coordinate system) 
+            // A cross AB < 0 then get perpendicular counter clockwise 
+            return dir.perp( (ptA.cross( dir ) < 0) );
+        }
     };
 
-    scratch.done();
-    return ret;
-};
+    /**
+     * Figure out the closest points on the original objects
+     * from the last two entries of the simplex
+     * @param  {Array} simplex
+     * @return {Object}
+     */
+    var getClosestPoints = function getClosestPoints( simplex ){
 
-/**
- * Implementation agnostic GJK function.
- * @param  {Function} support The support function. Must return an object containing 
- *                            the witness points (.a, .b) and the support point (.pt).
- *                            Recommended to use simple objects. Eg: return { a: {x: 1, y:2}, b: {x: 3, y: 4}, pt: {x: 2, y: 2} }
- *                            Signature: function(<Physics.vector> axis).
- *                            axis: The axis to use
- * @param {Physics.vector} seed The starting direction for the simplex
- * @return {Object} The algorithm information containing properties: .overlap (bool), and .simplex (Array)
- */
-var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
+        // see http://www.codezealot.org/archives/153
+        // for algorithm details
 
-    var overlap = false
-        ,noOverlap = false // if we're sure we're not overlapping
-        ,distance = false
-        ,simplex = []
-        ,simplexLen = 1
-        // setup a scratchpad of temporary cheap objects
-        ,scratch = Physics.scratchpad()
-        // use seed as starting direction or use x axis
-        ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ])
-        ,last = scratch.vector()
-        ,lastlast = scratch.vector()
-        // some temp vectors
-        ,v1 = scratch.vector()
-        ,v2 = scratch.vector()
-        ,ab
-        ,ac
-        ,sign
-        ,tmp
-        ,iterations = 0
-        ;
+        // we know that the position of the last point 
+        // is very close to the previous. (by nature of the distance test)
+        // this won't give great results for the closest
+        // points algorithm, so let's use the previous two
+        var len = simplex.length
+            ,last = simplex[ len - 2 ]
+            ,prev = simplex[ len - 3 ]
+            ,scratch = Physics.scratchpad()
+            ,A = scratch.vector().clone( last.pt )
+            // L = B - A
+            ,L = scratch.vector().clone( prev.pt ).vsub( A )
+            ,lambdaB
+            ,lambdaA
+            ;
 
-    // get the first Minkowski Difference point
-    tmp = support( dir );
-    simplexLen = simplex.push( tmp );
-    last.clone( tmp.pt );
-    // negate d for the next point
-    dir.negate();
+        if ( L.equals(Physics.vector.zero) ){
 
-    // start looping
-    while ( ++iterations ) {
+            // oh.. it's a zero vector. So A and B are both the closest.
+            // just use one of them
+            scratch.done();
+            return {
 
-        // swap last and lastlast, to save on memory/speed
-        last.swap(lastlast);
-        // push a new point to the simplex because we haven't terminated yet
+                a: last.a,
+                b: last.b
+            };
+        }
+
+        lambdaB = - L.dot( A ) / L.normSq();
+        lambdaA = 1 - lambdaB;
+
+        if ( lambdaA <= 0 ){
+            // woops.. that means the closest simplex point
+            // isn't on the line it's point B itself
+            scratch.done();
+            return {
+                a: prev.a,
+                b: prev.b
+            };
+        } else if ( lambdaB <= 0 ){
+            // vice versa
+            scratch.done();
+            return {
+                a: last.a,
+                b: last.b
+            };
+        }
+
+        // guess we'd better do the math now...
+        var ret = {
+            // a closest = lambdaA * Aa + lambdaB * Ba
+            a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
+            // b closest = lambdaA * Ab + lambdaB * Bb
+            b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
+        };
+
+        scratch.done();
+        return ret;
+    };
+
+    /**
+     * Implementation agnostic GJK function.
+     * @param  {Function} support The support function. Must return an object containing 
+     *                            the witness points (.a, .b) and the support point (.pt).
+     *                            Recommended to use simple objects. Eg: return { a: {x: 1, y:2}, b: {x: 3, y: 4}, pt: {x: 2, y: 2} }
+     *                            Signature: function(<Physics.vector> axis).
+     *                            axis: The axis to use
+     * @param {Physics.vector} seed The starting direction for the simplex
+     * @return {Object} The algorithm information containing properties: .overlap (bool), and .simplex (Array)
+     */
+    var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
+
+        var overlap = false
+            ,noOverlap = false // if we're sure we're not overlapping
+            ,distance = false
+            ,simplex = []
+            ,simplexLen = 1
+            // setup a scratchpad of temporary cheap objects
+            ,scratch = Physics.scratchpad()
+            // use seed as starting direction or use x axis
+            ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ])
+            ,last = scratch.vector()
+            ,lastlast = scratch.vector()
+            // some temp vectors
+            ,v1 = scratch.vector()
+            ,v2 = scratch.vector()
+            ,ab
+            ,ac
+            ,sign
+            ,tmp
+            ,iterations = 0
+            ;
+
+        // get the first Minkowski Difference point
         tmp = support( dir );
         simplexLen = simplex.push( tmp );
         last.clone( tmp.pt );
+        // negate d for the next point
+        dir.negate();
 
-        if ( debugFn ){
-            debugFn( simplex );
-        }
+        // start looping
+        while ( ++iterations ) {
 
-        if ( last.equals(Physics.vector.zero) ){
-            // we happened to pick the origin as a support point... lucky.
-            overlap = true;
-            break;
-        }
-        
-        // check if the last point we added actually passed the origin
-        if ( !noOverlap && last.dot( dir ) <= 0.0 ) {
-            // if the point added last was not past the origin in the direction of d
-            // then the Minkowski difference cannot possibly contain the origin since
-            // the last point added is on the edge of the Minkowski Difference
+            // swap last and lastlast, to save on memory/speed
+            last.swap(lastlast);
+            // push a new point to the simplex because we haven't terminated yet
+            tmp = support( dir );
+            simplexLen = simplex.push( tmp );
+            last.clone( tmp.pt );
 
-            // if we just need the overlap...
-            if ( checkOverlapOnly ){
-                break;
+            if ( debugFn ){
+                debugFn( simplex );
             }
 
-            noOverlap = true;
-        }
-
-        // if it's a line...
-        if ( simplexLen === 2 ){
-
-            // otherwise we need to determine if the origin is in
-            // the current simplex and act accordingly
-
-            dir = getNextSearchDir( last, lastlast, dir );
-            // continue...
-
-        // if it's a triangle... and we're looking for the distance
-        } else if ( noOverlap ){
-
-            // if we know there isn't any overlap and
-            // we're just trying to find the distance...
-            // make sure we're getting closer to the origin
-            dir.normalize();
-            tmp = lastlast.dot( dir );
-            if ( Math.abs(tmp - last.dot( dir )) < gjkAccuracy ){
-
-                distance = -tmp;
-                break;
-            }
-
-            // if we are still getting closer then only keep
-            // the points in the simplex that are closest to
-            // the origin (we already know that last is closer
-            // than the previous two)
-            // the norm is the same as distance(origin, a)
-            // use norm squared to avoid the sqrt operations
-            if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
-                
-                simplex.shift();
-
-            } else {
-                
-                simplex.splice(1, 1);
-            }
-
-            dir = getNextSearchDir( v1.clone(simplex[ 1 ].pt), v2.clone(simplex[ 0 ].pt), dir );
-            // continue...
-
-        // if it's a triangle
-        } else {
-
-            // we need to trim the useless point...
-
-            ab = ab || scratch.vector();
-            ac = ac || scratch.vector();
-
-            // get the edges AB and AC
-            ab.clone( lastlast ).vsub( last );
-            ac.clone( simplex[ 0 ].pt ).vsub( last );
-
-            // here normally people think about this as getting outward facing
-            // normals and checking dot products. Since we're in 2D
-            // we can be clever...
-            sign = ab.cross( ac ) > 0;
-            
-            if ( sign ^ (last.cross( ab ) > 0) ){
-
-                // ok... so there's an XOR here... don't freak out
-                // remember last = A = -AO
-                // if AB cross AC and AO cross AB have the same sign
-                // then the origin is along the outward facing normal of AB
-                // so if AB cross AC and A cross AB have _different_ (XOR) signs
-                // then this is also the case... so we proceed...
-
-                // point C is dead to us now...
-                simplex.shift();
-
-                // if we haven't deduced that we've enclosed the origin
-                // then we know which way to look...
-                // morph the ab vector into its outward facing normal
-                ab.perp( sign );
-                
-                // swap
-                dir.swap( ab );
-                
-                // continue...
-
-                // if we get to this if, then it means we can continue to look along
-                // the other outward normal direction (ACperp)
-                // if we don't see the origin... then we must have it enclosed
-            } else if ( sign ^ (ac.cross( last ) > 0) ){
-                // then the origin is along the outward facing normal 
-                // of AC; (ACperp)
-
-                // point B is dead to us now...
-                simplex.splice(1, 1);
-
-                ac.perp( !sign );
-                
-                // swap
-                dir.swap( ab );
-                
-                // continue...
-
-            } else {
-
-                // we have enclosed the origin!
+            if ( last.equals(Physics.vector.zero) ){
+                // we happened to pick the origin as a support point... lucky.
                 overlap = true;
-                // fewf... take a break
                 break;
+            }
+            
+            // check if the last point we added actually passed the origin
+            if ( !noOverlap && last.dot( dir ) <= 0.0 ) {
+                // if the point added last was not past the origin in the direction of d
+                // then the Minkowski difference cannot possibly contain the origin since
+                // the last point added is on the edge of the Minkowski Difference
+
+                // if we just need the overlap...
+                if ( checkOverlapOnly ){
+                    break;
+                }
+
+                noOverlap = true;
+            }
+
+            // if it's a line...
+            if ( simplexLen === 2 ){
+
+                // otherwise we need to determine if the origin is in
+                // the current simplex and act accordingly
+
+                dir = getNextSearchDir( last, lastlast, dir );
+                // continue...
+
+            // if it's a triangle... and we're looking for the distance
+            } else if ( noOverlap ){
+
+                // if we know there isn't any overlap and
+                // we're just trying to find the distance...
+                // make sure we're getting closer to the origin
+                dir.normalize();
+                tmp = lastlast.dot( dir );
+                if ( Math.abs(tmp - last.dot( dir )) < gjkAccuracy ){
+
+                    distance = -tmp;
+                    break;
+                }
+
+                // if we are still getting closer then only keep
+                // the points in the simplex that are closest to
+                // the origin (we already know that last is closer
+                // than the previous two)
+                // the norm is the same as distance(origin, a)
+                // use norm squared to avoid the sqrt operations
+                if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
+                    
+                    simplex.shift();
+
+                } else {
+                    
+                    simplex.splice(1, 1);
+                }
+
+                dir = getNextSearchDir( v1.clone(simplex[ 1 ].pt), v2.clone(simplex[ 0 ].pt), dir );
+                // continue...
+
+            // if it's a triangle
+            } else {
+
+                // we need to trim the useless point...
+
+                ab = ab || scratch.vector();
+                ac = ac || scratch.vector();
+
+                // get the edges AB and AC
+                ab.clone( lastlast ).vsub( last );
+                ac.clone( simplex[ 0 ].pt ).vsub( last );
+
+                // here normally people think about this as getting outward facing
+                // normals and checking dot products. Since we're in 2D
+                // we can be clever...
+                sign = ab.cross( ac ) > 0;
+                
+                if ( sign ^ (last.cross( ab ) > 0) ){
+
+                    // ok... so there's an XOR here... don't freak out
+                    // remember last = A = -AO
+                    // if AB cross AC and AO cross AB have the same sign
+                    // then the origin is along the outward facing normal of AB
+                    // so if AB cross AC and A cross AB have _different_ (XOR) signs
+                    // then this is also the case... so we proceed...
+
+                    // point C is dead to us now...
+                    simplex.shift();
+
+                    // if we haven't deduced that we've enclosed the origin
+                    // then we know which way to look...
+                    // morph the ab vector into its outward facing normal
+                    ab.perp( sign );
+                    
+                    // swap
+                    dir.swap( ab );
+                    
+                    // continue...
+
+                    // if we get to this if, then it means we can continue to look along
+                    // the other outward normal direction (ACperp)
+                    // if we don't see the origin... then we must have it enclosed
+                } else if ( sign ^ (ac.cross( last ) > 0) ){
+                    // then the origin is along the outward facing normal 
+                    // of AC; (ACperp)
+
+                    // point B is dead to us now...
+                    simplex.splice(1, 1);
+
+                    ac.perp( !sign );
+                    
+                    // swap
+                    dir.swap( ab );
+                    
+                    // continue...
+
+                } else {
+
+                    // we have enclosed the origin!
+                    overlap = true;
+                    // fewf... take a break
+                    break;
+                }
+            }
+
+            // woah nelly... that's a lot of iterations.
+            // Stop it!
+            if (iterations > gjkMaxIterations){
+                scratch.done();
+                return {
+                    simplex: simplex,
+                    iterations: iterations,
+                    distance: 0,
+                    maxIterationsReached: true
+                };
             }
         }
 
-        // woah nelly... that's a lot of iterations.
-        // Stop it!
-        if (iterations > gjkMaxIterations){
-            scratch.done();
-            return {
-                simplex: simplex,
-                iterations: iterations,
-                distance: 0,
-                maxIterationsReached: true
-            };
+        // free workspace
+        scratch.done();
+
+        tmp = {
+            overlap: overlap,
+            simplex: simplex,
+            iterations: iterations
+        };
+
+        if ( distance !== false ){
+
+            tmp.distance = distance;
+            tmp.closest = getClosestPoints( simplex );
         }
-    }
 
-    // free workspace
-    scratch.done();
-
-    tmp = {
-        overlap: overlap,
-        simplex: simplex,
-        iterations: iterations
+        return tmp;
     };
 
-    if ( distance !== false ){
-
-        tmp.distance = distance;
-        tmp.closest = getClosestPoints( simplex );
-    }
-
-    return tmp;
-};
-
-Physics.gjk = gjk;
+    Physics.gjk = gjk;
 
 })();
-// Source file: src/math/transform.js
-(function(window){
+
+// ---
+// inside: src/math/transform.js
+
+(function(){
     
-/**
- * begin Transform Class
- * @class Transform
- */
+    /**
+     * Vector Transformations class for rotating and translating vectors
+     * @class Transform
+     */
 
-/**
- * Transform Constructor / Factory
- * @param {Physics.vector|Physics.transform} vect (optional) vector to use for translation or a transform to copy
- * @param {Number} angle (optional) Angle (radians) to use for rotation
- */
-var Transform = function Transform( vect, angle ) {
+    /**
+     * Transform Constructor / Factory
+     * @param {Physics.vector|Physics.transform} vect (optional) vector to use for translation or a transform to copy
+     * @param {Number} angle (optional) Angle (radians) to use for rotation
+     */
+    var Transform = function Transform( vect, angle ) {
 
-    if (!(this instanceof Transform)){
-        return new Transform( vect, angle );
-    }
+        if (!(this instanceof Transform)){
+            return new Transform( vect, angle );
+        }
 
-    this.v = Physics.vector();
-    this.angle = 0;
+        this.v = Physics.vector();
+        this.angle = 0;
 
-    if ( vect instanceof Transform ){
+        if ( vect instanceof Transform ){
 
-        this.clone( vect );
-    }
+            this.clone( vect );
+        }
 
-    if (vect){
-        this.setTranslation( vect );
-    }
+        if (vect){
+            this.setTranslation( vect );
+        }
 
-    this.setRotation( angle || 0 );
-};
+        this.setRotation( angle || 0 );
+    };
 
-/**
- * Set the translation portion of the transform
- * @param {Physics.vector} vect
- */
-Transform.prototype.setTranslation = function( vect ){
+    /**
+     * Set the translation portion of the transform
+     * @param {Physics.vector} vect
+     */
+    Transform.prototype.setTranslation = function( vect ){
 
-    this.v.clone( vect );
-    return this;
-};
-
-/**
- * Set the rotation portion of the transform
- * @param {Number} angle
- */
-Transform.prototype.setRotation = function( angle ){
-
-    this.angle = 0;
-    this.cosA = Math.cos( angle );
-    this.sinA = Math.sin( angle );
-    return this;
-};
-
-/**
- * Clone another transform. Or clone self into new transform.
- * @param  {Physics.transform} t (optional) the transform to clone
- * @return {Physics.transform|this}
- */
-Transform.prototype.clone = function( t ){
-
-    if ( t ){
-
-        this.setTranslation( t.v );
-        this.setRotation( t.angle );
-
+        this.v.clone( vect );
         return this;
-    }
+    };
 
-    return new Transform( this );
-};
+    /**
+     * Set the rotation portion of the transform
+     * @param {Number} angle
+     */
+    Transform.prototype.setRotation = function( angle ){
 
-Physics.transform = Transform;
+        this.angle = 0;
+        this.cosA = Math.cos( angle );
+        this.sinA = Math.sin( angle );
+        return this;
+    };
 
-})(this);
-// Source file: src/math/vector.js
+    /**
+     * Clone another transform. Or clone self into new transform.
+     * @param  {Physics.transform} t (optional) the transform to clone
+     * @return {Physics.transform|this}
+     */
+    Transform.prototype.clone = function( t ){
+
+        if ( t ){
+
+            this.setTranslation( t.v );
+            this.setRotation( t.angle );
+
+            return this;
+        }
+
+        return new Transform( this );
+    };
+
+    Physics.transform = Transform;
+
+})();
+
+// ---
+// inside: src/math/vector.js
+
 (function(window){
 
-// http://jsperf.com/vector-storage-test/2
+    // http://jsperf.com/vector-storage-test/2
 
-// cached math functions
-// TODO: might be faster not to do this???
-var sqrt = Math.sqrt
-    ,min = Math.min
-    ,max = Math.max
-    ,acos = Math.acos
-    ,atan2 = Math.atan2
-    ,TWOPI = Math.PI * 2
-    ,typedArrays = !!window.Float64Array
-    ;
-
-/**
- * begin Vector Class
- * @class Vector
- */
-
-/**
- * Vector Constructor / Factory
- * @param {Number|Physics.vector} x (optional) Either the x coord. Or a vector to copy.
- * @param {Number} y (optional) The y coord.
- */
-var Vector = function Vector(x, y) {
-
-    // enforce instantiation
-    if ( !(this instanceof Vector) ){
-
-        return new Vector( x, y );
-    }
-
-    // arrays to store values
-    // x = _[0]
-    // y = _[1]
-    // norm = _[3]
-    // normsq = _[4]
-    
-
-    if (typedArrays){
-        this._ = new Float64Array(5);
-    } else {
-        this._ = [];
-    }
-
-    if (x && (x.x !== undefined || x._ && x._.length)){
-
-        this.clone( x );
-
-    } else {
-
-        this.recalc = true; //whether or not recalculate norms
-        this.set( x || 0.0, y || 0.0 );
-    }
-};
-
-/**
- * Methods
- */
-
-/**
- * Sets the components of this Vector.
- */
-Vector.prototype.set = function(x, y) {
-
-    this.recalc = true;
-
-    this._[0] = x || 0.0;
-    this._[1] = y || 0.0;
-    return this;
-};
-
-/**
- * Get component
- * @param  {Integer} n The nth component. x is 1, y is 2, ...
- * @return {Integer} component value
- */
-Vector.prototype.get = function( n ){
-
-    return this._[ n ];
-};
-
-/**
- * Add Vector to this
- */
-Vector.prototype.vadd = function(v) {
-
-    this.recalc = true;
-
-    this._[0] += v._[0];
-    this._[1] += v._[1];
-    return this;
-};
-
-/**
- * Subtract Vector from this
- */
-Vector.prototype.vsub = function(v) {
-
-    this.recalc = true;
-
-    this._[0] -= v._[0];
-    this._[1] -= v._[1];
-    return this;
-};
-
-/**
- * Add scalars to Vector's components
- */
-Vector.prototype.add = function(x, y){
-    
-    this.recalc = true;
-
-    this._[0] += x;
-    this._[1] += y === undefined? x : y;
-    return this;
-};
-
-/**
- * Subtract scalars to Vector's components
- */
-Vector.prototype.sub = function(x, y){
-    
-    this.recalc = true;
-
-    this._[0] -= x;
-    this._[1] -= y === undefined? x : y;
-    return this;
-};
-
-/* 
- * Multiply by a scalar
- */
-Vector.prototype.mult = function(m) {
-    
-    if ( !this.recalc ){
-
-        this._[4] *= m * m;
-        this._[3] *= m;
-    }
-
-    this._[0] *= m;
-    this._[1] *= m;
-    return this;
-};
-
-/* 
- * Get the dot product
- */
-Vector.prototype.dot = function(v) {
-
-    return (this._[0] * v._[0]) + (this._[1] * v._[1]);
-};
-
-/** 
- * Get the cross product (in a left handed coordinate system)
- */
-Vector.prototype.cross = function(v) {
-
-    return ( - this._[0] * v._[1]) + (this._[1] * v._[0]);
-};
-
-/**
- * Scalar projection of this along v
- */
-Vector.prototype.proj = function(v){
-
-    return this.dot( v ) / v.norm();
-};
-
-
-/**
- * Vector project this along v
- */
-Vector.prototype.vproj = function(v){
-
-    var m = this.dot( v ) / v.normSq();
-    return this.clone( v ).mult( m );
-};
-
-/**
- * Angle between this and vector. Or this and x axis.
- * @param  {Vector} v (optional) other vector
- * @return {Number} Angle in radians
- */
-Vector.prototype.angle = function(v){
-
-    var ang = atan2(this._[ 1 ], this._[ 0 ]);
-
-    if (v){
-        ang -= atan2(v._[ 1 ], v._[ 0 ]);
-    }
-    
-    while (ang > Math.PI){
-        ang -= TWOPI;
-    }
-
-    while (ang < -Math.PI){
-        ang += TWOPI;
-    }
-
-    return ang;
-};
-
-/**
- * Get the norm (length)
- */
-Vector.prototype.norm = function() {
-
-    if (this.recalc){
-        this.recalc = false;
-        this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
-        this._[3] = sqrt( this._[4] );
-    }
-    
-    return this._[3];
-};
-
-/**
- * Get the norm squared
- */
-Vector.prototype.normSq = function() {
-
-    if (this.recalc){
-        this.recalc = false;
-        this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
-        this._[3] = sqrt( this._[4] );
-    }
-
-    return this._[4];
-};
-
-/** 
- * Get distance to other Vector
- */
-Vector.prototype.dist = function(v) {
-  
-    var dx, dy;
-    return sqrt(
-        (dx = (v._[0] - this._[0])) * dx + 
-        (dy = (v._[1] - this._[1])) * dy
-    );
-};
-
-/**
- * Get distance squared to other Vector
- */
-Vector.prototype.distSq = function(v) {
-
-    var dx, dy;
-    return (
-        (dx = (v._[0] - this._[0])) * dx + 
-        (dy = (v._[1] - this._[1])) * dy
-    );
-};
-
-/**
- * Change vector into a vector perpendicular
- * @param {Boolean} neg Set to true if want to go in the negative direction
- * @return {this}
- */
-Vector.prototype.perp = function( neg ) {
-
-    var tmp = this._[0]
+    // cached math functions
+    // TODO: might be faster not to do this???
+    var sqrt = Math.sqrt
+        ,min = Math.min
+        ,max = Math.max
+        ,acos = Math.acos
+        ,atan2 = Math.atan2
+        ,TWOPI = Math.PI * 2
+        ,typedArrays = !!window.Float64Array
         ;
 
-    if ( neg ){
+    /**
+     * Vector Constructor / Factory
+     * @param {Number|Physics.vector} x (optional) Either the x coord. Or a vector to copy.
+     * @param {Number} y (optional) The y coord.
+     */
+    var Vector = function Vector(x, y) {
 
-        // x <-> y
-        // negate x
-        this._[0] = -this._[1];
-        this._[1] = tmp;
-        
-    } else {
+        // enforce instantiation
+        if ( !(this instanceof Vector) ){
 
-        // x <-> y
-        // negate y
-        this._[0] = this._[1];
-        this._[1] = -tmp;
-    }
-
-    return this;
-};
-
-/**
- * Normalises this Vector, making it a unit Vector
- */
-Vector.prototype.normalize = function() {
-
-    var m = this.norm();
-
-    // means it's a zero Vector
-    if ( m === 0 ){
-        return this;
-    }
-
-    this._[0] /= m;
-    this._[1] /= m;
-
-    this._[3] = 1.0;
-    this._[4] = 1.0;
-
-    return this;
-};
-
-/**
- * Apply a transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.transform = function( t ){
-
-    return this.set(
-        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA + t.v._[ 0 ], 
-        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
-    );
-};
-
-/**
- * Apply an inverse transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.transformInv = function( t ){
-
-    return this.set(
-        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA - t.v._[ 0 ], 
-        -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
-    );
-};
-
-/**
- * Apply the rotation portion of transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.rotate = function( t ){
-
-    return this.set(
-        this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
-        this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
-    );
-};
-
-/**
- * Apply an inverse rotation portion of transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.rotateInv = function( t ){
-
-    return this.set(
-        this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
-        -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
-    );
-};
-
-/**
- * Apply the translation portion of transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.translate = function( t ){
-
-    return this.vadd( t.v );
-};
-
-/**
- * Apply an inverse translation portion of transform to this vector
- * @param  {Physics.transform} t The transform
- */
-Vector.prototype.translateInv = function( t ){
-
-    return this.vsub( t.v );
-};
-
-
-/**
- * Returns clone of current Vector
- * Or clones provided Vector to this one
- */
-Vector.prototype.clone = function(v) {
-    
-    // http://jsperf.com/vector-storage-test
-
-    if (v){
-
-        if (!v._){
-
-            return this.set( v.x, v.y );
-        }
-        
-        this.recalc = v.recalc;
-
-        if (!v.recalc){
-            this._[3] = v._[3];
-            this._[4] = v._[4];
+            return new Vector( x, y );
         }
 
-        this._[0] = v._[0];
-        this._[1] = v._[1];
+        // arrays to store values
+        // x = _[0]
+        // y = _[1]
+        // norm = _[3]
+        // normsq = _[4]
+        
 
-        return this;
-    }
+        if (typedArrays){
+            this._ = new Float64Array(5);
+        } else {
+            this._ = [];
+        }
 
-    return new Vector( this );
-};
+        if (x && (x.x !== undefined || x._ && x._.length)){
 
-/**
- * Swap values with other vector
- * @param  {Vector} v
- * @return {this}
- */
-Vector.prototype.swap = function(v){
+            this.clone( x );
 
-    var _ = this._;
-    this._ = v._;
-    v._ = _;
+        } else {
 
-    _ = this.recalc;
-    this.recalc = v.recalc;
-    v.recalc = _;
-    return this;
-};
-
-/**
- * Create a litteral object
- */
-Vector.prototype.values = function(){
-
-    return {
-        x: this._[0],
-        y: this._[1]
+            this.recalc = true; //whether or not recalculate norms
+            this.set( x || 0.0, y || 0.0 );
+        }
     };
-};
 
+    /**
+     * Methods
+     */
 
-/**
- * Zero the Vector
- */
-Vector.prototype.zero = function() {
+    /**
+     * Sets the components of this Vector.
+     */
+    Vector.prototype.set = function(x, y) {
 
-    this._[3] = 0.0;
-    this._[4] = 0.0;
+        this.recalc = true;
 
-    this._[0] = 0.0;
-    this._[1] = 0.0;
-    return this;
-};
-
-/**
- * Make this a Vector in the opposite direction
- */
-Vector.prototype.negate = function( component ){
-
-    if (component !== undefined){
-
-        this._[ component ] = -this._[ component ];
+        this._[0] = x || 0.0;
+        this._[1] = y || 0.0;
         return this;
-    }
+    };
 
-    this._[0] = -this._[0];
-    this._[1] = -this._[1];
-    return this;
-};
+    /**
+     * Get component
+     * @param  {Integer} n The nth component. x is 1, y is 2, ...
+     * @return {Integer} component value
+     */
+    Vector.prototype.get = function( n ){
 
-/**
- * Constrain Vector components to minima and maxima
- */
-Vector.prototype.clamp = function(minV, maxV){
+        return this._[ n ];
+    };
 
-    this._[0] = min(max(this._[0], minV._[0]), maxV._[0]);
-    this._[1] = min(max(this._[1], minV._[1]), maxV._[1]);
-    this.recalc = true;
-    return this;
-};
+    /**
+     * Add Vector to this
+     */
+    Vector.prototype.vadd = function(v) {
 
-/**
- * Render string
- */
-Vector.prototype.toString = function(){
+        this.recalc = true;
 
-    return '('+this._[0] + ', ' + this._[1]+')';
-};
+        this._[0] += v._[0];
+        this._[1] += v._[1];
+        return this;
+    };
+
+    /**
+     * Subtract Vector from this
+     */
+    Vector.prototype.vsub = function(v) {
+
+        this.recalc = true;
+
+        this._[0] -= v._[0];
+        this._[1] -= v._[1];
+        return this;
+    };
+
+    /**
+     * Add scalars to Vector's components
+     */
+    Vector.prototype.add = function(x, y){
+        
+        this.recalc = true;
+
+        this._[0] += x;
+        this._[1] += y === undefined? x : y;
+        return this;
+    };
+
+    /**
+     * Subtract scalars to Vector's components
+     */
+    Vector.prototype.sub = function(x, y){
+        
+        this.recalc = true;
+
+        this._[0] -= x;
+        this._[1] -= y === undefined? x : y;
+        return this;
+    };
+
+    /* 
+     * Multiply by a scalar
+     */
+    Vector.prototype.mult = function(m) {
+        
+        if ( !this.recalc ){
+
+            this._[4] *= m * m;
+            this._[3] *= m;
+        }
+
+        this._[0] *= m;
+        this._[1] *= m;
+        return this;
+    };
+
+    /* 
+     * Get the dot product
+     */
+    Vector.prototype.dot = function(v) {
+
+        return (this._[0] * v._[0]) + (this._[1] * v._[1]);
+    };
+
+    /** 
+     * Get the cross product (in a left handed coordinate system)
+     */
+    Vector.prototype.cross = function(v) {
+
+        return ( - this._[0] * v._[1]) + (this._[1] * v._[0]);
+    };
+
+    /**
+     * Scalar projection of this along v
+     */
+    Vector.prototype.proj = function(v){
+
+        return this.dot( v ) / v.norm();
+    };
 
 
-/**
- * Determine if equal
- * @param  {Vector} v
- * @return {boolean}
- */
-Vector.prototype.equals = function(v){
+    /**
+     * Vector project this along v
+     */
+    Vector.prototype.vproj = function(v){
 
-    return this._[0] === v._[0] &&
-        this._[1] === v._[1] &&
-        this._[2] === v._[2];
-};
+        var m = this.dot( v ) / v.normSq();
+        return this.clone( v ).mult( m );
+    };
+
+    /**
+     * Angle between this and vector. Or this and x axis.
+     * @param  {Vector} v (optional) other vector
+     * @return {Number} Angle in radians
+     */
+    Vector.prototype.angle = function(v){
+
+        var ang = atan2(this._[ 1 ], this._[ 0 ]);
+
+        if (v){
+            ang -= atan2(v._[ 1 ], v._[ 0 ]);
+        }
+        
+        while (ang > Math.PI){
+            ang -= TWOPI;
+        }
+
+        while (ang < -Math.PI){
+            ang += TWOPI;
+        }
+
+        return ang;
+    };
+
+    /**
+     * Get the norm (length)
+     */
+    Vector.prototype.norm = function() {
+
+        if (this.recalc){
+            this.recalc = false;
+            this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
+            this._[3] = sqrt( this._[4] );
+        }
+        
+        return this._[3];
+    };
+
+    /**
+     * Get the norm squared
+     */
+    Vector.prototype.normSq = function() {
+
+        if (this.recalc){
+            this.recalc = false;
+            this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
+            this._[3] = sqrt( this._[4] );
+        }
+
+        return this._[4];
+    };
+
+    /** 
+     * Get distance to other Vector
+     */
+    Vector.prototype.dist = function(v) {
+      
+        var dx, dy;
+        return sqrt(
+            (dx = (v._[0] - this._[0])) * dx + 
+            (dy = (v._[1] - this._[1])) * dy
+        );
+    };
+
+    /**
+     * Get distance squared to other Vector
+     */
+    Vector.prototype.distSq = function(v) {
+
+        var dx, dy;
+        return (
+            (dx = (v._[0] - this._[0])) * dx + 
+            (dy = (v._[1] - this._[1])) * dy
+        );
+    };
+
+    /**
+     * Change vector into a vector perpendicular
+     * @param {Boolean} neg Set to true if want to go in the negative direction
+     * @return {this}
+     */
+    Vector.prototype.perp = function( neg ) {
+
+        var tmp = this._[0]
+            ;
+
+        if ( neg ){
+
+            // x <-> y
+            // negate x
+            this._[0] = -this._[1];
+            this._[1] = tmp;
+            
+        } else {
+
+            // x <-> y
+            // negate y
+            this._[0] = this._[1];
+            this._[1] = -tmp;
+        }
+
+        return this;
+    };
+
+    /**
+     * Normalises this Vector, making it a unit Vector
+     */
+    Vector.prototype.normalize = function() {
+
+        var m = this.norm();
+
+        // means it's a zero Vector
+        if ( m === 0 ){
+            return this;
+        }
+
+        this._[0] /= m;
+        this._[1] /= m;
+
+        this._[3] = 1.0;
+        this._[4] = 1.0;
+
+        return this;
+    };
+
+    /**
+     * Apply a transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.transform = function( t ){
+
+        return this.set(
+            this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA + t.v._[ 0 ], 
+            this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
+        );
+    };
+
+    /**
+     * Apply an inverse transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.transformInv = function( t ){
+
+        return this.set(
+            this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA - t.v._[ 0 ], 
+            -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
+        );
+    };
+
+    /**
+     * Apply the rotation portion of transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.rotate = function( t ){
+
+        return this.set(
+            this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
+            this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+        );
+    };
+
+    /**
+     * Apply an inverse rotation portion of transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.rotateInv = function( t ){
+
+        return this.set(
+            this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
+            -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+        );
+    };
+
+    /**
+     * Apply the translation portion of transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.translate = function( t ){
+
+        return this.vadd( t.v );
+    };
+
+    /**
+     * Apply an inverse translation portion of transform to this vector
+     * @param  {Physics.transform} t The transform
+     */
+    Vector.prototype.translateInv = function( t ){
+
+        return this.vsub( t.v );
+    };
 
 
-/**
- * Static functions
- */
+    /**
+     * Returns clone of current Vector
+     * Or clones provided Vector to this one
+     */
+    Vector.prototype.clone = function(v) {
+        
+        // http://jsperf.com/vector-storage-test
 
-/** 
- * Return sum of two Vectors
- */
-Vector.vadd = function(v1, v2) {
+        if (v){
 
-    return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
-};
+            if (!v._){
 
-/** 
- * Subtract v2 from v1
- */
-Vector.vsub = function(v1, v2) {
+                return this.set( v.x, v.y );
+            }
+            
+            this.recalc = v.recalc;
 
-    return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
-};
+            if (!v.recalc){
+                this._[3] = v._[3];
+                this._[4] = v._[4];
+            }
 
-/**
- * Multiply v1 by a scalar m
- */
-Vector.mult = function(m, v1){
+            this._[0] = v._[0];
+            this._[1] = v._[1];
 
-    return new Vector( v1._[0]*m, v1._[1]*m );
-};
+            return this;
+        }
 
-/** 
- * Project v1 onto v2
- */
-Vector.vproj = function(v1, v2) {
+        return new Vector( this );
+    };
 
-    return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
-};
+    /**
+     * Swap values with other vector
+     * @param  {Vector} v
+     * @return {this}
+     */
+    Vector.prototype.swap = function(v){
 
-/**
- * Axis vectors for general reference
- * @type {Array}
- */
-Vector.axis = [
-    new Vector(1.0, 0.0),
-    new Vector(0.0, 1.0)
-];
+        var _ = this._;
+        this._ = v._;
+        v._ = _;
 
-/**
- * Zero vector for reference
- */
-Vector.zero = new Vector(0, 0);
+        _ = this.recalc;
+        this.recalc = v.recalc;
+        v.recalc = _;
+        return this;
+    };
 
-// assign
+    /**
+     * Create a litteral object
+     */
+    Vector.prototype.values = function(){
 
-Physics.vector = Vector;
+        return {
+            x: this._[0],
+            y: this._[1]
+        };
+    };
 
-/**
- * end Vector class
- */
-}(this));
 
-// Source file: src/core/behavior.js
+    /**
+     * Zero the Vector
+     */
+    Vector.prototype.zero = function() {
+
+        this._[3] = 0.0;
+        this._[4] = 0.0;
+
+        this._[0] = 0.0;
+        this._[1] = 0.0;
+        return this;
+    };
+
+    /**
+     * Make this a Vector in the opposite direction
+     */
+    Vector.prototype.negate = function( component ){
+
+        if (component !== undefined){
+
+            this._[ component ] = -this._[ component ];
+            return this;
+        }
+
+        this._[0] = -this._[0];
+        this._[1] = -this._[1];
+        return this;
+    };
+
+    /**
+     * Constrain Vector components to minima and maxima
+     */
+    Vector.prototype.clamp = function(minV, maxV){
+
+        this._[0] = min(max(this._[0], minV._[0]), maxV._[0]);
+        this._[1] = min(max(this._[1], minV._[1]), maxV._[1]);
+        this.recalc = true;
+        return this;
+    };
+
+    /**
+     * Render string
+     */
+    Vector.prototype.toString = function(){
+
+        return '('+this._[0] + ', ' + this._[1]+')';
+    };
+
+
+    /**
+     * Determine if equal
+     * @param  {Vector} v
+     * @return {boolean}
+     */
+    Vector.prototype.equals = function(v){
+
+        return this._[0] === v._[0] &&
+            this._[1] === v._[1] &&
+            this._[2] === v._[2];
+    };
+
+
+    /**
+     * Static functions
+     */
+
+    /** 
+     * Return sum of two Vectors
+     */
+    Vector.vadd = function(v1, v2) {
+
+        return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
+    };
+
+    /** 
+     * Subtract v2 from v1
+     */
+    Vector.vsub = function(v1, v2) {
+
+        return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
+    };
+
+    /**
+     * Multiply v1 by a scalar m
+     */
+    Vector.mult = function(m, v1){
+
+        return new Vector( v1._[0]*m, v1._[1]*m );
+    };
+
+    /** 
+     * Project v1 onto v2
+     */
+    Vector.vproj = function(v1, v2) {
+
+        return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
+    };
+
+    /**
+     * Axis vectors for general reference
+     * @type {Array}
+     */
+    Vector.axis = [
+        new Vector(1.0, 0.0),
+        new Vector(0.0, 1.0)
+    ];
+
+    /**
+     * Zero vector for reference
+     */
+    Vector.zero = new Vector(0, 0);
+
+    // assign
+    Physics.vector = Vector;
+
+}(this)); // end Vector class
+
+
+// ---
+// inside: src/core/behavior.js
+
 (function(){
 
     // Service
@@ -3083,7 +3112,10 @@ Physics.vector = Vector;
     });
 
 }());
-// Source file: src/core/body.js
+
+// ---
+// inside: src/core/body.js
+
 (function(){
 
     // Service
@@ -3192,7 +3224,10 @@ Physics.vector = Vector;
     });
 
 }());
-// Source file: src/core/geometry.js
+
+// ---
+// inside: src/core/geometry.js
+
 (function(){
 
     var ERROR_UNSUPPORTED_ARG = "Error: Unsupported argument";
@@ -3249,7 +3284,10 @@ Physics.vector = Vector;
     });
 
 }());
-// Source file: src/core/geometry-helpers.js
+
+// ---
+// inside: src/core/geometry-helpers.js
+
 // Geometry helper functions
 
 // check if polygon array is convex
@@ -3523,7 +3561,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 };
 
 
-// Source file: src/core/integrator.js
+
+// ---
+// inside: src/core/integrator.js
+
 (function(){
 
     var defaults = {
@@ -3578,7 +3619,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     });
 
 }());
-// Source file: src/core/renderer.js
+
+// ---
+// inside: src/core/renderer.js
+
 (function(){
 
     var defaults = {
@@ -3660,409 +3704,415 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     });
 
 }());
-// Source file: src/core/world.js
+
+// ---
+// inside: src/core/world.js
+
 (function(){
 
-// bodies, behaviors, integrators, and renderers all need the setWorld method
-var setWorld = function( world ){
+    // bodies, behaviors, integrators, and renderers all need the setWorld method
+    var setWorld = function( world ){
 
-    if ( this.disconnect && this._world ){
-        this.disconnect( this._world );
-    }
-
-    this._world = world;
-
-    if ( this.connect && world ){
-        this.connect( world );
-    }
-};
-
-Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
-
-    Physics[ key ].mixin('setWorld', setWorld);
-});
-
-var PRIORITY_PROP_NAME = 'priority';
-
-var defaults = {
-    name: false,
-    timestep: 1000.0 / 160,
-    maxSteps: 16,
-    webworker: false, // to implement
-    integrator: 'verlet'
-};
-
-// begin world definitions
-
-var World = function World( cfg, fn ){
-
-    if (!(this instanceof World)){
-        return new World( cfg, fn );
-    }
-    
-    this.init( cfg, fn );
-};
-
-World.prototype = {
-
-    init: function( cfg, fn ){
-
-        if ( Physics.util.isFunction( cfg ) ){
-            fn = cfg;
-            cfg = {};
+        if ( this.disconnect && this._world ){
+            this.disconnect( this._world );
         }
 
-        this._stats = {
-           // statistics (fps, etc)
-           fps: 0,
-           steps: 0 
-        }; 
-        this._bodies = [];
-        this._behaviorStack = [];
-        this._integrator = null;
-        this._renderer = null;
-        this._paused = false;
-        this._opts = {};
-        this._pubsub = {};
+        this._world = world;
 
-        // set options
-        this.options( cfg || {} );
-
-        // apply the callback function
-        if ( Physics.util.isFunction( fn ) ){
-
-            fn.apply(this, [ this ]);
+        if ( this.connect && world ){
+            this.connect( world );
         }
-    },
+    };
 
-    // get/set options
-    options: function( cfg ){
+    Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
 
-        if (cfg){
+        Physics[ key ].mixin('setWorld', setWorld);
+    });
 
-            // extend the defaults
-            Physics.util.extend(this._opts, defaults, cfg);
-            // set timestep
-            this.timeStep(this._opts.timestep);
-            // add integrator
-            this.add(Physics.integrator(this._opts.integrator));
+    var PRIORITY_PROP_NAME = 'priority';
 
-            return this;
-        }
+    var defaults = {
+        name: false,
+        timestep: 1000.0 / 160,
+        maxSteps: 16,
+        webworker: false, // to implement
+        integrator: 'verlet'
+    };
 
-        return Physics.util.extend({}, this._opts);
-    },
+    // begin world definitions
 
-    subscribe: function( topic, fn, scope ){
+    var World = function World( cfg, fn ){
 
-        var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
-            ,orig = fn
-            ;
-
-        if ( scope ){
-            
-            fn = Physics.util.bind( fn, scope );
-            fn._bindfn_ = orig;
-        }
-
-        listeners.push( fn );
-
-        return this;
-    },
-
-    unsubscribe: function( topic, fn ){
-
-        var listeners = this._pubsub[ topic ]
-            ,listn
-            ;
-
-        if (!listeners){
-            return this;
-        }
-
-        for ( var i = 0, l = listeners.length; i < l; i++ ){
-            
-            listn = listeners[ i ];
-
-            if ( listn._bindfn_ === fn || listn === fn ){
-                listeners.splice(i, 1);
-                break;
-            }
-        }
-
-        return this;
-    },
-
-    publish: function( data, scope ){
-
-        if (typeof data !== 'object'){
-            data = { topic: data };
-        }
-
-        var topic = data.topic
-            ,listeners = this._pubsub[ topic ]
-            ;
-
-        if (!topic){
-            throw 'Error: No topic specified in call to world.publish()';
-        }
-
-        if (!listeners || !listeners.length){
-            return this;
+        if (!(this instanceof World)){
+            return new World( cfg, fn );
         }
         
-        data.scope = data.scope || this;
+        this.init( cfg, fn );
+    };
 
-        for ( var i = 0, l = listeners.length; i < l; i++ ){
-            
-            listeners[ i ]( data );
-        }
+    World.prototype = {
 
-        return this;
-    },
+        init: function( cfg, fn ){
 
-    // add objects, integrators, behaviors...
-    add: function( arg ){
+            if ( Physics.util.isFunction( cfg ) ){
+                fn = cfg;
+                cfg = {};
+            }
 
-        var i = 0
-            ,len = arg && arg.length || 0
-            ,thing = len ? arg[ 0 ] : arg
-            ,notify
-            ;
+            this._stats = {
+               // statistics (fps, etc)
+               fps: 0,
+               steps: 0 
+            }; 
+            this._bodies = [];
+            this._behaviorStack = [];
+            this._integrator = null;
+            this._renderer = null;
+            this._paused = false;
+            this._opts = {};
+            this._pubsub = {};
 
-        if ( !thing ){
-            return this;
-        }
+            // set options
+            this.options( cfg || {} );
 
-        // we'll either cycle through an array
-        // or just run this on the arg itself
-        do {
-            switch (thing.type){
+            // apply the callback function
+            if ( Physics.util.isFunction( fn ) ){
 
-                case 'behavior':
-                    this.addBehavior(thing);
-                break; // end behavior
+                fn.apply(this, [ this ]);
+            }
+        },
 
-                case 'integrator':
-                    this.setIntegrator(thing);
-                break; // end integrator
+        // get/set options
+        options: function( cfg ){
 
-                case 'renderer':
-                    this.addRenderer(thing);
-                break; // end renderer
+            if (cfg){
 
-                case 'body':
-                    this.addBody(thing);
-                break; // end body
+                // extend the defaults
+                Physics.util.extend(this._opts, defaults, cfg);
+                // set timestep
+                this.timeStep(this._opts.timestep);
+                // add integrator
+                this.add(Physics.integrator(this._opts.integrator));
+
+                return this;
+            }
+
+            return Physics.util.extend({}, this._opts);
+        },
+
+        subscribe: function( topic, fn, scope ){
+
+            var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
+                ,orig = fn
+                ;
+
+            if ( scope ){
                 
-                default:
-                    throw 'Error: failed to add item of type '+ thing.type +' to world';
-                // end default
+                fn = Physics.util.bind( fn, scope );
+                fn._bindfn_ = orig;
             }
 
-            // notify
-            notify = {
-                topic: 'add:' + thing.type
-            };
+            listeners.push( fn );
 
-            notify[ thing.type ] = thing;
+            return this;
+        },
 
-            this.publish( notify );
+        unsubscribe: function( topic, fn ){
 
-        } while ( ++i < len && (thing = arg[ i ]) );
+            var listeners = this._pubsub[ topic ]
+                ,listn
+                ;
 
-        return this;
-    },
+            if (!listeners){
+                return this;
+            }
 
-    setIntegrator: function( integrator ){
+            for ( var i = 0, l = listeners.length; i < l; i++ ){
+                
+                listn = listeners[ i ];
 
-        if ( this._integrator ){
+                if ( listn._bindfn_ === fn || listn === fn ){
+                    listeners.splice(i, 1);
+                    break;
+                }
+            }
 
-            this._integrator.setWorld( null );
-        }
+            return this;
+        },
 
-        this._integrator = integrator;
-        this._integrator.setWorld( this );
-    },
+        publish: function( data, scope ){
 
-    addRenderer: function( renderer ){
+            if (typeof data !== 'object'){
+                data = { topic: data };
+            }
 
-        if ( this._renderer ){
+            var topic = data.topic
+                ,listeners = this._pubsub[ topic ]
+                ;
 
-            this._renderer.setWorld( null );
-        }
+            if (!topic){
+                throw 'Error: No topic specified in call to world.publish()';
+            }
 
-        this._renderer = renderer;
-        this._renderer.setWorld( this );
-    },
-
-    // add a behavior
-    addBehavior: function( behavior ){
-
-        var stack = this._behaviorStack
-            // gets the index to insert the behavior
-            ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
-            ;
-
-        behavior.setWorld( this );
-        stack.splice( idx, 0, behavior );
-        return this;
-    },
-
-    addBody: function( body ){
-
-        body.setWorld( this );
-        this._bodies.push( body );
-        return this;
-    },
-
-    getBodies: function(){
-
-        // return the copied array
-        return [].concat(this._bodies);
-    },
-
-    applyBehaviors: function( dt ){
-
-        var behaviors = this._behaviorStack
-            ,l = behaviors.length
-            ,bodies = this._bodies
-            ,b
-            ;
-
-        // apply behaviors in reverse order... highest priority first
-        while ( l-- ){
+            if (!listeners || !listeners.length){
+                return this;
+            }
             
-            b = behaviors[ l ];
-            if ( b.behave ){
-                b.behave( bodies, dt );
+            data.scope = data.scope || this;
+
+            for ( var i = 0, l = listeners.length; i < l; i++ ){
+                
+                listeners[ i ]( data );
             }
-        }
-    },
-
-    // internal method
-    substep: function( dt ){
-
-        this._integrator.integrate( this._bodies, dt );
-        this.applyBehaviors( dt );
-    },
-
-    step: function( now ){
-        
-        if ( this._paused ){
-
-            this._time = false;
-            return this;
-        }
-
-        var time = this._time || (this._time = now)
-            ,diff = now - time
-            ,stats = this._stats
-            ,dt = this._dt
-            ;
-
-        if ( !diff ){
-            return this;
-        }
-        
-        // limit number of substeps in each step
-        if ( diff > this._maxJump ){
-
-            this._time = now - this._maxJump;
-            diff = this._maxJump;
-        }
-
-        // set some stats
-        stats.fps = 1000/diff;
-        stats.steps = Math.ceil(diff/this._dt);
-
-        while ( this._time < now ){
-            this._time += dt;
-            this.substep( dt );
-        }
-
-        return this;
-    },
-
-    render: function(){
-
-        if ( !this._renderer ){
-            throw "No renderer added to world";
-        }
-        
-        this._renderer.render( this._bodies, this._stats );
-
-        return this;
-    },
-
-    pause: function(){
-
-        this._paused = true;
-        return this;
-    },
-
-    unpause: function(){
-
-        this._paused = false;
-        return this;
-    },
-
-    isPaused: function(){
-
-        return !!this._paused;
-    },
-
-    timeStep: function( dt ){
-
-        if ( dt ){
-
-            this._dt = dt;
-            // calculate the maximum jump in time over which to do substeps
-            this._maxJump = dt * this._opts.maxSteps;
 
             return this;
-        }
+        },
 
-        return this._dt;
-    },
+        // add objects, integrators, behaviors...
+        add: function( arg ){
 
-    // TODO: find bodies
-    // select: function( sel ){
+            var i = 0
+                ,len = arg && arg.length || 0
+                ,thing = len ? arg[ 0 ] : arg
+                ,notify
+                ;
 
-    //     if (!sel){
+            if ( !thing ){
+                return this;
+            }
 
-    //         // fast array copy
-    //         return this._bodies.splice(0);
-    //     }
+            // we'll either cycle through an array
+            // or just run this on the arg itself
+            do {
+                switch (thing.type){
 
-    //     // TODO
-    // }
+                    case 'behavior':
+                        this.addBehavior(thing);
+                    break; // end behavior
 
-    getByClassName: function( klass ){
+                    case 'integrator':
+                        this.setIntegrator(thing);
+                    break; // end integrator
 
-        var bodies = this._bodies
-            ,obj
-            ,ret = []
-            ;
+                    case 'renderer':
+                        this.addRenderer(thing);
+                    break; // end renderer
 
-        for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    case 'body':
+                        this.addBody(thing);
+                    break; // end body
+                    
+                    default:
+                        throw 'Error: failed to add item of type '+ thing.type +' to world';
+                    // end default
+                }
+
+                // notify
+                notify = {
+                    topic: 'add:' + thing.type
+                };
+
+                notify[ thing.type ] = thing;
+
+                this.publish( notify );
+
+            } while ( ++i < len && (thing = arg[ i ]) );
+
+            return this;
+        },
+
+        setIntegrator: function( integrator ){
+
+            if ( this._integrator ){
+
+                this._integrator.setWorld( null );
+            }
+
+            this._integrator = integrator;
+            this._integrator.setWorld( this );
+        },
+
+        addRenderer: function( renderer ){
+
+            if ( this._renderer ){
+
+                this._renderer.setWorld( null );
+            }
+
+            this._renderer = renderer;
+            this._renderer.setWorld( this );
+        },
+
+        // add a behavior
+        addBehavior: function( behavior ){
+
+            var stack = this._behaviorStack
+                // gets the index to insert the behavior
+                ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
+                ;
+
+            behavior.setWorld( this );
+            stack.splice( idx, 0, behavior );
+            return this;
+        },
+
+        addBody: function( body ){
+
+            body.setWorld( this );
+            this._bodies.push( body );
+            return this;
+        },
+
+        getBodies: function(){
+
+            // return the copied array
+            return [].concat(this._bodies);
+        },
+
+        applyBehaviors: function( dt ){
+
+            var behaviors = this._behaviorStack
+                ,l = behaviors.length
+                ,bodies = this._bodies
+                ,b
+                ;
+
+            // apply behaviors in reverse order... highest priority first
+            while ( l-- ){
+                
+                b = behaviors[ l ];
+                if ( b.behave ){
+                    b.behave( bodies, dt );
+                }
+            }
+        },
+
+        // internal method
+        substep: function( dt ){
+
+            this._integrator.integrate( this._bodies, dt );
+            this.applyBehaviors( dt );
+        },
+
+        step: function( now ){
             
-            obj = bodies[ i ];
+            if ( this._paused ){
 
-            if ( obj.hasClass( klass ) ){
-
-                ret.push( obj );
+                this._time = false;
+                return this;
             }
+
+            var time = this._time || (this._time = now)
+                ,diff = now - time
+                ,stats = this._stats
+                ,dt = this._dt
+                ;
+
+            if ( !diff ){
+                return this;
+            }
+            
+            // limit number of substeps in each step
+            if ( diff > this._maxJump ){
+
+                this._time = now - this._maxJump;
+                diff = this._maxJump;
+            }
+
+            // set some stats
+            stats.fps = 1000/diff;
+            stats.steps = Math.ceil(diff/this._dt);
+
+            while ( this._time < now ){
+                this._time += dt;
+                this.substep( dt );
+            }
+
+            return this;
+        },
+
+        render: function(){
+
+            if ( !this._renderer ){
+                throw "No renderer added to world";
+            }
+            
+            this._renderer.render( this._bodies, this._stats );
+
+            return this;
+        },
+
+        pause: function(){
+
+            this._paused = true;
+            return this;
+        },
+
+        unpause: function(){
+
+            this._paused = false;
+            return this;
+        },
+
+        isPaused: function(){
+
+            return !!this._paused;
+        },
+
+        timeStep: function( dt ){
+
+            if ( dt ){
+
+                this._dt = dt;
+                // calculate the maximum jump in time over which to do substeps
+                this._maxJump = dt * this._opts.maxSteps;
+
+                return this;
+            }
+
+            return this._dt;
+        },
+
+        // TODO: find bodies
+        // select: function( sel ){
+
+        //     if (!sel){
+
+        //         // fast array copy
+        //         return this._bodies.splice(0);
+        //     }
+
+        //     // TODO
+        // }
+
+        getByClassName: function( klass ){
+
+            var bodies = this._bodies
+                ,obj
+                ,ret = []
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                obj = bodies[ i ];
+
+                if ( obj.hasClass( klass ) ){
+
+                    ret.push( obj );
+                }
+            }
+
+            return ret;
         }
+    };
 
-        return ret;
-    }
-};
-
-Physics.world = World;
+    Physics.world = World;
     
 }());
-// Source file: src/integrators/verlet.js
+
+// ---
+// inside: src/integrators/verlet.js
+
 Physics.integrator('verlet', function( parent ){
 
     // for this integrator we need to know if the object has been integrated before
@@ -4226,6 +4276,9 @@ Physics.integrator('verlet', function( parent ){
 });
 
 
-// Source file: src/outro.js
-    return Physics;
+
+// ---
+// inside: src/outro.js
+
+return Physics;
 }));

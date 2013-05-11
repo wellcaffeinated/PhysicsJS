@@ -1,91 +1,91 @@
 (function(window){
         
-var lastTime = 0
-    ,active = false
-    ,listeners = []
-    ;
+    var lastTime = 0
+        ,active = false
+        ,listeners = []
+        ;
 
-function step( time ){
+    function step( time ){
 
-    var fns = listeners;
+        var fns = listeners;
 
-    if (!active){
-        return;
-    }
+        if (!active){
+            return;
+        }
 
-    window.requestAnimationFrame( step );
-    
-    for ( var i = 0, l = fns.length; i < l; ++i ){
+        window.requestAnimationFrame( step );
         
-        fns[ i ]( time, time - lastTime );
+        for ( var i = 0, l = fns.length; i < l; ++i ){
+            
+            fns[ i ]( time, time - lastTime );
+        }
+
+        lastTime = time;
     }
 
-    lastTime = time;
-}
+    function start(){
+        
+        lastTime = (new Date()).getTime();
+        active = true;
+        step();
 
-function start(){
-    
-    lastTime = (new Date()).getTime();
-    active = true;
-    step();
+        return this;
+    }
 
-    return this;
-}
+    function stop(){
 
-function stop(){
+        active = false;
+        return this;
+    }
 
-    active = false;
-    return this;
-}
+    function subscribe( listener ){
 
-function subscribe( listener ){
+        // if function and not already in listeners...
+        if ( typeof listener === 'function' ){
 
-    // if function and not already in listeners...
-    if ( typeof listener === 'function' ){
+            for ( var i = 0, l = listeners.length; i < l; ++i ){
+                
+                if (listener === listeners[ i ]){
+                    return this;
+                }
+            }
 
-        for ( var i = 0, l = listeners.length; i < l; ++i ){
+            // add it
+            listeners.push( listener );
+        }
+        
+        return this;
+    }
+
+    function unsubscribe( listener ){
+
+        var fns = listeners;
+
+        for ( var i = 0, l = fns.length; i < l; ++i ){
             
-            if (listener === listeners[ i ]){
+            if ( fns[ i ] === listener ){
+
+                // remove it
+                fns.splice( i, 1 );
                 return this;
             }
         }
 
-        // add it
-        listeners.push( listener );
-    }
-    
-    return this;
-}
-
-function unsubscribe( listener ){
-
-    var fns = listeners;
-
-    for ( var i = 0, l = fns.length; i < l; ++i ){
-        
-        if ( fns[ i ] === listener ){
-
-            // remove it
-            fns.splice( i, 1 );
-            return this;
-        }
+        return this;
     }
 
-    return this;
-}
+    function isActive(){
 
-function isActive(){
+        return !!active;
+    }
 
-    return !!active;
-}
-
-// API
-Physics.util.ticker = {
-    start: start,
-    stop: stop,
-    subscribe: subscribe,
-    unsubscribe: unsubscribe,
-    isActive: isActive
-};
+    // API
+    Physics.util.ticker = {
+        start: start,
+        stop: stop,
+        subscribe: subscribe,
+        unsubscribe: unsubscribe,
+        isActive: isActive
+    };
 
 }(this));

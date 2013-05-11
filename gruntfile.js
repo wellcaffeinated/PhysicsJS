@@ -127,7 +127,7 @@ module.exports = function(grunt) {
                 options: {
                     process: function(src, path){
 
-                        return '// Source file: ' + path + '\n' + src;
+                        return '\n// ---\n// inside: ' + path + '\n\n' + src;
                     }
                 },
                 src : config.sources,
@@ -137,7 +137,7 @@ module.exports = function(grunt) {
                 options: {
                     process: function(src, path){
 
-                        return '// Source file: ' + path + '\n' + src;
+                        return '\n// ---\n// inside: ' + path + '\n\n' + src;
                     }
                 },
                 src : config.sourcesFull,
