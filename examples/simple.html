@@ -26,7 +26,7 @@
 
 <!-- Setup -->
     <button class="start-stop">Pause</button>
-    <canvas id="viewport"></canvas>
+    <div id="viewport"></div>
 
 <!-- Scripts -->
 <script src="./physicsjs-full.js"></script>
@@ -78,7 +78,7 @@ Physics({
         })
     );
 
-    var renderer = Physics.renderer('canvas', {
+    var renderer = Physics.renderer('dom', {
         el: 'viewport',
         width: viewWidth,
         height: viewHeight

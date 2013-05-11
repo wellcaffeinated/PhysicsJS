@@ -52,24 +52,33 @@ Physics({
             { x: -20, y: 0 },
             { x: 0, y: 20 }
         ];
-
+    
     var circles = [];
     var squares = [];
     var polygons = [];
     
-    for ( var i = 0, l = 15; i < l; ++i ){
+    for ( var i = 0, l = 80; i < l; ++i ){
+            
         circles.push(
             Physics.body('circle', {
-                x: 25*(i/6|0)+300,
-                y: 22*(i%6)+50,
+                x: 5 * i + 10,
+                y: 200,
                 // vx: 0.05,
-                radius: 10,
-                restitution: 0.9,
+                radius: 1,
+                restitution: 0.2,
+                mass: 1000,
                 angularVelocity: 0
             })
         );
     }
     
+    var renderer = Physics.renderer('canvas', {
+        el: 'viewport',
+        // debug: true,
+        width: viewWidth,
+        height: viewHeight
+    });
+
     // squares
     for ( var i = 0, l = 15; i < l; ++i ){
         
@@ -95,7 +104,7 @@ Physics({
         polygons.push(Physics.body('convex-polygon', {
             vertices: pent,
             x: 40*(i/3|0)+300,
-            y: 40*(i%3)+200,
+            y: 40*(i%3)+20,
             vx: 0,
             angle: Math.random(),
             // cof: 0.9,
@@ -104,18 +113,64 @@ Physics({
         }));
     }
 
-    
-    var renderer = Physics.renderer('canvas', {
-        el: 'viewport',
-        // debug: true,
-        width: viewWidth,
-        height: viewHeight
-    });
-
     // add things to world
     world.add( circles );
     world.add( squares );
     world.add( polygons );
+
+    var constraints = [];
+    function addConstraint( one, two, target ){
+
+        constraints.push({
+            bodyA: one,
+            bodyB: two,
+            target: target
+        });
+    }
+
+    function resolveConstraint( con ){
+
+        var scratch = Physics.scratchpad();
+        var pos = scratch.vector().clone(con.bodyA.state.pos);
+        var AB = scratch.vector().clone(con.bodyB.state.pos).vsub( pos );
+        var length = AB.norm();
+        var factor = 1 - con.target / length;
+        if ( !con.bodyA.fixed && !con.bodyB.fixed ){
+            factor *= 0.5;
+        }
+        var correction = AB.mult( factor );
+
+        if (!con.bodyA.fixed){
+            con.bodyA.state.pos.vadd( correction );
+        }
+        if (!con.bodyB.fixed){
+            con.bodyB.state.pos.vsub( correction );
+        }
+        scratch.done();
+    }
+
+    world.subscribe('integrate:positions', function( data ){
+
+        for ( var i = 0, l = constraints.length; i < l; ++i ){
+            
+            resolveConstraint( constraints[ i ] );
+        }
+    });
+
+    for ( var i = 1, l = 80; i < l; ++i ){
+        
+        addConstraint(circles[ i - 1 ], circles[ i ], 5);
+    }
+
+    circles[ 0 ].fixed = true;
+    circles[ 79 ].fixed = true;
+
+    setTimeout(function(){
+
+        // circles[ 0 ].fixed = false;
+        // circles[ 29 ].fixed = false;
+
+    }, 4000)
     
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
@@ -159,10 +214,10 @@ Physics({
     world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
     world.add( Physics.behavior('sweep-prune') );
 
-    window.runningMaxOverlap = 0;
-    world.subscribe( 'collisions:detected', function(data){
-        // console.log( data )
-    });
+    // window.runningMaxOverlap = 0;
+    // world.subscribe( 'collisions:detected', function(data){
+    //     // console.log( data )
+    // });
     
     // world.add( Physics.behavior('newtonian', { strength: .02 }) );
     world.add( Physics.behavior('body-impulse-response') );

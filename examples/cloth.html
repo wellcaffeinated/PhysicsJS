@@ -45,65 +45,24 @@ Physics({
     var viewWidth = 600;
     var viewHeight = 400;
     var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-    var pent = [
-            { x: 20, y: 0 },
-            { x: 10, y: -10 },
-            { x: -10, y: -10 },
-            { x: -20, y: 0 },
-            { x: 0, y: 20 }
-        ];
-
+    
     var circles = [];
-    var squares = [];
-    var polygons = [];
     
-    for ( var i = 0, l = 15; i < l; ++i ){
-        circles.push(
-            Physics.body('circle', {
-                x: 25*(i/6|0)+300,
-                y: 22*(i%6)+50,
-                // vx: 0.05,
-                radius: 10,
-                restitution: 0.9,
-                angularVelocity: 0
-            })
-        );
+    for ( var row = 0, l = 30; row < l; ++row ){
+        for ( var col = 0, lcol = 30; col < lcol; ++col ){
+            
+            circles.push(
+                Physics.body('circle', {
+                    x: 10 * col + 10,
+                    y: 10 * row + 60,
+                    // vx: 0.05,
+                    radius: 1,
+                    restitution: 0.9,
+                    angularVelocity: 0
+                })
+            );   
+        }
     }
-    
-    // squares
-    for ( var i = 0, l = 15; i < l; ++i ){
-        
-        squares.push( Physics.body('convex-polygon', {
-            // vertices: pent,
-            vertices: [
-                {x: 0, y: 20},
-                {x: 20, y: 20},
-                {x: 20, y: 0},
-                {x: 0, y: 0}
-            ],
-            x: 40*(i/6|0)+100,
-            y: 21*(i%6)+100,
-            vx: 0,
-            // cof: 0.9,
-            restitution: 0.9,
-            fixed: false
-        }));
-    }
-
-    for ( var i = 0, l = 15; i < l; ++i ){
-        
-        polygons.push(Physics.body('convex-polygon', {
-            vertices: pent,
-            x: 40*(i/3|0)+300,
-            y: 40*(i%3)+200,
-            vx: 0,
-            angle: Math.random(),
-            // cof: 0.9,
-            restitution: 0.9,
-            fixed: false
-        }));
-    }
-
     
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
@@ -114,8 +73,72 @@ Physics({
 
     // add things to world
     world.add( circles );
-    world.add( squares );
-    world.add( polygons );
+
+    var constraints = [];
+    function addConstraint( one, two, target ){
+
+        constraints.push({
+            bodyA: one,
+            bodyB: two,
+            target: target
+        });
+    }
+
+    function resolveConstraint( con ){
+
+        var scratch = Physics.scratchpad();
+        var pos = scratch.vector().clone(con.bodyA.state.pos);
+        var AB = scratch.vector().clone(con.bodyB.state.pos).vsub( pos );
+        var length = AB.norm();
+        var factor = 1 - con.target / length;
+        if ( !con.bodyA.fixed && !con.bodyB.fixed ){
+            factor *= 0.5;
+        }
+        var correction = AB.mult( factor );
+
+        if (!con.bodyA.fixed){
+            con.bodyA.state.pos.vadd( correction );
+        }
+        if (!con.bodyB.fixed){
+            con.bodyB.state.pos.vsub( correction );
+        }
+        scratch.done();
+    }
+
+    world.subscribe('integrate:positions', function( data ){
+
+        for ( var i = 0, l = constraints.length; i < l; ++i ){
+            
+            resolveConstraint( constraints[ i ] );
+        }
+    });
+
+    for ( var row = 0, l = 30; row < l; ++row ){
+        for ( var col = 0, lcol = 30; col < lcol; ++col ){
+            
+            if (col > 0){
+                // horizontal
+                addConstraint(circles[ lcol * row + col - 1 ], circles[ lcol * row + col ], 10);
+            }
+            
+            if (row > 0){
+
+                // vertical
+                addConstraint(circles[ lcol * row + col ], circles[ lcol * (row - 1) + col ], 10);
+            } else {
+
+                circles[ lcol * row + col ].fixed = true;
+            }
+        }
+    }
+
+    // circles[ 0 ].fixed = true;
+    
+    // setTimeout(function(){
+
+    //     circles[ 0 ].fixed = false;
+        
+    // }, 4000)
     
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
@@ -156,18 +179,18 @@ Physics({
         };
     }, {}) );
 
-    world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
-    world.add( Physics.behavior('sweep-prune') );
+    // world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
+    // world.add( Physics.behavior('sweep-prune') );
 
-    window.runningMaxOverlap = 0;
-    world.subscribe( 'collisions:detected', function(data){
-        // console.log( data )
-    });
+    // window.runningMaxOverlap = 0;
+    // world.subscribe( 'collisions:detected', function(data){
+    //     // console.log( data )
+    // });
     
     // world.add( Physics.behavior('newtonian', { strength: .02 }) );
-    world.add( Physics.behavior('body-impulse-response') );
-    var edgeBounce = Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.4, cof: 0.8 });
-    world.add( edgeBounce );
+    // world.add( Physics.behavior('body-impulse-response') );
+    // var edgeBounce = Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.4, cof: 0.8 });
+    // world.add( edgeBounce );
 
     // stats.js to monitor code performance
     var stats = new Stats();
