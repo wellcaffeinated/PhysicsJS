@@ -67,7 +67,14 @@ require({
         ,renderer = Physics.renderer('canvas', {
             el: 'viewport',
             width: viewWidth,
-            height: viewHeight
+            height: viewHeight,
+            styles: {
+                'convex-polygon' : {
+                    strokeStyle: 'rgba(30, 50, 100, 0.7)',
+                    fillStyle: 'rgba(64, 105, 124, 0.7)',
+                    angleIndicator: 'none'
+                }
+            }
         })
         ;
 
