@@ -13,9 +13,34 @@ Physics.renderer('canvas', function( proto ){
     var defaults = {
 
         debug: false,
-        bodyColor: '#fff',
-        orientationLineColor: '#cc0000',
+        statsEl: null,
+        styles: {
+
+            'point' : 'rgba(80, 50, 100, 0.7)',
+
+            'circle' : {
+                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                angleIndicator: 'rgba(69, 51, 78, 0.7)'
+            },
+
+            'convex-polygon' : {
+                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                angleIndicator: 'rgba(69, 51, 78, 0.7)'
+            }
+        },
         offset: Physics.vector()
+    };
+
+    var deep = function( a, b ){
+
+        if ( Physics.util.isPlainObject( b ) ){
+
+            return Physics.util.extend({}, a, b, deep );
+        }
+
+        return b ? b : a;
     };
 
     return {
@@ -26,7 +51,7 @@ Physics.renderer('canvas', function( proto ){
             proto.init.call(this, options);
 
             // further options
-            this.options = Physics.util.extend({}, defaults, this.options);
+            this.options = Physics.util.extend({}, defaults, this.options, deep);
 
             // hidden canvas
             this.hiddenCanvas = document.createElement('canvas');
@@ -54,7 +79,7 @@ Physics.renderer('canvas', function( proto ){
 
             this.els = {};
 
-            var stats = newEl();
+            var stats = this.options.statsEl || newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
             this.els.steps = newEl('span');
@@ -67,19 +92,34 @@ Physics.renderer('canvas', function( proto ){
             viewport.parentNode.insertBefore(stats, viewport);
         },
 
-        drawCircle: function(x, y, r, color, ctx){
+        setStyle: function( styles, ctx ){
+
+            ctx = ctx || this.ctx;
+
+            if ( Physics.util.isObject(styles) ){
+
+                ctx.strokeStyle = styles.strokeStyle;
+                ctx.fillStyle = styles.fillStyle;
+
+            } else {
+
+                ctx.fillStyle = ctx.strokeStyle = styles;
+            }
+        },
+
+        drawCircle: function(x, y, r, styles, ctx){
 
             ctx = ctx || this.ctx;
 
             ctx.beginPath();
-            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            this.setStyle( styles, ctx );
             ctx.arc(x, y, r, 0, Pi2, false);
             ctx.closePath();
             ctx.stroke();
             ctx.fill();
         },
 
-        drawPolygon: function(verts, color, ctx){
+        drawPolygon: function(verts, styles, ctx){
 
             var vert = verts[0]
                 ,x = vert.x === undefined ? vert.get(0) : vert.x
@@ -89,7 +129,7 @@ Physics.renderer('canvas', function( proto ){
 
             ctx = ctx || this.ctx;
             ctx.beginPath();
-            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            this.setStyle( styles, ctx );
 
             ctx.moveTo(x, y);
 
@@ -119,6 +159,8 @@ Physics.renderer('canvas', function( proto ){
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
+                ,name = geometry.name
+                ,styles = this.options.styles[ name ]
                 ;
             
             // clear
@@ -128,19 +170,19 @@ Physics.renderer('canvas', function( proto ){
             hiddenCtx.save();
             hiddenCtx.translate(x, y);
 
-            if (geometry.name === 'circle'){
+            if (name === 'circle'){
 
-                this.drawCircle(0, 0, geometry.radius, false, hiddenCtx);
+                this.drawCircle(0, 0, geometry.radius, styles, hiddenCtx);
 
-            } else if (geometry.name === 'convex-polygon'){
+            } else if (name === 'convex-polygon'){
 
-                this.drawPolygon(geometry.vertices, false, hiddenCtx);
+                this.drawPolygon(geometry.vertices, styles, hiddenCtx);
             }
 
-            if (this.options.orientationLineColor){
+            if (styles.angleIndicator){
 
                 hiddenCtx.beginPath();
-                hiddenCtx.strokeStyle = this.options.orientationLineColor;
+                this.setStyle( styles.angleIndicator, hiddenCtx );
                 hiddenCtx.moveTo(0, 0);
                 hiddenCtx.lineTo(hw, 0);
                 hiddenCtx.closePath();

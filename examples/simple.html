@@ -14,146 +14,144 @@
   <meta name="viewport" content="width=device-width">
 
   <!-- General styles -->
+  <link rel="stylesheet" href="fonts/Caviar-Dreams-fontfacekit/stylesheet.css">
   <link rel="stylesheet" href="style.css">
-  <!-- Page styles -->
-  <style>
-
-  
-  </style>
 
 </head>
 <body>
 
 <!-- Setup -->
-    <button class="start-stop">Pause</button>
-    <div id="viewport"></div>
+    <div class="controls">
+        <h1>Physics<span>JS</span></h1>
+        <div class="inner">
+            <button class="start-stop">pause</button>
+            <div id="examples">
+                <label>examples</label>
+                <ul>
+                    <li>none</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="display">
+        <canvas id="viewport"></canvas>
+    </div>
 
 <!-- Scripts -->
-<script src="./physicsjs-full.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="../lib/require.js"></script>
 <script>
+require({
+    baseUrl: '../',
+    paths: {
+        'physicsjs': 'examples/physicsjs-full',
+        'jquery': 'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min'
+    }
+},[
+    'jquery',
+    'physicsjs',
+    'examples/simple',
+    'examples/collision'
+], function(
+    $,
+    Physics,
+    examples
+){
 
-Physics({
+    // each argument (except Physics) is a world object for a demo
+    examples = Array.prototype.slice.call( arguments, 2 );
 
-    // config
-    timestep: 1000 / 160 
-
-}, function( world ){
-
-    var viewWidth = 600;
-    var viewHeight = 400;
-    var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-
-    var circles = [];
-    
-    circles.push(
-        Physics.body('circle', {
-            x: 400,
-            y: 100,
-            vx: 0,
-            radius: 10
+    var currentWorld = examples[ 0 ];
+    var $win = $(window)
+        ,viewWidth = $win.width()
+        ,viewHeight = $win.height()
+        ,renderer = Physics.renderer('canvas', {
+            el: 'viewport',
+            width: viewWidth,
+            height: viewHeight
         })
-    );
+        ;
 
-    circles.push(
-        Physics.body('circle', {
-            x: 20,
-            y: 200,
-            radius: 15,
-            mass: 2,
-            vx: 0.05,
-            vy: -0.15,
-            angularVelocity: 0.01
-        })
-    );
+    $(window).on('resize', function(){
 
-    circles.push(
-        Physics.body('circle', {
-            x: 400*Math.random(),
-            y: 500*Math.random(),
-            radius: 12,
-            mass: 1.5,
-            vx: 0.25,
-            vy: .1
-        })
-    );
-
-    var renderer = Physics.renderer('dom', {
-        el: 'viewport',
-        width: viewWidth,
-        height: viewHeight
-    });
-
-    // add things to world
-    // world.add( constrain );
-    world.add( circles );
-    world.add( renderer );
-    world.add( Physics.integrator('verlet', { drag: 0 }));
-    // world.add( Physics.behavior('newtonian', { strength: 3 }) );
-    world.add( Physics.behavior('gravity', function(){
-
-        var g = Physics.vector(0, .0004)
-            ,mouse = Physics.vector()
-            ,mouseDown = false
-            ,tmp = Physics.vector()
-            ;
-
-        $('#viewport').on({
-            mousedown: function(e){
-                mouseDown = true;
-            },
-            mousemove: function(e){
-                var offset = $(this).offset();
-                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
-            },
-            mouseup: function(e){
-                mouseDown = false;
-            }
+        viewWidth = $win.width();
+        viewHeight = $win.height();
+        
+        $(renderer.el).css({
+            'width': viewWidth,
+            'height': viewHeight
         });
 
-        return {
-            behave: function( bodies ){
+    }).trigger('resize');
 
-                for ( var i = 0, l = bodies.length; i < l; ++i ){
-                    
-                    bodies[ i ].accelerate( g );
 
-                    if (mouseDown){
-                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
-                        bodies[ i ].accelerate( tmp );
-                    }
-                }
+    function initWorld( world ){
+
+        // pause it for now
+        world.pause();
+        // add the renderer
+        world.add( renderer );
+
+        Physics.util.ticker.subscribe(function( time, dt ){
+
+            world.step( time );
+
+            // only render if not paused
+            if ( !world.isPaused() ){
+                world.render();
             }
-        };
-    }, {}) );
+        });
+    }
 
-    world.add( Physics.behavior('edge-collision-detection', { aabb: viewportBounds, restitution: 0.99, cof: 0.99 }) );
-    world.add( Physics.behavior('body-impulse-response') );
+    var $ex = $('#examples ul').empty();
+    // for all worlds in examples, we'll attach them to the ticker (request animation frame)
+    $.each( examples, function( idx, world ){
+        initWorld( world );
 
-    Physics.util.ticker.subscribe(function( time, dt ){
-
-        world.step( time );
-        world.render();
+        // for demo purposes the world.title properties are set to be the titles of the demos
+        $ex.append( '<li><a href="#demo-' + idx + '">' + world.title + '</a></li>' )
     });
 
+    // start it
     Physics.util.ticker.start();
+    currentWorld.unpause();
 
     // play/pause button
     $(document).on('click', '.start-stop', function(e){
 
         e.preventDefault();
-        var paused = world.isPaused();
+        var paused = currentWorld.isPaused();
 
         if (paused){
             $(this).text('pause');
-            world.unpause();
+            currentWorld.unpause();
         } else {
             $(this).text('play');
-            world.pause();
+            currentWorld.pause();
         }
     });
-});
 
+    $(document).on('click', '#examples a', function(e){
+
+        e.preventDefault();
+        var $this = $(this)
+            ,idx = $this.attr('href').split('-')[1] | 0
+            ;
+
+        $this.parents('#examples').find('a').removeClass('on');
+        $this.addClass('on');
+
+        if ( idx < examples.length ){
+
+            currentWorld.pause();
+            currentWorld = examples[ idx ];
+            currentWorld.unpause();
+        }
+    });
+
+    // select the first
+    $('#examples a').first().addClass('on');
+
+});
 </script>
   
 </body>

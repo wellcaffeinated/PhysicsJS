@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-10
+ * physicsjs v0.5.0 - 2013-05-11
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-66847-173c52h exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11346-81208-bj6apq exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -158,6 +158,7 @@ Physics.util = {};
       clearTimeout = window.clearTimeout,
       concat = arrayRef.concat,
       floor = Math.floor,
+      getPrototypeOf = reNative.test(getPrototypeOf = Object.getPrototypeOf) && getPrototypeOf,
       hasOwnProperty = objectRef.hasOwnProperty,
       push = arrayRef.push,
       setTimeout = window.setTimeout,
@@ -297,6 +298,14 @@ Physics.util = {};
      * @type Boolean
      */
     support.fastBind = nativeBind && !isV8;
+
+    /**
+     * Detect if own properties are iterated after inherited properties (all but IE < 9).
+     *
+     * @memberOf _.support
+     * @type Boolean
+     */
+    support.ownLast = props[0] != 'x';
 
     /**
      * Detect if `arguments` object indexes are non-enumerable
@@ -696,6 +705,47 @@ Physics.util = {};
    */
   function noop() {
     // no operation performed
+  }
+
+  /**
+   * A fallback implementation of `isPlainObject` which checks if a given `value`
+   * is an object created by the `Object` constructor, assuming objects created
+   * by the `Object` constructor have no inherited enumerable properties and that
+   * there are no `Object.prototype` extensions.
+   *
+   * @private
+   * @param {Mixed} value The value to check.
+   * @returns {Boolean} Returns `true`, if `value` is a plain object, else `false`.
+   */
+  function shimIsPlainObject(value) {
+    // avoid non-objects and false positives for `arguments` objects
+    var result = false;
+    if (!(value && toString.call(value) == objectClass) || (!support.argsClass && isArguments(value))) {
+      return result;
+    }
+    // check that the constructor is `Object` (i.e. `Object instanceof Object`)
+    var ctor = value.constructor;
+
+    if (isFunction(ctor) ? ctor instanceof ctor : (support.nodeClass || !isNode(value))) {
+      // IE < 9 iterates inherited properties before own properties. If the first
+      // iterated property is an object's own property then there are no inherited
+      // enumerable properties.
+      if (support.ownLast) {
+        forIn(value, function(value, key, object) {
+          result = hasOwnProperty.call(object, key);
+          return false;
+        });
+        return result === true;
+      }
+      // In most environments an object's own properties are iterated before
+      // its inherited properties. If the last iterated property is an object's
+      // own property then there are no inherited enumerable properties.
+      forIn(value, function(value, key) {
+        result = key;
+      });
+      return result === false || hasOwnProperty.call(value, result);
+    }
+    return result;
   }
 
   /**
@@ -1210,6 +1260,42 @@ Physics.util = {};
   }
 
   /**
+   * Checks if a given `value` is an object created by the `Object` constructor.
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} value The value to check.
+   * @returns {Boolean} Returns `true`, if `value` is a plain object, else `false`.
+   * @example
+   *
+   * function Stooge(name, age) {
+   *   this.name = name;
+   *   this.age = age;
+   * }
+   *
+   * _.isPlainObject(new Stooge('moe', 40));
+   * // => false
+   *
+   * _.isPlainObject([1, 2, 3]);
+   * // => false
+   *
+   * _.isPlainObject({ 'name': 'moe', 'age': 40 });
+   * // => true
+   */
+  var isPlainObject = !getPrototypeOf ? shimIsPlainObject : function(value) {
+    if (!(value && toString.call(value) == objectClass) || (!support.argsClass && isArguments(value))) {
+      return false;
+    }
+    var valueOf = value.valueOf,
+        objProto = typeof valueOf == 'function' && (objProto = getPrototypeOf(valueOf)) && getPrototypeOf(objProto);
+
+    return objProto
+      ? (value == objProto || getPrototypeOf(value) == objProto)
+      : shimIsPlainObject(value);
+  };
+
+  /**
    * Checks if `value` is a string.
    *
    * @static
@@ -1572,6 +1658,36 @@ Physics.util = {};
     return value;
   }
 
+  /**
+   * Produces a random number between `min` and `max` (inclusive). If only one
+   * argument is passed, a number between `0` and the given number will be returned.
+   *
+   * @static
+   * @memberOf _
+   * @category Utilities
+   * @param {Number} [min=0] The minimum possible value.
+   * @param {Number} [max=1] The maximum possible value.
+   * @returns {Number} Returns a random number.
+   * @example
+   *
+   * _.random(0, 5);
+   * // => a number between 0 and 5
+   *
+   * _.random(5);
+   * // => also a number between 0 and 5
+   */
+  function random(min, max) {
+    if (min == null && max == null) {
+      max = 1;
+    }
+    min = +min || 0;
+    if (max == null) {
+      max = min;
+      min = 0;
+    }
+    return min + floor(nativeRandom() * ((+max || 0) - min + 1));
+  }
+
   /*--------------------------------------------------------------------------*/
 
   lodash.assign = assign;
@@ -1595,7 +1711,9 @@ Physics.util = {};
   lodash.isEqual = isEqual;
   lodash.isFunction = isFunction;
   lodash.isObject = isObject;
+  lodash.isPlainObject = isPlainObject;
   lodash.isString = isString;
+  lodash.random = random;
   lodash.sortedIndex = sortedIndex;
 
   /*--------------------------------------------------------------------------*/
@@ -5941,9 +6059,34 @@ Physics.renderer('canvas', function( proto ){
     var defaults = {
 
         debug: false,
-        bodyColor: '#fff',
-        orientationLineColor: '#cc0000',
+        statsEl: null,
+        styles: {
+
+            'point' : 'rgba(80, 50, 100, 0.7)',
+
+            'circle' : {
+                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                angleIndicator: 'rgba(69, 51, 78, 0.7)'
+            },
+
+            'convex-polygon' : {
+                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                angleIndicator: 'rgba(69, 51, 78, 0.7)'
+            }
+        },
         offset: Physics.vector()
+    };
+
+    var deep = function( a, b ){
+
+        if ( Physics.util.isPlainObject( b ) ){
+
+            return Physics.util.extend({}, a, b, deep );
+        }
+
+        return b ? b : a;
     };
 
     return {
@@ -5954,7 +6097,7 @@ Physics.renderer('canvas', function( proto ){
             proto.init.call(this, options);
 
             // further options
-            this.options = Physics.util.extend({}, defaults, this.options);
+            this.options = Physics.util.extend({}, defaults, this.options, deep);
 
             // hidden canvas
             this.hiddenCanvas = document.createElement('canvas');
@@ -5982,7 +6125,7 @@ Physics.renderer('canvas', function( proto ){
 
             this.els = {};
 
-            var stats = newEl();
+            var stats = this.options.statsEl || newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
             this.els.steps = newEl('span');
@@ -5995,19 +6138,34 @@ Physics.renderer('canvas', function( proto ){
             viewport.parentNode.insertBefore(stats, viewport);
         },
 
-        drawCircle: function(x, y, r, color, ctx){
+        setStyle: function( styles, ctx ){
+
+            ctx = ctx || this.ctx;
+
+            if ( Physics.util.isObject(styles) ){
+
+                ctx.strokeStyle = styles.strokeStyle;
+                ctx.fillStyle = styles.fillStyle;
+
+            } else {
+
+                ctx.fillStyle = ctx.strokeStyle = styles;
+            }
+        },
+
+        drawCircle: function(x, y, r, styles, ctx){
 
             ctx = ctx || this.ctx;
 
             ctx.beginPath();
-            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            this.setStyle( styles, ctx );
             ctx.arc(x, y, r, 0, Pi2, false);
             ctx.closePath();
             ctx.stroke();
             ctx.fill();
         },
 
-        drawPolygon: function(verts, color, ctx){
+        drawPolygon: function(verts, styles, ctx){
 
             var vert = verts[0]
                 ,x = vert.x === undefined ? vert.get(0) : vert.x
@@ -6017,7 +6175,7 @@ Physics.renderer('canvas', function( proto ){
 
             ctx = ctx || this.ctx;
             ctx.beginPath();
-            ctx.fillStyle = ctx.strokeStyle = color || this.options.bodyColor;
+            this.setStyle( styles, ctx );
 
             ctx.moveTo(x, y);
 
@@ -6047,6 +6205,8 @@ Physics.renderer('canvas', function( proto ){
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
+                ,name = geometry.name
+                ,styles = this.options.styles[ name ]
                 ;
             
             // clear
@@ -6056,19 +6216,19 @@ Physics.renderer('canvas', function( proto ){
             hiddenCtx.save();
             hiddenCtx.translate(x, y);
 
-            if (geometry.name === 'circle'){
+            if (name === 'circle'){
 
-                this.drawCircle(0, 0, geometry.radius, false, hiddenCtx);
+                this.drawCircle(0, 0, geometry.radius, styles, hiddenCtx);
 
-            } else if (geometry.name === 'convex-polygon'){
+            } else if (name === 'convex-polygon'){
 
-                this.drawPolygon(geometry.vertices, false, hiddenCtx);
+                this.drawPolygon(geometry.vertices, styles, hiddenCtx);
             }
 
-            if (this.options.orientationLineColor){
+            if (styles.angleIndicator){
 
                 hiddenCtx.beginPath();
-                hiddenCtx.strokeStyle = this.options.orientationLineColor;
+                this.setStyle( styles.angleIndicator, hiddenCtx );
                 hiddenCtx.moveTo(0, 0);
                 hiddenCtx.lineTo(hw, 0);
                 hiddenCtx.closePath();
