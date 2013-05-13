@@ -289,7 +289,7 @@
 
             // set some stats
             stats.fps = 1000/diff;
-            stats.steps = Math.ceil(diff/this._dt);
+            stats.ipf = Math.ceil(diff/this._dt);
 
             while ( this._time < now ){
                 this._time += dt;

@@ -84,12 +84,12 @@ Physics.renderer('canvas', function( proto ){
             var stats = this.options.statsEl || newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
-            this.els.steps = newEl('span');
+            this.els.ipf = newEl('span');
             stats.appendChild(newEl('span', 'fps: '));
             stats.appendChild(this.els.fps);
             stats.appendChild(newEl('br'));
-            stats.appendChild(newEl('span', 'steps: '));
-            stats.appendChild(this.els.steps);
+            stats.appendChild(newEl('span', 'ipf: '));
+            stats.appendChild(this.els.ipf);
 
             viewport.parentNode.insertBefore(stats, viewport);
         },
@@ -228,7 +228,7 @@ Physics.renderer('canvas', function( proto ){
         drawMeta: function( stats ){
 
             this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.steps.innerHTML = stats.steps;
+            this.els.ipf.innerHTML = stats.ipf;
         },
 
         beforeRender: function(){

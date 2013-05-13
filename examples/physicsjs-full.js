@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-485-1ivcnxk exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-3379-nv06da exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -4325,7 +4325,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             // set some stats
             stats.fps = 1000/diff;
-            stats.steps = Math.ceil(diff/this._dt);
+            stats.ipf = Math.ceil(diff/this._dt);
 
             while ( this._time < now ){
                 this._time += dt;
@@ -6504,12 +6504,12 @@ Physics.renderer('canvas', function( proto ){
             var stats = this.options.statsEl || newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
-            this.els.steps = newEl('span');
+            this.els.ipf = newEl('span');
             stats.appendChild(newEl('span', 'fps: '));
             stats.appendChild(this.els.fps);
             stats.appendChild(newEl('br'));
-            stats.appendChild(newEl('span', 'steps: '));
-            stats.appendChild(this.els.steps);
+            stats.appendChild(newEl('span', 'ipf: '));
+            stats.appendChild(this.els.ipf);
 
             viewport.parentNode.insertBefore(stats, viewport);
         },
@@ -6648,7 +6648,7 @@ Physics.renderer('canvas', function( proto ){
         drawMeta: function( stats ){
 
             this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.steps.innerHTML = stats.steps;
+            this.els.ipf.innerHTML = stats.ipf;
         },
 
         beforeRender: function(){
@@ -6775,12 +6775,12 @@ Physics.renderer('dom', function( proto ){
             var stats = newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
-            this.els.steps = newEl('span');
+            this.els.ipf = newEl('span');
             stats.appendChild(newEl('span', 'fps: '));
             stats.appendChild(this.els.fps);
             stats.appendChild(newEl('br'));
-            stats.appendChild(newEl('span', 'steps: '));
-            stats.appendChild(this.els.steps);
+            stats.appendChild(newEl('span', 'ipf: '));
+            stats.appendChild(this.els.ipf);
 
             viewport.appendChild(stats);
         },
@@ -6817,7 +6817,7 @@ Physics.renderer('dom', function( proto ){
         drawMeta: function( stats ){
 
             this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.steps.innerHTML = stats.steps;
+            this.els.ipf.innerHTML = stats.ipf;
         },
 
         drawBody: drawBody

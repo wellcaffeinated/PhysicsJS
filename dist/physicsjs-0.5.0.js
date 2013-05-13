@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-485-1ivcnxk exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-3379-nv06da exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -4325,7 +4325,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             // set some stats
             stats.fps = 1000/diff;
-            stats.steps = Math.ceil(diff/this._dt);
+            stats.ipf = Math.ceil(diff/this._dt);
 
             while ( this._time < now ){
                 this._time += dt;
