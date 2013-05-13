@@ -74,63 +74,28 @@ Physics({
     // add things to world
     world.add( circles );
 
-    var constraints = [];
-    function addConstraint( one, two, target ){
-
-        constraints.push({
-            bodyA: one,
-            bodyB: two,
-            target: target
-        });
-    }
-
-    function resolveConstraint( con ){
-
-        var scratch = Physics.scratchpad();
-        var pos = scratch.vector().clone(con.bodyA.state.pos);
-        var AB = scratch.vector().clone(con.bodyB.state.pos).vsub( pos );
-        var length = AB.norm();
-        var factor = 1 - con.target / length;
-        if ( !con.bodyA.fixed && !con.bodyB.fixed ){
-            factor *= 0.5;
-        }
-        var correction = AB.mult( factor );
-
-        if (!con.bodyA.fixed){
-            con.bodyA.state.pos.vadd( correction );
-        }
-        if (!con.bodyB.fixed){
-            con.bodyB.state.pos.vsub( correction );
-        }
-        scratch.done();
-    }
-
-    world.subscribe('integrate:positions', function( data ){
-
-        for ( var i = 0, l = constraints.length; i < l; ++i ){
-            
-            resolveConstraint( constraints[ i ] );
-        }
-    });
+    var rigidConstraints = Physics.behavior('rigid-constraint-manager');
 
     for ( var row = 0, l = 30; row < l; ++row ){
         for ( var col = 0, lcol = 30; col < lcol; ++col ){
             
             if (col > 0){
                 // horizontal
-                addConstraint(circles[ lcol * row + col - 1 ], circles[ lcol * row + col ], 10);
+                rigidConstraints.constrain(circles[ lcol * row + col - 1 ], circles[ lcol * row + col ], 10);
             }
-            
+
             if (row > 0){
 
                 // vertical
-                addConstraint(circles[ lcol * row + col ], circles[ lcol * (row - 1) + col ], 10);
+                rigidConstraints.constrain(circles[ lcol * row + col ], circles[ lcol * (row - 1) + col ], 10);
             } else {
 
                 circles[ lcol * row + col ].fixed = true;
             }
         }
     }
+
+    world.add( rigidConstraints );
 
     // circles[ 0 ].fixed = true;
     
@@ -142,42 +107,7 @@ Physics({
     
     world.add( renderer );
     world.add( Physics.integrator('verlet', { drag: 0 }));
-    world.add( Physics.behavior('gravity', function(){
-
-        var g = Physics.vector(0, .0004)
-            ,mouse = Physics.vector()
-            ,mouseDown = false
-            ,tmp = Physics.vector()
-            ;
-
-        $('#viewport').on({
-            mousedown: function(e){
-                mouseDown = true;
-            },
-            mousemove: function(e){
-                var offset = $(this).offset();
-                mouse.set(e.screenX - offset.left, e.screenY - offset.top);
-            },
-            mouseup: function(e){
-                mouseDown = false;
-            }
-        });
-
-        return {
-            behave: function( bodies ){
-
-                for ( var i = 0, l = bodies.length; i < l; ++i ){
-                    
-                    bodies[ i ].accelerate( g );
-
-                    if (mouseDown){
-                        tmp.clone(mouse).vsub(bodies[ i ].state.pos).normalize().mult(0.001);
-                        bodies[ i ].accelerate( tmp );
-                    }
-                }
-            }
-        };
-    }, {}) );
+    world.add( Physics.behavior('constant-acceleration') );
 
     // world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
     // world.add( Physics.behavior('sweep-prune') );

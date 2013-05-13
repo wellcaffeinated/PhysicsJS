@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-11
+ * physicsjs v0.5.0 - 2013-05-13
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11346-81208-bj6apq exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-91944-18bxuxu exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -1905,6 +1905,140 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 }(this));
 
 // ---
+// inside: src/util/pubsub.js
+
+(function(){
+
+    /**
+     * PubSub implementation
+     */
+    var PubSub = function PubSub( defaultScope ){
+
+        if (!(this instanceof PubSub)){
+            return new PubSub( defaultScope );
+        }
+
+        this._topics = {};
+        this.defaultScope = defaultScope || this;
+    };
+
+    PubSub.prototype = {
+
+        /**
+         * Subscribe a callback (or callbacks) to a topic (topics).
+         * 
+         * @param  {String|Object}   topic The topic name, or a config with key/value pairs of { topic: callbackFn, ... }
+         * @param  {Function} fn The callback function (if not using Object as previous argument)
+         * @param  {Object}   scope (optional) The scope to bind callback to
+         * @param  {Number}   priority (optional) The priority of the callback (higher = earlier)
+         * @return {this}
+         */
+        subscribe: function( topic, fn, scope, priority ){
+
+            var listeners = this._topics[ topic ] || (this._topics[ topic ] = [])
+                ,orig = fn
+                ,idx
+                ;
+
+            // check if we're subscribing to multiple topics
+            // with an object
+            if ( Physics.util.isObject( topic ) ){
+
+                for ( var t in topic ){
+                    
+                    this.subscribe( t, topic[ t ], fn, scope );
+                }
+
+                return this;
+            }
+
+            if ( Physics.util.isObject( scope ) ){
+                
+                fn = Physics.util.bind( fn, scope );
+                fn._bindfn_ = orig;
+
+            } else {
+
+                priority = scope;
+            }
+
+            fn._priority_ = priority;
+
+            idx = Physics.util.sortedIndex( listeners, fn, '_priority_' );
+
+            listeners.splice( idx, 0, fn );
+            return this;
+        },
+
+        /**
+         * Unsubscribe function from topic
+         * @param  {String}   topic Topic name
+         * @param  {Function} fn The original callback function
+         * @return {this}
+         */
+        unsubscribe: function( topic, fn ){
+
+            var listeners = this._topics[ topic ]
+                ,listn
+                ;
+
+            if (!listeners){
+                return this;
+            }
+
+            for ( var i = 0, l = listeners.length; i < l; i++ ){
+                
+                listn = listeners[ i ];
+
+                if ( listn._bindfn_ === fn || listn === fn ){
+                    listeners.splice(i, 1);
+                    break;
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * Publish data to a topic
+         * @param  {Object|String} data
+         * @param  {Object} scope The scope to be included in the data argument passed to callbacks
+         * @return {this}
+         */
+        publish: function( data, scope ){
+
+            if (typeof data !== 'object'){
+                data = { topic: data };
+            }
+
+            var topic = data.topic
+                ,listeners = this._topics[ topic ]
+                ,l = listeners && listeners.length
+                ;
+
+            if ( !topic ){
+                throw 'Error: No topic specified in call to world.publish()';
+            }
+
+            if ( !l ){
+                return this;
+            }
+            
+            data.scope = data.scope || this.defaultScope;
+
+            while ( l-- ){
+                
+                listeners[ l ]( data );
+            }
+
+            return this;
+        }
+    };
+    
+    Physics.util.pubsub = PubSub;
+})();
+
+// ---
 // inside: src/util/request-anim-frame.js
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -3220,7 +3354,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         priority: 0,
 
         init: function(){
-            //empty
+            
+            this.options = {};
+        },
+
+        connect: function( world ){
+
+            if (this.behave){
+                world.subscribe('integrate:positions', this.behave, this, this.priority);
+            }
+        },
+        disconnect: function( world ){
+
+            if (this.behave){
+                world.unsubscribe('integrate:positions', this.behave);
+            }
         },
 
         behave: function( bodies, dt ){
@@ -3236,6 +3384,16 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
 (function(){
 
+    var defaults = {
+
+        fixed: false,
+        mass: 1.0,
+        restitution: 1.0,
+        cof: 0.8,
+        moi: 0.0,
+        view: null
+    };
+
     // Service
     Physics.body = Decorator('body', {
 
@@ -3244,16 +3402,18 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             var vector = Physics.vector;
 
+            this.options = Physics.util.extend({}, defaults, options);
+
             // properties
-            this.fixed = options.fixed || false;
-            this.mass = options.mass || 1.0;
-            this.restitution = options.restitution || 1.0;
-            this.cof = options.cof || 0.8;
+            this.fixed = this.options.fixed;
+            this.mass = this.options.mass;
+            this.restitution = this.options.restitution;
+            this.cof = this.options.cof;
             // moment of inertia
-            this.moi = 0.0;
+            this.moi = this.options.moi;
 
             // placeholder for renderers
-            this.view = null;
+            this.view = this.options.view;
 
             // physical properties
             this.state = {
@@ -3790,7 +3950,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 body = bodies[ i ];
                 view = body.view || ( body.view = this.createView(body.geometry) );
 
-                this.drawBody( body, view );
+                if ( !body.hidden ){
+                    this.drawBody( body, view );
+                }
             }
         },
 
@@ -3883,12 +4045,12 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                steps: 0 
             }; 
             this._bodies = [];
-            this._behaviorStack = [];
+            this._behaviors = [];
             this._integrator = null;
             this._renderer = null;
             this._paused = false;
             this._opts = {};
-            this._pubsub = {};
+            this._pubsub = Physics.util.pubsub( this );
 
             // set options
             this.options( cfg || {} );
@@ -3918,71 +4080,21 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return Physics.util.extend({}, this._opts);
         },
 
-        subscribe: function( topic, fn, scope ){
+        subscribe: function( topic, fn, scope, priority ){
 
-            var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
-                ,orig = fn
-                ;
-
-            if ( scope ){
-                
-                fn = Physics.util.bind( fn, scope );
-                fn._bindfn_ = orig;
-            }
-
-            listeners.push( fn );
-
+            this._pubsub.subscribe( topic, fn, scope, priority );
             return this;
         },
 
         unsubscribe: function( topic, fn ){
 
-            var listeners = this._pubsub[ topic ]
-                ,listn
-                ;
-
-            if (!listeners){
-                return this;
-            }
-
-            for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
-                listn = listeners[ i ];
-
-                if ( listn._bindfn_ === fn || listn === fn ){
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-
+            this._pubsub.unsubscribe( topic, fn );
             return this;
         },
 
         publish: function( data, scope ){
 
-            if (typeof data !== 'object'){
-                data = { topic: data };
-            }
-
-            var topic = data.topic
-                ,listeners = this._pubsub[ topic ]
-                ;
-
-            if (!topic){
-                throw 'Error: No topic specified in call to world.publish()';
-            }
-
-            if (!listeners || !listeners.length){
-                return this;
-            }
-            
-            data.scope = data.scope || this;
-
-            for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
-                listeners[ i ]( data );
-            }
-
+            this._pubsub.publish( data, scope );
             return this;
         },
 
@@ -4050,6 +4162,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this._integrator.setWorld( this );
         },
 
+        getIntegrator: function(){
+
+            return this._integrator;
+        },
+
         addRenderer: function( renderer ){
 
             if ( this._renderer ){
@@ -4061,16 +4178,16 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this._renderer.setWorld( this );
         },
 
+        getRenderer: function(){
+
+            return this._renderer;
+        },
+
         // add a behavior
         addBehavior: function( behavior ){
 
-            var stack = this._behaviorStack
-                // gets the index to insert the behavior
-                ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
-                ;
-
             behavior.setWorld( this );
-            stack.splice( idx, 0, behavior );
+            this._behaviors.push( behavior );
             return this;
         },
 
@@ -4087,29 +4204,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return [].concat(this._bodies);
         },
 
-        applyBehaviors: function( dt ){
-
-            var behaviors = this._behaviorStack
-                ,l = behaviors.length
-                ,bodies = this._bodies
-                ,b
-                ;
-
-            // apply behaviors in reverse order... highest priority first
-            while ( l-- ){
-                
-                b = behaviors[ l ];
-                if ( b.behave ){
-                    b.behave( bodies, dt );
-                }
-            }
-        },
-
         // internal method
-        substep: function( dt ){
+        iterate: function( dt ){
 
             this._integrator.integrate( this._bodies, dt );
-            this.applyBehaviors( dt );
         },
 
         step: function( now ){
@@ -4130,7 +4228,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 return this;
             }
             
-            // limit number of substeps in each step
+            // limit number of iterations in each step
             if ( diff > this._maxJump ){
 
                 this._time = now - this._maxJump;
@@ -4143,7 +4241,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             while ( this._time < now ){
                 this._time += dt;
-                this.substep( dt );
+                this.iterate( dt );
             }
 
             return this;
@@ -4156,7 +4254,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
             
             this._renderer.render( this._bodies, this._stats );
-
+            this.publish({
+                topic: 'render',
+                bodies: this._bodies,
+                renderer: this._renderer
+            });
             return this;
         },
 
@@ -4182,7 +4284,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             if ( dt ){
 
                 this._dt = dt;
-                // calculate the maximum jump in time over which to do substeps
+                // calculate the maximum jump in time over which to do iterations
                 this._maxJump = dt * this._opts.maxSteps;
 
                 return this;

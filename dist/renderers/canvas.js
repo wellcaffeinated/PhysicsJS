@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-11
+ * physicsjs v0.5.0 - 2013-05-13
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -167,6 +167,28 @@
                     ctx.closePath();
                 }
     
+                ctx.stroke();
+                ctx.fill();
+            },
+    
+            drawLine: function(from, to, styles, ctx){
+    
+                var x = from.x === undefined ? from.get(0) : from.x
+                    ,y = from.y === undefined ? from.get(1) : from.y
+                    ;
+    
+                ctx = ctx || this.ctx;
+    
+                ctx.beginPath();
+                this.setStyle( styles, ctx );
+    
+                ctx.moveTo(x, y);
+    
+                x = to.x === undefined ? to.get(0) : to.x;
+                y = to.y === undefined ? to.get(1) : to.y;
+                
+                ctx.lineTo(x, y);
+                
                 ctx.stroke();
                 ctx.fill();
             },

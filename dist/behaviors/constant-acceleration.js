@@ -20,36 +20,41 @@
     }
 }(this, function ( Physics ) {
     'use strict';
-    // circle body
-    Physics.body('convex-polygon', function( parent ){
+    Physics.behavior('constant-acceleration', function( parent ){
     
         var defaults = {
-            
+    
+            acc: { x : 0, y: 0.0004 }
         };
     
         return {
+    
             init: function( options ){
     
-                // call parent init method
-                parent.init.call(this, options);
+                parent.init.call(this);
     
-                options = Physics.util.extend({}, defaults, options);
-    
-                this.geometry = Physics.geometry('convex-polygon', {
-                    vertices: options.vertices
-                });
-    
-                this.recalc();
+                this.options = Physics.util.extend(this.options, defaults, options);
+                this._acc = Physics.vector();
+                this.setAcceleration( this.options.acc );
             },
     
-            recalc: function(){
-                parent.recalc.call(this);
-                // moment of inertia
-                this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
+            setAcceleration: function( acc ){
+    
+                this._acc.clone( acc );
+                return this;
+            },
+    
+            behave: function( data ){
+    
+                var bodies = data.bodies;
+    
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    bodies[ i ].accelerate( this._acc );
+                }
             }
         };
     });
-    
-    // end module: bodies/convex-polygon.js
+    // end module: behaviors/constant-acceleration.js
     return Physics;
 })); // UMD 

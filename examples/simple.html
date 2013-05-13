@@ -49,16 +49,18 @@ require({
 },[
     'jquery',
     'physicsjs',
+    'examples/demo-mouse-events',
     'examples/simple',
-    'examples/collision'
+    'examples/collision',
+    'examples/basket'
 ], function(
     $,
     Physics,
     examples
 ){
 
-    // each argument (except Physics) is a world object for a demo
-    examples = Array.prototype.slice.call( arguments, 2 );
+    // each argument after demo-mouse-events is a world object for a demo
+    examples = Array.prototype.slice.call( arguments, 3 );
 
     var currentWorld = examples[ 0 ];
     var $win = $(window)
@@ -68,6 +70,7 @@ require({
             el: 'viewport',
             width: viewWidth,
             height: viewHeight,
+            // debug:true,
             styles: {
                 'convex-polygon' : {
                     strokeStyle: 'rgba(30, 50, 100, 0.7)',
@@ -76,8 +79,10 @@ require({
                 }
             }
         })
+        ,mouseEvents
         ;
 
+    // resize events
     $(window).on('resize', function(){
 
         viewWidth = $win.width();
@@ -90,7 +95,7 @@ require({
 
     }).trigger('resize');
 
-
+    // initialize a world showing a demo
     function initWorld( world ){
 
         // pause it for now
@@ -109,19 +114,6 @@ require({
         });
     }
 
-    var $ex = $('#examples ul').empty();
-    // for all worlds in examples, we'll attach them to the ticker (request animation frame)
-    $.each( examples, function( idx, world ){
-        initWorld( world );
-
-        // for demo purposes the world.title properties are set to be the titles of the demos
-        $ex.append( '<li><a href="#demo-' + idx + '">' + world.title + '</a></li>' )
-    });
-
-    // start it
-    Physics.util.ticker.start();
-    currentWorld.unpause();
-
     // play/pause button
     $(document).on('click', '.start-stop', function(e){
 
@@ -137,6 +129,7 @@ require({
         }
     });
 
+    // events for examples control box
     $(document).on('click', '#examples a', function(e){
 
         e.preventDefault();
@@ -151,13 +144,32 @@ require({
 
             currentWorld.pause();
             currentWorld = examples[ idx ];
+            currentWorld.add( mouseEvents );
             currentWorld.unpause();
         }
     });
 
-    // select the first
-    $('#examples a').first().addClass('on');
+    $(function(){
 
+        mouseEvents = Physics.behavior('demo-mouse-events', { el: '#viewport' });
+        // init examples control box
+        var $ex = $('#examples ul').empty();
+        // for all worlds in examples, we'll attach them to the ticker (request animation frame)
+        $.each( examples, function( idx, world ){
+            initWorld( world );
+
+            // for demo purposes the world.title properties are set to be the titles of the demos
+            $ex.append( '<li><a href="#demo-' + idx + '">' + world.title + '</a></li>' )
+        });
+
+        // init the first example
+        $('#examples a').first().addClass('on');
+        currentWorld.add( mouseEvents );
+        // start it
+        Physics.util.ticker.start();
+        currentWorld.unpause();
+    });
+    
 });
 </script>
   

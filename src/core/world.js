@@ -55,12 +55,12 @@
                steps: 0 
             }; 
             this._bodies = [];
-            this._behaviorStack = [];
+            this._behaviors = [];
             this._integrator = null;
             this._renderer = null;
             this._paused = false;
             this._opts = {};
-            this._pubsub = {};
+            this._pubsub = Physics.util.pubsub( this );
 
             // set options
             this.options( cfg || {} );
@@ -90,71 +90,21 @@
             return Physics.util.extend({}, this._opts);
         },
 
-        subscribe: function( topic, fn, scope ){
+        subscribe: function( topic, fn, scope, priority ){
 
-            var listeners = this._pubsub[ topic ] || (this._pubsub[ topic ] = [])
-                ,orig = fn
-                ;
-
-            if ( scope ){
-                
-                fn = Physics.util.bind( fn, scope );
-                fn._bindfn_ = orig;
-            }
-
-            listeners.push( fn );
-
+            this._pubsub.subscribe( topic, fn, scope, priority );
             return this;
         },
 
         unsubscribe: function( topic, fn ){
 
-            var listeners = this._pubsub[ topic ]
-                ,listn
-                ;
-
-            if (!listeners){
-                return this;
-            }
-
-            for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
-                listn = listeners[ i ];
-
-                if ( listn._bindfn_ === fn || listn === fn ){
-                    listeners.splice(i, 1);
-                    break;
-                }
-            }
-
+            this._pubsub.unsubscribe( topic, fn );
             return this;
         },
 
         publish: function( data, scope ){
 
-            if (typeof data !== 'object'){
-                data = { topic: data };
-            }
-
-            var topic = data.topic
-                ,listeners = this._pubsub[ topic ]
-                ;
-
-            if (!topic){
-                throw 'Error: No topic specified in call to world.publish()';
-            }
-
-            if (!listeners || !listeners.length){
-                return this;
-            }
-            
-            data.scope = data.scope || this;
-
-            for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
-                listeners[ i ]( data );
-            }
-
+            this._pubsub.publish( data, scope );
             return this;
         },
 
@@ -222,6 +172,11 @@
             this._integrator.setWorld( this );
         },
 
+        getIntegrator: function(){
+
+            return this._integrator;
+        },
+
         addRenderer: function( renderer ){
 
             if ( this._renderer ){
@@ -233,16 +188,16 @@
             this._renderer.setWorld( this );
         },
 
+        getRenderer: function(){
+
+            return this._renderer;
+        },
+
         // add a behavior
         addBehavior: function( behavior ){
 
-            var stack = this._behaviorStack
-                // gets the index to insert the behavior
-                ,idx = Physics.util.sortedIndex( stack, behavior, PRIORITY_PROP_NAME )
-                ;
-
             behavior.setWorld( this );
-            stack.splice( idx, 0, behavior );
+            this._behaviors.push( behavior );
             return this;
         },
 
@@ -259,29 +214,10 @@
             return [].concat(this._bodies);
         },
 
-        applyBehaviors: function( dt ){
-
-            var behaviors = this._behaviorStack
-                ,l = behaviors.length
-                ,bodies = this._bodies
-                ,b
-                ;
-
-            // apply behaviors in reverse order... highest priority first
-            while ( l-- ){
-                
-                b = behaviors[ l ];
-                if ( b.behave ){
-                    b.behave( bodies, dt );
-                }
-            }
-        },
-
         // internal method
-        substep: function( dt ){
+        iterate: function( dt ){
 
             this._integrator.integrate( this._bodies, dt );
-            this.applyBehaviors( dt );
         },
 
         step: function( now ){
@@ -302,7 +238,7 @@
                 return this;
             }
             
-            // limit number of substeps in each step
+            // limit number of iterations in each step
             if ( diff > this._maxJump ){
 
                 this._time = now - this._maxJump;
@@ -315,7 +251,7 @@
 
             while ( this._time < now ){
                 this._time += dt;
-                this.substep( dt );
+                this.iterate( dt );
             }
 
             return this;
@@ -328,7 +264,11 @@
             }
             
             this._renderer.render( this._bodies, this._stats );
-
+            this.publish({
+                topic: 'render',
+                bodies: this._bodies,
+                renderer: this._renderer
+            });
             return this;
         },
 
@@ -354,7 +294,7 @@
             if ( dt ){
 
                 this._dt = dt;
-                // calculate the maximum jump in time over which to do substeps
+                // calculate the maximum jump in time over which to do iterations
                 this._maxJump = dt * this._opts.maxSteps;
 
                 return this;
