@@ -56,6 +56,41 @@ body {
   margin-top: 2em;
 }
 
+#examples .collapse {
+  display: inline-block;
+  text-decoration: none;
+  color: #222;
+  padding: .4em 1em;
+  background: #aca;
+  margin-bottom: .5em;
+  border: 1px solid #887;
+   -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+      -ms-border-radius: 5px;
+       -o-border-radius: 5px;
+          border-radius: 5px;
+}
+
+#examples .collapse:hover {
+  background: #797;
+}
+
+#examples .collapse:active {
+  background: #aca;
+}
+
+#examples .collapse:before {
+  font-size: 1.2em;
+  content: '-';
+  display: inline-block;
+  width: 1em;
+  margin-right: .5em;
+}
+
+#examples .collapse.collapsed:before {
+  content: '+';
+}
+
 #examples ul,
 #examples li {
   overflow: hidden;

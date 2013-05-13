@@ -26,7 +26,7 @@
         <div class="inner">
             <button class="start-stop">pause</button>
             <div id="examples">
-                <label>examples</label>
+                <label><a href="#" class="collapse">examples</a></label>
                 <ul>
                     <li>none</li>
                 </ul>
@@ -134,15 +134,22 @@ require({
         }
     });
 
+    $(document).on('click', '#examples .collapse', function(e){
+
+        e.preventDefault();
+        $('#examples ul').slideToggle();
+        $(this).toggleClass('collapsed');
+    });
+
     // events for examples control box
-    $(document).on('click', '#examples a', function(e){
+    $(document).on('click', '#examples ul a', function(e){
 
         e.preventDefault();
         var $this = $(this)
             ,idx = $this.attr('href').split('-')[1] | 0
             ;
 
-        $this.parents('#examples').find('a').removeClass('on');
+        $this.parents('#examples ul').find('a').removeClass('on');
         $this.addClass('on');
 
         if ( idx < examples.length ){
@@ -168,7 +175,7 @@ require({
         });
 
         // init the first example
-        $('#examples a').first().addClass('on');
+        $('#examples ul a').first().addClass('on');
         currentWorld.add( mouseEvents );
         // start it
         Physics.util.ticker.start();
