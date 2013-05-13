@@ -1,5 +1,15 @@
 (function(){
 
+    var defaults = {
+
+        fixed: false,
+        mass: 1.0,
+        restitution: 1.0,
+        cof: 0.8,
+        moi: 0.0,
+        view: null
+    };
+
     // Service
     Physics.body = Decorator('body', {
 
@@ -8,16 +18,18 @@
 
             var vector = Physics.vector;
 
+            this.options = Physics.util.extend({}, defaults, options);
+
             // properties
-            this.fixed = options.fixed || false;
-            this.mass = options.mass || 1.0;
-            this.restitution = options.restitution || 1.0;
-            this.cof = options.cof || 0.8;
+            this.fixed = this.options.fixed;
+            this.mass = this.options.mass;
+            this.restitution = this.options.restitution;
+            this.cof = this.options.cof;
             // moment of inertia
-            this.moi = 0.0;
+            this.moi = this.options.moi;
 
             // placeholder for renderers
-            this.view = null;
+            this.view = this.options.view;
 
             // physical properties
             this.state = {
