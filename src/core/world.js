@@ -214,6 +214,48 @@
             return [].concat(this._bodies);
         },
 
+        findOne: function( query ){
+
+            var list = {
+                    check: function( arg ){
+                        var fn = this;
+                        while ( fn = fn.next ){
+
+                            if ( fn( arg ) ){
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+                ,test = list
+                ,bodies = this._bodies
+                ;
+
+            // init tests
+            if ( query.$within ){
+                //aabb
+            }
+            if ( query.$at ){
+
+                test.next = function( body ){
+
+                    var aabb = body.aabb();
+                    return Physics.aabb.contains( aabb, query.$at );
+                };
+            }
+
+            // do search
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                if (list.check( bodies[ i ] )){
+                    return bodies[ i ];
+                }
+            }
+
+            return false;
+        },
+
         // internal method
         iterate: function( dt ){
 

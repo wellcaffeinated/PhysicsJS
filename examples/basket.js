@@ -70,7 +70,10 @@ define([
             var renderer = data.renderer;
             for ( var i = 1, l = basket.length; i < l; ++i ){
                 
-                renderer.drawLine(basket[ i - 1 ].state.pos, basket[ i ].state.pos, '#664');
+                renderer.drawLine(basket[ i - 1 ].state.pos, basket[ i ].state.pos, {
+                    strokeStyle: '#664',
+                    lineWidth: 3
+                });
             }
         });
 

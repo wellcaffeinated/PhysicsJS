@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-92234-mvuqj7 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-97231-5zd6r8 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -1688,6 +1688,27 @@ Physics.util = {};
     return min + floor(nativeRandom() * ((+max || 0) - min + 1));
   }
 
+  /**
+   * Generates a unique ID. If `prefix` is passed, the ID will be appended to it.
+   *
+   * @static
+   * @memberOf _
+   * @category Utilities
+   * @param {String} [prefix] The value to prefix the ID with.
+   * @returns {String} Returns the unique ID.
+   * @example
+   *
+   * _.uniqueId('contact_');
+   * // => 'contact_104'
+   *
+   * _.uniqueId();
+   * // => '105'
+   */
+  function uniqueId(prefix) {
+    var id = ++idCounter;
+    return String(prefix == null ? '' : prefix) + id;
+  }
+
   /*--------------------------------------------------------------------------*/
 
   lodash.assign = assign;
@@ -1715,6 +1736,7 @@ Physics.util = {};
   lodash.isString = isString;
   lodash.random = random;
   lodash.sortedIndex = sortedIndex;
+  lodash.uniqueId = uniqueId;
 
   /*--------------------------------------------------------------------------*/
 
@@ -2349,10 +2371,14 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     // check if point is inside bounds
     AABB.prototype.contains = function contains( pt ){
 
-        return  (pt.get(0) > (this._pos.get(0) - this._hw)) && 
-                (pt.get(0) < (this._pos.get(0) + this._hw)) &&
-                (pt.get(1) > (this._pos.get(1) - this._hh)) &&
-                (pt.get(1) < (this._pos.get(1) + this._hh));
+        var x = pt.x !== undefined ? pt.x : pt.get(0)
+            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+            ;
+
+        return  (x > (this._pos.get(0) - this._hw)) && 
+                (x < (this._pos.get(0) + this._hw)) &&
+                (y > (this._pos.get(1) - this._hh)) &&
+                (y < (this._pos.get(1) + this._hh));
     };
 
     // apply a transformation to both vectors
@@ -2379,6 +2405,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
         scratch.done();
         return this;
+    };
+
+    // Static methods
+    AABB.contains = function( aabb, pt ){
+
+        var x = pt.x !== undefined ? pt.x : pt.get(0)
+            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+            ;
+
+        aabb = aabb.get ? aabb.get() : aabb;
+
+        return  (x > (aabb.pos.x - aabb.halfWidth)) && 
+                (x < (aabb.pos.x + aabb.halfWidth)) &&
+                (y > (aabb.pos.y - aabb.halfHeight)) &&
+                (y < (aabb.pos.y + aabb.halfHeight));
     };
 
     Physics.aabb = AABB;
@@ -3258,8 +3299,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      */
     Vector.prototype.clamp = function(minV, maxV){
 
-        this._[0] = min(max(this._[0], minV._[0]), maxV._[0]);
-        this._[1] = min(max(this._[1], minV._[1]), maxV._[1]);
+        minV = minV.values ? minV.values() : minV;
+        maxV = maxV.values ? maxV.values() : maxV;
+
+        this._[0] = min(max(this._[0], minV.x), maxV.x);
+        this._[1] = min(max(this._[1], minV.y), maxV.y);
         this.recalc = true;
         return this;
     };
@@ -4203,6 +4247,48 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             // return the copied array
             return [].concat(this._bodies);
+        },
+
+        findOne: function( query ){
+
+            var list = {
+                    check: function( arg ){
+                        var fn = this;
+                        while ( fn = fn.next ){
+
+                            if ( fn( arg ) ){
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                }
+                ,test = list
+                ,bodies = this._bodies
+                ;
+
+            // init tests
+            if ( query.$within ){
+                //aabb
+            }
+            if ( query.$at ){
+
+                test.next = function( body ){
+
+                    var aabb = body.aabb();
+                    return Physics.aabb.contains( aabb, query.$at );
+                };
+            }
+
+            // do search
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+                
+                if (list.check( bodies[ i ] )){
+                    return bodies[ i ];
+                }
+            }
+
+            return false;
         },
 
         // internal method

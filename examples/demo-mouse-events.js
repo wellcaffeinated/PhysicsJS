@@ -17,16 +17,40 @@ define(
                     var self = this;
 
                     this.mousePos = Physics.vector();
-
+                    this.mousePosOld = Physics.vector();
+                    this.offset = Physics.vector();
+                    
                     this.el = $(options.el).on({
                         mousedown: function(e){
+                            
+                            var offset = $(this).offset();
+                            self.mousePos.set(e.pageX - offset.left, e.pageY - offset.top);
+                            
+                            var body = self._world.findOne({ $at: self.mousePos }) ;
+                            if ( body ){
+
+                                // we're trying to grab a body
+                                body.fixed = true;
+                                self.body = body;
+                                self.offset.clone( self.mousePos ).vsub( body.state.pos );
+                                return;
+                            }
+
                             self.mouseDown = true;
                         },
                         mousemove: function(e){
                             var offset = $(this).offset();
-                            self.mousePos.set(e.screenX - offset.left, e.screenY - offset.top);
+                            self.mousePosOld.clone( self.mousePos );
+                            self.mousePos.set(e.pageX - offset.left, e.pageY - offset.top);
                         },
                         mouseup: function(e){
+                            var offset = $(this).offset();
+                            self.mousePosOld.clone( self.mousePos );
+                            self.mousePos.set(e.pageX - offset.left, e.pageY - offset.top);
+                            if (self.body){
+                                self.body.fixed = false;
+                                self.body = false;
+                            }
                             self.mouseDown = false;
                         }
                     });
@@ -44,7 +68,17 @@ define(
 
                 behave: function( data ){
 
-                    if ( !this.mouseDown ) return;
+                    if ( this.body ){
+
+                        this.body.state.pos.clone( this.mousePos ).vsub( this.offset );
+                        this.body.state.vel.clone( this.body.state.pos ).vsub( this.mousePosOld ).vadd( this.offset ).mult( 1 / 30 );
+                        this.body.state.vel.clamp( { x: -1, y: -1 }, { x: 1, y: 1 } );
+                        return;
+                    }
+
+                    if ( !this.mouseDown ){
+                        return;
+                    }
 
                     var bodies = data.bodies
                         ,scratch = Physics.scratchpad()

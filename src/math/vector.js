@@ -460,8 +460,11 @@
      */
     Vector.prototype.clamp = function(minV, maxV){
 
-        this._[0] = min(max(this._[0], minV._[0]), maxV._[0]);
-        this._[1] = min(max(this._[1], minV._[1]), maxV._[1]);
+        minV = minV.values ? minV.values() : minV;
+        maxV = maxV.values ? maxV.values() : maxV;
+
+        this._[0] = min(max(this._[0], minV.x), maxV.x);
+        this._[1] = min(max(this._[1], minV.y), maxV.y);
         this.recalc = true;
         return this;
     };

@@ -20,12 +20,14 @@ Physics.renderer('canvas', function( proto ){
 
             'circle' : {
                 strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                lineWidth: 1,
                 fillStyle: 'rgba(114, 105, 124, 0.7)',
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
             },
 
             'convex-polygon' : {
                 strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                lineWidth: 1,
                 fillStyle: 'rgba(114, 105, 124, 0.7)',
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
             }
@@ -100,10 +102,12 @@ Physics.renderer('canvas', function( proto ){
 
                 ctx.strokeStyle = styles.strokeStyle;
                 ctx.fillStyle = styles.fillStyle;
+                ctx.lineWidth = styles.lineWidth;
 
             } else {
 
                 ctx.fillStyle = ctx.strokeStyle = styles;
+                ctx.lineWidth = 1;
             }
         },
 

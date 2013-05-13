@@ -59,10 +59,14 @@
     // check if point is inside bounds
     AABB.prototype.contains = function contains( pt ){
 
-        return  (pt.get(0) > (this._pos.get(0) - this._hw)) && 
-                (pt.get(0) < (this._pos.get(0) + this._hw)) &&
-                (pt.get(1) > (this._pos.get(1) - this._hh)) &&
-                (pt.get(1) < (this._pos.get(1) + this._hh));
+        var x = pt.x !== undefined ? pt.x : pt.get(0)
+            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+            ;
+
+        return  (x > (this._pos.get(0) - this._hw)) && 
+                (x < (this._pos.get(0) + this._hw)) &&
+                (y > (this._pos.get(1) - this._hh)) &&
+                (y < (this._pos.get(1) + this._hh));
     };
 
     // apply a transformation to both vectors
@@ -89,6 +93,21 @@
 
         scratch.done();
         return this;
+    };
+
+    // Static methods
+    AABB.contains = function( aabb, pt ){
+
+        var x = pt.x !== undefined ? pt.x : pt.get(0)
+            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+            ;
+
+        aabb = aabb.get ? aabb.get() : aabb;
+
+        return  (x > (aabb.pos.x - aabb.halfWidth)) && 
+                (x < (aabb.pos.x + aabb.halfWidth)) &&
+                (y > (aabb.pos.y - aabb.halfHeight)) &&
+                (y < (aabb.pos.y + aabb.halfHeight));
     };
 
     Physics.aabb = AABB;

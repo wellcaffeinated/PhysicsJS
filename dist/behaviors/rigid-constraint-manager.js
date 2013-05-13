@@ -74,10 +74,38 @@
                 }
     
                 this._constraints.push({
+                    id: Physics.util.uniqueId('rigid-constraint'),
                     bodyA: bodyA,
                     bodyB: bodyB,
                     targetLength: targetLength || this.options.targetLength
                 });
+    
+                return this;
+            },
+    
+            remove: function( indexCstrOrId ){
+    
+                var constraints = this._constraints
+                    ,isObj
+                    ;
+    
+                if (typeof indexCstrOrId !== 'string'){
+    
+                    constraints.splice( indexCstrOrId, 1 );
+                    return this;   
+                }
+    
+                isObj = Physics.util.isObject( indexCstrOrId );
+                
+                for ( var i = 0, l = constraints.length; i < l; ++i ){
+                    
+                    if ( (isObj && constraints[ i ] === indexCstrOrId) ||
+                        ( !isObj && constraints[ i ].id === indexCstrOrId) ){
+    
+                        constraints.splice( i, 1 );
+                        return this;
+                    }
+                }
     
                 return this;
             },

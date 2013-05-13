@@ -14,7 +14,7 @@ define([
 
     }, function( world ){
 
-        world.title = "Cloth Simulation";
+        world.title = "Tearable cloth";
 
         // begin
         var $win = $(window)
@@ -35,8 +35,8 @@ define([
                 cloth.push(
                     Physics.body('circle', {
                         x: 8 * col + (viewWidth - l * 8) / 2,
-                        y: 8 * row + 60,
-                        radius: 1,
+                        y: 8 * row + (viewHeight/2 - 200),
+                        radius: 4,
                         hidden: true
                     })
                 );
@@ -57,6 +57,33 @@ define([
             }
         }
 
+        world.subscribe('integrate:positions', function(){
+
+            var constraints = rigidConstraints.getConstraints()
+                ,c
+                ,threshold = 40
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
+                ,len
+                ;
+
+            for ( var i = 0, l = constraints.length; i < l; ++i ){
+                
+                c = constraints[ i ];
+                len = v.clone( c.bodyB.state.pos ).vsub( c.bodyA.state.pos ).norm();
+
+                // break the constraint if above threshold
+                if ( (!c.bodyA.fixed && !c.bodyB.fixed) && (len - c.targetLength) > threshold ){
+
+                    rigidConstraints.remove( i );
+                }
+            }
+
+            scratch.done();
+            // higher priority than constraint resolution
+        }, null, 100);
+
+        // render
         world.subscribe('render', function( data ){
 
             var renderer = data.renderer
