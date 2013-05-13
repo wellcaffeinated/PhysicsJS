@@ -1,6 +1,12 @@
 # PhysicsJS
 
-Under development.
+Currently an **pre-alpha**. Not claimed to be stable. But claimed to be awesome.
+
+Steps before alpha release:
+
+* Documentation
+* Examples
+* Community code review
 
 
 # Extending objects
