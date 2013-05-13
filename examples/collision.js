@@ -113,7 +113,6 @@ define([
         world.add( Physics.behavior('body-impulse-response') );
 
         world.add( edgeBounce );
-        world.add( Physics.behavior('body-impulse-response') );
 
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );

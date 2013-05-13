@@ -46,7 +46,9 @@ define([
                     x: Physics.util.random(10, viewWidth - 10),
                     y: Physics.util.random(10, viewHeight - 10),
                     mass: 1,
-                    radius: 2,
+                    radius: 4,
+                    vx: Physics.util.random(0.01) - 0.005,
+                    vy: Physics.util.random(0.01) - 0.005,
                     restitution: 0.99
                 })
             );
@@ -60,6 +62,5 @@ define([
         world.add( Physics.behavior('newtonian', { strength: .01 }) );
         world.add( Physics.behavior('sweep-prune') );
         world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
-        world.add( Physics.behavior('body-impulse-response') );
     });
 });
