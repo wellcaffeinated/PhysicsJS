@@ -44,7 +44,7 @@ world.add(mine);
 
 Positive direction of:
 
-    * x: right
-    * y: down
-    * angle: clockwise
+* x: right
+* y: down
+* angle: clockwise
 
