@@ -35,7 +35,7 @@
     
             init: function( options ){
     
-                parent.init.call(this);
+                parent.init.call(this, options);
     
                 Physics.util.extend(this.options, defaults, options);
     

@@ -31,7 +31,7 @@
     
             init: function( options ){
     
-                parent.init.call(this);
+                parent.init.call(this, options);
     
                 this.options = Physics.util.extend(this.options, defaults, options);
                 this._acc = Physics.vector();
