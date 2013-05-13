@@ -6,6 +6,16 @@ body {
   color: #222;
 }
 
+a {
+  text-decoration: none;
+  color: #912525;
+}
+
+a:hover,
+a:focus {
+  color: #C55C5C;
+}
+
 #display {
   position: absolute;
   top: 0;
@@ -52,31 +62,36 @@ body {
   color: #912525;
 }
 
+.controls h1 small {
+  font-weight: normal;
+  font-size: 0.5em;
+  display: block;
+  line-height: 1.8;
+}
+
+.controls h1 small a {
+  font-family: 'Alice', Helvecica, Arial, sans-serif;
+}
+
 #examples {
-  margin-top: 2em;
+  margin-top: 1.5em;
+  overflow: hidden;
 }
 
 #examples .collapse {
-  display: inline-block;
+  display: block;
   text-decoration: none;
   color: #222;
   padding: .4em 1em;
-  background: #aca;
-  margin-bottom: .5em;
-  border: 1px solid #887;
-   -webkit-border-radius: 5px;
-     -moz-border-radius: 5px;
-      -ms-border-radius: 5px;
-       -o-border-radius: 5px;
-          border-radius: 5px;
+  background: #CCD3DD;
 }
 
 #examples .collapse:hover {
-  background: #797;
+  background: #AAB5BB;
 }
 
 #examples .collapse:active {
-  background: #aca;
+  background: #CCD3DD;
 }
 
 #examples .collapse:before {
@@ -99,7 +114,7 @@ body {
   list-style: none;
 }
 
-#examples ul {
+#examples {
   border: 1px solid #888;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
@@ -122,12 +137,8 @@ body {
   color: #912525;
 }
 
-#examples li:first-child a {
-  border: none;
-}
-
 button {
-  background: #AAB5BB;
+  background: #CCD3DD;
   color: #221;
   font-family: 'CaviarDreamsRegular', Helvecica, Arial, sans-serif;
   font-size: 18px;
@@ -143,11 +154,11 @@ button {
 }
 
 button:hover {
-  background: #CCD3DD;
+  background: #AAB5BB;
 }
 
 button:active {
-  background: #AAB5BB;
+  background: #CCD3DD;
 }
 
 .pjs-meta {
