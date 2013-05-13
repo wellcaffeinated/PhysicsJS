@@ -13,6 +13,7 @@ Steps before alpha release:
 
 Example:
 
+```javascript
     Physics.body('my-circle', 'circle', function( parent ){
 
         return {
@@ -37,7 +38,7 @@ Example:
         });
 
     world.add(mine);
-
+```
 
 # Directionality
 
