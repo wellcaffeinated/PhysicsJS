@@ -14,30 +14,30 @@ Steps before alpha release:
 Example:
 
 ```javascript
-    Physics.body('my-circle', 'circle', function( parent ){
+Physics.body('my-circle', 'circle', function( parent ){
 
-        return {
-            init: function( options ){
+    return {
+        init: function( options ){
 
-                // override incoming options...
-                options.radius = 15;
-                parent.init.call(this, options);
-                
-                // custom stuff
-                this.myThing = 2;
-            },
-            overrideMethod: function(){
+            // override incoming options...
+            options.radius = 15;
+            parent.init.call(this, options);
+            
+            // custom stuff
+            this.myThing = 2;
+        },
+        overrideMethod: function(){
 
-                // overridden!
-            }
-        };
+            // overridden!
+        }
+    };
+});
+
+var mine = Physics.body('my-circle', {
+        // options
     });
 
-    var mine = Physics.body('my-circle', {
-            // options
-        });
-
-    world.add(mine);
+world.add(mine);
 ```
 
 # Directionality
