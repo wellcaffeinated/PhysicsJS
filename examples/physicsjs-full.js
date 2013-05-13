@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-97231-5zd6r8 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-485-1ivcnxk exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -2050,7 +2050,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             while ( l-- ){
                 
-                listeners[ l ]( data );
+                data.handler = listeners[ l ];
+                data.handler( data );
             }
 
             return this;
@@ -5728,9 +5729,10 @@ Physics.behavior('newtonian', function( parent ){
             this.tolerance = options.tolerance || 100 * this.strength;
         },
         
-        behave: function( bodies, dt ){
+        behave: function( data ){
 
-            var body
+            var bodies = data.bodies
+                ,body
                 ,other
                 ,strength = this.strength
                 ,tolerance = this.tolerance
@@ -6437,9 +6439,9 @@ Physics.renderer('canvas', function( proto ){
             'point' : 'rgba(80, 50, 100, 0.7)',
 
             'circle' : {
-                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                strokeStyle: 'rgba(70, 50, 100, 0.7)',
                 lineWidth: 1,
-                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                fillStyle: 'rgba(44, 105, 44, 0.7)',
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
             },
 
@@ -6593,7 +6595,7 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
-        createView: function( geometry ){
+        createView: function( geometry, styles ){
 
             var view = new Image()
                 ,aabb = geometry.aabb()
@@ -6604,12 +6606,16 @@ Physics.renderer('canvas', function( proto ){
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
                 ,name = geometry.name
-                ,styles = this.options.styles[ name ]
                 ;
+
+            styles = styles || this.options.styles[ name ];
+
+            x += styles.lineWidth | 0;
+            y += styles.lineWidth | 0;
             
             // clear
-            hiddenCanvas.width = 2 * hw + 2;
-            hiddenCanvas.height = 2 * hh + 2;
+            hiddenCanvas.width = 2 * hw + 2 + (2 * styles.lineWidth|0);
+            hiddenCanvas.height = 2 * hh + 2 + (2 * styles.lineWidth|0);
 
             hiddenCtx.save();
             hiddenCtx.translate(x, y);

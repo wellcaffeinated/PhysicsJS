@@ -41,9 +41,10 @@
                 this.tolerance = options.tolerance || 100 * this.strength;
             },
             
-            behave: function( bodies, dt ){
+            behave: function( data ){
     
-                var body
+                var bodies = data.bodies
+                    ,body
                     ,other
                     ,strength = this.strength
                     ,tolerance = this.tolerance

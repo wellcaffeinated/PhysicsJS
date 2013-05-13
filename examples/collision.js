@@ -31,7 +31,7 @@ define([
             ,edgeBounce = Physics.behavior('edge-collision-detection', {
                 aabb: viewportBounds,
                 restitution: 0.4,
-                cof: 0.8
+                cof: 0.5
             })
             ;
 

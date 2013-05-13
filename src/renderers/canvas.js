@@ -19,9 +19,9 @@ Physics.renderer('canvas', function( proto ){
             'point' : 'rgba(80, 50, 100, 0.7)',
 
             'circle' : {
-                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                strokeStyle: 'rgba(70, 50, 100, 0.7)',
                 lineWidth: 1,
-                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                fillStyle: 'rgba(44, 105, 44, 0.7)',
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
             },
 
@@ -175,7 +175,7 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
-        createView: function( geometry ){
+        createView: function( geometry, styles ){
 
             var view = new Image()
                 ,aabb = geometry.aabb()
@@ -186,12 +186,16 @@ Physics.renderer('canvas', function( proto ){
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
                 ,name = geometry.name
-                ,styles = this.options.styles[ name ]
                 ;
+
+            styles = styles || this.options.styles[ name ];
+
+            x += styles.lineWidth | 0;
+            y += styles.lineWidth | 0;
             
             // clear
-            hiddenCanvas.width = 2 * hw + 2;
-            hiddenCanvas.height = 2 * hh + 2;
+            hiddenCanvas.width = 2 * hw + 2 + (2 * styles.lineWidth|0);
+            hiddenCanvas.height = 2 * hh + 2 + (2 * styles.lineWidth|0);
 
             hiddenCtx.save();
             hiddenCtx.translate(x, y);

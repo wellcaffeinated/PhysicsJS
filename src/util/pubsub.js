@@ -119,7 +119,8 @@
 
             while ( l-- ){
                 
-                listeners[ l ]( data );
+                data.handler = listeners[ l ];
+                data.handler( data );
             }
 
             return this;
