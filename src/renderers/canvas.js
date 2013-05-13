@@ -149,6 +149,28 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        drawLine: function(from, to, styles, ctx){
+
+            var x = from.x === undefined ? from.get(0) : from.x
+                ,y = from.y === undefined ? from.get(1) : from.y
+                ;
+
+            ctx = ctx || this.ctx;
+
+            ctx.beginPath();
+            this.setStyle( styles, ctx );
+
+            ctx.moveTo(x, y);
+
+            x = to.x === undefined ? to.get(0) : to.x;
+            y = to.y === undefined ? to.get(1) : to.y;
+            
+            ctx.lineTo(x, y);
+            
+            ctx.stroke();
+            ctx.fill();
+        },
+
         createView: function( geometry ){
 
             var view = new Image()
