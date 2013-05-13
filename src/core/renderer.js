@@ -47,7 +47,9 @@
                 body = bodies[ i ];
                 view = body.view || ( body.view = this.createView(body.geometry) );
 
-                this.drawBody( body, view );
+                if ( !body.hidden ){
+                    this.drawBody( body, view );
+                }
             }
         },
 
