@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-91944-18bxuxu exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-92234-mvuqj7 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, each, random, extend, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -3406,6 +3406,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             // properties
             this.fixed = this.options.fixed;
+            this.hidden = this.options.hidden;
             this.mass = this.options.mass;
             this.restitution = this.options.restitution;
             this.cof = this.options.cof;

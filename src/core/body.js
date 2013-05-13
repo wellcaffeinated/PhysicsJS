@@ -22,6 +22,7 @@
 
             // properties
             this.fixed = this.options.fixed;
+            this.hidden = this.options.hidden;
             this.mass = this.options.mass;
             this.restitution = this.options.restitution;
             this.cof = this.options.cof;

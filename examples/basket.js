@@ -57,11 +57,11 @@ define([
                     y: viewHeight / 2,
                     radius: 1,
                     restitution: 0.2,
-                    mass: .5
+                    mass: .5,
+                    hidden: true
                 })
             );
 
-            basket[ l - 1 ].hidden = true;
             rigidConstraints.constrain( basket[ l - 1 ], basket[ l - 2 ] );
         }
 
