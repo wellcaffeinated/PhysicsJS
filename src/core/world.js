@@ -317,12 +317,18 @@
         pause: function(){
 
             this._paused = true;
+            this.publish({
+                topic: 'pause'
+            });
             return this;
         },
 
         unpause: function(){
 
             this._paused = false;
+            this.publish({
+                topic: 'unpause'
+            });
             return this;
         },
 

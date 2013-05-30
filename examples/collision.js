@@ -87,17 +87,17 @@ define([
         var dropCount = 0;
         function dropDelay(){
 
-            if (dropCount++ < 80){
+            if (!world.isPaused() && dropCount++ < 80){
 
-                if ( !world.isPaused() ){
-                    dropInBody();
-                }
-
+                dropInBody();
                 setTimeout(dropDelay, 1500);
             }
         }
         
-        dropDelay();
+        world.subscribe('unpause', function(){
+
+            dropDelay();
+        });
         
         $(window).on('resize', function(){
 
