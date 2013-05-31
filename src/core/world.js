@@ -1,3 +1,6 @@
+/**
+ * The world class
+ */
 (function(){
 
     // bodies, behaviors, integrators, and renderers all need the setWorld method

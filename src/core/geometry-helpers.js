@@ -1,6 +1,12 @@
-// Geometry helper functions
+/**
+ * Geometry helper functions
+ */
 
-// check if polygon array is convex
+/**
+ * Determine if polygon hull is convex
+ * @param  {Array}  hull Array of vertices (Vectorish)
+ * @return {Boolean}
+ */
 Physics.geometry.isPolygonConvex = function( hull ){
 
     var scratch = Physics.scratchpad()

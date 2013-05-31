@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-45804-1t0zyi8 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, clone, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-47763-1bo58f3 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, clone, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -3700,9 +3700,6 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
 (function(){
 
-    var ERROR_UNSUPPORTED_ARG = "Error: Unsupported argument";
-
-    // Service
     Physics.geometry = Decorator('geometry', {
 
         // prototype methods
@@ -3711,8 +3708,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             this._aabb = new Physics.aabb();
         },
         
-        // get axis-aligned bounding box for this object (rotated by angle if specified).
-        // Intended to be overridden.
+        /**
+         * Get axis-aligned bounding box for this object (rotated by angle if specified).
+         * @param  {Number} angle (optional) The angle to rotate the geometry.
+         * @return {Object}       Bounding box values
+         */
         aabb: function( angle ){
 
             return this._aabb.get();
@@ -3758,9 +3758,15 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 // ---
 // inside: src/core/geometry-helpers.js
 
-// Geometry helper functions
+/**
+ * Geometry helper functions
+ */
 
-// check if polygon array is convex
+/**
+ * Determine if polygon hull is convex
+ * @param  {Array}  hull Array of vertices (Vectorish)
+ * @return {Boolean}
+ */
 Physics.geometry.isPolygonConvex = function( hull ){
 
     var scratch = Physics.scratchpad()
@@ -4035,23 +4041,37 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 // ---
 // inside: src/core/integrator.js
 
+/**
+ * Base integrator definition
+ */
 (function(){
 
     var defaults = {
 
+        // drag applied during integration
         // 0 means vacuum
         // 0.9 means molasses
         drag: 0
     };
 
-    // Service
     Physics.integrator = Decorator('integrator', {
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
             
             this.options = Physics.util.extend({}, defaults, options);
         },
 
+        /**
+         * Integrate bodies by timestep
+         * @param  {Array} bodies List of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {this}
+         */
         integrate: function( bodies, dt ){
 
             var world = this._world;
@@ -4075,13 +4095,27 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     dt: dt
                 });
             }
+
+            return this;
         },
 
+        /**
+         * Just integrate the velocities
+         * @abstract
+         * @param  {Array} bodies List of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         */
         integrateVelocities: function( bodies, dt ){
 
             throw 'The integrator.integrateVelocities() method must be overriden';
         },
 
+        /**
+         * Just integrate the positions
+         * @abstract
+         * @param  {Array} bodies List of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         */
         integratePositions: function( bodies, dt ){
 
             throw 'The integrator.integratePositions() method must be overriden';
@@ -4093,6 +4127,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 // ---
 // inside: src/core/renderer.js
 
+/**
+ * Base renderer class definition
+ */
 (function(){
 
     var defaults = {
@@ -4101,13 +4138,20 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // refresh rate of meta info
         metaRefresh: 200,
 
+        // width of viewport
         width: 600,
+        // height of viewport
         height: 600
     };
 
     // Service
     Physics.renderer = Decorator('renderer', {
 
+        /**
+         * Initialization
+         * @param  {Object} options Options passed to the initializer
+         * @return {void}
+         */
         init: function( options ){
 
             var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
@@ -4120,8 +4164,13 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
         },
 
-        // prototype methods
-        render: function( bodies, stats ){
+        /**
+         * Render the world bodies and meta. Called by world.render()
+         * @param  {Array} bodies Array of bodies in the world (reference!)
+         * @param  {Object} meta  meta object
+         * @return {this}
+         */
+        render: function( bodies, meta ){
 
             var body
                 ,view
@@ -4134,7 +4183,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
 
             if (this.options.meta){
-                this.drawMeta( stats );
+                this.drawMeta( meta );
             }
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -4146,9 +4195,16 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     this.drawBody( body, view );
                 }
             }
+
+            return this;
         },
 
-        // methods that should be overridden
+        /**
+         * Create a view for the specified geometry
+         * @abstract
+         * @param  {Object} geometry The geometry
+         * @return {Mixed} Whatever the renderer needs to render the body.
+         */
         createView: function( geometry ){
 
             // example:
@@ -4156,20 +4212,34 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // el.style.height = geometry.height + 'px';
             // el.style.width = geometry.width + 'px';
             // return el;
+            throw 'You must overried the renderer.createView() method.';
         },
 
-        drawMeta: function( stats ){
+        /**
+         * Draw the meta data.
+         * @abstract
+         * @param  {Object} meta The meta data
+         */
+        drawMeta: function( meta ){
             
             // example:
-            // this.els.fps.innerHTML = stats.fps.toFixed(2);
-            // this.els.steps.innerHTML = stats.steps;
+            // this.els.fps.innerHTML = meta.fps.toFixed(2);
+            // this.els.steps.innerHTML = meta.steps;
+            throw 'You must overried the renderer.drawMeta() method.';
         },
 
+        /**
+         * Draw specified body using specified view
+         * @abstract
+         * @param  {Object} body The body
+         * @param  {Object} view The view
+         */
         drawBody: function( body, view ){
 
             // example (pseudocode):
             // view.angle = body.state.angle
             // view.position = body.state.position
+            throw 'You must overried the renderer.drawBody() method.';
         }
 
         
@@ -4180,6 +4250,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 // ---
 // inside: src/core/world.js
 
+/**
+ * The world class
+ */
 (function(){
 
     // bodies, behaviors, integrators, and renderers all need the setWorld method

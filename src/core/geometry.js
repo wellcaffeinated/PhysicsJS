@@ -1,8 +1,5 @@
 (function(){
 
-    var ERROR_UNSUPPORTED_ARG = "Error: Unsupported argument";
-
-    // Service
     Physics.geometry = Decorator('geometry', {
 
         // prototype methods
@@ -11,8 +8,11 @@
             this._aabb = new Physics.aabb();
         },
         
-        // get axis-aligned bounding box for this object (rotated by angle if specified).
-        // Intended to be overridden.
+        /**
+         * Get axis-aligned bounding box for this object (rotated by angle if specified).
+         * @param  {Number} angle (optional) The angle to rotate the geometry.
+         * @return {Object}       Bounding box values
+         */
         aabb: function( angle ){
 
             return this._aabb.get();
