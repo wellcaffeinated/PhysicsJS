@@ -22,7 +22,7 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
 
         connect: function( world ){
 
-            var intg = world.getIntegrator();
+            var intg = world.integrator();
 
             if ( intg && intg.name.indexOf('verlet') < 0 ){
 

@@ -1,4 +1,8 @@
-// circle body
+/**
+ * Convex Polygon Body
+ * @module bodies/convex-polygon
+ * @requires geometries/convex-polygon
+ */
 Physics.body('convex-polygon', function( parent ){
 
     var defaults = {

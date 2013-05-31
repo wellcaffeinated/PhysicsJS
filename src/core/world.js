@@ -16,23 +16,31 @@
 
     Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
 
+        // add a setWorld method to all of these types
         Physics[ key ].mixin('setWorld', setWorld);
     });
 
-    var PRIORITY_PROP_NAME = 'priority';
-
     var defaults = {
-        name: false,
+
+        // default timestep
         timestep: 1000.0 / 160,
-        maxSteps: 16,
-        webworker: false, // to implement
+        // maximum number of iterations per step
+        maxIPF: 16,
+        webworker: false, // NOT YET IMPLEMENTED
+
+        // default integrator
         integrator: 'verlet'
     };
 
     // begin world definitions
-
+    /**
+     * World Constructor
+     * @param {Object}   cfg (optional) Configuration options
+     * @param {Function} fn  (optional) Callback function called with "this" world
+     */
     var World = function World( cfg, fn ){
 
+        // allow creation of world without "new"
         if (!(this instanceof World)){
             return new World( cfg, fn );
         }
@@ -42,6 +50,12 @@
 
     World.prototype = {
 
+        /**
+         * Initialization
+         * @param {Object}   cfg (optional) Configuration options
+         * @param {Function} fn  (optional) Callback function called with "this" world
+         * @return {void}
+         */
         init: function( cfg, fn ){
 
             if ( Physics.util.isFunction( cfg ) ){
@@ -52,7 +66,7 @@
             this._stats = {
                // statistics (fps, etc)
                fps: 0,
-               steps: 0 
+               ipf: 0 
             }; 
             this._bodies = [];
             this._behaviors = [];
@@ -68,11 +82,15 @@
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.apply(this, [ this ]);
+                fn.call(this, this);
             }
         },
 
-        // get/set options
+        /**
+         * Get or set options
+         * @param  {Object} cfg Config options to set
+         * @return {Object|this}     Options or this
+         */
         options: function( cfg ){
 
             if (cfg){
@@ -87,28 +105,52 @@
                 return this;
             }
 
-            return Physics.util.extend({}, this._opts);
+            return Physics.util.clone(this._opts);
         },
 
+        /**
+         * Subscribe to events
+         * @param  {String}   topic    The event type
+         * @param  {Function} fn       Callback function accepting data parameter
+         * @param  {Object}   scope    (optional) The "this" context for the callback
+         * @param  {Number}   priority (optional) Priority of the callback (higher numbers executed earlier)
+         * @return {this}
+         */
         subscribe: function( topic, fn, scope, priority ){
 
             this._pubsub.subscribe( topic, fn, scope, priority );
             return this;
         },
 
+        /**
+         * Unsubscribe from events
+         * @param  {String}   topic    The event type
+         * @param  {Function} fn       Original callback function
+         * @return {this}
+         */
         unsubscribe: function( topic, fn ){
 
             this._pubsub.unsubscribe( topic, fn );
             return this;
         },
 
+        /**
+         * Publish an event
+         * @param  {Object} data  The data associated with the event
+         * @param  {Object} scope (optional) The data.scope parameter
+         * @return {this}
+         */
         publish: function( data, scope ){
 
             this._pubsub.publish( data, scope );
             return this;
         },
 
-        // add objects, integrators, behaviors...
+        /**
+         * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...
+         * @param {Object|Array} arg The thing to add, or array of things to add
+         * @return {this}
+         */
         add: function( arg ){
 
             var i = 0
@@ -131,11 +173,11 @@
                     break; // end behavior
 
                     case 'integrator':
-                        this.setIntegrator(thing);
+                        this.integrator(thing);
                     break; // end integrator
 
                     case 'renderer':
-                        this.addRenderer(thing);
+                        this.renderer(thing);
                     break; // end renderer
 
                     case 'body':
@@ -161,7 +203,16 @@
             return this;
         },
 
-        setIntegrator: function( integrator ){
+        /**
+         * Get or Set the integrator
+         * @param {Object} integrator Integrator instance to use
+         * @return {this|Object} This or Integrator
+         */
+        integrator: function( integrator ){
+
+            if (!integrator){
+                return this._integrator;
+            }
 
             if ( this._integrator ){
 
@@ -170,14 +221,20 @@
 
             this._integrator = integrator;
             this._integrator.setWorld( this );
+
+            return this;
         },
 
-        getIntegrator: function(){
+        /**
+         * Get or Set renderer
+         * @param  {Object} renderer The renderer to set
+         * @return {this|Object}          This or Renderer
+         */
+        renderer: function( renderer ){
 
-            return this._integrator;
-        },
-
-        addRenderer: function( renderer ){
+            if (!renderer){
+                return this._renderer;
+            }
 
             if ( this._renderer ){
 
@@ -186,14 +243,33 @@
 
             this._renderer = renderer;
             this._renderer.setWorld( this );
+            return this;
         },
 
-        getRenderer: function(){
+        /**
+         * Get or Set timestep
+         * @param  {Number} dt The timestep size
+         * @return {this|Number}    This or the timestep
+         */
+        timeStep: function( dt ){
 
-            return this._renderer;
+            if ( dt ){
+
+                this._dt = dt;
+                // calculate the maximum jump in time over which to do iterations
+                this._maxJump = dt * this._opts.maxIPF;
+
+                return this;
+            }
+
+            return this._dt;
         },
 
-        // add a behavior
+        /**
+         * Add behavior to the world
+         * @param {Object} behavior The behavior to add
+         * @return {this} 
+         */
         addBehavior: function( behavior ){
 
             behavior.setWorld( this );
@@ -201,6 +277,35 @@
             return this;
         },
 
+        /**
+         * Remove behavior from the world
+         * @param {Object} behavior The behavior to remove
+         * @return {this} 
+         */
+        removeBehavior: function( behavior ){
+
+            var behaviors = this._behaviors;
+
+            if (behavior){
+                
+                for ( var i = 0, l = behaviors.length; i < l; ++i ){
+                    
+                    if (behavior === behaviors[ i ]){
+                        
+                        behaviors.splice( i, 1 );
+                        break;
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * Add body to the world
+         * @param {Object} body The body to add
+         * @return {this} 
+         */
         addBody: function( body ){
 
             body.setWorld( this );
@@ -208,14 +313,49 @@
             return this;
         },
 
+        /**
+         * Get copied list of bodies in the world
+         * @return {Array} Array of bodies
+         */
         getBodies: function(){
 
             // return the copied array
             return [].concat(this._bodies);
         },
 
+        /**
+         * Remove body from the world
+         * @param {Object} body The body to remove
+         * @return {this} 
+         */
+        removeBody: function( body ){
+
+            var bodies = this._bodies;
+
+            if (body){
+                
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    if (body === bodies[ i ]){
+                        
+                        bodies.splice( i, 1 );
+                        break;
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * Find first matching body based on query parameters
+         * @param  {Object} query The query
+         * @return {Object|false}       Body or false if no match
+         */
         findOne: function( query ){
 
+            // @TODO: refactor to use a new Query object helper
+            // @TODO: make $and the default. not $or.
             var list = {
                     check: function( arg ){
                         var fn = this;
@@ -256,12 +396,22 @@
             return false;
         },
 
-        // internal method
+        /**
+         * Do a single iteration
+         * @private
+         * @param  {Number} dt The timestep size
+         * @return {void}
+         */
         iterate: function( dt ){
 
             this._integrator.integrate( this._bodies, dt );
         },
 
+        /**
+         * Do a single step
+         * @param  {Number} now Current unix timestamp
+         * @return {this}
+         */
         step: function( now ){
             
             if ( this._paused ){
@@ -296,9 +446,16 @@
                 this.iterate( dt );
             }
 
+            this.publish({
+                topic: 'step'
+            });
             return this;
         },
 
+        /**
+         * Render current world state using the renderer
+         * @return {this}
+         */
         render: function(){
 
             if ( !this._renderer ){
@@ -314,6 +471,10 @@
             return this;
         },
 
+        /**
+         * Pause the world. (step calls do nothing)
+         * @return {this}
+         */
         pause: function(){
 
             this._paused = true;
@@ -323,6 +484,10 @@
             return this;
         },
 
+        /**
+         * Unpause the world. (step calls continue as usual)
+         * @return {this}
+         */
         unpause: function(){
 
             this._paused = false;
@@ -332,55 +497,13 @@
             return this;
         },
 
+        /**
+         * Determine if world is paused
+         * @return {Boolean} Is the world paused?
+         */
         isPaused: function(){
 
             return !!this._paused;
-        },
-
-        timeStep: function( dt ){
-
-            if ( dt ){
-
-                this._dt = dt;
-                // calculate the maximum jump in time over which to do iterations
-                this._maxJump = dt * this._opts.maxSteps;
-
-                return this;
-            }
-
-            return this._dt;
-        },
-
-        // TODO: find bodies
-        // select: function( sel ){
-
-        //     if (!sel){
-
-        //         // fast array copy
-        //         return this._bodies.splice(0);
-        //     }
-
-        //     // TODO
-        // }
-
-        getByClassName: function( klass ){
-
-            var bodies = this._bodies
-                ,obj
-                ,ret = []
-                ;
-
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
-                obj = bodies[ i ];
-
-                if ( obj.hasClass( klass ) ){
-
-                    ret.push( obj );
-                }
-            }
-
-            return ret;
         }
     };
 
