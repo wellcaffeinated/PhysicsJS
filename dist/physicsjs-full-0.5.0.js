@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-13
+ * physicsjs v0.5.0 - 2013-05-31
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11341-4261-190yr9b exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-45804-1t0zyi8 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, clone, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -116,6 +116,14 @@ Physics.util = {};
       regexpClass = '[object RegExp]',
       stringClass = '[object String]';
 
+  /** Used to identify object classifications that `_.clone` supports */
+  var cloneableClasses = {};
+  cloneableClasses[funcClass] = false;
+  cloneableClasses[argsClass] = cloneableClasses[arrayClass] =
+  cloneableClasses[boolClass] = cloneableClasses[dateClass] =
+  cloneableClasses[numberClass] = cloneableClasses[objectClass] =
+  cloneableClasses[regexpClass] = cloneableClasses[stringClass] = true;
+
   /** Used to determine if values are of the language type Object */
   var objectTypes = {
     'boolean': false,
@@ -178,6 +186,16 @@ Physics.util = {};
   /** Detect various environments */
   var isIeOpera = reNative.test(window.attachEvent),
       isV8 = nativeBind && !/\n|true/.test(nativeBind + isIeOpera);
+
+  /** Used to lookup a built-in constructor by [[Class]] */
+  var ctorByClass = {};
+  ctorByClass[arrayClass] = Array;
+  ctorByClass[boolClass] = Boolean;
+  ctorByClass[dateClass] = Date;
+  ctorByClass[objectClass] = Object;
+  ctorByClass[numberClass] = Number;
+  ctorByClass[regexpClass] = RegExp;
+  ctorByClass[stringClass] = String;
 
   /*--------------------------------------------------------------------------*/
 
@@ -935,6 +953,132 @@ Physics.util = {};
       ),
     'loop': 'result[index] = callback ? callback(result[index], iterable[index]) : iterable[index]'
   });
+
+  /**
+   * Creates a clone of `value`. If `deep` is `true`, nested objects will also
+   * be cloned, otherwise they will be assigned by reference. If a `callback`
+   * function is passed, it will be executed to produce the cloned values. If
+   * `callback` returns `undefined`, cloning will be handled by the method instead.
+   * The `callback` is bound to `thisArg` and invoked with one argument; (value).
+   *
+   * @static
+   * @memberOf _
+   * @category Objects
+   * @param {Mixed} value The value to clone.
+   * @param {Boolean} [deep=false] A flag to indicate a deep clone.
+   * @param {Function} [callback] The function to customize cloning values.
+   * @param {Mixed} [thisArg] The `this` binding of `callback`.
+   * @param- {Array} [stackA=[]] Tracks traversed source objects.
+   * @param- {Array} [stackB=[]] Associates clones with source counterparts.
+   * @returns {Mixed} Returns the cloned `value`.
+   * @example
+   *
+   * var stooges = [
+   *   { 'name': 'moe', 'age': 40 },
+   *   { 'name': 'larry', 'age': 50 }
+   * ];
+   *
+   * var shallow = _.clone(stooges);
+   * shallow[0] === stooges[0];
+   * // => true
+   *
+   * var deep = _.clone(stooges, true);
+   * deep[0] === stooges[0];
+   * // => false
+   *
+   * _.mixin({
+   *   'clone': _.partialRight(_.clone, function(value) {
+   *     return _.isElement(value) ? value.cloneNode(false) : undefined;
+   *   })
+   * });
+   *
+   * var clone = _.clone(document.body);
+   * clone.childNodes.length;
+   * // => 0
+   */
+  function clone(value, deep, callback, thisArg, stackA, stackB) {
+    var result = value;
+
+    // allows working with "Collections" methods without using their `callback`
+    // argument, `index|key`, for this method's `callback`
+    if (typeof deep == 'function') {
+      thisArg = callback;
+      callback = deep;
+      deep = false;
+    }
+    if (typeof callback == 'function') {
+      callback = (typeof thisArg == 'undefined')
+        ? callback
+        : lodash.createCallback(callback, thisArg, 1);
+
+      result = callback(result);
+      if (typeof result != 'undefined') {
+        return result;
+      }
+      result = value;
+    }
+    // inspect [[Class]]
+    var isObj = isObject(result);
+    if (isObj) {
+      var className = toString.call(result);
+      if (!cloneableClasses[className] || (!support.nodeClass && isNode(result))) {
+        return result;
+      }
+      var isArr = isArray(result);
+    }
+    // shallow clone
+    if (!isObj || !deep) {
+      return isObj
+        ? (isArr ? slice(result) : assign({}, result))
+        : result;
+    }
+    var ctor = ctorByClass[className];
+    switch (className) {
+      case boolClass:
+      case dateClass:
+        return new ctor(+result);
+
+      case numberClass:
+      case stringClass:
+        return new ctor(result);
+
+      case regexpClass:
+        return ctor(result.source, reFlags.exec(result));
+    }
+    // check for circular references and return corresponding clone
+    stackA || (stackA = []);
+    stackB || (stackB = []);
+
+    var length = stackA.length;
+    while (length--) {
+      if (stackA[length] == value) {
+        return stackB[length];
+      }
+    }
+    // init cloned object
+    result = isArr ? ctor(result.length) : {};
+
+    // add array properties assigned by `RegExp#exec`
+    if (isArr) {
+      if (hasOwnProperty.call(value, 'index')) {
+        result.index = value.index;
+      }
+      if (hasOwnProperty.call(value, 'input')) {
+        result.input = value.input;
+      }
+    }
+    // add the source value to the stack of traversed objects
+    // and associate it with its clone
+    stackA.push(value);
+    stackB.push(result);
+
+    // recursively populate clone (susceptible to call stack limits)
+    (isArr ? forEach : forOwn)(value, function(objValue, key) {
+      result[key] = clone(objValue, deep, callback, undefined, stackA, stackB);
+    });
+
+    return result;
+  }
 
   /**
    * Iterates over `object`'s own and inherited enumerable properties, executing
@@ -1726,6 +1870,8 @@ Physics.util = {};
 
   /*--------------------------------------------------------------------------*/
 
+  // add functions that return unwrapped values when chaining
+  lodash.clone = clone;
   lodash.identity = identity;
   lodash.isArguments = isArguments;
   lodash.isArray = isArray;
@@ -4052,23 +4198,31 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
     Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
 
+        // add a setWorld method to all of these types
         Physics[ key ].mixin('setWorld', setWorld);
     });
 
-    var PRIORITY_PROP_NAME = 'priority';
-
     var defaults = {
-        name: false,
+
+        // default timestep
         timestep: 1000.0 / 160,
-        maxSteps: 16,
-        webworker: false, // to implement
+        // maximum number of iterations per step
+        maxIPF: 16,
+        webworker: false, // NOT YET IMPLEMENTED
+
+        // default integrator
         integrator: 'verlet'
     };
 
     // begin world definitions
-
+    /**
+     * World Constructor
+     * @param {Object}   cfg (optional) Configuration options
+     * @param {Function} fn  (optional) Callback function called with "this" world
+     */
     var World = function World( cfg, fn ){
 
+        // allow creation of world without "new"
         if (!(this instanceof World)){
             return new World( cfg, fn );
         }
@@ -4078,6 +4232,12 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
     World.prototype = {
 
+        /**
+         * Initialization
+         * @param {Object}   cfg (optional) Configuration options
+         * @param {Function} fn  (optional) Callback function called with "this" world
+         * @return {void}
+         */
         init: function( cfg, fn ){
 
             if ( Physics.util.isFunction( cfg ) ){
@@ -4088,7 +4248,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this._stats = {
                // statistics (fps, etc)
                fps: 0,
-               steps: 0 
+               ipf: 0 
             }; 
             this._bodies = [];
             this._behaviors = [];
@@ -4104,11 +4264,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.apply(this, [ this ]);
+                fn.call(this, this);
             }
         },
 
-        // get/set options
+        /**
+         * Get or set options
+         * @param  {Object} cfg Config options to set
+         * @return {Object|this}     Options or this
+         */
         options: function( cfg ){
 
             if (cfg){
@@ -4123,28 +4287,52 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 return this;
             }
 
-            return Physics.util.extend({}, this._opts);
+            return Physics.util.clone(this._opts);
         },
 
+        /**
+         * Subscribe to events
+         * @param  {String}   topic    The event type
+         * @param  {Function} fn       Callback function accepting data parameter
+         * @param  {Object}   scope    (optional) The "this" context for the callback
+         * @param  {Number}   priority (optional) Priority of the callback (higher numbers executed earlier)
+         * @return {this}
+         */
         subscribe: function( topic, fn, scope, priority ){
 
             this._pubsub.subscribe( topic, fn, scope, priority );
             return this;
         },
 
+        /**
+         * Unsubscribe from events
+         * @param  {String}   topic    The event type
+         * @param  {Function} fn       Original callback function
+         * @return {this}
+         */
         unsubscribe: function( topic, fn ){
 
             this._pubsub.unsubscribe( topic, fn );
             return this;
         },
 
+        /**
+         * Publish an event
+         * @param  {Object} data  The data associated with the event
+         * @param  {Object} scope (optional) The data.scope parameter
+         * @return {this}
+         */
         publish: function( data, scope ){
 
             this._pubsub.publish( data, scope );
             return this;
         },
 
-        // add objects, integrators, behaviors...
+        /**
+         * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...
+         * @param {Object|Array} arg The thing to add, or array of things to add
+         * @return {this}
+         */
         add: function( arg ){
 
             var i = 0
@@ -4167,11 +4355,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     break; // end behavior
 
                     case 'integrator':
-                        this.setIntegrator(thing);
+                        this.integrator(thing);
                     break; // end integrator
 
                     case 'renderer':
-                        this.addRenderer(thing);
+                        this.renderer(thing);
                     break; // end renderer
 
                     case 'body':
@@ -4197,7 +4385,16 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return this;
         },
 
-        setIntegrator: function( integrator ){
+        /**
+         * Get or Set the integrator
+         * @param {Object} integrator Integrator instance to use
+         * @return {this|Object} This or Integrator
+         */
+        integrator: function( integrator ){
+
+            if (!integrator){
+                return this._integrator;
+            }
 
             if ( this._integrator ){
 
@@ -4206,14 +4403,20 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             this._integrator = integrator;
             this._integrator.setWorld( this );
+
+            return this;
         },
 
-        getIntegrator: function(){
+        /**
+         * Get or Set renderer
+         * @param  {Object} renderer The renderer to set
+         * @return {this|Object}          This or Renderer
+         */
+        renderer: function( renderer ){
 
-            return this._integrator;
-        },
-
-        addRenderer: function( renderer ){
+            if (!renderer){
+                return this._renderer;
+            }
 
             if ( this._renderer ){
 
@@ -4222,14 +4425,33 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             this._renderer = renderer;
             this._renderer.setWorld( this );
+            return this;
         },
 
-        getRenderer: function(){
+        /**
+         * Get or Set timestep
+         * @param  {Number} dt The timestep size
+         * @return {this|Number}    This or the timestep
+         */
+        timeStep: function( dt ){
 
-            return this._renderer;
+            if ( dt ){
+
+                this._dt = dt;
+                // calculate the maximum jump in time over which to do iterations
+                this._maxJump = dt * this._opts.maxIPF;
+
+                return this;
+            }
+
+            return this._dt;
         },
 
-        // add a behavior
+        /**
+         * Add behavior to the world
+         * @param {Object} behavior The behavior to add
+         * @return {this} 
+         */
         addBehavior: function( behavior ){
 
             behavior.setWorld( this );
@@ -4237,6 +4459,35 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return this;
         },
 
+        /**
+         * Remove behavior from the world
+         * @param {Object} behavior The behavior to remove
+         * @return {this} 
+         */
+        removeBehavior: function( behavior ){
+
+            var behaviors = this._behaviors;
+
+            if (behavior){
+                
+                for ( var i = 0, l = behaviors.length; i < l; ++i ){
+                    
+                    if (behavior === behaviors[ i ]){
+                        
+                        behaviors.splice( i, 1 );
+                        break;
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * Add body to the world
+         * @param {Object} body The body to add
+         * @return {this} 
+         */
         addBody: function( body ){
 
             body.setWorld( this );
@@ -4244,14 +4495,49 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return this;
         },
 
+        /**
+         * Get copied list of bodies in the world
+         * @return {Array} Array of bodies
+         */
         getBodies: function(){
 
             // return the copied array
             return [].concat(this._bodies);
         },
 
+        /**
+         * Remove body from the world
+         * @param {Object} body The body to remove
+         * @return {this} 
+         */
+        removeBody: function( body ){
+
+            var bodies = this._bodies;
+
+            if (body){
+                
+                for ( var i = 0, l = bodies.length; i < l; ++i ){
+                    
+                    if (body === bodies[ i ]){
+                        
+                        bodies.splice( i, 1 );
+                        break;
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * Find first matching body based on query parameters
+         * @param  {Object} query The query
+         * @return {Object|false}       Body or false if no match
+         */
         findOne: function( query ){
 
+            // @TODO: refactor to use a new Query object helper
+            // @TODO: make $and the default. not $or.
             var list = {
                     check: function( arg ){
                         var fn = this;
@@ -4292,12 +4578,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return false;
         },
 
-        // internal method
+        /**
+         * Do a single iteration
+         * @private
+         * @param  {Number} dt The timestep size
+         * @return {void}
+         */
         iterate: function( dt ){
 
             this._integrator.integrate( this._bodies, dt );
         },
 
+        /**
+         * Do a single step
+         * @param  {Number} now Current unix timestamp
+         * @return {this}
+         */
         step: function( now ){
             
             if ( this._paused ){
@@ -4332,9 +4628,16 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 this.iterate( dt );
             }
 
+            this.publish({
+                topic: 'step'
+            });
             return this;
         },
 
+        /**
+         * Render current world state using the renderer
+         * @return {this}
+         */
         render: function(){
 
             if ( !this._renderer ){
@@ -4350,67 +4653,39 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             return this;
         },
 
+        /**
+         * Pause the world. (step calls do nothing)
+         * @return {this}
+         */
         pause: function(){
 
             this._paused = true;
+            this.publish({
+                topic: 'pause'
+            });
             return this;
         },
 
+        /**
+         * Unpause the world. (step calls continue as usual)
+         * @return {this}
+         */
         unpause: function(){
 
             this._paused = false;
+            this.publish({
+                topic: 'unpause'
+            });
             return this;
         },
 
+        /**
+         * Determine if world is paused
+         * @return {Boolean} Is the world paused?
+         */
         isPaused: function(){
 
             return !!this._paused;
-        },
-
-        timeStep: function( dt ){
-
-            if ( dt ){
-
-                this._dt = dt;
-                // calculate the maximum jump in time over which to do iterations
-                this._maxJump = dt * this._opts.maxSteps;
-
-                return this;
-            }
-
-            return this._dt;
-        },
-
-        // TODO: find bodies
-        // select: function( sel ){
-
-        //     if (!sel){
-
-        //         // fast array copy
-        //         return this._bodies.splice(0);
-        //     }
-
-        //     // TODO
-        // }
-
-        getByClassName: function( klass ){
-
-            var bodies = this._bodies
-                ,obj
-                ,ret = []
-                ;
-
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
-                obj = bodies[ i ];
-
-                if ( obj.hasClass( klass ) ){
-
-                    ret.push( obj );
-                }
-            }
-
-            return ret;
         }
     };
 
@@ -4913,7 +5188,11 @@ Physics.body('circle', function( parent ){
 // ---
 // inside: src/bodies/convex-polygon.js
 
-// circle body
+/**
+ * Convex Polygon Body
+ * @module bodies/convex-polygon
+ * @requires geometries/convex-polygon
+ */
 Physics.body('convex-polygon', function( parent ){
 
     var defaults = {
@@ -4947,7 +5226,10 @@ Physics.body('convex-polygon', function( parent ){
 // ---
 // inside: src/bodies/point.js
 
-// define a point body
+/**
+ * Point body
+ * @module bodies/point
+ */
 Physics.body('point', function(){});
 
 // ---
@@ -5798,7 +6080,7 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
 
         connect: function( world ){
 
-            var intg = world.getIntegrator();
+            var intg = world.integrator();
 
             if ( intg && intg.name.indexOf('verlet') < 0 ){
 

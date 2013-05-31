@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-13
+ * physicsjs v0.5.0 - 2013-05-31
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -44,7 +44,7 @@
     
             connect: function( world ){
     
-                var intg = world.getIntegrator();
+                var intg = world.integrator();
     
                 if ( intg && intg.name.indexOf('verlet') < 0 ){
     

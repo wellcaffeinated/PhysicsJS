@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-13
+ * physicsjs v0.5.0 - 2013-05-31
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>

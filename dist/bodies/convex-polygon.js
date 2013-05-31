@@ -1,12 +1,12 @@
 /**
- * physicsjs v0.5.0 - 2013-05-13
+ * physicsjs v0.5.0 - 2013-05-31
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 (function (root, factory) {
-    var deps = ['physicsjs'];
+    var deps = ['physicsjs', '../geometries/convex'];
     if (typeof exports === 'object') {
         // Node. 
         var mods = deps.map(require);
@@ -20,7 +20,11 @@
     }
 }(this, function ( Physics ) {
     'use strict';
-    // circle body
+    /**
+     * Convex Polygon Body
+     * @module bodies/convex-polygon
+     * @requires geometries/convex-polygon
+     */
     Physics.body('convex-polygon', function( parent ){
     
         var defaults = {
