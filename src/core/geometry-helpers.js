@@ -54,12 +54,20 @@ Physics.geometry.isPolygonConvex = function( hull ){
     return ret;
 };
 
-// gets the moment of inertia of a 
-// convex polygon
-// see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
-// assumptions: 
-//  * mass is unitary
-//  * axis of rotation is the origin
+
+// 
+// 
+// 
+// 
+/**
+ * Gets the moment of inertia of a convex polygon
+ * @see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
+ * assumptions: 
+ *  * mass is unitary
+ *  * axis of rotation is the origin
+ * @param  {Array} hull Array of vertices (vectorish)
+ * @return {Number} The polygon MOI
+ */
 Physics.geometry.getPolygonMOI = function( hull ){
 
     var scratch = Physics.scratchpad()
@@ -105,8 +113,8 @@ Physics.geometry.getPolygonMOI = function( hull ){
 
 /**
  * Check if point is inside polygon hull
- * @param  {Vector-like}  pt
- * @param  {Array(Vector-likes)}  hull
+ * @param  {Vectorish}  pt
+ * @param  {Array}  hull Array of vertices (Vectorish)
  * @return {Boolean}
  */
 Physics.geometry.isPointInPolygon = function( pt, hull ){
@@ -151,7 +159,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
 
 /**
  * Get the signed area of the polygon
- * @param  {Array} hull Polygon hull definition
+ * @param  {Array} hull Array of vertices
  * @return {Number} Area (positive for clockwise ordering)
  */
 Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
@@ -234,10 +242,10 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
 
 /**
  * Get the closest point on a discrete line to specified point.
- * @param  {Vector-like} pt The point
- * @param  {Vector-like} linePt1 The first endpoint of the line
- * @param  {Vector-like} linePt2 The second endpoint of the line
- * @return {Number}
+ * @param  {Vectorish} pt The point
+ * @param  {Vectorish} linePt1 The first endpoint of the line
+ * @param  {Vectorish} linePt2 The second endpoint of the line
+ * @return {Vector} The closest point
  */
 Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
 
