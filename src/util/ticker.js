@@ -1,3 +1,6 @@
+/**
+ * The Ticker singleton for easily binding callbacks to requestAnimationFrame
+ */
 (function(window){
         
     var lastTime = 0
@@ -5,6 +8,12 @@
         ,listeners = []
         ;
 
+    /**
+     * Publish a tick to subscribed callbacks
+     * @private
+     * @param  {Number} time The current time
+     * @return {void}
+     */
     function step( time ){
 
         var fns = listeners;
@@ -23,6 +32,10 @@
         lastTime = time;
     }
 
+    /**
+     * Start the ticker
+     * @return {this}
+     */
     function start(){
         
         lastTime = (new Date()).getTime();
@@ -32,12 +45,21 @@
         return this;
     }
 
+    /**
+     * Stop the ticker
+     * @return {this}
+     */
     function stop(){
 
         active = false;
         return this;
     }
 
+    /**
+     * Subscribe a callback to the ticker
+     * @param  {Function} listener The callback function
+     * @return {this}
+     */
     function subscribe( listener ){
 
         // if function and not already in listeners...
@@ -57,6 +79,11 @@
         return this;
     }
 
+    /**
+     * Unsubscribe a callback from the ticker
+     * @param  {Function} listener Original callback added
+     * @return {this}
+     */
     function unsubscribe( listener ){
 
         var fns = listeners;
@@ -74,6 +101,10 @@
         return this;
     }
 
+    /**
+     * Determine if ticker is currently running
+     * @return {Boolean} True if running
+     */
     function isActive(){
 
         return !!active;

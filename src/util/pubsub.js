@@ -1,7 +1,7 @@
 (function(){
 
     /**
-     * PubSub implementation
+     * PubSub implementation (fast)
      */
     var PubSub = function PubSub( defaultScope ){
 

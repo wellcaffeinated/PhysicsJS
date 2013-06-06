@@ -3,20 +3,39 @@
     // Service
     Physics.behavior = Physics.behaviour = Decorator('behavior', {
 
-        // lowest priority by default
+        /**
+         * Priority for behavior pubsub event
+         * @type {Number}
+         */
         priority: 0,
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function(){
             
             this.options = {};
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             if (this.behave){
                 world.subscribe('integrate:positions', this.behave, this, this.priority);
             }
         },
+
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             if (this.behave){
@@ -24,10 +43,14 @@
             }
         },
 
-        behave: function( bodies, dt ){
-
-            throw 'The behavior.behave() method must be overriden';
-        }
+        /**
+         * Default method run on every world integration
+         * @abstract
+         * @param  {Array} bodies Array of world bodies to act on
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
+        behave: null
     });
 
 }());

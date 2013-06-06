@@ -20,7 +20,9 @@
  *          }
  *      };
  * });
+ * 
  * // instantiate
+ * var options = { key: 'val' };
  * var instance = service( 'name', options );
  */
 var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
@@ -29,6 +31,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,proto = {}
         ;
 
+    // extend callback that only extends functions
     var copyFn = function copyFn( a, b ){
 
         return Physics.util.isFunction( b ) ? b : a;
@@ -60,6 +63,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         };
     }
 
+    /**
+     * Apply mixin methods to decorator base
+     * @param  {String|Object} key The method name. OR object with many key: fn pairs.
+     * @param  {Function} val The function to assign
+     * @return {void}
+     */
     var mixin = function mixin( key, val ){
 
         if ( typeof key === 'object' ){
@@ -73,10 +82,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         }
     };
 
-    // TODO: not sure of the best way to make the constructor names
+    // @TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
     mixin( baseProto );
 
+    /**
+     * Factory function for definition and instantiation of subclasses.
+     * If class with "name" is not defined, the "decorator" parameter is required to define it first.
+     * @param  {String} name       The class name
+     * @param  {String} parentName (optional) The name of parent class to extend
+     * @param  {Function} decorator (optional) The decorator function that should define and return methods to extend (decorate) the base class
+     * @param  {Object} cfg        (optional) The configuration to pass to the class initializer
+     * @return {void|Object}       If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned
+     */
     var factory = function factory( name, parentName, decorator, cfg ){
 
         var instance

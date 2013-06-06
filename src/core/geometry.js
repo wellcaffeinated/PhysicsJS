@@ -2,7 +2,11 @@
 
     Physics.geometry = Decorator('geometry', {
 
-        // prototype methods
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             this._aabb = new Physics.aabb();

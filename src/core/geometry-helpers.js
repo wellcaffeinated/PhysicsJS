@@ -54,11 +54,6 @@ Physics.geometry.isPolygonConvex = function( hull ){
     return ret;
 };
 
-
-// 
-// 
-// 
-// 
 /**
  * Gets the moment of inertia of a convex polygon
  * @see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
