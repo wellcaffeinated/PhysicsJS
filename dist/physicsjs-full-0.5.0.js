@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-31
+ * physicsjs v0.5.0 - 2013-06-06
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -38,7 +38,7 @@ Physics.util = {};
 /**
  * @license
  * Lo-Dash 1.2.0 (Custom Build) <http://lodash.com/>
- * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11345-47763-1bo58f3 exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, clone, throttle, bind, sortedIndex, shuffle"`
+ * Build: `lodash --silent --output /private/var/folders/bj/m9vc0qfj1_31x_scf7r6nq6r0000gn/T/lodash11354-72053-1damjln exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject, isFunction, isArray, isPlainObject, uniqueId, each, random, extend, clone, throttle, bind, sortedIndex, shuffle"`
  * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.4.4 <http://underscorejs.org/>
  * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
@@ -1924,7 +1924,9 @@ Physics.util = {};
  *          }
  *      };
  * });
+ * 
  * // instantiate
+ * var options = { key: 'val' };
  * var instance = service( 'name', options );
  */
 var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
@@ -1933,6 +1935,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,proto = {}
         ;
 
+    // extend callback that only extends functions
     var copyFn = function copyFn( a, b ){
 
         return Physics.util.isFunction( b ) ? b : a;
@@ -1964,6 +1967,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         };
     }
 
+    /**
+     * Apply mixin methods to decorator base
+     * @param  {String|Object} key The method name. OR object with many key: fn pairs.
+     * @param  {Function} val The function to assign
+     * @return {void}
+     */
     var mixin = function mixin( key, val ){
 
         if ( typeof key === 'object' ){
@@ -1977,10 +1986,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         }
     };
 
-    // TODO: not sure of the best way to make the constructor names
+    // @TODO: not sure of the best way to make the constructor names
     // transparent and readable in debug consoles...
     mixin( baseProto );
 
+    /**
+     * Factory function for definition and instantiation of subclasses.
+     * If class with "name" is not defined, the "decorator" parameter is required to define it first.
+     * @param  {String} name       The class name
+     * @param  {String} parentName (optional) The name of parent class to extend
+     * @param  {Function} decorator (optional) The decorator function that should define and return methods to extend (decorate) the base class
+     * @param  {Object} cfg        (optional) The configuration to pass to the class initializer
+     * @return {void|Object}       If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned
+     */
     var factory = function factory( name, parentName, decorator, cfg ){
 
         var instance
@@ -2056,21 +2074,27 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 };
 
 // ---
-// inside: src/util/log.js
+// inside: src/util/noconflict.js
 
-(function(window){
-    var log;
+(function( window ){
 
-    if (window && window.console && window.console.log){
-        log = function(){
-            window.console.log.apply(window, arguments);
-        };
-    } else {
-        log = function(){};
-    }
+    var _Physics = window.Physics;
 
-    Physics.util.log = log;
-}(this));
+    /**
+     * Restore the original reference to the global window.Physics variable.
+     * Does nothing if PhysicsJS doesn't have a reference in global scope
+     * @return {Physics} The PhysicsJS reference
+     */
+    Physics.noConflict = function(){
+
+        if ( window.Physics === Physics ) {
+            window.Physics = _Physics;
+        }
+        
+        return Physics;
+    };
+
+})( this );
 
 // ---
 // inside: src/util/pubsub.js
@@ -2078,7 +2102,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 (function(){
 
     /**
-     * PubSub implementation
+     * PubSub implementation (fast)
      */
     var PubSub = function PubSub( defaultScope ){
 
@@ -2245,9 +2269,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 // ---
 // inside: src/util/scratchpad.js
 
-// scratchpad
-// thread-safe management of temporary (voletile)
-// objects for use in calculations
+/**
+ * scratchpad
+ * thread-safe management of temporary (voletile)
+ * objects for use in calculations
+ */
 (function(){
 
     // constants
@@ -2267,10 +2293,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         this.objIndex = 0;
         this.arrayIndex = 0;
         this.vectorIndex = 0;
+        this.aabbIndex = 0;
         this.transformIndex = 0;
         this.objectStack = [];
         this.arrayStack = [];
         this.vectorStack = [];
+        this.aabbStack = [];
         this.transformStack = [];
 
         if (++numScratches >= SCRATCH_MAX_SCRATCHES){
@@ -2280,15 +2308,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     ScratchCls.prototype = {
 
-        // declare that your work is finished
+        /**
+         * Declare that your work is finished. Release temp objects for use elsewhere. Must be called when immediate work is done.
+         */
         done: function(){
 
             this._active = false;
-            this.objIndex = this.arrayIndex = this.vectorIndex = this.transformIndex = 0;
+            this.objIndex = this.arrayIndex = this.vectorIndex = this.aabbIndex = this.transformIndex = 0;
             // add it back to the scratch stack for future use
             scratches.push(this);
         },
 
+        /**
+         * Get a temporary object (dirty)
+         * @return {Object} The temporary (dirty) object
+         */
         object: function(){
 
             var stack = this.objectStack;
@@ -2304,6 +2338,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             return stack[ this.objIndex++ ] || stack[ stack.push({}) - 1 ];
         },
 
+        /**
+         * Get a temporary array.
+         * @return {Array} Temporary (dirty) array
+         */
         array: function(){
 
             var stack = this.arrayStack;
@@ -2319,6 +2357,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             return stack[ this.arrIndex++ ] || stack[ stack.push([]) - 1 ];
         },
 
+        /**
+         * Get a temporary Vector
+         * @return {Vector} The temporary (dirty) vector.
+         */
         vector: function(){
 
             var stack = this.vectorStack;
@@ -2334,6 +2376,29 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             return stack[ this.vectorIndex++ ] || stack[ stack.push(Physics.vector()) - 1 ];
         },
 
+        /**
+         * Get a temporary AABB
+         * @return {AABB} The temporary (dirty) AABB
+         */
+        aabb: function(){
+
+            var stack = this.aabbStack;
+
+            if (!this._active){
+                throw SCRATCH_USAGE_ERROR;
+            }
+
+            if (this.aabbIndex >= SCRATCH_MAX_INDEX){
+                throw SCRATCH_INDEX_OUT_OF_BOUNDS;
+            }
+
+            return stack[ this.aabbIndex++ ] || stack[ stack.push(Physics.aabb()) - 1 ];
+        },
+
+        /**
+         * Get a temporary Transform
+         * @return {Transform} The temporary (dirty) transform
+         */
         transform: function(){
 
             var stack = this.transformStack;
@@ -2350,6 +2415,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         }
     };
     
+    /**
+     * Get a new scratchpad to work from. Call .done() when finished.
+     * @return {ScratchCls} The scratchpad
+     */
     Physics.scratchpad = function(){
 
         var scratch = scratches.pop() || new ScratchCls();
@@ -2362,6 +2431,9 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 // ---
 // inside: src/util/ticker.js
 
+/**
+ * The Ticker singleton for easily binding callbacks to requestAnimationFrame
+ */
 (function(window){
         
     var lastTime = 0
@@ -2369,6 +2441,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,listeners = []
         ;
 
+    /**
+     * Publish a tick to subscribed callbacks
+     * @private
+     * @param  {Number} time The current time
+     * @return {void}
+     */
     function step( time ){
 
         var fns = listeners;
@@ -2387,6 +2465,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         lastTime = time;
     }
 
+    /**
+     * Start the ticker
+     * @return {this}
+     */
     function start(){
         
         lastTime = (new Date()).getTime();
@@ -2396,12 +2478,21 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         return this;
     }
 
+    /**
+     * Stop the ticker
+     * @return {this}
+     */
     function stop(){
 
         active = false;
         return this;
     }
 
+    /**
+     * Subscribe a callback to the ticker
+     * @param  {Function} listener The callback function
+     * @return {this}
+     */
     function subscribe( listener ){
 
         // if function and not already in listeners...
@@ -2421,6 +2512,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         return this;
     }
 
+    /**
+     * Unsubscribe a callback from the ticker
+     * @param  {Function} listener Original callback added
+     * @return {this}
+     */
     function unsubscribe( listener ){
 
         var fns = listeners;
@@ -2438,6 +2534,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         return this;
     }
 
+    /**
+     * Determine if ticker is currently running
+     * @return {Boolean} True if running
+     */
     function isActive(){
 
         return !!active;
@@ -2459,6 +2559,13 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
 (function(){
 
+    /**
+     * Axis Aligned Bounding Box implementation
+     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
+     * @param {Number} minY Minimum y value
+     * @param {Number} maxX Maximum x value
+     * @param {Number} maxY Maximum y value
+     */
     var AABB = function AABB( minX, minY, maxX, maxY ){
 
         // enforce instantiation
@@ -2472,6 +2579,14 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         this.set( minX, minY, maxX, maxY );
     };
 
+    /**
+     * Set the aabb values
+     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
+     * @param {Number} minY Minimum y value
+     * @param {Number} maxX Maximum x value
+     * @param {Number} maxY Maximum y value
+     * @return {this}
+     */
     AABB.prototype.set = function set( minX, minY, maxX, maxY ){
 
         if ( Physics.util.isObject(minX) ){
@@ -2489,6 +2604,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         return this;
     };
 
+    /**
+     * Get the aabb values as a plain object
+     * @return {Object} The aabb values
+     */
     AABB.prototype.get = function get(){
 
         var hw = this.halfWidth()
@@ -2505,17 +2624,29 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         };
     };
 
+    /**
+     * Get the half-width measurement of the aabb
+     * @return {Number} The half-width
+     */
     AABB.prototype.halfWidth = function halfWidth(){
 
         return this._hw;
     };
 
+    /**
+     * Get the half-height measurement of the aabb
+     * @return {Number} The half-height
+     */
     AABB.prototype.halfHeight = function halfHeight(){
 
         return this._hh;
     };
 
-    // check if point is inside bounds
+    /**
+     * Check if point is inside bounds
+     * @param  {Vectorish} pt The point to check
+     * @return {Boolean}    True if point is inside aabb
+     */
     AABB.prototype.contains = function contains( pt ){
 
         var x = pt.x !== undefined ? pt.x : pt.get(0)
@@ -2528,7 +2659,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
                 (y < (this._pos.get(1) + this._hh));
     };
 
-    // apply a transformation to both vectors
+    /**
+     * Apply a transformation to the aabb
+     * @param  {Transform} trans The transformation
+     * @return {this}
+     */
     AABB.prototype.transform = function transform( trans ){
 
         var hw = this._hw
@@ -2555,6 +2690,12 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     };
 
     // Static methods
+    /**
+     * Check if a point is inside an aabb
+     * @param  {AABB|Object} aabb The aabb instance or aabb values
+     * @param  {Vectorish} pt   The point to check
+     * @return {Boolean}      True if point is inside aabb
+     */
     AABB.contains = function( aabb, pt ){
 
         var x = pt.x !== undefined ? pt.x : pt.get(0)
@@ -3541,20 +3682,39 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     // Service
     Physics.behavior = Physics.behaviour = Decorator('behavior', {
 
-        // lowest priority by default
+        /**
+         * Priority for behavior pubsub event
+         * @type {Number}
+         */
         priority: 0,
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function(){
             
             this.options = {};
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             if (this.behave){
                 world.subscribe('integrate:positions', this.behave, this, this.priority);
             }
         },
+
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             if (this.behave){
@@ -3562,10 +3722,14 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             }
         },
 
-        behave: function( bodies, dt ){
-
-            throw 'The behavior.behave() method must be overriden';
-        }
+        /**
+         * Default method run on every world integration
+         * @abstract
+         * @param  {Array} bodies Array of world bodies to act on
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
+        behave: null
     });
 
 }());
@@ -3577,18 +3741,25 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     var defaults = {
 
+        // is the body fixed and imovable?
         fixed: false,
+        // body mass
         mass: 1.0,
+        // body restitution. How "bouncy" is it?
         restitution: 1.0,
+        // what is its coefficient of friction with another surface with COF = 1?
         cof: 0.8,
-        moi: 0.0,
+        // what is the view object (mixed) that should be used when rendering?
         view: null
     };
 
-    // Service
     Physics.body = Decorator('body', {
 
-        // prototype methods
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             var vector = Physics.vector;
@@ -3601,8 +3772,6 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             this.mass = this.options.mass;
             this.restitution = this.options.restitution;
             this.cof = this.options.cof;
-            // moment of inertia
-            this.moi = this.options.moi;
 
             // placeholder for renderers
             this.view = this.options.view;
@@ -3637,13 +3806,23 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             this.geometry = Physics.geometry('point');
         },
 
+        /**
+         * Accelerate the body by adding supplied vector to its current acceleration
+         * @param  {Vector} acc The acceleration vector
+         * @return {this}
+         */
         accelerate: function( acc ){
 
             this.state.acc.vadd( acc );
             return this;
         },
 
-        // p relative to center of mass
+        /**
+         * Apply a force at center of mass, or at point "p" relative to the center of mass
+         * @param  {Vector} force The force vector
+         * @param  {Vector} p     (optional) The point vector from the COM at which to apply the force
+         * @return {this}
+         */
         applyForce: function( force, p ){
 
             var scratch = Physics.scratchpad()
@@ -3673,21 +3852,31 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             return this;
         },
 
+        /**
+         * Get the Axis aligned bounding box for the body in its current position and rotation
+         * @return {Object} The aabb values
+         */
         aabb: function(){
 
             var scratch = Physics.scratchpad()
                 ,trans = scratch.transform()
                 ,angle = this.state.angular.pos
-                ,aabb = Physics.aabb(this.geometry.aabb( angle ))
+                ,aabb = scratch.aabb().set( this.geometry.aabb( angle ) )
                 ;
 
             trans.setRotation( 0 ).setTranslation(this.state.pos);
             aabb.transform( trans );
 
+            aabb = aabb.get();
             scratch.done();
-            return aabb.get();
+            return aabb;
         },
 
+        /**
+         * Recalculate properties. Call when body physical properties are changed.
+         * @abstract
+         * @return {this}
+         */
         recalc: function(){
             // override to recalculate properties
         }
@@ -3702,7 +3891,11 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     Physics.geometry = Decorator('geometry', {
 
-        // prototype methods
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             this._aabb = new Physics.aabb();
@@ -3814,12 +4007,15 @@ Physics.geometry.isPolygonConvex = function( hull ){
     return ret;
 };
 
-// gets the moment of inertia of a 
-// convex polygon
-// see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
-// assumptions: 
-//  * mass is unitary
-//  * axis of rotation is the origin
+/**
+ * Gets the moment of inertia of a convex polygon
+ * @see: http://en.wikipedia.org/wiki/List_of_moments_of_inertia
+ * assumptions: 
+ *  * mass is unitary
+ *  * axis of rotation is the origin
+ * @param  {Array} hull Array of vertices (vectorish)
+ * @return {Number} The polygon MOI
+ */
 Physics.geometry.getPolygonMOI = function( hull ){
 
     var scratch = Physics.scratchpad()
@@ -3865,8 +4061,8 @@ Physics.geometry.getPolygonMOI = function( hull ){
 
 /**
  * Check if point is inside polygon hull
- * @param  {Vector-like}  pt
- * @param  {Array(Vector-likes)}  hull
+ * @param  {Vectorish}  pt
+ * @param  {Array}  hull Array of vertices (Vectorish)
  * @return {Boolean}
  */
 Physics.geometry.isPointInPolygon = function( pt, hull ){
@@ -3911,7 +4107,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
 
 /**
  * Get the signed area of the polygon
- * @param  {Array} hull Polygon hull definition
+ * @param  {Array} hull Array of vertices
  * @return {Number} Area (positive for clockwise ordering)
  */
 Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
@@ -3994,10 +4190,10 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
 
 /**
  * Get the closest point on a discrete line to specified point.
- * @param  {Vector-like} pt The point
- * @param  {Vector-like} linePt1 The first endpoint of the line
- * @param  {Vector-like} linePt2 The second endpoint of the line
- * @return {Number}
+ * @param  {Vectorish} pt The point
+ * @param  {Vectorish} linePt1 The first endpoint of the line
+ * @param  {Vectorish} linePt2 The second endpoint of the line
+ * @return {Vector} The closest point
  */
 Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
 
@@ -6773,9 +6969,14 @@ Physics.integrator('improved-euler', function( parent ){
 // ---
 // inside: src/renderers/canvas.js
 
+/**
+ * A simple canvas renderer.
+ * Renders circles and convex-polygons
+ */
 Physics.renderer('canvas', function( proto ){
 
     var Pi2 = Math.PI * 2
+        // helper to create new dom elements
         ,newEl = function( node, content ){
             var el = document.createElement(node || 'div');
             if (content){
@@ -6787,8 +6988,11 @@ Physics.renderer('canvas', function( proto ){
 
     var defaults = {
 
+        // draw aabbs of bodies for debugging
         debug: false,
-        statsEl: null,
+        // the element to place meta data into
+        metaEl: null,
+        // default styles of drawn objects
         styles: {
 
             'point' : 'rgba(80, 50, 100, 0.7)',
@@ -6810,6 +7014,7 @@ Physics.renderer('canvas', function( proto ){
         offset: Physics.vector()
     };
 
+    // deep copy callback to extend deeper into options
     var deep = function( a, b ){
 
         if ( Physics.util.isPlainObject( b ) ){
@@ -6822,6 +7027,11 @@ Physics.renderer('canvas', function( proto ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             // call proto init
@@ -6856,7 +7066,7 @@ Physics.renderer('canvas', function( proto ){
 
             this.els = {};
 
-            var stats = this.options.statsEl || newEl();
+            var stats = this.options.metaEl || newEl();
             stats.className = 'pjs-meta';
             this.els.fps = newEl('span');
             this.els.ipf = newEl('span');
@@ -6869,6 +7079,11 @@ Physics.renderer('canvas', function( proto ){
             viewport.parentNode.insertBefore(stats, viewport);
         },
 
+        /**
+         * Set the styles of specified context
+         * @param {Object|String} styles Styles configuration for body drawing
+         * @param {Canvas2DContext} ctx    (optional) Defaults to visible canvas context
+         */
         setStyle: function( styles, ctx ){
 
             ctx = ctx || this.ctx;
@@ -6886,6 +7101,15 @@ Physics.renderer('canvas', function( proto ){
             }
         },
 
+        /**
+         * Draw a circle to specified canvas context
+         * @param  {Number} x      The x coord
+         * @param  {Number} y      The y coord
+         * @param  {Number} r      The circle radius
+         * @param  {Object|String} styles The styles configuration
+         * @param  {Canvas2DContext} ctx    (optional) The canvas context
+         * @return {void}
+         */
         drawCircle: function(x, y, r, styles, ctx){
 
             ctx = ctx || this.ctx;
@@ -6898,6 +7122,13 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        /**
+         * Draw a polygon to specified canvas context
+         * @param  {Array} verts  Array of vectorish vertices
+         * @param  {Object|String} styles The styles configuration
+         * @param  {Canvas2DContext} ctx    (optional) The canvas context
+         * @return {void}
+         */
         drawPolygon: function(verts, styles, ctx){
 
             var vert = verts[0]
@@ -6928,6 +7159,14 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        /**
+         * Draw a line onto specified canvas context
+         * @param  {Vectorish} from   Starting point
+         * @param  {Vectorish} to     Ending point
+         * @param  {Object|String} styles The styles configuration
+         * @param  {Canvas2DContext} ctx    (optional) The canvas context
+         * @return {void}
+         */
         drawLine: function(from, to, styles, ctx){
 
             var x = from.x === undefined ? from.get(0) : from.x
@@ -6950,6 +7189,12 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        /**
+         * Create a view for specified geometry.
+         * @param  {Geometry} geometry The geometry
+         * @param  {Object|String} styles The styles configuration
+         * @return {Image}          An image cache of the geometry
+         */
         createView: function( geometry, styles ){
 
             var view = new Image()
@@ -7000,18 +7245,34 @@ Physics.renderer('canvas', function( proto ){
             return view;
         },
 
-        drawMeta: function( stats ){
+        /**
+         * Draw the meta data
+         * @param  {Object} meta The meta data
+         * @return {void}
+         */
+        drawMeta: function( meta ){
 
-            this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.ipf.innerHTML = stats.ipf;
+            this.els.fps.innerHTML = meta.fps.toFixed(2);
+            this.els.ipf.innerHTML = meta.ipf;
         },
 
+        /**
+         * Callback to be run before rendering
+         * @private
+         * @return {void}
+         */
         beforeRender: function(){
 
             // clear canvas
             this.el.width = this.el.width;
         },
 
+        /**
+         * Draw a body to canvas
+         * @param  {Body} body The body to draw
+         * @param  {Image} view The view for that body
+         * @return {void}
+         */
         drawBody: function( body, view ){
 
             var ctx = this.ctx
@@ -7045,6 +7306,9 @@ Physics.renderer('canvas', function( proto ){
 // ---
 // inside: src/renderers/dom.js
 
+/**
+ * A pathetically simple dom renderer
+ */
 Physics.renderer('dom', function( proto ){
 
     // utility methods
@@ -7055,6 +7319,7 @@ Physics.renderer('dom', function( proto ){
                 return match.toUpperCase();
             });
         }
+        // return the prefixed name for the specified css property
         ,pfx = function pfx(prop) {
 
             if (thePrefix[prop]){
@@ -7097,6 +7362,7 @@ Physics.renderer('dom', function( proto ){
         ,drawBody
         ;
 
+    // determine which drawBody method we can use
     if (cssTransform){
         drawBody = function( body, view ){
 
@@ -7114,6 +7380,11 @@ Physics.renderer('dom', function( proto ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             // call proto init
@@ -7140,6 +7411,12 @@ Physics.renderer('dom', function( proto ){
             viewport.appendChild(stats);
         },
 
+        /**
+         * Set dom element style properties for a circle
+         * @param  {HTMLElement} el       The element
+         * @param  {Geometry} geometry The bodie's geometry
+         * @return {void}
+         */
         circleProperties: function( el, geometry ){
 
             var aabb = geometry.aabb();
@@ -7150,6 +7427,11 @@ Physics.renderer('dom', function( proto ){
             el.style.marginTop = (-aabb.halfHeight) + px;
         },
 
+        /**
+         * Create a dom element for the specified geometry
+         * @param  {Geometry} geometry The bodie's geometry
+         * @return {HTMLElement}          The element
+         */
         createView: function( geometry ){
 
             var el = newEl()
@@ -7169,12 +7451,23 @@ Physics.renderer('dom', function( proto ){
             return el;
         },
 
-        drawMeta: function( stats ){
+        /**
+         * Draw the meta data
+         * @param  {Object} meta The meta data
+         * @return {void}
+         */
+        drawMeta: function( meta ){
 
-            this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.ipf.innerHTML = stats.ipf;
+            this.els.fps.innerHTML = meta.fps.toFixed(2);
+            this.els.ipf.innerHTML = meta.ipf;
         },
 
+        /**
+         * Update dom element to reflect bodie's current state
+         * @param  {Body} body The body to draw
+         * @param  {HTMLElement} view The view for that body
+         * @return {void}
+         */
         drawBody: drawBody
     };
 });

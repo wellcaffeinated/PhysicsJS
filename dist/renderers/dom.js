@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-31
+ * physicsjs v0.5.0 - 2013-06-06
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -20,6 +20,9 @@
     }
 }(this, function ( Physics ) {
     'use strict';
+    /**
+     * A pathetically simple dom renderer
+     */
     Physics.renderer('dom', function( proto ){
     
         // utility methods
@@ -30,6 +33,7 @@
                     return match.toUpperCase();
                 });
             }
+            // return the prefixed name for the specified css property
             ,pfx = function pfx(prop) {
     
                 if (thePrefix[prop]){
@@ -72,6 +76,7 @@
             ,drawBody
             ;
     
+        // determine which drawBody method we can use
         if (cssTransform){
             drawBody = function( body, view ){
     
@@ -89,6 +94,11 @@
     
         return {
     
+            /**
+             * Initialization
+             * @param  {Object} options Config options passed by initializer
+             * @return {void}
+             */
             init: function( options ){
     
                 // call proto init
@@ -115,6 +125,12 @@
                 viewport.appendChild(stats);
             },
     
+            /**
+             * Set dom element style properties for a circle
+             * @param  {HTMLElement} el       The element
+             * @param  {Geometry} geometry The bodie's geometry
+             * @return {void}
+             */
             circleProperties: function( el, geometry ){
     
                 var aabb = geometry.aabb();
@@ -125,6 +141,11 @@
                 el.style.marginTop = (-aabb.halfHeight) + px;
             },
     
+            /**
+             * Create a dom element for the specified geometry
+             * @param  {Geometry} geometry The bodie's geometry
+             * @return {HTMLElement}          The element
+             */
             createView: function( geometry ){
     
                 var el = newEl()
@@ -144,12 +165,23 @@
                 return el;
             },
     
-            drawMeta: function( stats ){
+            /**
+             * Draw the meta data
+             * @param  {Object} meta The meta data
+             * @return {void}
+             */
+            drawMeta: function( meta ){
     
-                this.els.fps.innerHTML = stats.fps.toFixed(2);
-                this.els.ipf.innerHTML = stats.ipf;
+                this.els.fps.innerHTML = meta.fps.toFixed(2);
+                this.els.ipf.innerHTML = meta.ipf;
             },
     
+            /**
+             * Update dom element to reflect bodie's current state
+             * @param  {Body} body The body to draw
+             * @param  {HTMLElement} view The view for that body
+             * @return {void}
+             */
             drawBody: drawBody
         };
     });

@@ -1,5 +1,5 @@
 /**
- * physicsjs v0.5.0 - 2013-05-31
+ * physicsjs v0.5.0 - 2013-06-06
  * A decent javascript physics engine
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
@@ -20,9 +20,14 @@
     }
 }(this, function ( Physics ) {
     'use strict';
+    /**
+     * A simple canvas renderer.
+     * Renders circles and convex-polygons
+     */
     Physics.renderer('canvas', function( proto ){
     
         var Pi2 = Math.PI * 2
+            // helper to create new dom elements
             ,newEl = function( node, content ){
                 var el = document.createElement(node || 'div');
                 if (content){
@@ -34,8 +39,11 @@
     
         var defaults = {
     
+            // draw aabbs of bodies for debugging
             debug: false,
-            statsEl: null,
+            // the element to place meta data into
+            metaEl: null,
+            // default styles of drawn objects
             styles: {
     
                 'point' : 'rgba(80, 50, 100, 0.7)',
@@ -57,6 +65,7 @@
             offset: Physics.vector()
         };
     
+        // deep copy callback to extend deeper into options
         var deep = function( a, b ){
     
             if ( Physics.util.isPlainObject( b ) ){
@@ -69,6 +78,11 @@
     
         return {
     
+            /**
+             * Initialization
+             * @param  {Object} options Config options passed by initializer
+             * @return {void}
+             */
             init: function( options ){
     
                 // call proto init
@@ -103,7 +117,7 @@
     
                 this.els = {};
     
-                var stats = this.options.statsEl || newEl();
+                var stats = this.options.metaEl || newEl();
                 stats.className = 'pjs-meta';
                 this.els.fps = newEl('span');
                 this.els.ipf = newEl('span');
@@ -116,6 +130,11 @@
                 viewport.parentNode.insertBefore(stats, viewport);
             },
     
+            /**
+             * Set the styles of specified context
+             * @param {Object|String} styles Styles configuration for body drawing
+             * @param {Canvas2DContext} ctx    (optional) Defaults to visible canvas context
+             */
             setStyle: function( styles, ctx ){
     
                 ctx = ctx || this.ctx;
@@ -133,6 +152,15 @@
                 }
             },
     
+            /**
+             * Draw a circle to specified canvas context
+             * @param  {Number} x      The x coord
+             * @param  {Number} y      The y coord
+             * @param  {Number} r      The circle radius
+             * @param  {Object|String} styles The styles configuration
+             * @param  {Canvas2DContext} ctx    (optional) The canvas context
+             * @return {void}
+             */
             drawCircle: function(x, y, r, styles, ctx){
     
                 ctx = ctx || this.ctx;
@@ -145,6 +173,13 @@
                 ctx.fill();
             },
     
+            /**
+             * Draw a polygon to specified canvas context
+             * @param  {Array} verts  Array of vectorish vertices
+             * @param  {Object|String} styles The styles configuration
+             * @param  {Canvas2DContext} ctx    (optional) The canvas context
+             * @return {void}
+             */
             drawPolygon: function(verts, styles, ctx){
     
                 var vert = verts[0]
@@ -175,6 +210,14 @@
                 ctx.fill();
             },
     
+            /**
+             * Draw a line onto specified canvas context
+             * @param  {Vectorish} from   Starting point
+             * @param  {Vectorish} to     Ending point
+             * @param  {Object|String} styles The styles configuration
+             * @param  {Canvas2DContext} ctx    (optional) The canvas context
+             * @return {void}
+             */
             drawLine: function(from, to, styles, ctx){
     
                 var x = from.x === undefined ? from.get(0) : from.x
@@ -197,6 +240,12 @@
                 ctx.fill();
             },
     
+            /**
+             * Create a view for specified geometry.
+             * @param  {Geometry} geometry The geometry
+             * @param  {Object|String} styles The styles configuration
+             * @return {Image}          An image cache of the geometry
+             */
             createView: function( geometry, styles ){
     
                 var view = new Image()
@@ -247,18 +296,34 @@
                 return view;
             },
     
-            drawMeta: function( stats ){
+            /**
+             * Draw the meta data
+             * @param  {Object} meta The meta data
+             * @return {void}
+             */
+            drawMeta: function( meta ){
     
-                this.els.fps.innerHTML = stats.fps.toFixed(2);
-                this.els.ipf.innerHTML = stats.ipf;
+                this.els.fps.innerHTML = meta.fps.toFixed(2);
+                this.els.ipf.innerHTML = meta.ipf;
             },
     
+            /**
+             * Callback to be run before rendering
+             * @private
+             * @return {void}
+             */
             beforeRender: function(){
     
                 // clear canvas
                 this.el.width = this.el.width;
             },
     
+            /**
+             * Draw a body to canvas
+             * @param  {Body} body The body to draw
+             * @param  {Image} view The view for that body
+             * @return {void}
+             */
             drawBody: function( body, view ){
     
                 var ctx = this.ctx
