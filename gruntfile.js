@@ -80,7 +80,7 @@ module.exports = function(grunt) {
         var deps = ['physicsjs'];
         var l = path.split('/').length;
         var pfx = l > 0 ? (new Array( l )).join('../') : './';
-        src.replace(/@requires\s([\w\/]+)/g, function( match, dep ){
+        src.replace(/@requires\s([\w-_\/]+)/g, function( match, dep ){
 
             // just get the dependency
             deps.push( pfx + dep );
