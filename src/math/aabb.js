@@ -1,5 +1,12 @@
 (function(){
 
+    /**
+     * Axis Aligned Bounding Box implementation
+     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
+     * @param {Number} minY Minimum y value
+     * @param {Number} maxX Maximum x value
+     * @param {Number} maxY Maximum y value
+     */
     var AABB = function AABB( minX, minY, maxX, maxY ){
 
         // enforce instantiation
@@ -13,6 +20,14 @@
         this.set( minX, minY, maxX, maxY );
     };
 
+    /**
+     * Set the aabb values
+     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
+     * @param {Number} minY Minimum y value
+     * @param {Number} maxX Maximum x value
+     * @param {Number} maxY Maximum y value
+     * @return {this}
+     */
     AABB.prototype.set = function set( minX, minY, maxX, maxY ){
 
         if ( Physics.util.isObject(minX) ){
@@ -30,6 +45,10 @@
         return this;
     };
 
+    /**
+     * Get the aabb values as a plain object
+     * @return {Object} The aabb values
+     */
     AABB.prototype.get = function get(){
 
         var hw = this.halfWidth()
@@ -46,17 +65,29 @@
         };
     };
 
+    /**
+     * Get the half-width measurement of the aabb
+     * @return {Number} The half-width
+     */
     AABB.prototype.halfWidth = function halfWidth(){
 
         return this._hw;
     };
 
+    /**
+     * Get the half-height measurement of the aabb
+     * @return {Number} The half-height
+     */
     AABB.prototype.halfHeight = function halfHeight(){
 
         return this._hh;
     };
 
-    // check if point is inside bounds
+    /**
+     * Check if point is inside bounds
+     * @param  {Vectorish} pt The point to check
+     * @return {Boolean}    True if point is inside aabb
+     */
     AABB.prototype.contains = function contains( pt ){
 
         var x = pt.x !== undefined ? pt.x : pt.get(0)
@@ -69,7 +100,11 @@
                 (y < (this._pos.get(1) + this._hh));
     };
 
-    // apply a transformation to both vectors
+    /**
+     * Apply a transformation to the aabb
+     * @param  {Transform} trans The transformation
+     * @return {this}
+     */
     AABB.prototype.transform = function transform( trans ){
 
         var hw = this._hw
@@ -96,6 +131,12 @@
     };
 
     // Static methods
+    /**
+     * Check if a point is inside an aabb
+     * @param  {AABB|Object} aabb The aabb instance or aabb values
+     * @param  {Vectorish} pt   The point to check
+     * @return {Boolean}      True if point is inside aabb
+     */
     AABB.contains = function( aabb, pt ){
 
         var x = pt.x !== undefined ? pt.x : pt.get(0)

@@ -1,3 +1,6 @@
+/**
+ * A pathetically simple dom renderer
+ */
 Physics.renderer('dom', function( proto ){
 
     // utility methods
@@ -8,6 +11,7 @@ Physics.renderer('dom', function( proto ){
                 return match.toUpperCase();
             });
         }
+        // return the prefixed name for the specified css property
         ,pfx = function pfx(prop) {
 
             if (thePrefix[prop]){
@@ -50,6 +54,7 @@ Physics.renderer('dom', function( proto ){
         ,drawBody
         ;
 
+    // determine which drawBody method we can use
     if (cssTransform){
         drawBody = function( body, view ){
 
@@ -67,6 +72,11 @@ Physics.renderer('dom', function( proto ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Config options passed by initializer
+         * @return {void}
+         */
         init: function( options ){
 
             // call proto init
@@ -93,6 +103,12 @@ Physics.renderer('dom', function( proto ){
             viewport.appendChild(stats);
         },
 
+        /**
+         * Set dom element style properties for a circle
+         * @param  {HTMLElement} el       The element
+         * @param  {Geometry} geometry The bodie's geometry
+         * @return {void}
+         */
         circleProperties: function( el, geometry ){
 
             var aabb = geometry.aabb();
@@ -103,6 +119,11 @@ Physics.renderer('dom', function( proto ){
             el.style.marginTop = (-aabb.halfHeight) + px;
         },
 
+        /**
+         * Create a dom element for the specified geometry
+         * @param  {Geometry} geometry The bodie's geometry
+         * @return {HTMLElement}          The element
+         */
         createView: function( geometry ){
 
             var el = newEl()
@@ -122,12 +143,23 @@ Physics.renderer('dom', function( proto ){
             return el;
         },
 
-        drawMeta: function( stats ){
+        /**
+         * Draw the meta data
+         * @param  {Object} meta The meta data
+         * @return {void}
+         */
+        drawMeta: function( meta ){
 
-            this.els.fps.innerHTML = stats.fps.toFixed(2);
-            this.els.ipf.innerHTML = stats.ipf;
+            this.els.fps.innerHTML = meta.fps.toFixed(2);
+            this.els.ipf.innerHTML = meta.ipf;
         },
 
+        /**
+         * Update dom element to reflect bodie's current state
+         * @param  {Body} body The body to draw
+         * @param  {HTMLElement} view The view for that body
+         * @return {void}
+         */
         drawBody: drawBody
     };
 });
