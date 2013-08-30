@@ -1,0 +1,15 @@
+# This is the default format. 
+# For more see: https://github.com/mojombo/jekyll/wiki/Permalinks
+permalink: /:categories/:year/:month/:day/:title 
+
+exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
+pygments: true
+# safe: true
+paginate: 2
+
+# Themes are encouraged to use these universal variables 
+# so be sure to set them if your theme uses them.
+#
+title : PhysicsJS
+tagline: "A javascript physics engine for designers"
+keywords: "PhysicsJS, physics, engine, javascript"
