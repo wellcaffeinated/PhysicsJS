@@ -11,5 +11,5 @@ paginate: 2
 # so be sure to set them if your theme uses them.
 #
 title : PhysicsJS
-tagline: "A javascript physics engine for designers"
+tagline: "A modular, extendable, and easy-to-use physics engine for javascript"
 keywords: "PhysicsJS, physics, engine, javascript"

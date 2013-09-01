@@ -26,12 +26,12 @@ time, mark, audio, video {
 body {
   padding:10px 50px 0 0;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   color: #232323;
   margin: 0;
   line-height: 1.8em;
   background: #FFF9D0 url(../images/texture.png);
-  font-family: 'Pontano Sans', sans-serif;
+  font-family: 'Quattrocento Sans', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
