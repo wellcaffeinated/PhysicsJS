@@ -1,5 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Arvo:400,700,400italic);
-
 /* MeyerWeb Reset */
 
 html, body, div, span, applet, object, iframe,
@@ -27,12 +25,13 @@ time, mark, audio, video {
 
 body {
   padding:10px 50px 0 0;
-  font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
   color: #232323;
   margin: 0;
   line-height: 1.8em;
   background: #FFF9D0 url(../images/texture.png);
+  font-family: 'Pontano Sans', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -45,14 +44,14 @@ p, ul, ol, table, dl {
 }
 
 h1, h2, h3 {
-  font-family: Arvo, Monaco, serif;
+  font-family: "CaviarDreamsRegular", Monaco, serif;
   line-height:1.3;
   font-weight: normal;
 }
 
 h1,h2, h3 {
   display: block;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #B9B968;
   padding-bottom: 5px;
 }
 
@@ -164,7 +163,7 @@ pre {
 }
 
 .highlight {
-  background: #232323;
+  background: #171717;
   -webkit-border-radius:4px;
      -moz-border-radius:4px;
       -ms-border-radius:4px;
@@ -185,7 +184,7 @@ table {
  }
 
 th {
-  font-family: 'Arvo', Helvetica, Arial, sans-serif;
+  font-family: "CaviarDreamsRegular", Helvetica, Arial, sans-serif;
   font-size: 18px;
   font-weight: normal;
   padding: 10px;
@@ -222,7 +221,6 @@ header {
   border-bottom-right-radius: 4px;
   padding: 34px 25px 22px 50px;
   margin: 30px 25px 0 0;
-  -webkit-font-smoothing: antialiased;
 }
 
 p.header {
@@ -230,7 +228,7 @@ p.header {
 }
 
 h1.header {
-  font-family: Arvo, sans-serif;
+  font-family: "CaviarDreamsRegular", sans-serif;
   font-size: 30px;
   font-weight: 300;
   line-height: 1.3em;
@@ -291,7 +289,6 @@ header li:hover {
 }
 
 a.buttons {
-  -webkit-font-smoothing: antialiased;
   background: url(../images/arrow-down.png) no-repeat;
   font-weight: normal;
   text-shadow: rgba(0, 0, 0, 0.4) 0 -1px 0;
