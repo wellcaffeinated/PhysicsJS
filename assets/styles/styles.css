@@ -314,6 +314,20 @@ section {
   padding-bottom:50px;
 }
 
+h1 small {
+  display: block;
+  font-size: 0.85em;
+}
+
+#intro-viewport {
+  margin-top: -30px;
+  margin-bottom: -15px;
+}
+
+.pjs-meta {
+  display: none;
+}
+
 
 /* Footer */
 
