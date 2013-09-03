@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160
-
-    }, function( world ){
-
-        world.title = "Mixed Shape Collision";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/collision.js";
+    var sim = function( world, Physics ){
 
         var pent = [
                 { x: 50, y: 0 },
@@ -117,5 +107,10 @@ define([
 
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );
-    });   
+    };
+
+    sim.title = "Mixed Shape Collision";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/collision.js";
+
+    return sim;
 });

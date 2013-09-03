@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160 
-
-    }, function( world ){
-
-        world.title = "Newton's Revenge";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtons-revenge.js";
+    var sim = function( world, Physics ){
 
         var $win = $(window)
             ,viewWidth = $win.width()
@@ -63,5 +53,10 @@ define([
         world.add( Physics.behavior('newtonian', { strength: .01 }) );
         world.add( Physics.behavior('sweep-prune') );
         world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
-    });
+    };
+
+    sim.title = "Newton's Revenge";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtons-revenge.js";
+
+    return sim;
 });

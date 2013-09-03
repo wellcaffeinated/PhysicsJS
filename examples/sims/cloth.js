@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160 
-
-    }, function( world ){
-
-        world.title = "Tearable cloth";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/cloth.js";
+    var sim = function( world, Physics ){
 
         // begin
         var $win = $(window)
@@ -105,5 +95,10 @@ define([
         
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );
-    });
+    };
+
+    sim.title = "Tearable cloth";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/cloth.js";
+
+    return sim;
 });

@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160
-
-    }, function( world ){
-
-        world.title = "Supermarket Catastrophy";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/impact.js";
+    var sim = function( world, Physics ){
 
         var $win = $(window)
             ,viewWidth = $win.width()
@@ -93,5 +83,10 @@ define([
 
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );
-    });   
+    };
+
+    sim.title = "Supermarket Catastrophy";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/impact.js";
+
+    return sim;
 });

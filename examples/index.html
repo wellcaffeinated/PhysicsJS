@@ -57,6 +57,7 @@ require({
 },[
     'jquery',
     'physicsjs',
+    './Satnav',
     './demo-mouse-events',
     './sims/simple',
     './sims/newtonian',
@@ -69,13 +70,14 @@ require({
 ], function(
     $,
     Physics,
+    Satnav,
     examples
 ){
 
     // each argument after demo-mouse-events is a world object for a demo
-    examples = Array.prototype.slice.call( arguments, 3 );
+    examples = Array.prototype.slice.call( arguments, 4 );
 
-    var currentWorld = examples[ 0 ];
+    var currentWorld;
     var $win = $(window)
         ,viewWidth = $win.width()
         ,viewHeight = $win.height()
@@ -109,10 +111,11 @@ require({
         viewWidth = $win.width();
         viewHeight = $win.height();
         
-        $(renderer.el).css({
-            'width': viewWidth,
-            'height': viewHeight
-        });
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        renderer.options.width = viewWidth;
+        renderer.options.height = viewHeight;
 
     }).trigger('resize');
 
@@ -157,47 +160,63 @@ require({
         $(this).toggleClass('collapsed');
     });
 
-    // events for examples control box
-    $(document).on('click', '#examples ul a.btn-demo', function(e){
-
-        e.preventDefault();
-        var $this = $(this)
-            ,idx = $this.attr('href').split('-')[1] | 0
-            ;
-
-        $this.parents('#examples ul').find('a.btn-demo').removeClass('on');
-        $this.addClass('on');
-
-        if ( idx < examples.length ){
-
-            currentWorld.pause();
-            currentWorld = examples[ idx ];
-            currentWorld.add( mouseEvents );
-            currentWorld.unpause();
-        }
-    });
-
     $(function(){
 
         mouseEvents = Physics.behavior('demo-mouse-events', { el: '#viewport' });
         // init examples control box
         var $ex = $('#examples ul').empty();
         // for all worlds in examples, we'll attach them to the ticker (request animation frame)
-        $.each( examples, function( idx, world ){
-            initWorld( world );
+        $.each( examples, function( idx, sim ){
+            
+            var src = sim.sourceUrl;
 
-            var src = world.sourceUrl;
-
-            // for demo purposes the world.title properties are set to be the titles of the demos
-            $ex.append( '<li><a class="btn-demo" href="#demo-' + idx + '">' + world.title + '</a>'+ (src? '<a target="_blank" class="btn-src" href="'+ src +'">(code)</a>' : '') +'</li>' )
+            // for demo purposes the sim.title properties are set to be the titles of the demos
+            $ex.append( '<li><a class="btn-demo" href="#demo-' + idx + '">' + sim.title + '</a>'+ (src? '<a target="_blank" class="btn-src" href="'+ src +'">(code)</a>' : '') +'</li>' )
         });
 
-        // init the first example
-        $('#examples ul a.btn-demo').first().addClass('on');
-        currentWorld.add( mouseEvents );
-        // start it
+        // start the ticker
         Physics.util.ticker.start();
-        currentWorld.unpause();
+
+        // hashchange event handling
+        Satnav({
+            html5: false, // don't use pushState
+            force: false, // force change event on same route
+            poll: 100 // poll hash every 100ms if polyfilled
+        })
+        .navigate({
+            path: 'demo-{idx}',
+            directions: function(params) {
+                var idx = params.idx;
+
+                $('#examples ul a.btn-demo').removeClass('on');
+                $('#examples ul a[href="#demo-'+idx+'"]').addClass('on');
+
+                if ( idx < examples.length ){
+
+                    if (currentWorld){
+                        // delete the old world
+                        currentWorld.pause();
+                        delete currentWorld;
+                    }
+                    
+                    // initialize the world
+                    currentWorld = Physics( examples[ idx ] );
+                    initWorld( currentWorld );
+                    currentWorld.add( mouseEvents );
+                    currentWorld.unpause();
+                }
+            }
+        })
+        .otherwise('demo-0') // will route all unmatched paths to #/
+        .change(function(params, old) {
+            var title = $('#examples ul a[href="#demo-'+params.idx+'"]').text();
+
+            if (window._gaq){
+                _gaq.push(['_trackEvent', 'Demos', 'View', title]);
+            }
+        })
+        .go()
+        ;
     });
     
 });
