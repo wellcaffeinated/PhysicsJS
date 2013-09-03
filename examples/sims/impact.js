@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Supermarket Catastrophy";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/impact.js";
 
         var $win = $(window)
             ,viewWidth = $win.width()

@@ -300,10 +300,6 @@ a.buttons:hover {
 }
 /*-----------*/
 
-body {
-  position: absolute;
-}
-
 #display {
   position: absolute;
   top: 0;

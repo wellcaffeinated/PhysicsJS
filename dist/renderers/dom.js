@@ -1,6 +1,7 @@
 /**
- * physicsjs v0.5.0 - 2013-06-06
- * A decent javascript physics engine
+ * PhysicsJS v0.5.0 - 2013-09-03
+ * A modular, extendable, and easy-to-use physics engine for javascript
+ * http://wellcaffeinated.net/PhysicsJS
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
@@ -112,17 +113,19 @@
     
                 this.els = {};
     
-                var stats = newEl();
-                stats.className = 'pjs-meta';
-                this.els.fps = newEl('span');
-                this.els.ipf = newEl('span');
-                stats.appendChild(newEl('span', 'fps: '));
-                stats.appendChild(this.els.fps);
-                stats.appendChild(newEl('br'));
-                stats.appendChild(newEl('span', 'ipf: '));
-                stats.appendChild(this.els.ipf);
+                if (options.meta){
+                    var stats = newEl();
+                    stats.className = 'pjs-meta';
+                    this.els.fps = newEl('span');
+                    this.els.ipf = newEl('span');
+                    stats.appendChild(newEl('span', 'fps: '));
+                    stats.appendChild(this.els.fps);
+                    stats.appendChild(newEl('br'));
+                    stats.appendChild(newEl('span', 'ipf: '));
+                    stats.appendChild(this.els.ipf);
     
-                viewport.appendChild(stats);
+                    viewport.appendChild(stats);
+                }
             },
     
             /**

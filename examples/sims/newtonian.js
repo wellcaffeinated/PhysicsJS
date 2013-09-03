@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Newtonian orbit";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtonian.js";
 
         var $win = $(window)
             ,viewWidth = $win.width()

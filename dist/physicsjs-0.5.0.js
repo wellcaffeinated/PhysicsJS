@@ -1,6 +1,7 @@
 /**
- * physicsjs v0.5.0 - 2013-06-06
- * A decent javascript physics engine
+ * PhysicsJS v0.5.0 - 2013-09-03
+ * A modular, extendable, and easy-to-use physics engine for javascript
+ * http://wellcaffeinated.net/PhysicsJS
  *
  * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
@@ -4330,7 +4331,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
     var defaults = {
         // draw meta data (fps, steps, etc)
-        meta: true,
+        meta: false,
         // refresh rate of meta info
         metaRefresh: 200,
 

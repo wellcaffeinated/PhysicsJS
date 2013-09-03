@@ -11,6 +11,7 @@ module.exports = function(grunt) {
             '/**\n',
             ' * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n',
             ' * <%= pkg.description %>\n',
+            ' * http://wellcaffeinated.net/PhysicsJS\n',
             ' *\n',
             ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n',
             ' * Licensed <%= pkg.license %>\n',
@@ -51,8 +52,8 @@ module.exports = function(grunt) {
     };
 
     // setup dynamic filenames
-    config.versioned = [config.pkg.name, config.pkg.version].join('-');
-    config.versionedFull = [config.pkg.name, 'full', config.pkg.version].join('-');
+    config.versioned = [config.pkg.name.toLowerCase(), config.pkg.version].join('-');
+    config.versionedFull = [config.pkg.name.toLowerCase(), 'full', config.pkg.version].join('-');
     config.dist = ['dist/', '.js'].join(config.versioned);
     config.distFull = ['dist/', '.js'].join(config.versionedFull);
     config.uglifyFiles[['dist/', '.min.js'].join(config.versioned)] = config.dist;
@@ -156,7 +157,7 @@ module.exports = function(grunt) {
             },
             examples: {
                 src: config.distFull,
-                dest: 'examples/' + config.pkg.name + '-full.js'
+                dest: 'examples/' + config.pkg.name.toLowerCase() + '-full.js'
             }
         },
         watch: {
@@ -164,7 +165,7 @@ module.exports = function(grunt) {
           tasks: ['lodash', 'concat', 'copy']
         },
         uglify : {
-            options : { mangle : true },
+            options : { mangle : true, banner: config.banner },
             dist : {
                 files : config.uglifyFiles
             }

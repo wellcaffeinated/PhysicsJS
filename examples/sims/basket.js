@@ -15,7 +15,7 @@ define([
     }, function( world ){
 
         world.title = "A basket of rigid constraints";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/basket.js";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/basket.js";
 
         // begin
         var $win = $(window)

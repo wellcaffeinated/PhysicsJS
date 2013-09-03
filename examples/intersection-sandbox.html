@@ -25,6 +25,7 @@
 <body>
 
 <!-- Setup -->
+    <h1>Demonstration of GJK intersection algorithm</h1>
     <canvas id="viewport"></canvas>
 
 <!-- Scripts -->
@@ -83,7 +84,7 @@ function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
 Physics({
 
     // config
-    timestep: 1000 / 160 
+    timestep: 1000 / 160
 
 }, function( world ){
 
@@ -108,13 +109,13 @@ Physics({
         })
     );
 
-    circles.push(
-        Physics.body('circle', {
-            x: 200,
-            y: 100,
-            radius: 30
-        })
-    );
+    // circles.push(
+    //     Physics.body('circle', {
+    //         x: 200,
+    //         y: 100,
+    //         radius: 30
+    //     })
+    // );
 
     poly = Physics.body('convex-polygon', {
         vertices: pent,

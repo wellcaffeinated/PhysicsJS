@@ -1,20 +1,20 @@
 {
-  "name": "physicsjs",
+  "name": "PhysicsJS",
   "version": "0.5.0",
   "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
-  "description": "A decent javascript physics engine",
+  "description": "A modular, extendable, and easy-to-use physics engine for javascript",
   "contributors": [
     {
       "name": "Jasper Palfree",
       "email": "jasper@wellcaffeinated.net"
     }
   ],
-  "main": null,
+  "main": "./dist/physicsjs-full-0.5.0.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:wellcaffeinated/PhysicsJS.git"
   },
-  "keywords": [],
+  "keywords": ["physics", "engine"],
   "dependencies": {},
   "devDependencies": {
     "grunt": "0.4.x",

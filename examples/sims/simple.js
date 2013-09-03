@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Simple bouncing balls";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/simple.js";
 
         var $win = $(window)
             ,viewWidth = $win.width()

@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Mixed Shape Collision";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/collision.js";
 
         var pent = [
                 { x: 50, y: 0 },

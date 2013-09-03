@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Newton's Revenge";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtons-revenge.js";
 
         var $win = $(window)
             ,viewWidth = $win.width()

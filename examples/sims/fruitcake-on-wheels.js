@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Fruitcake on wheels";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/fruitcake-on-wheels.js";
 
         // begin
         var $win = $(window)

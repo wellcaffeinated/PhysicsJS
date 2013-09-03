@@ -15,6 +15,7 @@ define([
     }, function( world ){
 
         world.title = "Tearable cloth";
+        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/cloth.js";
 
         // begin
         var $win = $(window)
