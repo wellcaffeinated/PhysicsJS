@@ -94,7 +94,7 @@ define([
             for ( var i = 0, l = constraints.length; i < l; ++i ){
                 
                 c = constraints[ i ];
-                renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, '#664');
+                renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, 'hsla(60, 37%, 27%, 1)');
             }
         });
 
