@@ -5,7 +5,7 @@
 
     var defaults = {
         // draw meta data (fps, steps, etc)
-        meta: true,
+        meta: false,
         // refresh rate of meta info
         metaRefresh: 200,
 
