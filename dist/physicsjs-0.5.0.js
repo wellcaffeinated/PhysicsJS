@@ -4534,7 +4534,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.call(this, this);
+                fn.call(this, this, Physics);
             }
         },
 

@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160 
-
-    }, function( world ){
-
-        world.title = "Simple bouncing balls";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/simple.js";
+    var sim = function( world, Physics ){
 
         var $win = $(window)
             ,viewWidth = $win.width()
@@ -80,5 +70,10 @@ define([
 
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );
-    });
+    };
+
+    sim.title = "Simple bouncing balls";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/simple.js";
+
+    return sim;
 });

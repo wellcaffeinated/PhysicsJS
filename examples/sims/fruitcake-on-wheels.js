@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160 
-
-    }, function( world ){
-
-        world.title = "Fruitcake on wheels";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/fruitcake-on-wheels.js";
+    var sim = function( world, Physics ){
 
         // begin
         var $win = $(window)
@@ -128,5 +118,10 @@ define([
         
         // add gravity
         world.add( Physics.behavior('constant-acceleration') );
-    });
+    };
+
+    sim.title = "Fruitcake on wheels";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/fruitcake-on-wheels.js";
+
+    return sim;
 });

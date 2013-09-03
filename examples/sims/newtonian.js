@@ -1,21 +1,11 @@
 define([
     
-    'jquery',
-    'physicsjs'
+    'jquery'
 
 ], function(
-    $,
-    Physics
+    $
 ){
-    return Physics({
-
-        // config
-        timestep: 1000 / 160 
-
-    }, function( world ){
-
-        world.title = "Newtonian orbit";
-        world.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtonian.js";
+    var sim = function( world, Physics ){
 
         var $win = $(window)
             ,viewWidth = $win.width()
@@ -67,5 +57,10 @@ define([
         world.add( edgeBounce );
         world.add( Physics.behavior('body-impulse-response') );
         world.add( Physics.behavior('newtonian', { strength: .5 }) );
-    });
+    };
+
+    sim.title = "Newtonian orbit";
+    sim.sourceUrl = "https://github.com/wellcaffeinated/PhysicsJS/blob/master/examples/sims/newtonian.js";
+
+    return sim;
 });
