@@ -85,7 +85,7 @@
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.call(this, this);
+                fn.call(this, this, Physics);
             }
         },
 
