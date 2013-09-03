@@ -83,7 +83,7 @@ a:hover {
 }
 
 a small {
-  font-size: 12px;
+  font-size: 0.75em;
 }
 
 em {
@@ -152,7 +152,10 @@ img {
 code, pre {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color:#333;
-  font-size:14px;
+}
+
+code {
+  font-size:0.875em;
 }
 
 pre {
