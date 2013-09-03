@@ -1,0 +1,323 @@
+<!doctype html>
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>PhysicsJS test</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <!-- General styles -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Page styles -->
+  <style>
+
+  
+  </style>
+
+</head>
+<body>
+
+<!-- Setup -->
+    <h1>Demonstration of GJK intersection algorithm</h1>
+    <canvas id="viewport"></canvas>
+
+<!-- Scripts -->
+<script src="./physicsjs-full.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+
+// helpers
+
+function drawPoint(ctx, p, radius, color, offset) {
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
+    ctx.beginPath();
+    ctx.arc(p.x === undefined? p.get(0) : p.x, p.y === undefined? p.get(1) : p.y, radius, 0, Math.PI*2, false);     
+
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawLine(ctx, p1, p2, lineWidth, color, offset) {
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
+    ctx.beginPath();
+    ctx.moveTo(p1.x === undefined? p1.get(0) : p1.x, p1.y === undefined? p1.get(1) : p1.y);
+    ctx.lineTo(p2.x === undefined? p2.get(0) : p2.x, p2.y === undefined? p2.get(1) : p2.y);     
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawSimplex(ctx, simplex, lineWidth, strokeColor, offset) {
+    if (!simplex || !simplex.length) return;
+    ctx.save();
+    ctx.translate(offset.get(0), offset.get(1));
+    ctx.beginPath();
+
+    ctx.moveTo(simplex[0].pt.x, simplex[0].pt.y);     
+    for (var i = 1; i < simplex.length; i++) {
+        ctx.lineTo(simplex[i].pt.x, simplex[i].pt.y);
+    }
+
+    // if (v.length > 2) {
+    //     ctx.closePath();
+    // }
+
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeColor;
+    ctx.stroke();
+    ctx.restore();
+    drawPoint(ctx, simplex[ simplex.length - 1 ].pt, 2, 'yellow', offset)
+}
+
+// main
+Physics({
+
+    // config
+    timestep: 1000 / 160
+
+}, function( world ){
+
+    var viewWidth = 600;
+    var viewHeight = 400;
+    var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+    var pent = [
+            { x: 60, y: 0 },
+            { x: 30, y: -30 },
+            { x: -30, y: -30 },
+            { x: -60, y: 0 },
+            { x: 0, y: 60 }
+        ];
+    var circles = [];
+    var poly;
+    
+    circles.push(
+        Physics.body('circle', {
+            x: 200,
+            y: 0,
+            radius: 35
+        })
+    );
+
+    // circles.push(
+    //     Physics.body('circle', {
+    //         x: 200,
+    //         y: 100,
+    //         radius: 30
+    //     })
+    // );
+
+    poly = Physics.body('convex-polygon', {
+        vertices: pent,
+        x: -60,
+        y: -60,
+        angle: -0.5
+    });
+
+    // world.add( Physics.body('convex-polygon', {
+    //     vertices: [
+    //         { x: 0, y: 0 },
+    //         { x: viewWidth, y: 0 },
+    //         { x: viewWidth, y: -30 },
+    //         { x: 0, y: -30 }
+    //     ],
+    //     x: viewWidth / 2,
+    //     y: viewHeight/2 - 100
+    // }));
+
+    var renderer = Physics.renderer('canvas', {
+        el: 'viewport',
+        width: viewWidth,
+        height: viewHeight,
+        offset: Physics.vector( viewWidth/2, viewHeight/2 )
+    });
+
+    // add things to world
+    world.add( poly );
+    world.add( circles );
+    world.add( renderer );
+
+    function updateCanvas( gjk ){
+        var ctx = renderer.ctx;
+        renderer.render(world._bodies, { fps: 0, steps: 0 });
+        // draw origin
+        drawPoint(ctx, {x: 0, y: 0}, 2, 'red', renderer.options.offset);
+        drawMinkowski( ctx, world._bodies[0], world._bodies[1] );
+
+        // ctx.save();
+        // ctx.translate(renderer.options.offset.get(0), renderer.options.offset.get(1));
+        // renderer.drawPolygon(pent, 'red');
+        // renderer.drawPolygon(poly.geometry.vertices, 'blue');
+        // ctx.restore();
+        
+        if (!gjk) return;
+
+        drawSimplex(ctx, gjk.simplex, 1, '#448', renderer.options.offset);
+
+        if (gjk.closest){
+
+            drawLine(ctx, gjk.closest.a, gjk.closest.b, 1, 'yellow', renderer.options.offset);
+            drawPoint(ctx, gjk.closest.a, 2, 'green', renderer.options.offset);
+            drawPoint(ctx, gjk.closest.b, 2, 'green', renderer.options.offset);
+        }
+    }
+
+    var toTitleCase = function toTitleCase(str) {
+       return str.replace(/(?:^|\s)\w/g, function(match) {
+            return match.toUpperCase();
+        });
+    };
+
+    function drawMinkowski(ctx, bodyA, bodyB){
+        var support = getSupportFn( bodyA, bodyB )
+            ,dir = Physics.vector(1, 0)
+            ,transform = Physics.transform()
+            ,point = Physics.vector()
+            ;
+
+        for ( var i = 0, l = 2*Math.PI; i < l; i += 0.1 ){
+            
+            transform.setRotation( i );
+            dir.rotate(transform);
+            point.clone( support( dir ).pt );
+            drawPoint(ctx, point, 0.5, '#ddd', renderer.options.offset);
+        }
+
+    }
+
+    // get general support function
+    function getSupportFn( bodyA, bodyB ){
+
+        var tA = Physics.transform( bodyA.state.pos, bodyA.state.angular.pos )
+            ,tB = Physics.transform( bodyB.state.pos, bodyB.state.angular.pos )
+            ,fn
+            ;
+
+        fn = function( searchDir ){
+
+            var scratch = Physics.scratchpad()
+                ,vA = scratch.vector()
+                ,vB = scratch.vector()
+                ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
+                ,margin = fn.margin
+                ,ret
+                ;
+
+            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, margin ).transform( tA );
+            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, margin ).transform( tB );
+
+            searchDir.negate().rotate( tB );
+
+            ret = {
+                a: vA.values(),
+                b: vB.values(),
+                pt: vA.vsub( vB ).values() 
+            };
+            scratch.done();
+            return ret;
+        };
+
+        fn.useCore = false;
+        fn.margin = 0;
+
+        return fn;
+    }
+
+    $('#viewport').on({
+        mousedown: function(e){
+
+            var body
+                ,offset = $('#viewport').offset()
+                ,diff = Physics.vector(e.pageX - offset.left, e.pageY - offset.top)
+                ,pos = Physics.vector()
+                ,aabb = Physics.aabb()
+                ,bdyaabb
+                ;
+
+            diff.vsub( renderer.options.offset );
+
+            for ( var i = 0, l = world._bodies.length; i < l; ++i ){
+
+                body = world._bodies[ i ];
+
+                // pos.clone( body.state.pos ).sub( body.geometry.radius );
+                aabb.set( body.aabb() );
+                
+                if (aabb.contains( diff )){
+
+                    body = world._bodies[ i ];
+                    break;
+                }
+
+                body = null;
+            }
+
+            diff.vadd( renderer.options.offset );
+
+            if (body){
+
+                diff.vsub(body.state.pos);
+
+                $(window).on({
+                    'mousemove.drag': function(e){
+
+                        var bodyA
+                            ,bodyB
+                            ,method
+                            ,ret
+                            ;
+
+                        bodyA = world._bodies[ 0 ];
+                        bodyB = world._bodies[ 1 ];
+
+                        pos.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+
+                        var debugHue = 0;
+                        var support = getSupportFn( bodyA, bodyB );
+                        support.useCore = true;
+                        support.margin = 10;
+                        ret = Physics.gjk(support, pos);
+                        
+                        if (ret.overlap){
+
+                            console.log('intersection', ret, 'iterations: '+ret.iterations);
+                            $('body').css('background', '#833');
+                        } else {
+
+                            console.log('distance', ret.distance, 'iterations: ' + ret.iterations);
+                            $('body').css('background', '#333');
+                        }
+                        
+
+                        pos.set(e.pageX - offset.left, e.pageY - offset.top).vsub( diff );
+                        body.state.pos.clone(pos);
+                        updateCanvas( ret );
+                    },
+                    mouseup: function(e){
+                        $(window).off('mousemove.drag');
+                    }
+                });
+            }
+        }
+    });
+    
+    updateCanvas();
+    setTimeout(function(){
+        updateCanvas();
+    }, 500);
+});
+
+</script>
+  
+</body>
+</html>
