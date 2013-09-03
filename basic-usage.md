@@ -73,12 +73,29 @@ Physics({
 {% endhighlight %}
 
 
-
 ## Making things "go" - Advancing the simulation
 
+In order to advance the simulation by one frame, simply call the `.step()` method
+with the current time as a parameter. This can be done in any way you like,
+but usually this will be called inside an animation loop, using
+`window.requestAnimationFrame` or similar. 
 
+A helper is provided with PhysicsJS to facilitate animation loops:
+`Physics.util.ticker`. The ticker methods will use `requestAnimationFrame`
+when available and fallback to `setTimeout` when necessary. To use the ticker,
+just `subscribe()` to it, and call the `start()` method.
 
+Example:
 
+{% highlight js %}
+// subscribe to the ticker
+Physics.util.ticker.subscribe(function(time, dt){
+    world.step( time );
+    // Note: FPS ~= 1/dt
+});
+// start the ticker
+Physics.util.ticker.start();
+{% endhighlight %}
 
 
 ## Add things to the `world`
@@ -100,22 +117,22 @@ Bodies are the "what" of a physics simulation. They represent physical objects t
 can be rendered as DOM Elements, or drawn on canvas, or however you'd like to display
 them. They are not by default tied to any particular "view" or visual representation.
 
-The only body included as part of the core library is the fundamental body: the **point**.
-Other bodies, like **circles** or **convex polygons**, are available as extensions.
+Bodies, like **points**, **circles**, or **convex polygons**, are available as extensions.
 
 Creating a body is done using the `Physics.body()` factory function.
 
 Example:
 
 {% highlight js %}
-var myPoint = Physics.body('point', {
+var ball = Physics.body('circle', {
     x: 50, // x-coordinate
     y: 30, // y-coordinate
-    vx: 0.1, // velocity in x-direction
-    vy: 0.01 // velocity in y-direction
+    vx: 0.2, // velocity in x-direction
+    vy: 0.01, // velocity in y-direction
+    radius: 20
 });
-// add the point to the world
-world.add( myPoint );
+// add the circle to the world
+world.add( ball );
 {% endhighlight %}
 
 Custom bodies can also be created and bodies can be extended.
@@ -179,7 +196,7 @@ Adding an HTML Canvas renderer to the world is simple.
 var renderer = Physics.renderer('canvas', {
     el: 'element-id',
     width: 500,
-    height: 400,
+    height: 300,
     meta: false, // don't display meta data
     styles: {
         // set colors for the circle bodies
@@ -249,6 +266,14 @@ Physics(function(world){
 Custom integrators can be created and integrators can be extended.
 [Read the wiki entry on integrators to learn more][wiki-integrators].
 
+
+## Full Example
+
+The example code snippets from these basic instructions can be found in this
+little example simulation:
+
+<p data-height="351" data-theme-id="0" data-slug-hash="vCqHb" data-user="wellcaffeinated" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wellcaffeinated/pen/vCqHb'>vCqHb</a> by Jasper (<a href='http://codepen.io/wellcaffeinated'>@wellcaffeinated</a>) on <a href='http://codepen.io'>CodePen</a></p>
+<script async="async" src="http://codepen.io/assets/embed/ei.js"></script>
 
 
 [wiki-bodies]: https://github.com/wellcaffeinated/PhysicsJS/wiki/Bodies
