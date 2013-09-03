@@ -3,7 +3,7 @@ layout: default
 title: PhysicsJS
 ---
 
-# PhysicsJS <small>A modular, extendable, and easy-to-use physics engine for javascript</small><canvas id="intro-viewport"></canvas>
+# Physics<span class="js">JS</span> <small>is a modular, extendable, and easy-to-use physics engine for javascript</small><canvas id="intro-viewport"></canvas>
 
 **PhysicsJS is still under development (alpha version 0.5.0), and documentation is unfinished. Stay tuned! It will be online soon.**
 

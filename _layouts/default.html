@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>{{site.title}} - {{site.tagline}}</title>
 
+    <link href='http://fonts.googleapis.com/css?family=Alice&text=Well%20Caffeinated' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="assets/fonts/Caviar-Dreams-fontfacekit/stylesheet.css">
     <link rel="stylesheet" href="assets/styles/solarized.css">
@@ -19,22 +20,26 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1 class="header">{{site.title}}</h1>
-        <p class="header">{{site.tagline}}</p>
-
+        <h1 class="header"><a href="{{site.url}}">Physics<span>JS</span></a></h1>
+      
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/wellcaffeinated/PhysicsJS/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/wellcaffeinated/PhysicsJS/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/wellcaffeinated/PhysicsJS">View On GitHub</a></li>
+          <li><a href="./installation">Installation</a></li>
+          <li><a href="./basic-usage">Basic Usage</a></li>
+          <li><a href="https://github.com/wellcaffeinated/PhysicsJS/wiki">Documentation</a></li>
+          <li><a href="./examples">Demos</a></li>
+        </ul>
+        <ul>
+          <li>v0.5.0 (alpha)</li>
+          <li class="button download"><a class="buttons" href="https://github.com/wellcaffeinated/PhysicsJS/zipball/master">Download</a></li>
+          <li class="button"><a class="buttons github" href="https://github.com/wellcaffeinated/PhysicsJS">GitHub</a></li>
         </ul>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/wellcaffeinated">wellcaffeinated</a></p>
       </header>
       <section>
         {{ content }}
       </section>
       <footer>
-        <p><small>a <a href="http://wellcaffeinated.net" target="_blank">Well Caffeinated</a> project</small></p>
+        <p><small>a <a href="http://wellcaffeinated.net" target="_blank" class="author">Well Caffeinated</a> project</small></p>
       </footer>
     </div>
   

@@ -239,6 +239,14 @@ h1.header {
   margin-top: 0;
 }
 
+h1.header a:hover {
+  text-decoration: none;
+}
+
+h1.header span,
+h1 .js {
+  color: #C30000;
+}
 
 h1.header, a.header, a.name, header a{
   color: #fff;
@@ -255,52 +263,48 @@ a.name {
 header ul {
   list-style:none;
   padding:0;
+  margin: 2em 0;
 }
 
 header li {
+  padding: 0;
   list-style-type: none;
-  width:132px;
-  height:15px;
   margin-bottom: 12px;
   line-height: 1em;
-  padding: 6px 6px 6px 7px;
-
-  background: #AF0011;
-  background: -moz-linear-gradient(top, #AF0011 0%, #820011 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: -o-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: -ms-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: linear-gradient(top, #AF0011 0%,#820011 100%);
-
-  border-radius:4px;
-  border:1px solid #0D0D0D;
-
-  -webkit-box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
-  box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
-
 }
 
-header li:hover {
+header li a {
+  text-decoration: underline;
+}
+
+header li a:hover {
+  text-decoration: none;
+}
+
+header li.button {
+  width:132px;
+
+  background: #AF0011;
+  
+  border-radius: 4px;
+  /*border:1px solid #0D0D0D;*/  
+}
+
+header li.button:hover {
   background: #C3001D;
-  background: -moz-linear-gradient(top, #C3001D 0%, #950119 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -o-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -ms-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: linear-gradient(top, #C3001D 0%,#950119 100%);
 }
 
 a.buttons {
-  background: url(../images/arrow-down.png) no-repeat;
+  display: block;
+  text-decoration: none;
+  padding: 10px 10px 10px 2em;
+  background: url(../images/arrow-down.png) no-repeat 11px 8px;
   font-weight: normal;
   text-shadow: rgba(0, 0, 0, 0.4) 0 -1px 0;
-  padding: 2px 2px 2px 22px;
-  height: 30px;
 }
 
 a.github {
-  background: url(../images/octocat-small.png) no-repeat 1px;
+  background: url(../images/octocat-small.png) no-repeat 9px 9px;
 }
 
 a.buttons:hover {
@@ -318,7 +322,6 @@ section {
 }
 
 h1 small {
-  display: block;
   font-size: 0.85em;
 }
 
@@ -340,6 +343,10 @@ footer {
   position:fixed;
   bottom:10px;
   padding-left: 50px;
+}
+
+footer .author {
+  font-family: Alice, serif;
 }
 
 @media print, screen and (max-width: 960px) {
@@ -375,9 +382,6 @@ footer {
   }
 
   header ul {
-    position:absolute;
-    right:130px;
-    top:84px;
   }
 }
 
@@ -406,10 +410,6 @@ footer {
 }
 
 @media print, screen and (max-width: 480px) {
-
-  header ul li.download {
-    display:none;
-  }
 
   footer {
     margin: 0 0 0 20px;
