@@ -21,7 +21,10 @@
     }
 }(this, function ( Physics ) {
     'use strict';
-    // circle geometry
+    /**
+     * Circle geometry
+     * @module geometries/circle
+     */
     Physics.geometry('circle', function( parent ){
     
         var defaults = {

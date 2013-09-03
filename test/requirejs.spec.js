@@ -7,7 +7,7 @@ describe("AMD Loading", function() {
 
             runs(function(){
 
-                require(['physicsjs', 'geometries/point'], function( pjs ){
+                require(['physicsjs'], function( pjs ){
 
                     Phys = pjs;
                 });

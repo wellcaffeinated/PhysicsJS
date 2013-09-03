@@ -5131,9 +5131,25 @@ Physics.integrator('verlet', function( parent ){
 
 
 // ---
+// inside: src/geometries/point.js
+
+/**
+ * Point geometry
+ * @module geometries/point
+ */
+Physics.geometry('point', function( parent ){
+
+    // alias of default
+});
+
+
+// ---
 // inside: src/geometries/circle.js
 
-// circle geometry
+/**
+ * Circle geometry
+ * @module geometries/circle
+ */
 Physics.geometry('circle', function( parent ){
 
     var defaults = {
@@ -5211,7 +5227,10 @@ Physics.geometry('circle', function( parent ){
 // ---
 // inside: src/geometries/convex-polygon.js
 
-// circle geometry
+/**
+ * Convex polygon geometry
+ * @module geometries/convex-polygon
+ */
 Physics.geometry('convex-polygon', function( parent ){
 
     var ERROR_NOT_CONVEX = 'Error: The vertices specified do not match that of a _convex_ polygon.';
@@ -5404,16 +5423,6 @@ Physics.geometry('convex-polygon', function( parent ){
             return result;
         }
     };
-});
-
-
-// ---
-// inside: src/geometries/point.js
-
-// point geometry
-Physics.geometry('point', function( parent ){
-
-    // alias of default
 });
 
 

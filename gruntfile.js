@@ -34,12 +34,16 @@ module.exports = function(grunt) {
 
             // default integrator
             'src/integrators/verlet.js',
+
+            // default geometry
+            'src/geometries/point.js',
             
             'src/outro.js'
         ],
 
         moduleSources : [
             'src/geometries/*.js',
+            '!src/geometries/point.js',
             'src/bodies/*.js',
             'src/behaviors/*.js',
             'src/integrators/*.js',

@@ -5131,6 +5131,19 @@ Physics.integrator('verlet', function( parent ){
 
 
 // ---
+// inside: src/geometries/point.js
+
+/**
+ * Point geometry
+ * @module geometries/point
+ */
+Physics.geometry('point', function( parent ){
+
+    // alias of default
+});
+
+
+// ---
 // inside: src/outro.js
 
 return Physics;

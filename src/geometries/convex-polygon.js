@@ -1,4 +1,7 @@
-// circle geometry
+/**
+ * Convex polygon geometry
+ * @module geometries/convex-polygon
+ */
 Physics.geometry('convex-polygon', function( parent ){
 
     var ERROR_NOT_CONVEX = 'Error: The vertices specified do not match that of a _convex_ polygon.';
