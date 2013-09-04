@@ -1,5 +1,6 @@
+{% capture strt %}{{ site.url | split:'/' | size }}{% endcapture %}
 {% capture lvl %}{{ page.url | append:'index.html' | split:'/' | size }}{% endcapture %}
-{% capture relative %}{% for i in (3..lvl) %}../{% endfor %}{% endcapture %}
+{% capture relative %}{% for i in (strt..lvl) %}../{% endfor %}{% endcapture %}
 <!doctype html>
 <html>
   <head>
@@ -42,7 +43,7 @@
         <h1 class="header"><a href="{{site.url}}">Physics<span>JS</span></a></h1>
       
         <ul>
-          <li><a href="{{relative}}">About</a></li>
+          <li><a href="./{{relative}}">About</a></li>
           <li><a href="{{relative}}examples">Demos</a></li>
           <li><a href="{{relative}}installation">Installation</a></li>
           <li><a href="{{relative}}basic-usage">Basic Usage</a></li>
