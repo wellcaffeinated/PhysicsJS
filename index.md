@@ -10,7 +10,9 @@ title: PhysicsJS
 <canvas id="intro-viewport" width="0" height="300">
 </canvas>
 
-**PhysicsJS is still under development (alpha version 0.5.0), and documentation is unfinished. Stay tuned! It will be online soon.**
+**PhysicsJS is still under development (alpha version 0.5.0), and documentation
+is unfinished. Feel free to use it, just be warned that the API is in flux and better
+documentation is on its way!**
 
 
 ## Demos
