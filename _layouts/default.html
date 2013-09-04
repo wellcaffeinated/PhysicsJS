@@ -1,5 +1,5 @@
 {% capture strt %}{{ site.url | split:'/' | size }}{% endcapture %}
-{% capture lvl %}{{ page.url | append:'index.html' | split:'/' | size }}{% endcapture %}
+{% capture lvl %}{{ page.url | append:'/index.html' | split:'/' | size }}{% endcapture %}
 {% capture relative %}{% for i in (strt..lvl) %}../{% endfor %}{% endcapture %}
 <!doctype html>
 <html>
