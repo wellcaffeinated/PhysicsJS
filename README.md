@@ -4,8 +4,27 @@ A modular, extendable, and easy-to-use physics engine for javascript.
 
 Latest version: 0.5.0 (alpha)
 
+## Usage
+
 **Please [visit the website](http://wellcaffeinated.net/PhysicsJS/) for
 details about installation and usage**.
+
+Distribution files are in the `dist/` directory.
+
+## Contributing
+
+Source code is kept in the `src/` directory. After any source code
+modifications it will be necessary to run the grunt build task to
+rebuild the source and run unit tests.
+
+First install grunt dependencies:
+
+    $ npm install
+
+then run grunt
+
+    $ grunt
+    
 
 ## License MIT
 
