@@ -325,9 +325,21 @@ h1 small {
   font-size: 0.85em;
 }
 
+#physics {
+  font-size: 50px;
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
 #intro-viewport {
-  margin-top: -30px;
-  margin-bottom: -15px;
+  /*border: 1px solid #B9B968;*/
+  border-top: none;
+  margin-top: -11px;
+  width: 100%;
+  cursor: crosshair;
 }
 
 .pjs-meta {

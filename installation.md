@@ -17,11 +17,14 @@ Tell requireJS where to find the PhysicsJS source.
 require.config({
     baseUrl: './',
     // ...
-    paths: {
-        'pjs': 'path/to/physicsjs',
-        'physicsjs': 'path/to/physicsjs/physicsjs-0.5.0.min'
-        //...
-    }
+    packages: [
+        {
+          name: 'physicsjs',
+          location: 'path/to/physicsjs',
+          main: 'physicsjs-0.5.0.min'
+        }
+    ],
+    //...
 });
 {% endhighlight %}
 
@@ -30,7 +33,7 @@ Now require the dependencies you need.
 {% highlight js %}
 require([
     'physicsjs',
-    'pjs/bodies/circle' // will mix into the PhysicsJS library
+    'physicsjs/bodies/circle' // will mix into the PhysicsJS library
 ], function( Physics ){
     
     // do something fun with circles!
