@@ -58,7 +58,7 @@ require([
         // constrain objects to these bounds
         world.add(Physics.behavior('edge-collision-detection', {
           aabb: viewportBounds,
-          restitution: 0.99,
+          restitution: 0.5,
           cof: 0.99
         }));
 

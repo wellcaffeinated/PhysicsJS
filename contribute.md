@@ -11,7 +11,10 @@ community contributions of different `behaviors`, `bodies`, `renderers`, etc...
 You can read more about extending PhysicsJS by visiting the 
 [wiki and reading the documentation][wiki].
 
-Of course any contributions are welcome. You can submit pull requests
+I'm also looking for developers with any experience in building physics
+engines to help resolve some of the issues.
+
+Of course all contributions are welcome. You can submit pull requests
 and open bug reports on [github][github].
 
 

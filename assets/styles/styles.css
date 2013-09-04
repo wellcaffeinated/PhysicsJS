@@ -94,14 +94,20 @@ strong {
   font-weight:700;
 }
 
-ul li {
-  list-style: inside;
-  padding-left: 25px;
+ul,
+ol {
+  margin-left: 24px;
 }
 
+ul li {
+  list-style: outside;
+  padding-left: 4px;
+}
+
+
 ol li {
-  list-style: decimal inside;
-  padding-left: 20px;
+  list-style: decimal outside;
+  padding-left: 4px;
 }
 
 blockquote {
