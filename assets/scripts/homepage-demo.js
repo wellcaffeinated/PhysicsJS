@@ -58,8 +58,8 @@ require([
         // constrain objects to these bounds
         world.add(Physics.behavior('edge-collision-detection', {
           aabb: viewportBounds,
-          restitution: 0.5,
-          cof: 0.99
+          restitution: 0.2,
+          cof: 0.8
         }));
 
         // add a circle
@@ -84,7 +84,7 @@ require([
                 {x: 50, y: 0},
                 {x: 0, y: 0}
               ],
-              restitution: 0.9
+              restitution: 0.99
           })
         );
 
@@ -104,7 +104,7 @@ require([
                 {x: 30, y: 0}
               ],
               angle: Math.PI/1.5,
-              restitution: 0.7
+              restitution: 0.99
           })
         );
 
