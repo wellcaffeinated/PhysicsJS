@@ -32,7 +32,7 @@ Check out the [demo page][demos] for some sweet examples of what you can do.
 * Extensions to support **constant gravity**, **newtonian gravity**, **collisions**,
   and **verlet constraints**.
 
-[demos]: /examples
+[demos]: ./examples
 
 
 <script>require(['homepage-demo']);</script>
