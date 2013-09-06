@@ -4735,7 +4735,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         removeBehavior: function( behavior ){
 
-            var behaviors = this._behaviors;
+            var behaviors = this._behaviors
+                ,notify
+                ;
 
             if (behavior){
                 
@@ -4747,6 +4749,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                         break;
                     }
                 }
+
+                // notify
+                notify = {
+                    topic: 'remove:behavior'
+                };
+
+                notify.behavior = behavior;
+
+                this.publish( notify );
             }
 
             return this;
@@ -4781,7 +4792,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         removeBody: function( body ){
 
-            var bodies = this._bodies;
+            var bodies = this._bodies
+                ,notify
+                ;
 
             if (body){
                 
@@ -4793,6 +4806,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                         break;
                     }
                 }
+
+                // notify
+                notify = {
+                    topic: 'remove:body'
+                };
+
+                notify.body = body;
+
+                this.publish( notify );
             }
 
             return this;

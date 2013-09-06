@@ -301,16 +301,16 @@
                         break;
                     }
                 }
+
+                // notify
+                notify = {
+                    topic: 'remove:behavior'
+                };
+
+                notify.behavior = behavior;
+
+                this.publish( notify );
             }
-
-            // notify
-            notify = {
-                topic: 'remove:behavior'
-            };
-
-            notify.behavior = behavior;
-
-            this.publish( notify );
 
             return this;
         },
@@ -358,16 +358,16 @@
                         break;
                     }
                 }
+
+                // notify
+                notify = {
+                    topic: 'remove:body'
+                };
+
+                notify.body = body;
+
+                this.publish( notify );
             }
-
-            // notify
-            notify = {
-                topic: 'remove:body'
-            };
-
-            notify.body = body;
-
-            this.publish( notify );
 
             return this;
         },

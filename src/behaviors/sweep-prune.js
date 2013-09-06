@@ -78,6 +78,7 @@ Physics.behavior('sweep-prune', function( parent ){
         connect: function( world ){
 
             world.subscribe( 'add:body', this.trackBody, this );
+            world.subscribe( 'remove:body', this.untrackBody, this );
             world.subscribe( 'integrate:velocities', this.sweep, this );
 
             // add current bodies
@@ -96,6 +97,7 @@ Physics.behavior('sweep-prune', function( parent ){
         disconnect: function( world ){
 
             world.unsubscribe( 'add:body', this.trackBody );
+            world.unsubscribe( 'remove:body', this.untrackBody );
             world.unsubscribe( 'integrate:velocities', this.sweep );
             this.clear();
         },
@@ -381,6 +383,58 @@ Physics.behavior('sweep-prune', function( parent ){
 
                 this.intervalLists[ xyz ].push( intr.min, intr.max );
             }
+        },
+
+        /**
+         * Remove body from list of those tracked
+         * @param  {Object} data Event data
+         * @return {void}
+         */
+        untrackBody: function( data ){
+
+            var body = data.body
+                ,list
+                ,minmax
+                ,trackedList = this.tracked
+                ,tracker
+                ,count
+                ;
+
+            for ( var i = 0, l = trackedList.length; i < l; ++i ){
+
+                tracker = trackedList[ i ];
+                
+                if ( tracker.body === body ){
+
+                    // remove the tracker at this index
+                    trackedList.splice(i, 1);
+
+                    for ( var xyz in dof ){
+
+                        count = 0;
+                        list = this.intervalLists[ xyz ];
+
+                        for ( var j = 0, m = list.length; j < m; ++j ){
+                                
+                            minmax = list[ j ];
+
+                            if ( minmax === tracker.interval.min || minmax === tracker.interval.max ){
+
+                                // remove interval from list
+                                list.splice(j, 1);
+
+                                if (count > 0){
+                                    break;
+                                }
+
+                                count++;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }            
         },
 
         /**
