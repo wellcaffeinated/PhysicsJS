@@ -172,10 +172,6 @@ system so other behaviors can take appropriate actions. One example of this is
 for collision detection, collision response, and even so-called "sweep and prune"
 optimization algorithms.
 
-**Note**: Because some english speaking countries (like Canada and the Great Britain)
-spell the word with a "u" (behaviour), an alias has been created so that
-**`.behavior()`** and **`.behaviour()`** are both valid.
-
 Custom behaviors can also be created and behaviors can be extended.
 [Read the wiki entry on behaviors to learn more][wiki-behaviors].
 
