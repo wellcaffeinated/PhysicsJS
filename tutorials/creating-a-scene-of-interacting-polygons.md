@@ -184,4 +184,4 @@ world.add( Physics.behavior('sweep-prune') );
 
 Now, we're talking! Colliding polygons!
 
-[basic-usage]: {{relative}}basic-usage
+[basic-usage]: ../basic-usage
