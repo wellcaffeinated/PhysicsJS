@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.0 - 2013-09-03
+ * PhysicsJS v0.5.0 - 2013-09-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -62,6 +62,7 @@
     
                 // do nothing if both are fixed
                 if ( fixedA && fixedB ){
+                    scratch.done();
                     return;
                 }
     
