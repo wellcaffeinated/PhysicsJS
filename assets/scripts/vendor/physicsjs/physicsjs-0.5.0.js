@@ -3726,8 +3726,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         /**
          * Default method run on every world integration
          * @abstract
-         * @param  {Array} bodies Array of world bodies to act on
-         * @param  {Number} dt     Timestep size
+         * @param  {Object} data Object containing event data, including: data.bodies = Array of world bodies to act on, data.dt = the timestep size
          * @return {void}
          */
         behave: null
@@ -4985,12 +4984,23 @@ Physics.integrator('verlet', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
 
+        /**
+         * Velocity integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep
@@ -5078,6 +5088,12 @@ Physics.integrator('verlet', function( parent ){
             }
         },
 
+        /**
+         * Position integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integratePositions: function( bodies, dt ){
 
             // half the timestep

@@ -21,12 +21,21 @@
     }
 }(this, function ( Physics ) {
     'use strict';
+    /**
+     * Body collision detection
+     * @module behaviors/body-collision-detection
+     */
     Physics.behavior('body-collision-detection', function( parent ){
     
         var PUBSUB_CANDIDATES = 'collisions:candidates';
         var PUBSUB_COLLISION = 'collisions:detected';
     
-        // get general support function
+        /**
+         * Get a general support function for use with GJK algorithm
+         * @param  {Object} bodyA First body
+         * @param  {Object} bodyB Second body
+         * @return {Function}       The support function
+         */
         var getSupportFn = function getSupportFn( bodyA, bodyB ){
     
             var fn;
@@ -64,6 +73,12 @@
             return fn;
         };
     
+        /**
+         * Use GJK algorithm to check arbitrary bodies for collisions
+         * @param  {Object} bodyA First body
+         * @param  {Object} bodyB Second body
+         * @return {Object}       Collision result
+         */
         var checkGJK = function checkGJK( bodyA, bodyB ){
     
             var scratch = Physics.scratchpad()
@@ -128,7 +143,12 @@
             return collision;
         };
     
-        // both expected to be circles
+        /**
+         * Check two circles for collisions
+         * @param  {Object} bodyA First circle
+         * @param  {Object} bodyB Second circle
+         * @return {Object}       Collision result
+         */
         var checkCircles = function checkCircles( bodyA, bodyB ){
     
             var scratch = Physics.scratchpad()
@@ -169,6 +189,12 @@
             return collision;
         };
     
+        /**
+         * Check a pair for collisions
+         * @param  {Object} bodyA First body
+         * @param  {Object} bodyB Second body
+         * @return {Object}       Collision result
+         */
         var checkPair = function checkPair( bodyA, bodyB ){
     
             if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
@@ -189,8 +215,11 @@
     
         return {
     
-            priority: 10,
-    
+            /**
+             * Initialization
+             * @param  {Object} options Configuration options
+             * @return {void}
+             */
             init: function( options ){
     
                 parent.init.call(this, options);
@@ -198,18 +227,45 @@
                 this.options = Physics.util.extend({}, this.options, defaults, options);
             },
     
+            /**
+             * Connect to world. Automatically called when added to world by the setWorld method
+             * @param  {Object} world The world to connect to
+             * @return {void}
+             */
             connect: function( world ){
     
-                world.subscribe( PUBSUB_CANDIDATES, this.check, this );
-                world.subscribe( 'integrate:velocities', this.checkAll, this );
+                if ( this.options.checkAll ){
+    
+                    world.subscribe( 'integrate:velocities', this.checkAll, this );
+    
+                } else {
+    
+                    world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+                }
             },
     
+            /**
+             * Disconnect from world
+             * @param  {Object} world The world to disconnect from
+             * @return {void}
+             */
             disconnect: function( world ){
     
-                world.unsubscribe( PUBSUB_CANDIDATES, this.check );
-                world.unsubscribe( 'integrate:velocities', this.checkAll );
+                if ( this.options.checkAll ){
+    
+                    world.unsubscribe( 'integrate:velocities', this.checkAll );
+    
+                } else {
+    
+                    world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+                }
             },
     
+            /**
+             * Check pairs of objects that have been flagged by broad phase for possible collisions.
+             * @param  {Object} data Event data
+             * @return {void}
+             */
             check: function( data ){
     
                 var candidates = data.candidates
@@ -238,17 +294,16 @@
                 }
             },
     
+            /**
+             * Check all pairs of objects in the list for collisions
+             * @param  {Object} data Event data
+             * @return {void}
+             */
             checkAll: function( data ){
     
                 var bodies = data.bodies
                     ,dt = data.dt
-                    ;
-                
-                if ( !this.options.checkAll ){
-                    return;
-                }
-    
-                var bodyA
+                    ,bodyA
                     ,bodyB
                     ,collisions = []
                     ,ret
@@ -281,9 +336,7 @@
                         collisions: collisions
                     });
                 }
-            },
-    
-            behave: function(){}
+            }
         };
     
     });
