@@ -10,6 +10,12 @@ Physics.body('convex-polygon', function( parent ){
     };
 
     return {
+
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -24,6 +30,10 @@ Physics.body('convex-polygon', function( parent ){
             this.recalc();
         },
 
+        /**
+         * Recalculate properties. Call when body physical properties are changed.
+         * @return {this}
+         */
         recalc: function(){
             parent.recalc.call(this);
             // moment of inertia

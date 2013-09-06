@@ -1,4 +1,7 @@
-// object bouncing collision response
+/**
+ * Body collision response
+ * @module behaviors/body-collision-response
+ */
 Physics.behavior('body-impulse-response', function( parent ){
     
     var defaults = {
@@ -9,25 +12,36 @@ Physics.behavior('body-impulse-response', function( parent ){
 
     return {
 
-        priority: 1,
-
-        init: function( options ){
-
-            
-        },
-
-        // custom set world in order to subscribe to events
-        setWorld: function( world ){
-
-            if (this._world){
-
-                this._world.unsubscribe( PUBSUB_COLLISION, this.respond );
-            }
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
 
             world.subscribe( PUBSUB_COLLISION, this.respond, this );
-            parent.setWorld.call( this, world );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( PUBSUB_COLLISION, this.respond );
+        },
+
+        /**
+         * Collide two bodies by modifying their positions and velocities to conserve momentum
+         * @param  {Object} bodyA   First Body
+         * @param  {Object} bodyB   Second body
+         * @param  {Vector} normal  Normal vector of the collision surface
+         * @param  {Vector} point   Contact point of the collision
+         * @param  {Vector} mtrans  Minimum transit vector that is the smallest displacement to separate the bodies
+         * @param  {Boolean} contact Are the bodies in resting contact relative to each other
+         * @return {void}
+         */
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var fixedA = bodyA.fixed
@@ -190,6 +204,11 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
+        /**
+         * Respond to collision event
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         respond: function( data ){
 
             var self = this
@@ -208,9 +227,6 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.mtv
                 );
             }
-        },
-
-        // don't need to "behave"
-        behave: function(){}
+        }
     };
 });

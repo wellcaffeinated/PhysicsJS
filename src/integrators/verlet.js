@@ -17,12 +17,23 @@ Physics.integrator('verlet', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
 
+        /**
+         * Velocity integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep
@@ -110,6 +121,12 @@ Physics.integrator('verlet', function( parent ){
             }
         },
 
+        /**
+         * Position integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integratePositions: function( bodies, dt ){
 
             // half the timestep

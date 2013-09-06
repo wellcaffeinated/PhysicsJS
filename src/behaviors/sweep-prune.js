@@ -1,10 +1,16 @@
-//
-// Sweep and Prune implementation for broad phase collision detection
-//
+/**
+ * Sweep and Prune implementation for broad phase collision detection
+ * @module behaviors/sweep-prune
+ */
 Physics.behavior('sweep-prune', function( parent ){
 
     var PUBSUB_CANDIDATES = 'collisions:candidates';
     var uid = 1;
+
+    /**
+     * Get a unique numeric id for internal use
+     * @return {Number} Unique id
+     */
     var getUniqueId = function getUniqueId(){
 
         return uid++;
@@ -13,7 +19,12 @@ Physics.behavior('sweep-prune', function( parent ){
     // add z: 2 to get this to work in 3D
     var dof = { x: 0, y: 1 }; // degrees of freedom
 
-    // return hash for a pair of ids
+    /**
+     * return hash for a pair of ids
+     * @param  {Number} id1 First id
+     * @param  {Number} id2 Second id
+     * @return {Number}     Hash id
+     */
     function pairHash( id1, id2 ){
 
         if ( id1 === id2 ){
@@ -30,9 +41,11 @@ Physics.behavior('sweep-prune', function( parent ){
     
     return {
 
-        priority: 10,
-
-        // constructor
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -40,6 +53,10 @@ Physics.behavior('sweep-prune', function( parent ){
             this.clear();
         },
 
+        /**
+         * Refresh tracking data
+         * @return {void}
+         */
         clear: function(){
 
             this.tracked = [];
@@ -53,17 +70,15 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        setWorld: function( world ){
-
-            this.clear();
-
-            // subscribe to notifications of new bodies added to world
-            if (this._world){
-
-                this._world.unsubscribe( 'add:body', this.trackBody );
-            }
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
 
             world.subscribe( 'add:body', this.trackBody, this );
+            world.subscribe( 'integrate:velocities', this.sweep, this );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -71,10 +86,24 @@ Physics.behavior('sweep-prune', function( parent ){
                 
                 this.trackBody({ body: bodies[ i ] });
             }
-
-            parent.setWorld.call( this, world );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( 'add:body', this.trackBody );
+            world.unsubscribe( 'integrate:velocities', this.sweep );
+            this.clear();
+        },
+
+        /**
+         * Execute the broad phase and get candidate collisions
+         * @return {Array} List of candidates
+         */
         broadPhase: function(){
 
             this.updateIntervals();
@@ -82,7 +111,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return this.checkOverlaps();
         },
 
-        // simple insertion sort for each axis
+        /**
+         * Simple insertion sort for each axis
+         * @return {void}
+         */
         sortIntervalLists: function(){
 
             var list
@@ -143,6 +175,13 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
+        /**
+         * Get a pair object for the tracker objects
+         * @param  {Object} tr1      First tracker
+         * @param  {Object} tr2      Second tracker
+         * @param  {Boolean} doCreate Create if not already found
+         * @return {Mixed}          Pair object or null if not found
+         */
         getPair: function(tr1, tr2, doCreate){
 
             var hash = pairHash( tr1.id, tr2.id );
@@ -169,6 +208,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return c;
         },
 
+        /**
+         * Check each axis for overlaps of bodies AABBs
+         * @return {Array} List of candidate collisions 
+         */
         checkOverlaps: function(){
 
             var isX
@@ -270,6 +313,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return candidates;
         },
 
+        /**
+         * Update position intervals on each axis
+         * @return {[type]} [description]
+         */
         updateIntervals: function(){
 
             var tr
@@ -298,7 +345,11 @@ Physics.behavior('sweep-prune', function( parent ){
             scratch.done();
         },
 
-        // add body to list of those tracked by sweep and prune
+        /**
+         * Add body to list of those tracked by sweep and prune
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         trackBody: function( data ){
 
             var body = data.body
@@ -332,16 +383,11 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        connect: function( world ){
-
-            world.subscribe( 'integrate:velocities', this.sweep, this );
-        },
-
-        disconnect: function( world ){
-
-            world.unsubscribe( 'integrate:velocities', this.sweep );
-        },
-
+        /**
+         * Sweep and publish event if any candidate collisions are found
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         sweep: function( data ){
 
             var self = this
@@ -359,8 +405,6 @@ Physics.behavior('sweep-prune', function( parent ){
                     candidates: candidates
                 });
             }
-        },
-
-        behave: function(){}
+        }
     };
 });

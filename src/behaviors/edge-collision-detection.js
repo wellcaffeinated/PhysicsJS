@@ -1,8 +1,19 @@
+/**
+ * Edge collision detection.
+ * Used to detect collisions with the boundaries of an AABB
+ * @module behaviors/edge-collision-detection
+ */
 Physics.behavior('edge-collision-detection', function( parent ){
 
     var PUBSUB_COLLISION = 'collisions:detected';
 
-    // dummy body
+    /**
+     * Check if a body collides with the boundary
+     * @param  {Object} body   The body to check
+     * @param  {AABB} bounds The aabb representing the boundary
+     * @param  {Object} dummy  Dummy body supplied to the collision event
+     * @return {Object}        Collision data
+     */
     var checkGeneral = function checkGeneral( body, bounds, dummy ){
 
         var overlap
@@ -119,6 +130,13 @@ Physics.behavior('edge-collision-detection', function( parent ){
         return collisions;
     };
 
+    /**
+     * Check if a body collides with the boundary
+     * @param  {Object} body   The body to check
+     * @param  {AABB} bounds The aabb representing the boundary
+     * @param  {Object} dummy  Dummy body supplied to the collision event
+     * @return {Object}        Collision data
+     */
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
 
         return checkGeneral( body, bounds, dummy );
@@ -133,8 +151,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
     return {
 
-        priority: 12,
-
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -151,6 +172,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
             });
         },
 
+        /**
+         * Set the boundaries of the edge
+         * @param {AABB} aabb The aabb of the boundary
+         * @return {void}
+         */
         setAABB: function( aabb ){
 
             if (!aabb) {
@@ -171,16 +197,31 @@ Physics.behavior('edge-collision-detection', function( parent ){
             };
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             world.subscribe( 'integrate:velocities', this.checkAll, this );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             world.unsubscribe( 'integrate:velocities', this.checkAll );
         },
 
+        /**
+         * Check all bodies for collisions with the edge
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         checkAll: function( data ){
             
             var bodies = data.bodies
@@ -214,9 +255,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        },
-
-        behave: function(){}
+        }
     };
 
 });

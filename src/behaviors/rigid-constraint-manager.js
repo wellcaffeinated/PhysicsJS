@@ -1,5 +1,7 @@
 /**
- * Rigid constraint manager
+ * Rigid constraints manager.
+ * Handles distance constraints
+ * @module behaviors/rigid-constraint-manager
  */
 Physics.behavior('rigid-constraint-manager', function( parent ){
 
@@ -11,6 +13,11 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -20,6 +27,11 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             this._constraints = [];
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             var intg = world.integrator();
@@ -32,11 +44,20 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             world.subscribe('integrate:positions', this.resolve, this);
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             world.unsubscribe('integrate:positions', this.resolve);
         },
 
+        /**
+         * Remove all constraints
+         * @return {self}
+         */
         drop: function(){
 
             // drop the current constraints
@@ -44,23 +65,37 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             return this;
         },
 
+        /**
+         * Constrain two bodies to a target relative distance
+         * @param  {Object} bodyA        First body
+         * @param  {Object} bodyB        Second body
+         * @param  {Number} targetLength (optional) Target length. defaults to target length specified in configuration options
+         * @return {object}              The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length
+         */
         constrain: function( bodyA, bodyB, targetLength ){
+
+            var cst;
 
             if (!bodyA || !bodyB){
 
-                return this;
+                return false;
             }
 
-            this._constraints.push({
+            this._constraints.push(cst = {
                 id: Physics.util.uniqueId('rigid-constraint'),
                 bodyA: bodyA,
                 bodyB: bodyB,
                 targetLength: targetLength || this.options.targetLength
             });
 
-            return this;
+            return cst;
         },
 
+        /**
+         * Remove a constraint
+         * @param  {Mixed} indexCstrOrId Either the constraint object, the constraint id, or the numeric index of the constraint
+         * @return {self}
+         */
         remove: function( indexCstrOrId ){
 
             var constraints = this._constraints
@@ -88,6 +123,10 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             return this;
         },
 
+        /**
+         * Resolve constraints
+         * @return {void}
+         */
         resolve: function(){
 
             var constraints = this._constraints
@@ -131,6 +170,10 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             scratch.done();
         },
 
+        /**
+         * Get an array of all constraints
+         * @return {Array} The array of constraint objects
+         */
         getConstraints: function(){
 
             return [].concat(this._constraints);

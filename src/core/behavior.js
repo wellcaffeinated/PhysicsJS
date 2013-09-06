@@ -46,8 +46,7 @@
         /**
          * Default method run on every world integration
          * @abstract
-         * @param  {Array} bodies Array of world bodies to act on
-         * @param  {Number} dt     Timestep size
+         * @param  {Object} data Object containing event data, including: data.bodies = Array of world bodies to act on, data.dt = the timestep size
          * @return {void}
          */
         behave: null

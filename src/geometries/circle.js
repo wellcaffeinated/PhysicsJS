@@ -11,6 +11,11 @@ Physics.geometry('circle', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -20,14 +25,19 @@ Physics.geometry('circle', function( parent ){
             this.radius = options.radius;
             this._aabb = Physics.aabb();
         },
-            
-        // circles are symetric... so angle has no effect
+                
+        /**
+         * Get axis-aligned bounding box for this object (rotated by angle if specified).
+         * @param  {Number} angle (optional) The angle to rotate the geometry.
+         * @return {Object}       Bounding box values
+         */
         aabb: function( angle ){
 
             var r = this.radius
                 ,aabb = this._aabb
                 ;
 
+            // circles are symetric... so angle has no effect
             if ( aabb.halfWidth() === r ){
                 // don't recalculate
                 return aabb.get();

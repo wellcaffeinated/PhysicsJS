@@ -35,6 +35,11 @@
     
         return {
     
+            /**
+             * Initialization
+             * @param  {Object} options Configuration options
+             * @return {void}
+             */
             init: function( options ){
     
                 // call parent init method
@@ -44,6 +49,11 @@
                 this.setVertices( options.vertices || [Physics.vector()] );
             },
     
+            /**
+             * Set the vertices of the polygon shape. Vertices will be converted to be relative to the calculated centroid
+             * @param {Array} hull The hull definition. Array of vectorish objects
+             * @return {self}
+             */
             setVertices: function( hull ){
     
                 var scratch = Physics.scratchpad()
@@ -72,6 +82,11 @@
                 return this;
             },
             
+            /**
+             * Get axis-aligned bounding box for this object (rotated by angle if specified).
+             * @param  {Number} angle (optional) The angle to rotate the geometry.
+             * @return {Object}       Bounding box values
+             */
             aabb: function( angle ){
     
                 if (!angle && this._aabb){

@@ -1,4 +1,7 @@
-// newtonian gravity
+/**
+ * Newtonian attraction between bodies (inverse square law)
+ * @module behaviors/newtonian
+ */
 Physics.behavior('newtonian', function( parent ){
 
     var defaults = {
@@ -8,6 +11,11 @@ Physics.behavior('newtonian', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -19,6 +27,11 @@ Physics.behavior('newtonian', function( parent ){
             this.tolerance = options.tolerance || 100 * this.strength;
         },
         
+        /**
+         * Apply newtonian acceleration between all bodies
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         behave: function( data ){
 
             var bodies = data.bodies

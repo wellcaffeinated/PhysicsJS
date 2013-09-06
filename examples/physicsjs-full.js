@@ -3726,8 +3726,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         /**
          * Default method run on every world integration
          * @abstract
-         * @param  {Array} bodies Array of world bodies to act on
-         * @param  {Number} dt     Timestep size
+         * @param  {Object} data Object containing event data, including: data.bodies = Array of world bodies to act on, data.dt = the timestep size
          * @return {void}
          */
         behave: null
@@ -4985,12 +4984,23 @@ Physics.integrator('verlet', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
 
+        /**
+         * Velocity integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep
@@ -5078,6 +5088,12 @@ Physics.integrator('verlet', function( parent ){
             }
         },
 
+        /**
+         * Position integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integratePositions: function( bodies, dt ){
 
             // half the timestep
@@ -5159,6 +5175,11 @@ Physics.geometry('circle', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -5168,14 +5189,19 @@ Physics.geometry('circle', function( parent ){
             this.radius = options.radius;
             this._aabb = Physics.aabb();
         },
-            
-        // circles are symetric... so angle has no effect
+                
+        /**
+         * Get axis-aligned bounding box for this object (rotated by angle if specified).
+         * @param  {Number} angle (optional) The angle to rotate the geometry.
+         * @return {Object}       Bounding box values
+         */
         aabb: function( angle ){
 
             var r = this.radius
                 ,aabb = this._aabb
                 ;
 
+            // circles are symetric... so angle has no effect
             if ( aabb.halfWidth() === r ){
                 // don't recalculate
                 return aabb.get();
@@ -5241,6 +5267,11 @@ Physics.geometry('convex-polygon', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -5250,6 +5281,11 @@ Physics.geometry('convex-polygon', function( parent ){
             this.setVertices( options.vertices || [Physics.vector()] );
         },
 
+        /**
+         * Set the vertices of the polygon shape. Vertices will be converted to be relative to the calculated centroid
+         * @param {Array} hull The hull definition. Array of vectorish objects
+         * @return {self}
+         */
         setVertices: function( hull ){
 
             var scratch = Physics.scratchpad()
@@ -5278,6 +5314,11 @@ Physics.geometry('convex-polygon', function( parent ){
             return this;
         },
         
+        /**
+         * Get axis-aligned bounding box for this object (rotated by angle if specified).
+         * @param  {Number} angle (optional) The angle to rotate the geometry.
+         * @return {Object}       Bounding box values
+         */
         aabb: function( angle ){
 
             if (!angle && this._aabb){
@@ -5441,6 +5482,12 @@ Physics.body('circle', function( parent ){
     };
 
     return {
+
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -5455,6 +5502,10 @@ Physics.body('circle', function( parent ){
             this.recalc();
         },
 
+        /**
+         * Recalculate properties. Call when body physical properties are changed.
+         * @return {this}
+         */
         recalc: function(){
             parent.recalc.call(this);
             // moment of inertia
@@ -5479,6 +5530,12 @@ Physics.body('convex-polygon', function( parent ){
     };
 
     return {
+
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -5493,6 +5550,10 @@ Physics.body('convex-polygon', function( parent ){
             this.recalc();
         },
 
+        /**
+         * Recalculate properties. Call when body physical properties are changed.
+         * @return {this}
+         */
         recalc: function(){
             parent.recalc.call(this);
             // moment of inertia
@@ -5514,12 +5575,21 @@ Physics.body('point', function(){});
 // ---
 // inside: src/behaviors/body-collision-detection.js
 
+/**
+ * Body collision detection
+ * @module behaviors/body-collision-detection
+ */
 Physics.behavior('body-collision-detection', function( parent ){
 
     var PUBSUB_CANDIDATES = 'collisions:candidates';
     var PUBSUB_COLLISION = 'collisions:detected';
 
-    // get general support function
+    /**
+     * Get a general support function for use with GJK algorithm
+     * @param  {Object} bodyA First body
+     * @param  {Object} bodyB Second body
+     * @return {Function}       The support function
+     */
     var getSupportFn = function getSupportFn( bodyA, bodyB ){
 
         var fn;
@@ -5557,6 +5627,12 @@ Physics.behavior('body-collision-detection', function( parent ){
         return fn;
     };
 
+    /**
+     * Use GJK algorithm to check arbitrary bodies for collisions
+     * @param  {Object} bodyA First body
+     * @param  {Object} bodyB Second body
+     * @return {Object}       Collision result
+     */
     var checkGJK = function checkGJK( bodyA, bodyB ){
 
         var scratch = Physics.scratchpad()
@@ -5621,7 +5697,12 @@ Physics.behavior('body-collision-detection', function( parent ){
         return collision;
     };
 
-    // both expected to be circles
+    /**
+     * Check two circles for collisions
+     * @param  {Object} bodyA First circle
+     * @param  {Object} bodyB Second circle
+     * @return {Object}       Collision result
+     */
     var checkCircles = function checkCircles( bodyA, bodyB ){
 
         var scratch = Physics.scratchpad()
@@ -5662,6 +5743,12 @@ Physics.behavior('body-collision-detection', function( parent ){
         return collision;
     };
 
+    /**
+     * Check a pair for collisions
+     * @param  {Object} bodyA First body
+     * @param  {Object} bodyB Second body
+     * @return {Object}       Collision result
+     */
     var checkPair = function checkPair( bodyA, bodyB ){
 
         if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
@@ -5682,8 +5769,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
     return {
 
-        priority: 10,
-
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -5691,18 +5781,45 @@ Physics.behavior('body-collision-detection', function( parent ){
             this.options = Physics.util.extend({}, this.options, defaults, options);
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
-            world.subscribe( PUBSUB_CANDIDATES, this.check, this );
-            world.subscribe( 'integrate:velocities', this.checkAll, this );
+            if ( this.options.checkAll ){
+
+                world.subscribe( 'integrate:velocities', this.checkAll, this );
+
+            } else {
+
+                world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+            }
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
-            world.unsubscribe( PUBSUB_CANDIDATES, this.check );
-            world.unsubscribe( 'integrate:velocities', this.checkAll );
+            if ( this.options.checkAll ){
+
+                world.unsubscribe( 'integrate:velocities', this.checkAll );
+
+            } else {
+
+                world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+            }
         },
 
+        /**
+         * Check pairs of objects that have been flagged by broad phase for possible collisions.
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         check: function( data ){
 
             var candidates = data.candidates
@@ -5731,17 +5848,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
+        /**
+         * Check all pairs of objects in the list for collisions
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         checkAll: function( data ){
 
             var bodies = data.bodies
                 ,dt = data.dt
-                ;
-            
-            if ( !this.options.checkAll ){
-                return;
-            }
-
-            var bodyA
+                ,bodyA
                 ,bodyB
                 ,collisions = []
                 ,ret
@@ -5774,9 +5890,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        },
-
-        behave: function(){}
+        }
     };
 
 });
@@ -5784,7 +5898,10 @@ Physics.behavior('body-collision-detection', function( parent ){
 // ---
 // inside: src/behaviors/body-impulse-response.js
 
-// object bouncing collision response
+/**
+ * Body collision response
+ * @module behaviors/body-collision-response
+ */
 Physics.behavior('body-impulse-response', function( parent ){
     
     var defaults = {
@@ -5795,25 +5912,36 @@ Physics.behavior('body-impulse-response', function( parent ){
 
     return {
 
-        priority: 1,
-
-        init: function( options ){
-
-            
-        },
-
-        // custom set world in order to subscribe to events
-        setWorld: function( world ){
-
-            if (this._world){
-
-                this._world.unsubscribe( PUBSUB_COLLISION, this.respond );
-            }
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
 
             world.subscribe( PUBSUB_COLLISION, this.respond, this );
-            parent.setWorld.call( this, world );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( PUBSUB_COLLISION, this.respond );
+        },
+
+        /**
+         * Collide two bodies by modifying their positions and velocities to conserve momentum
+         * @param  {Object} bodyA   First Body
+         * @param  {Object} bodyB   Second body
+         * @param  {Vector} normal  Normal vector of the collision surface
+         * @param  {Vector} point   Contact point of the collision
+         * @param  {Vector} mtrans  Minimum transit vector that is the smallest displacement to separate the bodies
+         * @param  {Boolean} contact Are the bodies in resting contact relative to each other
+         * @return {void}
+         */
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var fixedA = bodyA.fixed
@@ -5976,6 +6104,11 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
+        /**
+         * Respond to collision event
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         respond: function( data ){
 
             var self = this
@@ -5994,10 +6127,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.mtv
                 );
             }
-        },
-
-        // don't need to "behave"
-        behave: function(){}
+        }
     };
 });
 
@@ -6005,6 +6135,10 @@ Physics.behavior('body-impulse-response', function( parent ){
 // ---
 // inside: src/behaviors/constant-acceleration.js
 
+/**
+ * Constant acceleration behavior
+ * @module behaviors/constant-acceleration
+ */
 Physics.behavior('constant-acceleration', function( parent ){
 
     var defaults = {
@@ -6014,21 +6148,37 @@ Physics.behavior('constant-acceleration', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
 
+            // extend options
             this.options = Physics.util.extend(this.options, defaults, options);
             this._acc = Physics.vector();
             this.setAcceleration( this.options.acc );
         },
 
+        /**
+         * Set the acceleration of the behavior
+         * @param {Vectorish} acc The acceleration vector
+         * @return {self}
+         */
         setAcceleration: function( acc ){
 
             this._acc.clone( acc );
             return this;
         },
 
+        /**
+         * Callback run on integrate:positions event
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         behave: function( data ){
 
             var bodies = data.bodies;
@@ -6044,11 +6194,22 @@ Physics.behavior('constant-acceleration', function( parent ){
 // ---
 // inside: src/behaviors/edge-collision-detection.js
 
+/**
+ * Edge collision detection.
+ * Used to detect collisions with the boundaries of an AABB
+ * @module behaviors/edge-collision-detection
+ */
 Physics.behavior('edge-collision-detection', function( parent ){
 
     var PUBSUB_COLLISION = 'collisions:detected';
 
-    // dummy body
+    /**
+     * Check if a body collides with the boundary
+     * @param  {Object} body   The body to check
+     * @param  {AABB} bounds The aabb representing the boundary
+     * @param  {Object} dummy  Dummy body supplied to the collision event
+     * @return {Object}        Collision data
+     */
     var checkGeneral = function checkGeneral( body, bounds, dummy ){
 
         var overlap
@@ -6165,6 +6326,13 @@ Physics.behavior('edge-collision-detection', function( parent ){
         return collisions;
     };
 
+    /**
+     * Check if a body collides with the boundary
+     * @param  {Object} body   The body to check
+     * @param  {AABB} bounds The aabb representing the boundary
+     * @param  {Object} dummy  Dummy body supplied to the collision event
+     * @return {Object}        Collision data
+     */
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
 
         return checkGeneral( body, bounds, dummy );
@@ -6179,8 +6347,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
     return {
 
-        priority: 12,
-
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -6197,6 +6368,11 @@ Physics.behavior('edge-collision-detection', function( parent ){
             });
         },
 
+        /**
+         * Set the boundaries of the edge
+         * @param {AABB} aabb The aabb of the boundary
+         * @return {void}
+         */
         setAABB: function( aabb ){
 
             if (!aabb) {
@@ -6217,16 +6393,31 @@ Physics.behavior('edge-collision-detection', function( parent ){
             };
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             world.subscribe( 'integrate:velocities', this.checkAll, this );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             world.unsubscribe( 'integrate:velocities', this.checkAll );
         },
 
+        /**
+         * Check all bodies for collisions with the edge
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         checkAll: function( data ){
             
             var bodies = data.bodies
@@ -6260,9 +6451,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     collisions: collisions
                 });
             }
-        },
-
-        behave: function(){}
+        }
     };
 
 });
@@ -6270,7 +6459,10 @@ Physics.behavior('edge-collision-detection', function( parent ){
 // ---
 // inside: src/behaviors/newtonian.js
 
-// newtonian gravity
+/**
+ * Newtonian attraction between bodies (inverse square law)
+ * @module behaviors/newtonian
+ */
 Physics.behavior('newtonian', function( parent ){
 
     var defaults = {
@@ -6280,6 +6472,11 @@ Physics.behavior('newtonian', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init method
@@ -6291,6 +6488,11 @@ Physics.behavior('newtonian', function( parent ){
             this.tolerance = options.tolerance || 100 * this.strength;
         },
         
+        /**
+         * Apply newtonian acceleration between all bodies
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         behave: function( data ){
 
             var bodies = data.bodies
@@ -6337,7 +6539,9 @@ Physics.behavior('newtonian', function( parent ){
 // inside: src/behaviors/rigid-constraint-manager.js
 
 /**
- * Rigid constraint manager
+ * Rigid constraints manager.
+ * Handles distance constraints
+ * @module behaviors/rigid-constraint-manager
  */
 Physics.behavior('rigid-constraint-manager', function( parent ){
 
@@ -6349,6 +6553,11 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -6358,6 +6567,11 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             this._constraints = [];
         },
 
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
         connect: function( world ){
 
             var intg = world.integrator();
@@ -6370,11 +6584,20 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             world.subscribe('integrate:positions', this.resolve, this);
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
         disconnect: function( world ){
 
             world.unsubscribe('integrate:positions', this.resolve);
         },
 
+        /**
+         * Remove all constraints
+         * @return {self}
+         */
         drop: function(){
 
             // drop the current constraints
@@ -6382,23 +6605,37 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             return this;
         },
 
+        /**
+         * Constrain two bodies to a target relative distance
+         * @param  {Object} bodyA        First body
+         * @param  {Object} bodyB        Second body
+         * @param  {Number} targetLength (optional) Target length. defaults to target length specified in configuration options
+         * @return {object}              The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length
+         */
         constrain: function( bodyA, bodyB, targetLength ){
+
+            var cst;
 
             if (!bodyA || !bodyB){
 
-                return this;
+                return false;
             }
 
-            this._constraints.push({
+            this._constraints.push(cst = {
                 id: Physics.util.uniqueId('rigid-constraint'),
                 bodyA: bodyA,
                 bodyB: bodyB,
                 targetLength: targetLength || this.options.targetLength
             });
 
-            return this;
+            return cst;
         },
 
+        /**
+         * Remove a constraint
+         * @param  {Mixed} indexCstrOrId Either the constraint object, the constraint id, or the numeric index of the constraint
+         * @return {self}
+         */
         remove: function( indexCstrOrId ){
 
             var constraints = this._constraints
@@ -6426,6 +6663,10 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             return this;
         },
 
+        /**
+         * Resolve constraints
+         * @return {void}
+         */
         resolve: function(){
 
             var constraints = this._constraints
@@ -6469,6 +6710,10 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
             scratch.done();
         },
 
+        /**
+         * Get an array of all constraints
+         * @return {Array} The array of constraint objects
+         */
         getConstraints: function(){
 
             return [].concat(this._constraints);
@@ -6480,13 +6725,19 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
 // ---
 // inside: src/behaviors/sweep-prune.js
 
-//
-// Sweep and Prune implementation for broad phase collision detection
-//
+/**
+ * Sweep and Prune implementation for broad phase collision detection
+ * @module behaviors/sweep-prune
+ */
 Physics.behavior('sweep-prune', function( parent ){
 
     var PUBSUB_CANDIDATES = 'collisions:candidates';
     var uid = 1;
+
+    /**
+     * Get a unique numeric id for internal use
+     * @return {Number} Unique id
+     */
     var getUniqueId = function getUniqueId(){
 
         return uid++;
@@ -6495,7 +6746,12 @@ Physics.behavior('sweep-prune', function( parent ){
     // add z: 2 to get this to work in 3D
     var dof = { x: 0, y: 1 }; // degrees of freedom
 
-    // return hash for a pair of ids
+    /**
+     * return hash for a pair of ids
+     * @param  {Number} id1 First id
+     * @param  {Number} id2 Second id
+     * @return {Number}     Hash id
+     */
     function pairHash( id1, id2 ){
 
         if ( id1 === id2 ){
@@ -6512,9 +6768,11 @@ Physics.behavior('sweep-prune', function( parent ){
     
     return {
 
-        priority: 10,
-
-        // constructor
+        /**
+         * Initialization
+         * @param  {Object} options Configuration object
+         * @return {void}
+         */
         init: function( options ){
 
             parent.init.call(this, options);
@@ -6522,6 +6780,10 @@ Physics.behavior('sweep-prune', function( parent ){
             this.clear();
         },
 
+        /**
+         * Refresh tracking data
+         * @return {void}
+         */
         clear: function(){
 
             this.tracked = [];
@@ -6535,17 +6797,15 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        setWorld: function( world ){
-
-            this.clear();
-
-            // subscribe to notifications of new bodies added to world
-            if (this._world){
-
-                this._world.unsubscribe( 'add:body', this.trackBody );
-            }
+        /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
 
             world.subscribe( 'add:body', this.trackBody, this );
+            world.subscribe( 'integrate:velocities', this.sweep, this );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -6553,10 +6813,24 @@ Physics.behavior('sweep-prune', function( parent ){
                 
                 this.trackBody({ body: bodies[ i ] });
             }
-
-            parent.setWorld.call( this, world );
         },
 
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( 'add:body', this.trackBody );
+            world.unsubscribe( 'integrate:velocities', this.sweep );
+            this.clear();
+        },
+
+        /**
+         * Execute the broad phase and get candidate collisions
+         * @return {Array} List of candidates
+         */
         broadPhase: function(){
 
             this.updateIntervals();
@@ -6564,7 +6838,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return this.checkOverlaps();
         },
 
-        // simple insertion sort for each axis
+        /**
+         * Simple insertion sort for each axis
+         * @return {void}
+         */
         sortIntervalLists: function(){
 
             var list
@@ -6625,6 +6902,13 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
+        /**
+         * Get a pair object for the tracker objects
+         * @param  {Object} tr1      First tracker
+         * @param  {Object} tr2      Second tracker
+         * @param  {Boolean} doCreate Create if not already found
+         * @return {Mixed}          Pair object or null if not found
+         */
         getPair: function(tr1, tr2, doCreate){
 
             var hash = pairHash( tr1.id, tr2.id );
@@ -6651,6 +6935,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return c;
         },
 
+        /**
+         * Check each axis for overlaps of bodies AABBs
+         * @return {Array} List of candidate collisions 
+         */
         checkOverlaps: function(){
 
             var isX
@@ -6752,6 +7040,10 @@ Physics.behavior('sweep-prune', function( parent ){
             return candidates;
         },
 
+        /**
+         * Update position intervals on each axis
+         * @return {[type]} [description]
+         */
         updateIntervals: function(){
 
             var tr
@@ -6780,7 +7072,11 @@ Physics.behavior('sweep-prune', function( parent ){
             scratch.done();
         },
 
-        // add body to list of those tracked by sweep and prune
+        /**
+         * Add body to list of those tracked by sweep and prune
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         trackBody: function( data ){
 
             var body = data.body
@@ -6814,16 +7110,11 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        connect: function( world ){
-
-            world.subscribe( 'integrate:velocities', this.sweep, this );
-        },
-
-        disconnect: function( world ){
-
-            world.unsubscribe( 'integrate:velocities', this.sweep );
-        },
-
+        /**
+         * Sweep and publish event if any candidate collisions are found
+         * @param  {Object} data Event data
+         * @return {void}
+         */
         sweep: function( data ){
 
             var self = this
@@ -6841,9 +7132,7 @@ Physics.behavior('sweep-prune', function( parent ){
                     candidates: candidates
                 });
             }
-        },
-
-        behave: function(){}
+        }
     };
 });
 
@@ -6854,12 +7143,23 @@ Physics.integrator('improved-euler', function( parent ){
 
     return {
 
+        /**
+         * Initialization
+         * @param  {Object} options Configuration options
+         * @return {void}
+         */
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
 
+        /**
+         * Velocity integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep squared
@@ -6924,6 +7224,12 @@ Physics.integrator('improved-euler', function( parent ){
             }
         },
 
+        /**
+         * Position integration
+         * @param  {Array} bodies Array of bodies to integrate
+         * @param  {Number} dt     Timestep size
+         * @return {void}
+         */
         integratePositions: function( bodies, dt ){
 
             // half the timestep squared
