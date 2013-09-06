@@ -6,7 +6,7 @@ title: 'Tutorial: Creating a scene of interacting polygons | PhysicsJS'
 # Creating a scene of interacting polygons
 
 So... you want to see how polygons collide? Well then, let's get started.
-First set up PhysicsJS as described in the [Basic Usage][basic-usage] documentation.
+First set up PhysicsJS as described in the [Installation][installation] and [Basic Usage][basic-usage] documentation.
 You can use this [jsFiddle as a boilerplate](http://jsfiddle.net/wellcaffeinated/kgEZm/) to follow along with.
 
 Let's first set up the scene. All of our javascript can go inside the PhysicsJS world initializer.
@@ -185,3 +185,4 @@ world.add( Physics.behavior('sweep-prune') );
 Now, we're talking! Colliding polygons!
 
 [basic-usage]: ../basic-usage
+[installation]: ../installation
