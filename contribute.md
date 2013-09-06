@@ -12,7 +12,9 @@ You can read more about extending PhysicsJS by visiting the
 [wiki and reading the documentation][wiki].
 
 I'm also looking for developers with any experience in building physics
-engines to help resolve some of the issues.
+engines to help resolve some of the issues. Contact me by
+[email](mailto:jasper@wellcaffeinated.net) or
+[twitter](https://twitter.com/wellcaffeinated) if you're interested!
 
 Of course all contributions are welcome. You can submit pull requests
 and open bug reports on [github][github].
