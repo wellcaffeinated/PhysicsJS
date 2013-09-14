@@ -102,7 +102,7 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
                 ,isObj
                 ;
 
-            if (typeof indexCstrOrId !== 'string'){
+            if (typeof indexCstrOrId === 'number'){
 
                 constraints.splice( indexCstrOrId, 1 );
                 return this;   
