@@ -19,9 +19,15 @@ define([
             ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
             ,edgeBounce = Physics.behavior('edge-collision-detection', {
                 aabb: viewportBounds,
-                restitution: 0.1,
-                cof: 0
+                restitution: 0.0,
+                cof: 1
             })
+            ,square = [
+                { x: 0, y: 6 },
+                { x: 10, y: 6 },
+                { x: 10, y: 0 },
+                { x: 0, y: 0 }
+            ]
             ;
 
         $(window).on('resize', function(){
@@ -68,7 +74,7 @@ define([
             nodes.push( base, root );
 
             var branch = function(parent, i, nMax, branchVec) {
-                var particle = Physics.body('circle', { radius: 1, hidden: true, mass: 10 });
+                var particle = Physics.body('circle', { radius: 1, hidden: true, mass: 0.04 * branchVec.normSq() });
                 particle.state.pos.clone( parent.state.pos ).vadd( branchVec );
                 nodes.push( particle );
 
@@ -84,10 +90,11 @@ define([
                     constraints.angleConstraint(parent, particle, b, jointStrength);
                 } else {
 
-                    var leaf = Physics.body('circle', { radius: 5, mass: .1 });
+                    var leaf = Physics.body('convex-polygon', { vertices: square, mass: 1, angle: Math.random() });
                     leaf.state.pos.clone( particle.state.pos );
                     constraints.distanceConstraint(particle, leaf, .1);
                     leaf.leaf = true;
+                    leaf.attached = true;
                     nodes.push( leaf );
                 }
 
@@ -102,63 +109,64 @@ define([
             return nodes;
         };
 
-        var tree = generateTree({ x: viewWidth / 2, y: viewHeight - 10 }, 5, 70, 0.9, (Math.PI/2)/3)
+        Physics.util.each([
+            [{ x: viewWidth / 2, y: viewHeight - 10 }, 6, 70, 0.92, (Math.PI/2)/3],
+            [{ x: viewWidth / 2 + 250, y: viewHeight - 10 }, 5, 40, 0.9, (Math.PI/2)/3],
+            [{ x: viewWidth / 2 - 250, y: viewHeight - 10 }, 3, 50, 0.95, (Math.PI/1)/5],
+        ], function( params ){
+            var tree = generateTree.apply(this, params);
+            world.add( tree );
 
-        world.add( tree );
+            world.subscribe('integrate:positions', function(){
 
-        world.subscribe('integrate:positions', function(){
+                var constrs = tree.constraints.getConstraints().distanceConstraints
+                    ,c
+                    ,threshold = 0.35
+                    ,leaf
+                    ;
 
-            var constrs = tree.constraints.getConstraints().distanceConstraints
-                ,c
-                ,threshold = 0.4
-                ,leaf
-                ;
+                for ( var i = 0, l = constrs.length; i < l; ++i ){
 
-            for ( var i = 0, l = constrs.length; i < l; ++i ){
+                    c = constrs[ i ];
 
-                c = constrs[ i ];
+                    if ( c.bodyA.leaf ){
+                        leaf = c.bodyA;
+                    } else if ( c.bodyB.leaf ){
+                        leaf = c.bodyB;
+                    } else {
+                        leaf = false;
+                    }
+                    
+                    if ( leaf && (leaf.state.vel.norm() > threshold && Math.random() > 0.99 || Math.random() > 0.9999) ){
 
-                if ( c.bodyA.leaf ){
-                    leaf = c.bodyA;
-                } else if ( c.bodyB.leaf ){
-                    leaf = c.bodyB;
-                } else {
-                    leaf = false;
+                        tree.constraints.remove( c );
+                        leaf.state.vel.zero();
+                        leaf.attached = false;
+                    }
                 }
-                
-                if ( leaf && (leaf.state.vel.norm() > threshold && Math.random() > 0.99 || Math.random() > 0.9999) ){
 
-                    tree.constraints.remove( c );
-                    leaf.state.vel.zero();
+                // higher priority than constraint resolution
+            }, null, 100);
+
+            // render
+            world.subscribe('render', function( data ){
+
+                var renderer = data.renderer
+                    ,constrs = tree.constraints.getConstraints().distanceConstraints
+                    ,c
+                    ;
+
+                for ( var i = 0, l = constrs.length; i < l; ++i ){
+                    
+                    c = constrs[ i ];
+                    renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, {
+                        strokeStyle: '#543324',
+                        lineCap: 'round',
+                        lineWidth: c.targetLength * c.targetLength * 0.0016
+                    });
                 }
-            }
-
-            // higher priority than constraint resolution
-        }, null, 100);
-
-        // render
-        world.subscribe('render', function( data ){
-
-            var renderer = data.renderer
-                ,constrs = tree.constraints.getConstraints().distanceConstraints
-                ,c
-                ;
-
-            for ( var i = 0, l = constrs.length; i < l; ++i ){
-                
-                c = constrs[ i ];
-                renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, {
-                    strokeStyle: '#543324',
-                    lineCap: 'round',
-                    lineWidth: c.targetLength * 0.1
-                });
-            }
+            });
         });
-        
-        // add gravity
-        world.add( Physics.behavior('constant-acceleration') );
-        world.add( edgeBounce );
-        world.add( Physics.behavior('body-impulse-response') );
 
         // add wind
         Physics.behavior('wind', function( parent ){
@@ -170,23 +178,35 @@ define([
                     this.jitter = options.jitter || 1;
                     this.radius = options.radius || 100;
                     this.strength = options.strength || 0.000005;
+                    this.ground = options.ground;
                 },
                 behave: function( data ){
                     var bodies = data.bodies
                         ,scratch = Physics.scratchpad()
                         ,dir = scratch.vector()
+                        ,tmp = scratch.vector()
                         ,filter = this.filterType
                         ,body
                         ,mul = this.jitter * Math.PI * 2
                         ,r = this.radius * this.strength
+                        ,cutoff = this.ground - 20
                         ;
                     
                     for (var i = 0, l = bodies.length; i < l; i++){
                         body = bodies[ i ];
                         this.theta += (Math.random() - 0.5) * mul;
                         if (body.leaf){
+
+                            if (body.attached){
+                                tmp.zero();
+                            } else {
+                                tmp.set(Math.random()-0.5, Math.random()-0.5).mult( r * 1000 );
+                            }
+
+                            if (cutoff && body.state.pos.get(1) < cutoff){
                             
-                            body.accelerate( dir.clone({ x: Math.cos( this.theta ) * r, y: Math.sin( this.theta ) * r - 0.0004 + 0.00004 }) );
+                                body.applyForce( dir.clone({ x: Math.cos( this.theta ) * r, y: Math.sin( this.theta ) * r - (0.0004 - 0.00004) * body.mass }), tmp );
+                            }
                         }
                     }
                     
@@ -195,7 +215,11 @@ define([
             };
         });
 
-        world.add( Physics.behavior('wind') );
+        // add gravity
+        world.add( Physics.behavior('constant-acceleration') );
+        world.add( edgeBounce );
+        world.add( Physics.behavior('body-impulse-response') );
+        world.add( Physics.behavior('wind', { ground: viewHeight }) );
     };
 
     sim.title = "Autumn Leaves";
