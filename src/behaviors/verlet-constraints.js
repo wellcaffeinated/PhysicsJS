@@ -219,7 +219,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                     if ( !con.bodyB.fixed && !con.bodyC.fixed ){
                         
-                        ang = corr * con.bodyB.mass * con.bodyC.mass * invMassSum;
+                        ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyB.fixed ){
 
@@ -242,7 +242,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                     if ( !con.bodyA.fixed && !con.bodyB.fixed ){
                         
-                        ang = -corr * con.bodyB.mass * con.bodyA.mass * invMassSum;
+                        ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
 
                     } else if ( con.bodyB.fixed ){
 
@@ -265,7 +265,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                     if ( !con.bodyA.fixed && !con.bodyC.fixed ){
                         
-                        ang = corr * con.bodyA.mass * con.bodyC.mass * invMassSum;
+                        ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyA.fixed ){
 

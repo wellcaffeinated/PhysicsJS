@@ -242,7 +242,7 @@
     
                         if ( !con.bodyB.fixed && !con.bodyC.fixed ){
                             
-                            ang = corr * con.bodyB.mass * con.bodyC.mass * invMassSum;
+                            ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
     
                         } else if ( con.bodyB.fixed ){
     
@@ -265,7 +265,7 @@
     
                         if ( !con.bodyA.fixed && !con.bodyB.fixed ){
                             
-                            ang = -corr * con.bodyB.mass * con.bodyA.mass * invMassSum;
+                            ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
     
                         } else if ( con.bodyB.fixed ){
     
@@ -288,7 +288,7 @@
     
                         if ( !con.bodyA.fixed && !con.bodyC.fixed ){
                             
-                            ang = corr * con.bodyA.mass * con.bodyC.mass * invMassSum;
+                            ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
     
                         } else if ( con.bodyA.fixed ){
     

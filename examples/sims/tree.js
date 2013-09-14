@@ -51,20 +51,24 @@ define([
                 x: origin.x,
                 y: origin.y,
                 radius: 3,
-                fixed: true
+                fixed: true,
+                hidden: true,
+                mass: 100
             });
 
             var root = Physics.body('circle', {
                 x: origin.x,
                 y: origin.y - 10,
                 radius: 3,
-                fixed: true
+                fixed: true,
+                hidden: true,
+                mass: 100
             });
 
             nodes.push( base, root );
 
             var branch = function(parent, i, nMax, branchVec) {
-                var particle = Physics.body('circle', { radius: 1, hidden: true });
+                var particle = Physics.body('circle', { radius: 1, hidden: true, mass: 10 });
                 particle.state.pos.clone( parent.state.pos ).vadd( branchVec );
                 nodes.push( particle );
 
@@ -80,7 +84,7 @@ define([
                     constraints.angleConstraint(parent, particle, b, jointStrength);
                 } else {
 
-                    var leaf = Physics.body('circle', { radius: 5 });
+                    var leaf = Physics.body('circle', { radius: 5, mass: .1 });
                     leaf.state.pos.clone( particle.state.pos );
                     constraints.distanceConstraint(particle, leaf, .1);
                     leaf.leaf = true;
