@@ -181,12 +181,50 @@
      */
     Vector.prototype.angle = function(v){
 
-        var ang = atan2(this._[ 1 ], this._[ 0 ]);
+        var ang;
 
-        if (v){
-            ang -= atan2(v._[ 1 ], v._[ 0 ]);
+        if ( this.equals( Vector.zero ) ){
+            
+            if ( v ){
+                return v.angle();
+            } else {
+                return NaN;
+            }
+
+        } else {
+
+            if ( v && !v.equals( Vector.zero ) ){
+                ang = atan2( this._[1] * v._[0] - this._[0] * v._[1], this._[0] * v._[0] + this._[1] * v._[1]);
+            } else {
+                ang = atan2( this._[ 1 ], this._[ 0 ] );    
+            }
         }
         
+        while (ang > Math.PI){
+            ang -= TWOPI;
+        }
+
+        while (ang < -Math.PI){
+            ang += TWOPI;
+        }
+
+        return ang;
+    };
+
+    /**
+     * Angle created between three points; left -> this -> right.
+     * @param  {Vector} v (optional) other vector
+     * @return {Number} Angle in radians
+     */
+    Vector.prototype.angle2 = function( left, right ){
+
+        var x1 = left._[0] - this._[0]
+            ,y1 = left._[1] - this._[1]
+            ,x2 = right._[0] - this._[0]
+            ,y2 = right._[1] - this._[1]
+            ,ang = atan2( y1 * x2 - x1 * y2, x1 * x2 + y1 * y2)
+            ;
+
         while (ang > Math.PI){
             ang -= TWOPI;
         }
@@ -306,8 +344,8 @@
     Vector.prototype.transform = function( t ){
 
         return this.set(
-            this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA + t.v._[ 0 ], 
-            this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA + t.v._[ 1 ]
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.v._[ 0 ] + t.o._[ 0 ], 
+            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.v._[ 1 ] + t.o._[ 1 ]
         );
     };
 
@@ -318,8 +356,8 @@
     Vector.prototype.transformInv = function( t ){
 
         return this.set(
-            this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA - t.v._[ 0 ], 
-            -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA - t.v._[ 1 ]
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA - t.v._[ 0 ] + t.o._[ 0 ], 
+            -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA - t.v._[ 1 ] + t.o._[ 1 ]
         );
     };
 
@@ -330,8 +368,8 @@
     Vector.prototype.rotate = function( t ){
 
         return this.set(
-            this._[ 0 ] * t.cosA - this._[ 1 ] * t.sinA, 
-            this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
+            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
         );
     };
 
@@ -342,8 +380,8 @@
     Vector.prototype.rotateInv = function( t ){
 
         return this.set(
-            this._[ 0 ] * t.cosA + this._[ 1 ] * t.sinA, 
-            -this._[ 0 ] * t.sinA + this._[ 1 ] * t.cosA
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
+            -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
         );
     };
 
