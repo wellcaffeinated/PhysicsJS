@@ -56,7 +56,7 @@ define([
             var base = Physics.body('circle', {
                 x: origin.x,
                 y: origin.y,
-                radius: 3,
+                radius: 0.1,
                 fixed: true,
                 hidden: true,
                 mass: 100
@@ -65,7 +65,7 @@ define([
             var root = Physics.body('circle', {
                 x: origin.x,
                 y: origin.y - 10,
-                radius: 3,
+                radius: 0.1,
                 fixed: true,
                 hidden: true,
                 mass: 100
@@ -74,7 +74,7 @@ define([
             nodes.push( base, root );
 
             var branch = function(parent, i, nMax, branchVec) {
-                var particle = Physics.body('circle', { radius: 1, hidden: true, mass: 0.04 * branchVec.normSq() });
+                var particle = Physics.body('circle', { radius: 30, hidden: true, mass: 0.04 * branchVec.normSq() });
                 particle.state.pos.clone( parent.state.pos ).vadd( branchVec );
                 nodes.push( particle );
 
