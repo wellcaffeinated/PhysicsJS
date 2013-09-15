@@ -48,7 +48,7 @@
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
 
-            } else {
+            } else if (!priority) {
 
                 priority = scope;
             }
