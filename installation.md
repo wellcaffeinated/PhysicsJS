@@ -21,7 +21,7 @@ require.config({
         {
           name: 'physicsjs',
           location: 'path/to/physicsjs',
-          main: 'physicsjs-0.5.0.min'
+          main: 'physicsjs-0.5.1.min'
         }
     ],
     //...
@@ -79,7 +79,7 @@ all non-core functionality.
 the correct file.
 
 {% highlight js %}
-var Physics = require('./path/to/physicsjs/physicsjs-full-0.5.0');
+var Physics = require('./path/to/physicsjs/physicsjs-full-0.5.1');
 
 Physics(function(world){
   // code...

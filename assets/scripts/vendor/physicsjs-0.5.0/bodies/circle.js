@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.1 - 2013-09-15
+ * PhysicsJS v0.5.0 - 2013-09-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -7,7 +7,7 @@
  * Licensed MIT
  */
 (function (root, factory) {
-    var deps = ['physicsjs', '../geometries/convex-polygon'];
+    var deps = ['physicsjs', '../geometries/circle'];
     if (typeof exports === 'object') {
         // Node. 
         var mods = deps.map(require);
@@ -22,11 +22,11 @@
 }(this, function ( Physics ) {
     'use strict';
     /**
-     * Convex Polygon Body
-     * @module bodies/convex-polygon
-     * @requires geometries/convex-polygon
+     * Circle body definition
+     * @module bodies/circle
+     * @requires geometries/circle
      */
-    Physics.body('convex-polygon', function( parent ){
+    Physics.body('circle', function( parent ){
     
         var defaults = {
             
@@ -46,8 +46,8 @@
     
                 options = Physics.util.extend({}, defaults, options);
     
-                this.geometry = Physics.geometry('convex-polygon', {
-                    vertices: options.vertices
+                this.geometry = Physics.geometry('circle', {
+                    radius: options.radius
                 });
     
                 this.recalc();
@@ -60,11 +60,11 @@
             recalc: function(){
                 parent.recalc.call(this);
                 // moment of inertia
-                this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
+                this.moi = this.mass * this.geometry.radius * this.geometry.radius / 2;
             }
         };
     });
     
-    // end module: bodies/convex-polygon.js
+    // end module: bodies/circle.js
     return Physics;
 })); // UMD 

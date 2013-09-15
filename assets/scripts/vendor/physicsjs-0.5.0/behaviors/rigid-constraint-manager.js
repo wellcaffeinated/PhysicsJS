@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.1 - 2013-09-15
+ * PhysicsJS v0.5.0 - 2013-09-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -125,7 +125,7 @@
                     ,isObj
                     ;
     
-                if (typeof indexCstrOrId === 'number'){
+                if (typeof indexCstrOrId !== 'string'){
     
                     constraints.splice( indexCstrOrId, 1 );
                     return this;   
