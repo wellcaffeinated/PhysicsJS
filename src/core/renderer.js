@@ -53,6 +53,13 @@
                 this.beforeRender();
             }
 
+            this._world.publish({
+                topic: 'beforeRender',
+                renderer: this,
+                bodies: bodies,
+                stats: meta
+            });
+
             if (this.options.meta){
                 this.drawMeta( meta );
             }

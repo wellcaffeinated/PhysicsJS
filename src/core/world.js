@@ -491,6 +491,7 @@
             this.publish({
                 topic: 'render',
                 bodies: this._bodies,
+                stats: this._stats,
                 renderer: this._renderer
             });
             return this;
