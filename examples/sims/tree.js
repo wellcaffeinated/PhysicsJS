@@ -45,6 +45,7 @@ define([
             return (b-a)*p + a;
         }
 
+        // create a fractal tree
         var generateTree = function(origin, depth, branchLength, segmentCoef, theta) {
 
             var nodes = []
@@ -53,6 +54,7 @@ define([
                 })
                 ;
 
+            // set up the base and root to define an angle constraint upwards to keep the tree upright
             var base = Physics.body('circle', {
                 x: origin.x,
                 y: origin.y,
@@ -73,6 +75,7 @@ define([
 
             nodes.push( base, root );
 
+            // recursive function to create branches
             var branch = function(parent, i, nMax, branchVec) {
                 var particle = Physics.body('circle', { radius: 30, hidden: true, mass: 0.04 * branchVec.normSq() });
                 particle.state.pos.clone( parent.state.pos ).vadd( branchVec );
@@ -104,19 +107,25 @@ define([
             var firstBranch = branch(root, 0, depth, Physics.vector(0, -branchLength));
             constraints.angleConstraint(base, root, firstBranch, 1);
 
+            // add the constraints to the array so that the whole shebang can be added with world.add
             nodes.push( constraints );
             nodes.constraints = constraints;
             return nodes;
         };
 
+        // create three trees
         Physics.util.each([
+
             [{ x: viewWidth / 2, y: viewHeight - 10 }, 6, 70, 0.92, (Math.PI/2)/3],
             [{ x: viewWidth / 2 + 250, y: viewHeight - 10 }, 5, 40, 0.9, (Math.PI/2)/3],
-            [{ x: viewWidth / 2 - 250, y: viewHeight - 10 }, 3, 50, 0.95, (Math.PI/1)/5],
+            [{ x: viewWidth / 2 - 250, y: viewHeight - 10 }, 3, 50, 0.95, (Math.PI/1)/5]
+
         ], function( params ){
+
             var tree = generateTree.apply(this, params);
             world.add( tree );
 
+            // handle detaching the leaves
             world.subscribe('integrate:positions', function(){
 
                 var constrs = tree.constraints.getConstraints().distanceConstraints
@@ -148,8 +157,8 @@ define([
                 // higher priority than constraint resolution
             }, null, 100);
 
-            // render
-            world.subscribe('render', function( data ){
+            // render the branches
+            world.subscribe('beforeRender', function( data ){
 
                 var renderer = data.renderer
                     ,constrs = tree.constraints.getConstraints().distanceConstraints

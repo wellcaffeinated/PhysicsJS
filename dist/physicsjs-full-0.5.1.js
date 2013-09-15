@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.0 - 2013-09-14
+ * PhysicsJS v0.5.1 - 2013-09-15
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -2283,7 +2283,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
 
-            } else {
+            } else if (!priority) {
 
                 priority = scope;
             }
@@ -4557,6 +4557,13 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 this.beforeRender();
             }
 
+            this._world.publish({
+                topic: 'beforeRender',
+                renderer: this,
+                bodies: bodies,
+                stats: meta
+            });
+
             if (this.options.meta){
                 this.drawMeta( meta );
             }
@@ -5118,6 +5125,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this.publish({
                 topic: 'render',
                 bodies: this._bodies,
+                stats: this._stats,
                 renderer: this._renderer
             });
             return this;

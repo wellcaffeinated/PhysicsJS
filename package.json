@@ -1,6 +1,6 @@
 {
   "name": "PhysicsJS",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
   "description": "A modular, extendable, and easy-to-use physics engine for javascript",
   "contributors": [
