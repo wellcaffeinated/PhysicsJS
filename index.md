@@ -32,6 +32,12 @@ Check out the [demo page][demos] for some sweet examples of what you can do.
 * Extensions to support **constant gravity**, **newtonian gravity**, **collisions**,
   and **verlet constraints**.
 
+## What about 3D?
+
+There are quite a few wonderful 3D JS Physics engines available, so 2D was the first priority
+for PhysicsJS... however, due to the way in which PhysicsJS was built it should be quite
+possible to create a 3D fork. It is one of my long-term goals.
+
 [demos]: ./examples
 
 
