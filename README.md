@@ -2,7 +2,7 @@
 
 A modular, extendable, and easy-to-use physics engine for javascript.
 
-Latest version: 0.5.0 (alpha)
+Latest version: 0.5.1 (alpha)
 
 ## Usage
 
@@ -28,7 +28,7 @@ then run grunt
 
 ## License MIT
 
-Copyright (c) 2012 Jasper Palfree http://wellcaffeinated.net/PhysicsJS/
+Copyright (c) 2013 Jasper Palfree http://wellcaffeinated.net/PhysicsJS/
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
