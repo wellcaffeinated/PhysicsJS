@@ -230,7 +230,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-lodashbuilder');
+    grunt.loadNpmTasks('grunt-lodash');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
@@ -241,7 +241,7 @@ module.exports = function(grunt) {
 
         var cfg = {
             modules: grunt.file.expand({ cwd: 'dist/' }, config.moduleSources.join(' ').replace(/src\//g, '').split(' ') )
-        }
+        };
 
         grunt.file.write('test/requirejs.spec.helper.js', 'var cfg = ' + JSON.stringify( cfg ) + ';' );
 
