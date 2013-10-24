@@ -90,7 +90,7 @@
             // el.style.height = geometry.height + 'px';
             // el.style.width = geometry.width + 'px';
             // return el;
-            throw 'You must overried the renderer.createView() method.';
+            throw 'You must override the renderer.createView() method.';
         },
 
         /**

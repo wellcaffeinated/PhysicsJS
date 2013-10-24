@@ -122,7 +122,7 @@
         topRight.rotate( trans );
 
         // we need to keep the box oriented with the axis, but expand it to
-        // accomodate the rotation
+        // accommodate the rotation
         this._hw = Math.max( Math.abs(bottomRight.get(0)), Math.abs(topRight.get(0)) );
         this._hh = Math.max( Math.abs(bottomRight.get(1)), Math.abs(topRight.get(1)) );
 

@@ -263,7 +263,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     lambdaA = 1 - lambdaB;
 
     if ( lambdaA <= 0 ){
-        // woops.. that means the closest simplex point
+        // whoops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
         return Physics.vector( linePt2 );

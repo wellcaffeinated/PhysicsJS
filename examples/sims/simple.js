@@ -65,6 +65,28 @@ define([
         // add things to world
         world.add( circles );
 
+        // Add a rectangle
+        world.add(Physics.body('rectangle', {
+            x: 500,
+            y: 40,
+            height: 300,
+            width: 200,
+            angularVelocity: 0.01
+        }));
+
+        // Add a rectangle
+        world.add(Physics.body('convex-polygon', {
+            x: 20,
+            y: 40,
+            vertices: [
+                {x: 0, y: 0},
+                {x: 0, y: 300},
+                {x: 200, y: 300},
+                {x: 200, y: 0}
+            ],
+            angularVelocity: 0
+        }));
+
         world.add( edgeBounce );
         world.add( Physics.behavior('body-impulse-response') );
 

@@ -2,7 +2,7 @@
 
     var defaults = {
 
-        // is the body fixed and imovable?
+        // is the body fixed and immovable?
         fixed: false,
         // body mass
         mass: 1.0,
