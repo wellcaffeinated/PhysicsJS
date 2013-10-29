@@ -79,7 +79,7 @@ define([
 
                 var geo = circle.geometry
                     ,rnd = Physics.util.random
-                    ,style = geo.radius < 30 ? 'rgb('+[rnd(100,255)|0, rnd(100,255)|0, rnd(100,255)|0].join(',')+');' : {
+                    ,style = geo.radius < 30 ? 'rgb('+[rnd(100,255)|0, rnd(100,255)|0, rnd(100,255)|0].join(',')+')' : {
                         strokeStyle: '#222',
                         fillStyle: '#7aa',
                         lineWidth: 4,
