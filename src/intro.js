@@ -2,7 +2,7 @@
     if (typeof exports === 'object') {
         // Node. 
         module.exports = factory.call(root);
-    } else if (typeof define === 'function' && define.amd) {
+    } else if (typeof define === 'function' && (define.amd || define.cmd)) {
         // AMD. Register as an anonymous module.
         define(function(){ return factory.call(root) });
     } else {
