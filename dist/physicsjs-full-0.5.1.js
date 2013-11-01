@@ -8250,11 +8250,14 @@ Physics.renderer('canvas', function( proto ){
                 ,aabb = body.aabb()
                 ;
 
-            ctx.save();
-            ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
-            ctx.rotate(body.state.angular.pos);
-            ctx.drawImage(view, -view.width/2, -view.height/2);
-            ctx.restore();
+            view.onload = function () {
+                view.onload = null;
+                ctx.save();
+                ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
+                ctx.rotate(body.state.angular.pos);
+                ctx.drawImage(view, -view.width / 2, -view.height / 2);
+                ctx.restore();
+            };
 
             if ( this.options.debug ){
                 // draw bounding boxes
