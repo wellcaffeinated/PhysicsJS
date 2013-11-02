@@ -38,6 +38,13 @@ Physics.renderer('canvas', function( proto ){
                 lineWidth: 1,
                 fillStyle: 'rgba(114, 105, 124, 0.7)',
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
+            },
+
+            'rectangle' : {
+                strokeStyle: 'rgba(80, 50, 100, 0.7)',
+                lineWidth: 1,
+                fillStyle: 'rgba(114, 105, 124, 0.7)',
+                angleIndicator: 'rgba(69, 51, 78, 0.7)'
             }
         },
         offset: Physics.vector()
@@ -255,7 +262,7 @@ Physics.renderer('canvas', function( proto ){
 
                 this.drawCircle(0, 0, geometry.radius, styles, hiddenCtx);
 
-            } else if (name === 'convex-polygon'){
+            } else if (name === 'convex-polygon' || name === 'rectangle'){
 
                 this.drawPolygon(geometry.vertices, styles, hiddenCtx);
             }
