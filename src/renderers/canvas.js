@@ -273,6 +273,8 @@ Physics.renderer('canvas', function( proto ){
             hiddenCtx.restore();
 
             view.src = hiddenCanvas.toDataURL("image/png");
+            view.width = hiddenCanvas.width;
+            view.height = hiddenCanvas.height;
             return view;
         },
 
