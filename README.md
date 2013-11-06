@@ -24,7 +24,18 @@ First install grunt dependencies:
 then run grunt
 
     $ grunt
-    
+
+The default grunt task will create a `_working/` directory with the
+PhysicsJS development build. You can play around with that. 
+**NOTE**: the `_working/` directory won't be committed
+(it is in .gitignore).
+
+If you want grunt to automatically create the development build
+when you modify the source in `src/` then run:
+
+    $ grunt watch
+
+**Note** grunt watch won't run unit tests.
 
 ## License MIT
 
