@@ -6,7 +6,7 @@
 Physics.body('circle', function( parent ){
 
     var defaults = {
-        
+        radius: 1.0
     };
 
     return {
