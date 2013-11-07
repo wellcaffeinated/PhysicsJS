@@ -40,7 +40,7 @@ Physics.renderer('canvas', function( proto ){
                 angleIndicator: 'rgba(69, 51, 78, 0.7)'
             }
         },
-        offset: Physics.vector()
+        offset: {x: 0, y: 0}
     };
 
     // deep copy callback to extend deeper into options
@@ -51,7 +51,7 @@ Physics.renderer('canvas', function( proto ){
             return Physics.util.extend({}, a, b, deep );
         }
 
-        return b ? b : a;
+        return b !== undefined ? b : a;
     };
 
     return {
@@ -68,6 +68,8 @@ Physics.renderer('canvas', function( proto ){
 
             // further options
             this.options = Physics.util.extend({}, defaults, this.options, deep);
+            this.options.offset = Physics.vector( this.options.offset );
+
 
             // hidden canvas
             this.hiddenCanvas = document.createElement('canvas');
