@@ -14,10 +14,10 @@ Physics(function( world, Physics ){
                 angleIndicator: 'hsla(60, 37%, 17%, 0.4)'
             },
             'convex-polygon' : {
-                strokeStyle: 'hsla(60, 37%, 17%, 1)',
+                strokeStyle: 'rgb(0, 0, 0)',
                 lineWidth: 1,
-                fillStyle: 'hsla(60, 47%, 37%, 0.8)',
-                angleIndicator: 'hsla(0, 0%, 0%, 0)'
+                fillStyle: 'rgb(88, 16, 11)',
+                angleIndicator: false
             }
         }
     });
@@ -105,6 +105,65 @@ Physics(function( world, Physics ){
                 });
             },
 
+            connect: function( world ){
+                world.subscribe('collisions:detected', this.checkPlayerCollision, this);
+                world.subscribe('integrate:positions', this.behave, this);
+            },
+
+            disconnect: function( world ){
+                world.unsubscribe('collisions:detected', this.checkPlayerCollision);
+                world.unsubscribe('integrate:positions', this.behave);
+            },
+
+            checkPlayerCollision: function( data ){
+                var collisions = data.collisions
+                    ,col
+                    ;
+
+                for ( var i = 0, l = collisions.length; i < l; ++i ){
+                    col = collisions[ i ];
+
+                    if ( col.bodyA === ship || col.bodyB === ship ){
+                        this.destroyPlayer();
+                        return;
+                    }
+                }
+            },
+
+            destroyPlayer: function(){
+                var scratch = Physics.scratchpad();
+                var rnd = scratch.vector();
+                var pos = ship.state.pos;
+                var n = 40;
+                var r = 2 * ship.geometry.radius;
+                var size = 4 * r / n;
+                var mass = ship.mass / n;
+                var verts = [
+                    { x: 0, y: 0 },
+                    { x: 0, y: size },
+                    { x: size, y: size },
+                    { x: size, y: 0 }
+                ];
+
+                // create particles
+                while ( n-- ){
+                    rnd.set( Math.random() - 0.5, Math.random() - 0.5 ).mult( r );
+                    world.add( Physics.body('convex-polygon', {
+                        x: pos.get(0) + rnd.get(0),
+                        y: pos.get(1) + rnd.get(1),
+                        vx: ship.state.vel.get(0),
+                        vy: ship.state.vel.get(1),
+                        angularVelocity: (Math.random()-0.5) * 0.06,
+                        mass: mass,
+                        vertices: verts,
+                        restitution: 0.8
+                    }));
+                }
+
+                world.removeBody( ship );
+                scratch.done();
+            },
+
             movePlayer: function( active ){
 
                 if ( active === false ){
@@ -121,6 +180,35 @@ Physics(function( world, Physics ){
         };
     }, {});
     
+    Physics.body('asteroid', 'circle', function( parent ){
+        var ast1 = new Image();
+        ast1.src = './ast1.png';
+
+        return {
+            init: function( options ){
+                parent.init.call(this, options);
+
+                this.view = ast1;
+            }
+        };
+    });
+
+    for ( var i = 0, l = 40; i < l; ++i ){
+
+        var ang = 4 * (Math.random() - 0.5) * Math.PI;
+        var r = 700 + 100 * Math.random() + i * 10;
+
+        world.add( Physics.body('asteroid', {
+            x: 400 + Math.cos( ang ) * r,
+            y: 300 + Math.sin( ang ) * r,
+            vx: 0.035 * Math.sin( ang ),
+            vy: - 0.035 * Math.cos( ang ),
+            angularVelocity: (Math.random() - 0.5) * 0.001,
+            radius: 50,
+            mass: 50,
+            restitution: 0.6
+        }));
+    }
 
     var planet = Physics.body('circle', {
         // fixed: true,
@@ -160,6 +248,7 @@ Physics(function( world, Physics ){
         var y = r + shim;
         var scratch = Physics.scratchpad();
         var d = scratch.vector();
+        var lightness;
 
         renderer.drawCircle(x, y, r, { strokeStyle: '#090', fillStyle: '#010' });
         renderer.drawCircle(x, y, r * 2 / 3, { strokeStyle: '#090' });
@@ -168,7 +257,10 @@ Physics(function( world, Physics ){
         for (var i = 0, l = data.bodies.length, b = data.bodies[ i ]; b = data.bodies[ i ]; i++){
 
             d.clone( ship.state.pos ).vsub( b.state.pos ).mult( -0.05 );
-            renderer.drawCircle(x + d.get(0), y + d.get(1), 1, '#dd0');
+            lightness = Math.max(Math.min(Math.sqrt(b.mass*10)|0, 100), 10);
+            if (d.norm() < r){
+                renderer.drawCircle(x + d.get(0), y + d.get(1), 1, 'hsl(60, 100%, '+lightness+'%)');
+            }
         }
 
         scratch.done();
