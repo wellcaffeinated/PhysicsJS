@@ -51,7 +51,8 @@
         this.init( cfg, fn );
     };
 
-    World.prototype = {
+    // extend pubsub
+    World.prototype = Physics.util.extend({}, Physics.util.pubsub.prototype, {
 
         /**
          * Initialization
@@ -77,7 +78,7 @@
             this._renderer = null;
             this._paused = false;
             this._opts = {};
-            this._pubsub = Physics.util.pubsub( this );
+            this.initPubsub( this );
 
             // set options
             this.options( cfg || {} );
@@ -109,44 +110,6 @@
             }
 
             return Physics.util.clone(this._opts);
-        },
-
-        /**
-         * Subscribe to events
-         * @param  {String}   topic    The event type
-         * @param  {Function} fn       Callback function accepting data parameter
-         * @param  {Object}   scope    (optional) The "this" context for the callback
-         * @param  {Number}   priority (optional) Priority of the callback (higher numbers executed earlier)
-         * @return {this}
-         */
-        subscribe: function( topic, fn, scope, priority ){
-
-            this._pubsub.subscribe( topic, fn, scope, priority );
-            return this;
-        },
-
-        /**
-         * Unsubscribe from events
-         * @param  {String}   topic    The event type
-         * @param  {Function} fn       Original callback function
-         * @return {this}
-         */
-        unsubscribe: function( topic, fn ){
-
-            this._pubsub.unsubscribe( topic, fn );
-            return this;
-        },
-
-        /**
-         * Publish an event
-         * @param  {Object} data  The data associated with the event
-         * @param  {Object} scope (optional) The data.scope parameter
-         * @return {this}
-         */
-        publish: function( data, scope ){
-
-            this._pubsub.publish( data, scope );
-            return this;
         },
 
         /**
@@ -188,7 +151,68 @@
                     break; // end body
                     
                     default:
-                        throw 'Error: failed to add item of type '+ thing.type +' to world';
+                        throw 'Error: failed to add item of unknown type "'+ thing.type +'" to world';
+                    // end default
+                }
+
+                // notify
+                notify = {
+                    topic: 'add:' + thing.type
+                };
+
+                notify[ thing.type ] = thing;
+
+                this.publish( notify );
+
+            } while ( ++i < len && (thing = arg[ i ]) );
+
+            return this;
+        },
+
+        /**
+         * Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...
+         * @param {Object|Array} arg The thing to remove, or array of things to remove
+         * @return {this}
+         */
+        remove: function( arg ){
+
+            var i = 0
+                ,len = arg && arg.length || 0
+                ,thing = len ? arg[ 0 ] : arg
+                ,notify
+                ;
+
+            if ( !thing ){
+                return this;
+            }
+
+            // we'll either cycle through an array
+            // or just run this on the arg itself
+            do {
+                switch (thing.type){
+
+                    case 'behavior':
+                        this.removeBehavior(thing);
+                    break; // end behavior
+
+                    case 'integrator':
+                        if (thing === this._integrator){
+                            this.integrator( null );
+                        }
+                    break; // end integrator
+
+                    case 'renderer':
+                        if (thing === this._renderer){
+                            this.renderer( null );
+                        }
+                    break; // end renderer
+
+                    case 'body':
+                        this.removeBody(thing);
+                    break; // end body
+                    
+                    default:
+                        throw 'Error: failed to remove item of unknown type "'+ thing.type +'" from world';
                     // end default
                 }
 
@@ -213,7 +237,7 @@
          */
         integrator: function( integrator ){
 
-            if (!integrator){
+            if ( integrator === undefined ){
                 return this._integrator;
             }
 
@@ -222,8 +246,10 @@
                 this._integrator.setWorld( null );
             }
 
-            this._integrator = integrator;
-            this._integrator.setWorld( this );
+            if ( integrator ){
+                this._integrator = integrator;
+                this._integrator.setWorld( this );
+            }
 
             return this;
         },
@@ -235,7 +261,7 @@
          */
         renderer: function( renderer ){
 
-            if (!renderer){
+            if (renderer === undefined){
                 return this._renderer;
             }
 
@@ -244,8 +270,11 @@
                 this._renderer.setWorld( null );
             }
 
-            this._renderer = renderer;
-            this._renderer.setWorld( this );
+            if (renderer){
+                this._renderer = renderer;
+                this._renderer.setWorld( this );
+            }
+
             return this;
         },
 
@@ -278,6 +307,16 @@
             behavior.setWorld( this );
             this._behaviors.push( behavior );
             return this;
+        },
+
+        /**
+         * Get copied list of behaviors in the world
+         * @return {Array} Array of behaviors
+         */
+        getBehaviors: function(){
+
+            // return the copied array
+            return [].concat(this._behaviors);
         },
 
         /**
@@ -530,8 +569,27 @@
         isPaused: function(){
 
             return !!this._paused;
+        },
+
+        /**
+         * Destroy the world.
+         * (Bwahahahahaha!)
+         * @return {void}
+         */
+        destroy: function(){
+
+            var self = this;
+            self.pause();
+            // remove all listeners
+            self.unsubscribe( true );
+            // remove everything
+            self.remove( self.getBodies() );
+            self.remove( self.getBehaviors() );
+            self.integrator( null );
+            self.renderer( null );
         }
-    };
+
+    });
 
     Physics.world = World;
     

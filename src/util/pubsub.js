@@ -9,11 +9,20 @@
             return new PubSub( defaultScope );
         }
 
-        this._topics = {};
-        this.defaultScope = defaultScope || this;
+        this.initPubsub( defaultScope );
     };
 
     PubSub.prototype = {
+
+        /**
+         * Initialize
+         * @param  {Object} defaultScope Default scope to bind events to
+         * @return {void}
+         */
+        initPubsub: function( defaultScope ){
+            this._topics = {};
+            this._defaultScope = defaultScope || this;
+        },
 
         /**
          * Subscribe a callback (or callbacks) to a topic (topics).
@@ -62,18 +71,28 @@
         },
 
         /**
-         * Unsubscribe function from topic
-         * @param  {String}   topic Topic name
-         * @param  {Function} fn The original callback function
+         * Unsubscribe function from topic.
+         * @param  {String}   topic Topic name OR true to remove all listeners on all topics
+         * @param  {Function} fn The original callback function OR true to remove all listeners
          * @return {this}
          */
         unsubscribe: function( topic, fn ){
+
+            if ( topic === true ){
+                this._topics = {};
+                return this;
+            }
 
             var listeners = this._topics[ topic ]
                 ,listn
                 ;
 
             if (!listeners){
+                return this;
+            }
+
+            if ( fn === true ){
+                this._topics[ topic ] = [];
                 return this;
             }
 
@@ -115,7 +134,7 @@
                 return this;
             }
             
-            data.scope = data.scope || this.defaultScope;
+            data.scope = data.scope || this._defaultScope;
 
             while ( l-- ){
                 
