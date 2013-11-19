@@ -23,7 +23,7 @@ Physics.geometry('convex-polygon', function( parent ){
             parent.init.call(this, options);
             options = Physics.util.extend({}, defaults, options);
 
-            this.setVertices( options.vertices || [Physics.vector()] );
+            this.setVertices( options.vertices || [] );
         },
 
         /**
