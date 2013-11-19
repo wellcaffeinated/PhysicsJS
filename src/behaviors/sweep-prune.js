@@ -422,6 +422,8 @@ Physics.behavior('sweep-prune', function( parent ){
 
                                 // remove interval from list
                                 list.splice(j, 1);
+                                j--;
+                                l--;
 
                                 if (count > 0){
                                     break;
