@@ -213,7 +213,7 @@
          */
         integrator: function( integrator ){
 
-            if (!integrator){
+            if ( integrator === undefined ){
                 return this._integrator;
             }
 
@@ -222,9 +222,11 @@
                 this._integrator.setWorld( null );
             }
 
-            this._integrator = integrator;
-            this._integrator.setWorld( this );
-
+            if ( integrator ){
+                this._integrator = integrator;
+                this._integrator.setWorld( this );
+            }
+            
             return this;
         },
 
@@ -235,7 +237,7 @@
          */
         renderer: function( renderer ){
 
-            if (!renderer){
+            if (renderer === undefined){
                 return this._renderer;
             }
 
@@ -244,8 +246,11 @@
                 this._renderer.setWorld( null );
             }
 
-            this._renderer = renderer;
-            this._renderer.setWorld( this );
+            if (renderer){
+                this._renderer = renderer;
+                this._renderer.setWorld( this );
+            }
+
             return this;
         },
 
@@ -530,6 +535,17 @@
         isPaused: function(){
 
             return !!this._paused;
+        },
+
+        /**
+         * Destroy the world.
+         * (Bwahahahahaha!)
+         * @return {void}
+         */
+        destroy: function(){
+
+            var self = this;
+
         }
     };
 
