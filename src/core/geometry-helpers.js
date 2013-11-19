@@ -18,6 +18,10 @@ Physics.geometry.isPolygonConvex = function( hull ){
         ,l = hull.length
         ;
 
+    if ( !hull || !l ){
+        return false;
+    }
+
     if ( l < 3 ){
         // it must be a point or a line...
         // which are convex
