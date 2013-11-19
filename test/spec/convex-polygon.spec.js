@@ -26,6 +26,15 @@ describe("Polygon geometry", function() {
         })
         ;
 
+    it("polygons must have vertices defined", function(){
+
+        var create = function(){
+            Physics.geometry('convex-polygon');
+        };
+
+        expect( create ).toThrow();
+    });
+
     it("check centroid repositioning", function() {
 
         var verts = square.vertices;
