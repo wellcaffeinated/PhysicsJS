@@ -61,8 +61,12 @@ define(
                     }, 1000);
 
                     world.add( debris );
-                    world.removeBody( this );
+                    world.removeBody( self );
                     scratch.done();
+                    world.publish({
+                        topic: 'blow-up', 
+                        body: self
+                    });
                     return self;
                 }
             };

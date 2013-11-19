@@ -44,34 +44,13 @@ define([
                 angleIndicator: false
             },
             'convex-polygon' : {
-                strokeStyle: 'rgb(0, 0, 0)',
+                strokeStyle: 'rgb(60, 0, 0)',
                 lineWidth: 1,
-                fillStyle: 'rgb(0, 16, 11)',
+                fillStyle: 'rgb(60, 16, 11)',
                 angleIndicator: false
             }
         }
     });
-
-    var world = null;
-    var newGame = function newGame(){
-
-        if (world){
-            world.destroy();
-        }
-
-        world = Physics( init );
-        world.subscribe('game-over', function(){
-            document.body.className = 'game-over';
-            inGame = false;
-        });      
-    };
-
-    // subscribe to ticker and start looping
-    Physics.util.ticker.subscribe(function( time ){
-        if (world){
-            world.step( time ); 
-        }
-    }).start();
 
     var init = function init( world, Physics ){
 
@@ -85,12 +64,13 @@ define([
 
         var playerBehavior = Physics.behavior('player-behavior', { player: ship });
         
+        var asteroids = [];
         for ( var i = 0, l = 30; i < l; ++i ){
 
             var ang = 4 * (Math.random() - 0.5) * Math.PI;
             var r = 700 + 100 * Math.random() + i * 10;
 
-            world.add( Physics.body('asteroid', {
+            asteroids.push( Physics.body('asteroid', {
                 x: 400 + Math.cos( ang ) * r,
                 y: 300 + Math.sin( ang ) * r,
                 vx: 0.03 * Math.sin( ang ),
@@ -111,7 +91,7 @@ define([
             y: 300
         });
         planet.view = new Image();
-        planet.view.src = require.toUrl('/images/planet.png');
+        planet.view.src = require.toUrl('images/planet.png');
 
         // middle of canvas
         var middle = { 
@@ -123,6 +103,16 @@ define([
             // follow player
             renderer.options.offset.clone( middle ).vsub( ship.state.pos );
             world.render();
+        });
+
+        // count number of asteroids destroyed
+        var killCount = 0;
+        world.subscribe('blow-up', function( data ){
+            
+            killCount++;
+            if ( killCount === asteroids.length ){
+                world.publish('win-game');
+            }
         });
 
         // blow up anything that touches a laser pulse
@@ -184,5 +174,32 @@ define([
             Physics.behavior('body-impulse-response'),
             renderer
         ]);
+        world.add( asteroids );
     };
+
+    var world = null;
+    var newGame = function newGame(){
+
+        if (world){
+            world.destroy();
+        }
+
+        world = Physics( init );
+        world.subscribe('lose-game', function(){
+            document.body.className = 'lose-game';
+            inGame = false;
+        });
+        world.subscribe('win-game', function(){
+            world.pause();
+            document.body.className = 'win-game';
+            inGame = false;
+        });
+    };
+
+    // subscribe to ticker and start looping
+    Physics.util.ticker.subscribe(function( time ){
+        if (world){
+            world.step( time ); 
+        }
+    }).start();
 });

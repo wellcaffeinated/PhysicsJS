@@ -94,7 +94,7 @@ define(
                             player.blowUp();
                             world.removeBehavior( this );
                             this.gameover = true;
-                            world.publish('gameover');
+                            world.publish('lose-game');
                             return;
                         }
                     }

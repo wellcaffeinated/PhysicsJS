@@ -14,6 +14,30 @@
             height: 100%;
             overflow: hidden;
         }
+        body:after {
+            font-size: 30px;
+            line-height: 140px;
+            text-align: center;
+            color: rgb(60, 16, 11);
+            background: rgba(255, 255, 255, 0.6);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 140px;
+            margin-left: -200px;
+            margin-top: -70px;
+            border-radius: 5px;
+        }
+        body.before-game:after {
+            content: 'press space to start';
+        }
+        body.lose-game:after {
+            content: 'press space to try again';
+        }
+        body.win-game:after {
+            content: 'Win! press space to play again';
+        }
         /* spaceship from: http://millionthvector.blogspot.ca/p/free-sprites.html */
         /* asteroids from: http://fimar.deviantart.com */
         canvas {
