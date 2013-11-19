@@ -12,6 +12,7 @@
             margin: 0;
             width: 100%;
             height: 100%;
+            overflow: hidden;
         }
         /* spaceship from: http://millionthvector.blogspot.ca/p/free-sprites.html */
         /* asteroids from: http://fimar.deviantart.com */
@@ -23,7 +24,18 @@
   <body>
     <canvas id="viewport"></canvas>
 
-    <script src="../../_working/physicsjs/physicsjs-full.js"></script>
-    <script src="space.js"></script>
+    <script src="../../lib/require.js"></script>
+    <script>
+        require.config({
+            baseUrl: './',
+            packages: [{
+                name: 'physicsjs',
+                location: '../../_working/physicsjs',
+                main: 'physicsjs'
+            }]
+        });
+        // load the app
+        require(['js/space']);
+    </script>
   </body>
 </html>
