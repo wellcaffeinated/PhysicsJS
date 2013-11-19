@@ -151,7 +151,68 @@
                     break; // end body
                     
                     default:
-                        throw 'Error: failed to add item of type '+ thing.type +' to world';
+                        throw 'Error: failed to add item of unknown type "'+ thing.type +'" to world';
+                    // end default
+                }
+
+                // notify
+                notify = {
+                    topic: 'add:' + thing.type
+                };
+
+                notify[ thing.type ] = thing;
+
+                this.publish( notify );
+
+            } while ( ++i < len && (thing = arg[ i ]) );
+
+            return this;
+        },
+
+        /**
+         * Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...
+         * @param {Object|Array} arg The thing to remove, or array of things to remove
+         * @return {this}
+         */
+        remove: function( arg ){
+
+            var i = 0
+                ,len = arg && arg.length || 0
+                ,thing = len ? arg[ 0 ] : arg
+                ,notify
+                ;
+
+            if ( !thing ){
+                return this;
+            }
+
+            // we'll either cycle through an array
+            // or just run this on the arg itself
+            do {
+                switch (thing.type){
+
+                    case 'behavior':
+                        this.removeBehavior(thing);
+                    break; // end behavior
+
+                    case 'integrator':
+                        if (thing === this._integrator){
+                            this.integrator( null );
+                        }
+                    break; // end integrator
+
+                    case 'renderer':
+                        if (thing === this._renderer){
+                            this.renderer( null );
+                        }
+                    break; // end renderer
+
+                    case 'body':
+                        this.removeBody(thing);
+                    break; // end body
+                    
+                    default:
+                        throw 'Error: failed to remove item of unknown type "'+ thing.type +'" from world';
                     // end default
                 }
 
@@ -246,6 +307,16 @@
             behavior.setWorld( this );
             this._behaviors.push( behavior );
             return this;
+        },
+
+        /**
+         * Get copied list of behaviors in the world
+         * @return {Array} Array of behaviors
+         */
+        getBehaviors: function(){
+
+            // return the copied array
+            return [].concat(this._behaviors);
         },
 
         /**
@@ -508,8 +579,14 @@
         destroy: function(){
 
             var self = this;
+            self.pause();
             // remove all listeners
             self.unsubscribe( true );
+            // remove everything
+            self.remove( self.getBodies() );
+            self.remove( self.getBehaviors() );
+            self.integrator( null );
+            self.renderer( null );
         }
 
     });
