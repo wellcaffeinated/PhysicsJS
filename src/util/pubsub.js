@@ -9,11 +9,20 @@
             return new PubSub( defaultScope );
         }
 
-        this._topics = {};
-        this.defaultScope = defaultScope || this;
+        this.initPubsub( defaultScope );
     };
 
     PubSub.prototype = {
+
+        /**
+         * Initialize
+         * @param  {Object} defaultScope Default scope to bind events to
+         * @return {void}
+         */
+        initPubsub: function( defaultScope ){
+            this._topics = {};
+            this._defaultScope = defaultScope || this;
+        },
 
         /**
          * Subscribe a callback (or callbacks) to a topic (topics).
@@ -125,7 +134,7 @@
                 return this;
             }
             
-            data.scope = data.scope || this.defaultScope;
+            data.scope = data.scope || this._defaultScope;
 
             while ( l-- ){
                 

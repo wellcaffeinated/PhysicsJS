@@ -51,7 +51,8 @@
         this.init( cfg, fn );
     };
 
-    World.prototype = {
+    // extend pubsub
+    World.prototype = Physics.util.extend({}, Physics.util.pubsub.prototype, {
 
         /**
          * Initialization
@@ -77,7 +78,7 @@
             this._renderer = null;
             this._paused = false;
             this._opts = {};
-            this._pubsub = Physics.util.pubsub( this );
+            this.initPubsub( this );
 
             // set options
             this.options( cfg || {} );
@@ -109,44 +110,6 @@
             }
 
             return Physics.util.clone(this._opts);
-        },
-
-        /**
-         * Subscribe to events
-         * @param  {String}   topic    The event type
-         * @param  {Function} fn       Callback function accepting data parameter
-         * @param  {Object}   scope    (optional) The "this" context for the callback
-         * @param  {Number}   priority (optional) Priority of the callback (higher numbers executed earlier)
-         * @return {this}
-         */
-        subscribe: function( topic, fn, scope, priority ){
-
-            this._pubsub.subscribe( topic, fn, scope, priority );
-            return this;
-        },
-
-        /**
-         * Unsubscribe from events
-         * @param  {String}   topic    The event type
-         * @param  {Function} fn       Original callback function
-         * @return {this}
-         */
-        unsubscribe: function( topic, fn ){
-
-            this._pubsub.unsubscribe( topic, fn );
-            return this;
-        },
-
-        /**
-         * Publish an event
-         * @param  {Object} data  The data associated with the event
-         * @param  {Object} scope (optional) The data.scope parameter
-         * @return {this}
-         */
-        publish: function( data, scope ){
-
-            this._pubsub.publish( data, scope );
-            return this;
         },
 
         /**
@@ -226,7 +189,7 @@
                 this._integrator = integrator;
                 this._integrator.setWorld( this );
             }
-            
+
             return this;
         },
 
@@ -545,9 +508,11 @@
         destroy: function(){
 
             var self = this;
-
+            // remove all listeners
+            self.unsubscribe( true );
         }
-    };
+
+    });
 
     Physics.world = World;
     
