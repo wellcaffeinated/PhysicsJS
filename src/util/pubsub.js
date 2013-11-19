@@ -62,18 +62,28 @@
         },
 
         /**
-         * Unsubscribe function from topic
-         * @param  {String}   topic Topic name
-         * @param  {Function} fn The original callback function
+         * Unsubscribe function from topic.
+         * @param  {String}   topic Topic name OR true to remove all listeners on all topics
+         * @param  {Function} fn The original callback function OR true to remove all listeners
          * @return {this}
          */
         unsubscribe: function( topic, fn ){
+
+            if ( topic === true ){
+                this._topics = {};
+                return this;
+            }
 
             var listeners = this._topics[ topic ]
                 ,listn
                 ;
 
             if (!listeners){
+                return this;
+            }
+
+            if ( fn === true ){
+                this._topics[ topic ] = [];
                 return this;
             }
 
