@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.1 - 2013-09-15
+ * PhysicsJS v0.5.2 - 2013-11-19
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -63,7 +63,7 @@
                     angleIndicator: 'rgba(69, 51, 78, 0.7)'
                 }
             },
-            offset: Physics.vector()
+            offset: {x: 0, y: 0}
         };
     
         // deep copy callback to extend deeper into options
@@ -74,7 +74,7 @@
                 return Physics.util.extend({}, a, b, deep );
             }
     
-            return b ? b : a;
+            return b !== undefined ? b : a;
         };
     
         return {
@@ -91,6 +91,8 @@
     
                 // further options
                 this.options = Physics.util.extend({}, defaults, this.options, deep);
+                this.options.offset = Physics.vector( this.options.offset );
+    
     
                 // hidden canvas
                 this.hiddenCanvas = document.createElement('canvas');
@@ -296,6 +298,8 @@
                 hiddenCtx.restore();
     
                 view.src = hiddenCanvas.toDataURL("image/png");
+                view.width = hiddenCanvas.width;
+                view.height = hiddenCanvas.height;
                 return view;
             },
     
@@ -356,6 +360,7 @@
             }
         };
     });
+    
     // end module: renderers/canvas.js
     return Physics;
 })); // UMD 
