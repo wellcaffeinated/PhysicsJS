@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        body:after {
+            font-size: 30px;
+            line-height: 140px;
+            text-align: center;
+            color: rgb(60, 16, 11);
+            background: rgba(255, 255, 255, 0.6);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 140px;
+            margin-left: -200px;
+            margin-top: -70px;
+            border-radius: 5px;
+        }
+        body.before-game:after {
+            content: 'press space to start';
+        }
+        body.lose-game:after {
+            content: 'press space to try again';
+        }
+        body.win-game:after {
+            content: 'Win! press space to play again';
+        }
+        /* spaceship from: http://millionthvector.blogspot.ca/p/free-sprites.html */
+        /* asteroids from: http://fimar.deviantart.com */
+        /* starfield from: http://gamedevtuts.s3.amazonaws.com/043_freeShmupSprites/Free_Shmup_Sprites_Starfield.png */
+        body {
+            background: url(images/starfield.png) 0 0 repeat;
+        }
+    </style>
+  </head>
+  <body>
+    <canvas id="viewport"></canvas>
+
+    <script src="js/require.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

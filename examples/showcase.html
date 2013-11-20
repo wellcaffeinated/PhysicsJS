@@ -46,7 +46,7 @@
     </div>
 
 <!-- Scripts -->
-<script src="../assets/scripts/vendor/require.js"></script>
+<script src="../lib/require.js"></script>
 <script>
 require({
     baseUrl: './',
@@ -57,7 +57,7 @@ require({
 },[
     'jquery',
     'physicsjs',
-    './satnav',
+    './Satnav',
     './demo-mouse-events',
     './sims/simple',
     './sims/newtonian',
@@ -99,7 +99,7 @@ require({
                     strokeStyle: 'hsla(60, 37%, 17%, 1)',
                     lineWidth: 1,
                     fillStyle: 'hsla(60, 47%, 37%, 0.8)',
-                    angleIndicator: 'none'
+                    angleIndicator: 'hsla(0, 0%, 0%, 0)'
                 }
             }
         })
@@ -222,17 +222,6 @@ require({
     
 });
 </script>
-
-  <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-  </script>
-  <script type="text/javascript">
-    try {
-      var pageTracker = _gat._getTracker("UA-28341644-3");
-      pageTracker._trackPageview();
-    } catch(err) {}
-  </script>
   
 </body>
 </html>
