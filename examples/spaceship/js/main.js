@@ -4,8 +4,8 @@ require(
     baseUrl: './',
     packages: [{
         name: 'physicsjs',
-        location: '../../_working/physicsjs',
-        main: 'physicsjs'
+        location: '../../dist/',
+        main: 'physicsjs-0.5.2.min'
     }]
 },
 [
