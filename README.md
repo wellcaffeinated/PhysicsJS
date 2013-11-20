@@ -2,7 +2,7 @@
 
 A modular, extendable, and easy-to-use physics engine for javascript.
 
-Latest version: 0.5.1 (alpha)
+Latest version: 0.5.2 (alpha)
 
 ## Usage
 
