@@ -10,7 +10,7 @@ define(
         Physics
     ){
         // extend the circle body
-        return Physics.body('player', 'circle', function( parent ){
+        Physics.body('player', 'circle', function( parent ){
 
             var deg = Math.PI/180;
             var shipImg = new Image();
@@ -76,7 +76,7 @@ define(
                     }
                     var angle = this.state.angular.pos;
                     var scratch = Physics.scratchpad();
-                    // normalize the amount to something not so crazy
+                    // scale the amount to something not so crazy
                     amount *= 0.00001;
                     // point the acceleration in the direction of the ship's nose
                     var v = scratch.vector().set(

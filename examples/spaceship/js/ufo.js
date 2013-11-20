@@ -9,9 +9,9 @@ define(
         Physics
     ){
 
-        return Physics.body('asteroid', 'circle', function( parent ){
+        Physics.body('ufo', 'circle', function( parent ){
             var ast1 = new Image();
-            ast1.src = require.toUrl('images/ast1.png');
+            ast1.src = require.toUrl('images/ufo.png');
 
             return {
                 init: function( options ){

@@ -15,7 +15,7 @@ require(
     // custom modules
     'js/player',
     'js/player-behavior',
-    'js/asteroid',
+    'js/ufo',
 
     // official modules
     'physicsjs/renderers/canvas',
@@ -51,9 +51,9 @@ require(
         // debug:true,
         styles: {
             'circle': {
-                strokeStyle: 'hsla(0, 0%, 30%, 1)',
+                strokeStyle: 'rgb(0, 30, 0)',
                 lineWidth: 1,
-                fillStyle: 'hsla(0, 0%, 30%, 1)',
+                fillStyle: 'rgb(100, 200, 50)',
                 angleIndicator: false
             },
             'convex-polygon' : {
@@ -77,13 +77,13 @@ require(
 
         var playerBehavior = Physics.behavior('player-behavior', { player: ship });
         
-        var asteroids = [];
+        var ufos = [];
         for ( var i = 0, l = 30; i < l; ++i ){
 
             var ang = 4 * (Math.random() - 0.5) * Math.PI;
             var r = 700 + 100 * Math.random() + i * 10;
 
-            asteroids.push( Physics.body('asteroid', {
+            ufos.push( Physics.body('ufo', {
                 x: 400 + Math.cos( ang ) * r,
                 y: 300 + Math.sin( ang ) * r,
                 vx: 0.03 * Math.sin( ang ),
@@ -99,31 +99,31 @@ require(
             // fixed: true,
             // hidden: true,
             mass: 10000,
-            radius: 120,
+            radius: 140,
             x: 400,
             y: 300
         });
         planet.view = new Image();
         planet.view.src = require.toUrl('images/planet.png');
 
-        // middle of canvas
-        var middle = { 
-            x: 0.5 * renderer.options.width, 
-            y: 0.5 * renderer.options.height
-        };
         // render on every step
         world.subscribe('step', function(){
+            // middle of canvas
+            var middle = { 
+                x: 0.5 * window.innerWidth, 
+                y: 0.5 * window.innerHeight
+            };
             // follow player
             renderer.options.offset.clone( middle ).vsub( ship.state.pos );
             world.render();
         });
 
-        // count number of asteroids destroyed
+        // count number of ufos destroyed
         var killCount = 0;
         world.subscribe('blow-up', function( data ){
             
             killCount++;
-            if ( killCount === asteroids.length ){
+            if ( killCount === ufos.length ){
                 world.publish('win-game');
             }
         });
@@ -187,7 +187,7 @@ require(
             Physics.behavior('body-impulse-response'),
             renderer
         ]);
-        world.add( asteroids );
+        world.add( ufos );
     };
 
     var world = null;

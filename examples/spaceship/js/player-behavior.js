@@ -6,7 +6,7 @@ define(
         Physics
     ){
 
-        return Physics.behavior('player-behavior', function( parent ){
+        Physics.behavior('player-behavior', function( parent ){
 
             return {
                 init: function( options ){
@@ -103,6 +103,9 @@ define(
                             player.blowUp();
                             world.removeBehavior( this );
                             this.gameover = true;
+
+                            // when we crash, we'll publish an event to the world
+                            // that we can listen for to prompt to restart the game
                             world.publish('lose-game');
                             return;
                         }
