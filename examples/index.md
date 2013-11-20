@@ -3,6 +3,8 @@ layout: default
 title: PhysicsJS Examples
 ---
 
+# PhysicsJS Examples
+
 * [Showcase](./showcase.html)
 * [Google Gravity](./google-gravity.html)
 * [Spaceship Game](./spaceship)
