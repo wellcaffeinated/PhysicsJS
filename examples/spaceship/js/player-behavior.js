@@ -12,7 +12,8 @@ define(
                 init: function( options ){
                     var self = this;
                     parent.init.call(this, options);
-                    // store the player
+                    // the player will be passed in via the config options
+                    // so we need to store the player
                     var player = self.player = options.player;
                     self.gameover = false;
 
@@ -62,12 +63,20 @@ define(
                     });
                 },
 
+                // this is automatically called by the world
+                // when this behavior is added to the world
                 connect: function( world ){
+
+                    // we want to subscribe to world events
                     world.subscribe('collisions:detected', this.checkPlayerCollision, this);
                     world.subscribe('integrate:positions', this.behave, this);
                 },
 
+                // this is automatically called by the world
+                // when this behavior is removed from the world
                 disconnect: function( world ){
+
+                    // we want to unsubscribe from world events
                     world.unsubscribe('collisions:detected', this.checkPlayerCollision);
                     world.unsubscribe('integrate:positions', this.behave);
                 },

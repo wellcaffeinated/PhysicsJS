@@ -49,6 +49,9 @@ define(
             };
 
             return {
+                // we want to do some setup when the body is created
+                // so we need to call the parent's init method
+                // on "this"
                 init: function( options ){
                     parent.init.call( this, options );
                     // set the rendering image
@@ -56,11 +59,15 @@ define(
                     // will point in the same angle as the body's rotational position
                     this.view = shipImg;
                 },
+                // this will turn the ship by changing the
+                // body's angular velocity to + or - some amount
                 turn: function( amount ){
                     // set the ship's rotational velocity
                     this.state.angular.vel = 0.2 * amount * deg;
                     return this;
                 },
+                // this will accelerate the ship along the direction
+                // of the ship's nose
                 thrust: function( amount ){
                     var self = this;
                     var world = this._world;
@@ -88,6 +95,9 @@ define(
                     }
                     return self;
                 },
+                // this will create a projectile (little circle)
+                // that travels away from the ship's front.
+                // It will get removed after a timeout
                 shoot: function(){
                     var self = this;
                     var world = this._world;
@@ -119,6 +129,9 @@ define(
                     world.add( laser );
                     return self;
                 },
+                // 'splode! This will remove the ship
+                // and replace it with a bunch of random
+                // triangles for an explosive effect!
                 blowUp: function(){
                     var self = this;
                     var world = this._world;

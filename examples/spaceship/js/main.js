@@ -1,11 +1,21 @@
-define([
+require(
+{
+    // use top level so we can access images
+    baseUrl: './',
+    packages: [{
+        name: 'physicsjs',
+        location: '../../_working/physicsjs',
+        main: 'physicsjs'
+    }]
+},
+[
     'require',
     'physicsjs',
 
     // custom modules
-    './player',
-    './player-behavior',
-    './asteroid',
+    'js/player',
+    'js/player-behavior',
+    'js/asteroid',
 
     // official modules
     'physicsjs/renderers/canvas',
@@ -19,10 +29,12 @@ define([
     require,
     Physics
 ){
+    // display start game message
     document.body.className = 'before-game';
     var inGame = false;
     document.addEventListener('keydown', function( e ){
 
+        // if user presses spacebar inbetween games, we'll load a new game
         if (!inGame && e.keyCode === 32){
             document.body.className = 'in-game';
             inGame = true;
@@ -30,6 +42,7 @@ define([
         }
     });
 
+    // set up the renderer and point it to the viewport
     var renderer = Physics.renderer('canvas', {
         el: 'viewport',
         width: window.innerWidth,
