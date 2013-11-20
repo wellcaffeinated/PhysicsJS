@@ -140,10 +140,8 @@ require(
                 if ( col.bodyA.gameType === 'laser' || col.bodyB.gameType === 'laser' ){
                     if ( col.bodyA.blowUp ){
                         col.bodyA.blowUp();
-                        world.removeBody( col.bodyB );
                     } else if ( col.bodyB.blowUp ){
                         col.bodyB.blowUp();
-                        world.removeBody( col.bodyA );
                     }
                     return;
                 }
@@ -152,23 +150,32 @@ require(
 
         // draw minimap
         world.subscribe('render', function( data ){
+            // radius of minimap
             var r = 100;
+            // padding
             var shim = 15;
+            // x,y of center
             var x = renderer.options.width - r - shim;
             var y = r + shim;
+            // the ever-useful scratchpad to speed up vector math
             var scratch = Physics.scratchpad();
             var d = scratch.vector();
             var lightness;
 
+            // draw the radar guides
             renderer.drawCircle(x, y, r, { strokeStyle: '#090', fillStyle: '#010' });
             renderer.drawCircle(x, y, r * 2 / 3, { strokeStyle: '#090' });
             renderer.drawCircle(x, y, r / 3, { strokeStyle: '#090' });
 
             for (var i = 0, l = data.bodies.length, b = data.bodies[ i ]; b = data.bodies[ i ]; i++){
 
+                // get the displacement of the body from the ship and scale it
                 d.clone( ship.state.pos ).vsub( b.state.pos ).mult( -0.05 );
+                // color the dot based on how massive the body is
                 lightness = Math.max(Math.min(Math.sqrt(b.mass*10)|0, 100), 10);
+                // if it's inside the minimap radius
                 if (d.norm() < r){
+                    // draw the dot
                     renderer.drawCircle(x + d.get(0), y + d.get(1), 1, 'hsl(60, 100%, '+lightness+'%)');
                 }
             }
