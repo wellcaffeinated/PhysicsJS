@@ -328,8 +328,10 @@
             return this;
         }
 
-        this._[0] /= m;
-        this._[1] /= m;
+        m = 1/m;
+
+        this._[0] *= m;
+        this._[1] *= m;
 
         this._[3] = 1.0;
         this._[4] = 1.0;
