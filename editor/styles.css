@@ -1,0 +1,151 @@
+@font-face {
+
+	font-family: 'inconsolata';
+	src: url('files/inconsolata.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+
+}
+
+html, body {
+
+	height: 100%;
+
+}
+
+body {
+
+	margin: 0px;
+	overflow: hidden;
+
+	font-family: Arial;
+
+}
+
+a {
+
+	color: #ffffff;
+
+}
+
+h1 {
+
+	font-size: 20px;
+	margin-top: 0px;
+
+}
+
+.button {
+
+	font-size: 10px;
+	text-transform: uppercase;
+	text-decoration: none;
+
+	color: rgb(80,80,80);
+	border: transparent;
+	background-color: rgb(235,235,235);
+
+	margin: 2px;
+	padding: 8px 10px;
+
+	cursor: pointer;
+
+}
+
+.button:hover {
+
+	color: rgb(235,235,235);
+	background-color: rgb(80,80,80);
+
+}
+
+.button path {
+
+	stroke: rgb(80,80,80);
+
+}
+
+.button:hover path {
+
+	stroke: rgb(235,235,235);
+
+}
+
+#preview {
+
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+
+}
+
+#editor {
+
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+}
+
+#editor .CodeMirror {
+
+	height: 100%;
+	font-family: inconsolata;
+	font-size: 16px;
+	background-color: rgba(255,255,255,0.85);
+
+	-webkit-transform: translateZ(0); /* Workaround for OSX antialias issue */
+
+}
+
+#editor .CodeMirror-scroll {
+
+	height: 100%;
+
+}
+
+#editor .CodeMirror div.CodeMirror-selected {
+
+	background: rgba(0,0,0,0.1);
+
+}
+
+#editor .CodeMirror-focused div.CodeMirror-selected {
+
+	background: rgba(0,0,255,0.1);
+
+}
+
+#editor .CodeMirror .errorLine {
+
+	background: rgba(255,0,0,0.25);
+
+}
+
+#editor .CodeMirror .esprima-error {
+
+	color: #f00;
+	text-align: right;
+	padding: 0px 20px;
+
+}
+
+#toolbar {
+
+	position: absolute;
+	top: 15px;
+	right: 30px;
+	text-align: right;
+
+}
+
+#popup {
+
+	position: absolute;
+	color: rgb(235,235,235);
+	padding: 20px 20px 20px 20px;
+	background-color: rgb(80,80,80);
+
+}
