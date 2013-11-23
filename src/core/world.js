@@ -23,6 +23,24 @@
         Physics[ key ].mixin('setWorld', setWorld);
     });
 
+    var execCallbacks = function execCallbacks( fns, scope, args ){
+        
+        var fn
+            ,ret
+            ;
+
+        while ( fn = fns.shift() ){
+
+            ret = fn.apply(scope, args);
+
+            if (ret && ret.then){
+                return ret.then(function(){
+                    return execCallbacks( fns, scope, args );
+                });
+            }
+        }
+    };
+
     var defaults = {
 
         // default timestep
@@ -37,9 +55,13 @@
 
     // begin world definitions
     /**
-     * World Constructor
+     * World Constructor.
+     * 
+     * If called with an array of functions, and any functions 
+     * return a promise-like object, the remaining callbacks will 
+     * be called only when that promise is resolved.
      * @param {Object}   cfg (optional) Configuration options
-     * @param {Function} fn  (optional) Callback function called with "this" world
+     * @param {Function|Array} fn  (optional) Callback function or array of callbacks called with "this" === world
      */
     var World = function World( cfg, fn ){
 
@@ -57,12 +79,12 @@
         /**
          * Initialization
          * @param {Object}   cfg (optional) Configuration options
-         * @param {Function} fn  (optional) Callback function called with "this" world
+         * @param {Function} fn  (optional) Callback function or array of callbacks called with "this" === world
          * @return {void}
          */
         init: function( cfg, fn ){
 
-            if ( Physics.util.isFunction( cfg ) ){
+            if ( Physics.util.isFunction( cfg ) || Physics.util.isArray( cfg ) ){
                 fn = cfg;
                 cfg = {};
             }
@@ -86,7 +108,11 @@
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.call(this, this, Physics);
+                execCallbacks([ fn ], this, [this, Physics] );
+
+            } else if ( Physics.util.isArray( fn ) ){
+
+                execCallbacks(fn, this, [this, Physics] );
             }
         },
 
