@@ -299,7 +299,7 @@ Physics.renderer('canvas', function( proto ){
         beforeRender: function(){
 
             // clear canvas
-            this.el.width = this.el.width;
+            this.ctx.clearRect(0, 0, this.el.width, this.el.height);
         },
 
         /**
