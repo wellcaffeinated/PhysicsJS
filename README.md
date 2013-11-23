@@ -30,6 +30,8 @@ PhysicsJS development build. You can play around with that.
 **NOTE**: the `_working/` directory won't be committed
 (it is in .gitignore).
 
+After you run this you can use (Mr.doob's) htmleditor in `editor/` to play around.
+
 If you want grunt to automatically create the development build
 when you modify the source in `src/` then run:
 
