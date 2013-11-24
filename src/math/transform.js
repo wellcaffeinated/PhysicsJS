@@ -18,18 +18,19 @@
         }
 
         this.v = Physics.vector();
-        this.o = Physics.vector( origin ); // origin of rotation
+        this.o = Physics.vector(); // origin of rotation
         
         if ( vect instanceof Transform ){
 
             this.clone( vect );
+            return;
         }
 
         if (vect){
             this.setTranslation( vect );
         }
 
-        this.setRotation( angle || 0 );
+        this.setRotation( angle || 0, origin );
     };
 
     /**
@@ -54,6 +55,8 @@
 
         if ( origin ){
             this.o.clone( origin );
+        } else {
+            this.o.zero();
         }
 
         return this;
