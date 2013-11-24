@@ -345,9 +345,19 @@
      */
     Vector.prototype.transform = function( t ){
 
+        var sinA = t.sinA
+            ,cosA = t.cosA
+            ,x = t.o._[ 0 ]
+            ,y = t.o._[ 1 ]
+            ;
+
+        this._[ 0 ] -= x;
+        this._[ 1 ] -= y;
+
+        // rotate about origin "o" then translate
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.v._[ 0 ] + t.o._[ 0 ], 
-            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.v._[ 1 ] + t.o._[ 1 ]
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ], 
+            this._[ 0 ] * sinA + this._[ 1 ] * cosA + y + t.v._[ 1 ]
         );
     };
 
@@ -357,21 +367,57 @@
      */
     Vector.prototype.transformInv = function( t ){
 
+        var sinA = t.sinA
+            ,cosA = t.cosA
+            ,x = t.o._[ 0 ]
+            ,y = t.o._[ 1 ]
+            ;
+
+        this._[ 0 ] -= x + t.v._[ 0 ];
+        this._[ 1 ] -= y + t.v._[ 1 ];
+
+        // inverse translate then inverse rotate about origin "o"
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA - t.v._[ 0 ] + t.o._[ 0 ], 
-            -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA - t.v._[ 1 ] + t.o._[ 1 ]
+            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x, 
+            - this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
 
     /**
      * Apply the rotation portion of transform to this vector
-     * @param  {Physics.transform} t The transform
+     * @param  {Physics.transform|Number} t The transform OR a number representing the angle to rotate by
+     * @param  {Vector} o If number is specified for rotation angle, then this is a vector representing the rotation origin
      */
-    Vector.prototype.rotate = function( t ){
+    Vector.prototype.rotate = function( t, o ){
+
+        var sinA
+            ,cosA
+            ,x = 0
+            ,y = 0
+            ;
+
+        if ( typeof t === 'number' ){
+            sinA = Math.sin( ang );
+            cosA = Math.cos( ang );
+
+            if ( o ){
+                x = (o.x || o._[ 0 ]) | 0;
+                y = (o.y || o._[ 1 ]) | 0;
+            }
+        } else {
+            sinA = t.sinA;
+            cosA = t.cosA;
+        
+            x = t.o._[ 0 ];
+            y = t.o._[ 1 ];
+        }
+            
+        this._[ 0 ] -= x;
+        this._[ 1 ] -= y;
 
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
-            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
 
