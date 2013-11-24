@@ -101,7 +101,8 @@
     };
 
     /**
-     * Apply a transformation to the aabb
+     * Apply a transformation to the aabb.
+     * Rotation origin is relative to the aabb's center.
      * @param  {Transform} trans The transformation
      * @return {this}
      */
