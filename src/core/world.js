@@ -27,6 +27,9 @@
         
         var fn
             ,ret
+            ,cb = function(){
+                return execCallbacks( fns, scope, args );
+            }
             ;
 
         while ( fn = fns.shift() ){
@@ -34,9 +37,7 @@
             ret = fn.apply(scope, args);
 
             if (ret && ret.then){
-                return ret.then(function(){
-                    return execCallbacks( fns, scope, args );
-                });
+                return ret.then( cb );
             }
         }
     };

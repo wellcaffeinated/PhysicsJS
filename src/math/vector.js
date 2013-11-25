@@ -397,8 +397,8 @@
             ;
 
         if ( typeof t === 'number' ){
-            sinA = Math.sin( ang );
-            cosA = Math.cos( ang );
+            sinA = Math.sin( t );
+            cosA = Math.cos( t );
 
             if ( o ){
                 x = (o.x || o._[ 0 ]) | 0;
