@@ -87,6 +87,9 @@ Physics.renderer('canvas', function( proto ){
 
                 viewport = document.createElement('canvas');
                 this.el.appendChild( viewport );
+                if (typeof this.options.el === 'string' && this.el === document.body){
+                    viewport.id = this.options.el;
+                }
                 this.el = viewport;
             }
 
