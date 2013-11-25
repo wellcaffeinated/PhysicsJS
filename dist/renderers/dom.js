@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.2 - 2013-11-20
+ * PhysicsJS v0.5.3 - 2013-11-25
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -108,6 +108,7 @@
                 var viewport = this.el;
                 viewport.style.position = 'relative';
                 viewport.style.overflow = 'hidden';
+                viewport.style[cssTransform] = 'translateZ(0)'; // force GPU accel
                 viewport.style.width = this.options.width + px;
                 viewport.style.height = this.options.height + px;
     

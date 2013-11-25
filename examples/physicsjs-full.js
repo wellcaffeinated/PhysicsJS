@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.2 - 2013-11-20
+ * PhysicsJS v0.5.3 - 2013-11-25
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -842,7 +842,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     };
 
     /**
-     * Apply a transformation to the aabb
+     * Apply a transformation to the aabb.
+     * Rotation origin is relative to the aabb's center.
      * @param  {Transform} trans The transformation
      * @return {this}
      */
@@ -1247,18 +1248,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         }
 
         this.v = Physics.vector();
-        this.o = Physics.vector( origin ); // origin of rotation
+        this.o = Physics.vector(); // origin of rotation
         
         if ( vect instanceof Transform ){
 
             this.clone( vect );
+            return;
         }
 
         if (vect){
             this.setTranslation( vect );
         }
 
-        this.setRotation( angle || 0 );
+        this.setRotation( angle || 0, origin );
     };
 
     /**
@@ -1283,6 +1285,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
         if ( origin ){
             this.o.clone( origin );
+        } else {
+            this.o.zero();
         }
 
         return this;
@@ -1645,8 +1649,10 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             return this;
         }
 
-        this._[0] /= m;
-        this._[1] /= m;
+        m = 1/m;
+
+        this._[0] *= m;
+        this._[1] *= m;
 
         this._[3] = 1.0;
         this._[4] = 1.0;
@@ -1660,9 +1666,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      */
     Vector.prototype.transform = function( t ){
 
+        var sinA = t.sinA
+            ,cosA = t.cosA
+            ,x = t.o._[ 0 ]
+            ,y = t.o._[ 1 ]
+            ;
+
+        this._[ 0 ] -= x;
+        this._[ 1 ] -= y;
+
+        // rotate about origin "o" then translate
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.v._[ 0 ] + t.o._[ 0 ], 
-            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.v._[ 1 ] + t.o._[ 1 ]
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ], 
+            this._[ 0 ] * sinA + this._[ 1 ] * cosA + y + t.v._[ 1 ]
         );
     };
 
@@ -1672,21 +1688,57 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      */
     Vector.prototype.transformInv = function( t ){
 
+        var sinA = t.sinA
+            ,cosA = t.cosA
+            ,x = t.o._[ 0 ]
+            ,y = t.o._[ 1 ]
+            ;
+
+        this._[ 0 ] -= x + t.v._[ 0 ];
+        this._[ 1 ] -= y + t.v._[ 1 ];
+
+        // inverse translate then inverse rotate about origin "o"
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA - t.v._[ 0 ] + t.o._[ 0 ], 
-            -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA - t.v._[ 1 ] + t.o._[ 1 ]
+            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x, 
+            - this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
 
     /**
      * Apply the rotation portion of transform to this vector
-     * @param  {Physics.transform} t The transform
+     * @param  {Physics.transform|Number} t The transform OR a number representing the angle to rotate by
+     * @param  {Vector} o If number is specified for rotation angle, then this is a vector representing the rotation origin
      */
-    Vector.prototype.rotate = function( t ){
+    Vector.prototype.rotate = function( t, o ){
+
+        var sinA
+            ,cosA
+            ,x = 0
+            ,y = 0
+            ;
+
+        if ( typeof t === 'number' ){
+            sinA = Math.sin( t );
+            cosA = Math.cos( t );
+
+            if ( o ){
+                x = (o.x || o._[ 0 ]) | 0;
+                y = (o.y || o._[ 1 ]) | 0;
+            }
+        } else {
+            sinA = t.sinA;
+            cosA = t.cosA;
+        
+            x = t.o._[ 0 ];
+            y = t.o._[ 1 ];
+        }
+            
+        this._[ 0 ] -= x;
+        this._[ 1 ] -= y;
 
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA - (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
-            (this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
 
@@ -2709,6 +2761,25 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         Physics[ key ].mixin('setWorld', setWorld);
     });
 
+    var execCallbacks = function execCallbacks( fns, scope, args ){
+        
+        var fn
+            ,ret
+            ,cb = function(){
+                return execCallbacks( fns, scope, args );
+            }
+            ;
+
+        while ( fn = fns.shift() ){
+
+            ret = fn.apply(scope, args);
+
+            if (ret && ret.then){
+                return ret.then( cb );
+            }
+        }
+    };
+
     var defaults = {
 
         // default timestep
@@ -2723,9 +2794,13 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
     // begin world definitions
     /**
-     * World Constructor
+     * World Constructor.
+     * 
+     * If called with an array of functions, and any functions 
+     * return a promise-like object, the remaining callbacks will 
+     * be called only when that promise is resolved.
      * @param {Object}   cfg (optional) Configuration options
-     * @param {Function} fn  (optional) Callback function called with "this" world
+     * @param {Function|Array} fn  (optional) Callback function or array of callbacks called with "this" === world
      */
     var World = function World( cfg, fn ){
 
@@ -2743,12 +2818,12 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Initialization
          * @param {Object}   cfg (optional) Configuration options
-         * @param {Function} fn  (optional) Callback function called with "this" world
+         * @param {Function} fn  (optional) Callback function or array of callbacks called with "this" === world
          * @return {void}
          */
         init: function( cfg, fn ){
 
-            if ( Physics.util.isFunction( cfg ) ){
+            if ( Physics.util.isFunction( cfg ) || Physics.util.isArray( cfg ) ){
                 fn = cfg;
                 cfg = {};
             }
@@ -2772,7 +2847,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
 
-                fn.call(this, this, Physics);
+                execCallbacks([ fn ], this, [this, Physics] );
+
+            } else if ( Physics.util.isArray( fn ) ){
+
+                execCallbacks(fn, this, [this, Physics] );
             }
         },
 
@@ -6137,6 +6216,9 @@ Physics.renderer('canvas', function( proto ){
 
                 viewport = document.createElement('canvas');
                 this.el.appendChild( viewport );
+                if (typeof this.options.el === 'string' && this.el === document.body){
+                    viewport.id = this.options.el;
+                }
                 this.el = viewport;
             }
 
@@ -6349,7 +6431,7 @@ Physics.renderer('canvas', function( proto ){
         beforeRender: function(){
 
             // clear canvas
-            this.el.width = this.el.width;
+            this.ctx.clearRect(0, 0, this.el.width, this.el.height);
         },
 
         /**
@@ -6479,6 +6561,7 @@ Physics.renderer('dom', function( proto ){
             var viewport = this.el;
             viewport.style.position = 'relative';
             viewport.style.overflow = 'hidden';
+            viewport.style[cssTransform] = 'translateZ(0)'; // force GPU accel
             viewport.style.width = this.options.width + px;
             viewport.style.height = this.options.height + px;
 

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.2 - 2013-11-20
+ * PhysicsJS v0.5.3 - 2013-11-25
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -110,6 +110,9 @@
     
                     viewport = document.createElement('canvas');
                     this.el.appendChild( viewport );
+                    if (typeof this.options.el === 'string' && this.el === document.body){
+                        viewport.id = this.options.el;
+                    }
                     this.el = viewport;
                 }
     
@@ -322,7 +325,7 @@
             beforeRender: function(){
     
                 // clear canvas
-                this.el.width = this.el.width;
+                this.ctx.clearRect(0, 0, this.el.width, this.el.height);
             },
     
             /**
