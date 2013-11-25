@@ -8,8 +8,8 @@ require({
     baseUrl: './',
     packages: [{
         name: 'physicsjs',
-        location: '../../_working/physicsjs',
-        main: 'physicsjs'
+        location: 'http://wellcaffeinated.net/PhysicsJS/assets/scripts/vendor/physicsjs-0.5.3/',
+        main: 'physicsjs-0.5.3.min'
     }],
     paths: {
         'datgui': 'http://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.5/dat.gui.min'
