@@ -6,7 +6,7 @@ define(
         Physics
     ){
 
-        Physics.behavior('buyancy', function( parent ){
+        Physics.behavior('buoyancy', function( parent ){
                         
             return {
                 init: function( cfg ){

@@ -25,7 +25,7 @@ require({
     'physicsjs/behaviors/body-impulse-response',
 
     'js/radiation-behavior',
-    'js/buyancy-behavior',
+    'js/buoyancy-behavior',
     'js/metaball-renderer'
 
 ], function( dat, Physics ){
@@ -121,7 +121,7 @@ require({
         heatSource.temperature = 8;
         heatSource.heatCapacity = 1e10;
         
-        var buyancy = Physics.behavior('buyancy', { strength: 1e-3 });
+        var buoyancy = Physics.behavior('buoyancy', { strength: 1e-3 });
         var newtonian = Physics.behavior('newtonian', {strength: 1e-3});
 
         // add things...
@@ -137,7 +137,7 @@ require({
             Physics.behavior('body-impulse-response'),
             Physics.behavior('radiation'),
             newtonian,
-            buyancy
+            buoyancy
         ]);
     
         // subscribe to ticker to advance the simulation
@@ -152,11 +152,11 @@ require({
         var f = gui.addFolder('Environment');
         f.open();
         f.add(integrator.options, 'drag', 0, 0.1);
-        f.add(buyancy, 'ambientT', 0, 30);
+        f.add(buoyancy, 'ambientT', 0, 30);
         
         f = gui.addFolder('Buyancy');
         f.open();
-        f.add(buyancy, 'strength', 0, 1e-2);
+        f.add(buoyancy, 'strength', 0, 1e-2);
         
         f = gui.addFolder('Heat Source');
         f.open();
