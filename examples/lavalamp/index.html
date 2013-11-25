@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="http://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700" rel="stylesheet" type="text/css">
+		<style>
+			body {
+				font: 100%/1.3 'Quattrocento Sans', sans-serif;
+				background-color: #111;
+				margin: 0;
+				overflow: hidden;
+				color: #ccc;
+			}
+			a {
+				color: #b00;
+			}
+			#viewport {
+				display: block;
+				margin: 4em auto;
+				border: 12px solid #4C575C;
+				border-radius: 5px;
+			}
+			.pjs-meta {
+				position: absolute;
+				bottom: 10px;
+				right: 20px;
+				text-transform: uppercase;
+				font: 20px/1 monospace;
+			}
+			#info {
+				position: absolute;
+				top: 1em;
+				left: 1.2em;
+				width: 30%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="info">
+			<h1>Lava Lamp | PhysicsJS</h1>
+			<p>This is an advanced <a href="http://wellcaffeinated.net/PhysicsJS">PhysicsJS</a> example. <a href="https://github.com/wellcaffeinated/PhysicsJS/tree/master/examples/lavalamp" target="_blank">Here's the code.</a></p>
+			<p>The scene is setup with circles that are given a "temperature" parameter that controls their buoyancy (vertical acceleration) with a custom buoyancy behavior.</p>
+			<p>A custom radiation behavior calculates the heat radiated and absorbed by each of the blobs. This is modeled as <a href="http://en.wikipedia.org/wiki/Black-body_radiation" target="_blank">Black-body Radiation</a>.</p>
+			<p>A large, fixed, hidden circle (with a high heat capacity) is placed just below the canvas. It acts as the "lamp" that heats up the blobs</p>
+			<p>The "blob" effect is created by a custom <a href="http://www.somethinghitme.com/2012/06/06/2d-metaballs-with-canvas/" target="_blank">"metaball"</a> renderer.</p>
+		</div>
+
+		<script src="../../lib/require.js"></script>
+		<script src="js/main.js"></script>
+	</body>
+</html>
