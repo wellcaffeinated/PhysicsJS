@@ -4,7 +4,6 @@ require({
             exports: 'dat'
         }
     },
-    // use top level so we can access images
     baseUrl: './',
     packages: [{
         name: 'physicsjs',
