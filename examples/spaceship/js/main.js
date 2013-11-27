@@ -35,7 +35,7 @@ require(
     document.addEventListener('keydown', function( e ){
 
         // if user presses spacebar inbetween games, we'll load a new game
-        if (!inGame && e.keyCode === 32){
+        if (!inGame && e.keyCode === 90){
             document.body.className = 'in-game';
             inGame = true;
             newGame();
