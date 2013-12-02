@@ -1,6 +1,12 @@
 <!doctype html>
 <html>
 	<head>
+		<!--
+			Original code by mrdoob
+			http://www.mrdoob.com/projects/chromeexperiments/google-gravity/2013.html
+
+			This code modified by @wellcaffeinated http://wellcaffeinated.net
+		-->
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<title>Google Gravity | PhysicsJS</title> 
@@ -18,6 +24,15 @@
 				-o-user-select: none;
 				-ms-user-select: none;
 
+			}
+
+			body:after {
+				content: 'Original demo by MrDoob';
+				display: absolute;
+				top: 0;
+				left: 0;
+				color: #ccc;
+				font-size: 12px;
 			}
 
 			button {
