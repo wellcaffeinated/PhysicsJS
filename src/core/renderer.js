@@ -57,7 +57,7 @@
                 topic: 'beforeRender',
                 renderer: this,
                 bodies: bodies,
-                stats: meta
+                meta: meta
             });
 
             if (this.options.meta){
