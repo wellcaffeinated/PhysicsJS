@@ -44,17 +44,17 @@ describe("Physics.geometry static methods", function() {
     });
 
     it("check if points are inside a polygon", function() {
-        var inside = { x: 0, y: 0 }
-        ,outside = { x: 9, y: 9 }
+        var inside = { x: 1, y: 0 }
+        ,outside = { x: 5, y: 5.1 }
         ,line = [
-            { x: -1, y: 0 },
-            { x: 1, y: 0 }
+            { x: -5, y: 0 },
+            { x: 5, y: 0 }
         ]
         ,square = [
-            { x: 1, y: 1 },
-            { x: 1, y: -1 },
-            { x: -1, y: -1 },
-            { x: -1, y: 1 }
+            {x: -5, y: -5},
+            {x: -5, y:  5},
+            {x: 5, y: 5},
+            {x: 5, y: -5}
         ]
         ;
 
