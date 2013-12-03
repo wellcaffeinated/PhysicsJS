@@ -149,7 +149,6 @@
             var i = 0
                 ,len = arg && arg.length || 0
                 ,thing = len ? arg[ 0 ] : arg
-                ,notify
                 ;
 
             if ( !thing ){
@@ -182,15 +181,6 @@
                     // end default
                 }
 
-                // notify
-                notify = {
-                    topic: 'add:' + thing.type
-                };
-
-                notify[ thing.type ] = thing;
-
-                this.publish( notify );
-
             } while ( ++i < len && (thing = arg[ i ]) );
 
             return this;
@@ -206,7 +196,6 @@
             var i = 0
                 ,len = arg && arg.length || 0
                 ,thing = len ? arg[ 0 ] : arg
-                ,notify
                 ;
 
             if ( !thing ){
@@ -219,7 +208,7 @@
                 switch (thing.type){
 
                     case 'behavior':
-                        this.removeBehavior(thing);
+                        this.removeBehavior( thing );
                     break; // end behavior
 
                     case 'integrator':
@@ -235,22 +224,13 @@
                     break; // end renderer
 
                     case 'body':
-                        this.removeBody(thing);
+                        this.removeBody( thing );
                     break; // end body
                     
                     default:
                         throw 'Error: failed to remove item of unknown type "'+ thing.type +'" from world';
                     // end default
                 }
-
-                // notify
-                notify = {
-                    topic: 'add:' + thing.type
-                };
-
-                notify[ thing.type ] = thing;
-
-                this.publish( notify );
 
             } while ( ++i < len && (thing = arg[ i ]) );
 
@@ -264,18 +244,41 @@
          */
         integrator: function( integrator ){
 
+            var notify;
+
             if ( integrator === undefined ){
                 return this._integrator;
+            }
+
+            // do nothing if already added
+            if ( this._integrator === integrator ){
+                return this;
             }
 
             if ( this._integrator ){
 
                 this._integrator.setWorld( null );
+
+                // notify
+                notify = {
+                    topic: 'remove:integrator',
+                    integrator: this._integrator
+                };
+
+                this.publish( notify );
             }
 
             if ( integrator ){
                 this._integrator = integrator;
                 this._integrator.setWorld( this );
+
+                // notify
+                notify = {
+                    topic: 'add:integrator',
+                    integrator: this._integrator
+                };
+
+                this.publish( notify );
             }
 
             return this;
@@ -288,18 +291,41 @@
          */
         renderer: function( renderer ){
 
-            if (renderer === undefined){
+            var notify;
+
+            if ( renderer === undefined ){
                 return this._renderer;
+            }
+
+            // do nothing if renderer already added
+            if ( this._renderer === renderer ){
+                return this;
             }
 
             if ( this._renderer ){
 
                 this._renderer.setWorld( null );
+
+                // notify
+                notify = {
+                    topic: 'remove:renderer',
+                    renderer: this._renderer
+                };
+
+                this.publish( notify );
             }
 
-            if (renderer){
+            if ( renderer ){
                 this._renderer = renderer;
                 this._renderer.setWorld( this );
+
+                // notify
+                notify = {
+                    topic: 'add:renderer',
+                    renderer: this._renderer
+                };
+
+                this.publish( notify );
             }
 
             return this;
@@ -331,8 +357,19 @@
          */
         addBehavior: function( behavior ){
 
+            var notify;
+
             behavior.setWorld( this );
             this._behaviors.push( behavior );
+
+            // notify
+            notify = {
+                topic: 'add:behavior',
+                behavior: behavior
+            };
+
+            this.publish( notify );
+
             return this;
         },
 
@@ -364,18 +401,18 @@
                     if (behavior === behaviors[ i ]){
                         
                         behaviors.splice( i, 1 );
+
+                        // notify
+                        notify = {
+                            topic: 'remove:behavior',
+                            behavior: behavior
+                        };
+
+                        this.publish( notify );
+
                         break;
                     }
                 }
-
-                // notify
-                notify = {
-                    topic: 'remove:behavior'
-                };
-
-                notify.behavior = behavior;
-
-                this.publish( notify );
             }
 
             return this;
@@ -388,8 +425,19 @@
          */
         addBody: function( body ){
 
+            var notify;
+
             body.setWorld( this );
             this._bodies.push( body );
+
+            // notify
+            notify = {
+                topic: 'add:body',
+                body: body
+            };
+
+            this.publish( notify );
+
             return this;
         },
 
@@ -421,18 +469,18 @@
                     if (body === bodies[ i ]){
                         
                         bodies.splice( i, 1 );
+
+                        // notify
+                        notify = {
+                            topic: 'remove:body',
+                            body: body
+                        };
+
+                        this.publish( notify );
+
                         break;
                     }
                 }
-
-                // notify
-                notify = {
-                    topic: 'remove:body'
-                };
-
-                notify.body = body;
-
-                this.publish( notify );
             }
 
             return this;
@@ -607,6 +655,10 @@
 
             var self = this;
             self.pause();
+
+            // notify before
+            this.publish( 'destroy' );
+
             // remove all listeners
             self.unsubscribe( true );
             // remove everything

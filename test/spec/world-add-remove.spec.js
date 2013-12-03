@@ -18,6 +18,31 @@ describe("Adding and Removing things from world", function() {
     });
     var sweepPrune = Physics.behavior('sweep-prune');
     var bodyCollision = Physics.behavior('body-collision-detection');
+    var callbacks;
+
+    beforeEach(function(){
+        callbacks = jasmine.createSpyObj('callbacks', [
+            'addedBodies',
+            'removedBodies',
+            'addedBehaviors',
+            'removedBehaviors'
+        ]);
+
+        world.subscribe({
+            'add:body': callbacks.addedBodies,
+            'remove:body': callbacks.removedBodies,
+            'add:behavior': callbacks.addedBehaviors,
+            'remove:behavior': callbacks.removedBehaviors
+        }, callbacks);
+    });
+
+    afterEach(function(){
+        // unsubscribe all
+        world.unsubscribe( 'add:body', true );
+        world.unsubscribe( 'remove:body', true );
+        world.unsubscribe( 'add:behavior', true );
+        world.unsubscribe( 'remove:behavior', true );
+    });
 
     world.step( 0 );
 
@@ -30,6 +55,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBeGreaterThan( 0 );
         expect( world.getBehaviors().length ).toBeGreaterThan( 0 );
+        expect( callbacks.addedBodies.calls.length ).toEqual( 2 );
+        expect( callbacks.addedBehaviors.calls.length ).toEqual( 2 );
+        expect( callbacks.removedBodies.calls.length ).toEqual( 0 );
+        expect( callbacks.removedBehaviors.calls.length ).toEqual( 0 );
     });
 
     it("should remove individual items", function() {
@@ -41,6 +70,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBe( 0 );
         expect( world.getBehaviors().length ).toBe( 0 );
+        expect( callbacks.addedBodies.calls.length ).toEqual( 0 );
+        expect( callbacks.addedBehaviors.calls.length ).toEqual( 0 );
+        expect( callbacks.removedBodies.calls.length ).toEqual( 2 );
+        expect( callbacks.removedBehaviors.calls.length ).toEqual( 2 );
     });
 
     it("should add an array of items", function() {
@@ -54,6 +87,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBeGreaterThan( 0 );
         expect( world.getBehaviors().length ).toBeGreaterThan( 0 );
+        expect( callbacks.addedBodies.calls.length ).toEqual( 2 );
+        expect( callbacks.addedBehaviors.calls.length ).toEqual( 2 );
+        expect( callbacks.removedBodies.calls.length ).toEqual( 0 );
+        expect( callbacks.removedBehaviors.calls.length ).toEqual( 0 );
     });
 
     it("should remove an array of items", function() {
@@ -67,6 +104,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBe( 0 );
         expect( world.getBehaviors().length ).toBe( 0 );
+        expect( callbacks.addedBodies.calls.length ).toEqual( 0 );
+        expect( callbacks.addedBehaviors.calls.length ).toEqual( 0 );
+        expect( callbacks.removedBodies.calls.length ).toEqual( 2 );
+        expect( callbacks.removedBehaviors.calls.length ).toEqual( 2 );
     });
 
 });
