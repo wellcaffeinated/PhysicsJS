@@ -153,7 +153,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
     }
 
     scratch.done();
-    return ( Math.abs(ang) > 0 );
+    return ( Math.abs(ang) > 1e-6 );
 };
 
 /**
