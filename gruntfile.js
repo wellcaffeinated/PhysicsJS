@@ -24,6 +24,7 @@ module.exports = function(grunt) {
             'src/util/*.js',
             'src/math/*.js',
 
+            'src/core/query.js',
             'src/core/behavior.js',
             'src/core/body.js',
             'src/core/geometry.js',
