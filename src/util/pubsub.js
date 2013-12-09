@@ -50,6 +50,7 @@
                 
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
+                fn._one_ = orig._one_;
 
             } else if (!priority) {
 
@@ -117,7 +118,7 @@
                 listn = listeners[ i ];
 
                 if ( listn._bindfn_ === fn || listn === fn ){
-                    listeners.splice(i, 1);
+                    listeners.splice( i, 1 );
                     break;
                 }
             }
@@ -156,7 +157,33 @@
                     topic: topic,
                     handler: handler
                 });
+
+                // if _one_ flag is set, the unsubscribe
+                if ( handler._one_ ){
+                    listeners.splice( l, 1 );
+                }
             }
+
+            return this;
+        },
+
+        one: function( topic, fn, scope ){
+
+            // check if we're subscribing to multiple topics
+            // with an object
+            if ( Physics.util.isObject( topic ) ){
+
+                for ( var t in topic ){
+                    
+                    this.one( t, topic[ t ], fn, scope );
+                }
+
+                return this;
+            }
+
+            // set the _one_ flag
+            fn._one_ = true;
+            this.on( topic, fn, scope );
 
             return this;
         }
