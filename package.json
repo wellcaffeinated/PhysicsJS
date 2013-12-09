@@ -7,6 +7,10 @@
     {
       "name": "Jasper Palfree",
       "email": "jasper@wellcaffeinated.net"
+    },
+    {
+      "name": "Tom W Hall",
+      "url": "http://booleanoperations.co.nz"
     }
   ],
   "main": "./dist/physicsjs-full-0.5.3.js",
