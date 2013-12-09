@@ -5,6 +5,7 @@ module.exports = function(grunt) {
     var pkg
         ,config
         ,codepaint = require('codepainter')
+        ,codepaintStyle = grunt.file.readJSON('codepaint.json');
         ;
 
     pkg = grunt.file.readJSON('package.json');
