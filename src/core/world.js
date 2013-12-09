@@ -608,7 +608,7 @@
             this.emit('destroy');
 
             // remove all listeners
-            self.unsubscribe( true );
+            self.off( true );
             // remove everything
             self.remove( self.getBodies() );
             self.remove( self.getBehaviors() );
