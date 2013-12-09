@@ -3,10 +3,17 @@
  */
 (function(window){
         
-    var lastTime = 0
-        ,active = false
-        ,listeners = []
+    var active = false
+        ,ps = Physics.util.pubsub()
+        ,perf = window.performance
         ;
+
+    function now(){
+        // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+        return (perf && perf.now) ?
+            (perf.now() + perf.timing.navigationStart) : 
+            Date.now();
+    }
 
     /**
      * Publish a tick to subscribed callbacks
@@ -16,20 +23,12 @@
      */
     function step( time ){
 
-        var fns = listeners;
-
         if (!active){
             return;
         }
 
         window.requestAnimationFrame( step );
-        
-        for ( var i = 0, l = fns.length; i < l; ++i ){
-            
-            fns[ i ]( time, time - lastTime );
-        }
-
-        lastTime = time;
+        ps.emit( 'tick', time );
     }
 
     /**
@@ -38,10 +37,8 @@
      */
     function start(){
         
-        lastTime = (new Date()).getTime();
         active = true;
         step();
-
         return this;
     }
 
@@ -62,20 +59,7 @@
      */
     function subscribe( listener ){
 
-        // if function and not already in listeners...
-        if ( typeof listener === 'function' ){
-
-            for ( var i = 0, l = listeners.length; i < l; ++i ){
-                
-                if (listener === listeners[ i ]){
-                    return this;
-                }
-            }
-
-            // add it
-            listeners.push( listener );
-        }
-        
+        ps.on('tick', listener);
         return this;
     }
 
@@ -86,18 +70,7 @@
      */
     function unsubscribe( listener ){
 
-        var fns = listeners;
-
-        for ( var i = 0, l = fns.length; i < l; ++i ){
-            
-            if ( fns[ i ] === listener ){
-
-                // remove it
-                fns.splice( i, 1 );
-                return this;
-            }
-        }
-
+        ps.off('tick', listener);
         return this;
     }
 
@@ -112,6 +85,7 @@
 
     // API
     Physics.util.ticker = {
+        now: now,
         start: start,
         stop: stop,
         on: subscribe,
