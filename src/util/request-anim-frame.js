@@ -16,11 +16,12 @@ if (!Date.now){
     for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
         var vp = vendors[i];
         window.requestAnimationFrame = window[vp+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = (window[vp+'CancelAnimationFrame']
-                                   || window[vp+'CancelRequestAnimationFrame']);
+        window.cancelAnimationFrame = (window[vp+'CancelAnimationFrame'] || window[vp+'CancelRequestAnimationFrame']);
     }
-    if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
-        || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
+    if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) || // iOS6 is buggy
+            !window.requestAnimationFrame || 
+            !window.cancelAnimationFrame
+        ) {
         var lastTime = 0;
         window.requestAnimationFrame = function(callback) {
             var now = Date.now();
