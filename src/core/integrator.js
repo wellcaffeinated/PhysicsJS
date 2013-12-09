@@ -36,8 +36,7 @@
             this.integrateVelocities( bodies, dt );
             
             if ( world ){
-                world.publish({
-                    topic: 'integrate:velocities',
+                world.emit('integrate:velocities', {
                     bodies: bodies,
                     dt: dt
                 });
@@ -46,8 +45,7 @@
             this.integratePositions( bodies, dt );
             
             if ( world ){
-                world.publish({
-                    topic: 'integrate:positions',
+                world.emit('integrate:positions', {
                     bodies: bodies,
                     dt: dt
                 });

@@ -56,7 +56,7 @@ define([
             rigidConstraints.constrain( basket[ l - 1 ], basket[ l - 2 ] );
         }
 
-        world.subscribe('render', function( data ){
+        world.on('render', function( data ){
 
             var renderer = data.renderer;
             for ( var i = 1, l = basket.length; i < l; ++i ){

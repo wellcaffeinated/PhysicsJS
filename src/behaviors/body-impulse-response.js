@@ -19,7 +19,7 @@ Physics.behavior('body-impulse-response', function( parent ){
          */
         connect: function( world ){
 
-            world.subscribe( PUBSUB_COLLISION, this.respond, this );
+            world.on( PUBSUB_COLLISION, this.respond, this );
         },
 
         /**
@@ -29,7 +29,7 @@ Physics.behavior('body-impulse-response', function( parent ){
          */
         disconnect: function( world ){
 
-            world.unsubscribe( PUBSUB_COLLISION, this.respond );
+            world.off( PUBSUB_COLLISION, this.respond );
         },
 
         /**

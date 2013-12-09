@@ -66,13 +66,13 @@ define(
                 connect: function( world ){
 
                     // subscribe the .behave() method to the position integration step
-                    world.subscribe('integrate:positions', this.behave, this);
+                    world.on('integrate:positions', this.behave, this);
                 },
 
                 disconnect: function( world ){
 
                     // unsubscribe when disconnected
-                    world.unsubscribe('integrate:positions', this.behave);
+                    world.off('integrate:positions', this.behave);
                 },
 
                 behave: function( data ){

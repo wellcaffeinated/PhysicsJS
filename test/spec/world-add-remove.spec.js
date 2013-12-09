@@ -28,7 +28,7 @@ describe("Adding and Removing things from world", function() {
             'removedBehaviors'
         ]);
 
-        world.subscribe({
+        world.on({
             'add:body': callbacks.addedBodies,
             'remove:body': callbacks.removedBodies,
             'add:behavior': callbacks.addedBehaviors,
@@ -38,10 +38,10 @@ describe("Adding and Removing things from world", function() {
 
     afterEach(function(){
         // unsubscribe all
-        world.unsubscribe( 'add:body', true );
-        world.unsubscribe( 'remove:body', true );
-        world.unsubscribe( 'add:behavior', true );
-        world.unsubscribe( 'remove:behavior', true );
+        world.off( 'add:body', true );
+        world.off( 'remove:body', true );
+        world.off( 'add:behavior', true );
+        world.off( 'remove:behavior', true );
     });
 
     world.step( 0 );

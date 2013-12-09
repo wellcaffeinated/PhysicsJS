@@ -73,7 +73,7 @@ define([
         }
 
         // custom view creation
-        world.subscribe('render', function( data ){
+        world.on('render', function( data, e ){
 
             Physics.util.each( fruitcake, function( circle ){
 
@@ -91,12 +91,12 @@ define([
             });
 
             // only run once
-            world.unsubscribe( data.topic, data.handler );
+            world.off( e.topic, e.handler );
 
         }, null, 100);
 
         // render
-        world.subscribe('render', function( data ){
+        world.on('render', function( data ){
 
             var renderer = data.renderer
                 ,constraints = rigidConstraints.getConstraints()

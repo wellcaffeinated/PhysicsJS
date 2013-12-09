@@ -53,8 +53,7 @@
                 this.beforeRender();
             }
 
-            this._world.publish({
-                topic: 'beforeRender',
+            this._world.emit('beforeRender', {
                 renderer: this,
                 bodies: bodies,
                 meta: meta

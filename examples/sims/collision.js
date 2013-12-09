@@ -85,7 +85,7 @@ define([
             }
         }
         
-        world.subscribe('unpause', function(){
+        world.on('unpause', function(){
 
             dropDelay();
         });

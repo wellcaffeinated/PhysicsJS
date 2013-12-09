@@ -33,9 +33,9 @@ describe("Collision Detection", function() {
             collide = true;
         };
 
-        world.subscribe('collisions:detected', callback);
+        world.on('collisions:detected', callback);
         world.step( 2 );
-        world.unsubscribe('collisions:detected', callback);
+        world.off('collisions:detected', callback);
 
         expect( collide ).toBe(true);
     });
@@ -49,9 +49,9 @@ describe("Collision Detection", function() {
             collide = true;
         };
 
-        world.subscribe('collisions:detected', callback);
+        world.on('collisions:detected', callback);
         world.step( 3 );
-        world.unsubscribe('collisions:detected', callback);
+        world.off('collisions:detected', callback);
 
         expect( collide ).toBe(false);
     });

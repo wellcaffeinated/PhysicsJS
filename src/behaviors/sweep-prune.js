@@ -77,9 +77,9 @@ Physics.behavior('sweep-prune', function( parent ){
          */
         connect: function( world ){
 
-            world.subscribe( 'add:body', this.trackBody, this );
-            world.subscribe( 'remove:body', this.untrackBody, this );
-            world.subscribe( 'integrate:velocities', this.sweep, this );
+            world.on( 'add:body', this.trackBody, this );
+            world.on( 'remove:body', this.untrackBody, this );
+            world.on( 'integrate:velocities', this.sweep, this );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -96,9 +96,9 @@ Physics.behavior('sweep-prune', function( parent ){
          */
         disconnect: function( world ){
 
-            world.unsubscribe( 'add:body', this.trackBody );
-            world.unsubscribe( 'remove:body', this.untrackBody );
-            world.unsubscribe( 'integrate:velocities', this.sweep );
+            world.off( 'add:body', this.trackBody );
+            world.off( 'remove:body', this.untrackBody );
+            world.off( 'integrate:velocities', this.sweep );
             this.clear();
         },
 
@@ -456,8 +456,7 @@ Physics.behavior('sweep-prune', function( parent ){
             
             if ( candidates.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_CANDIDATES,
+                this._world.emit(PUBSUB_CANDIDATES, {
                     candidates: candidates
                 });
             }

@@ -204,7 +204,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
          */
         connect: function( world ){
 
-            world.subscribe( 'integrate:velocities', this.checkAll, this );
+            world.on( 'integrate:velocities', this.checkAll, this );
         },
 
         /**
@@ -214,7 +214,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
          */
         disconnect: function( world ){
 
-            world.unsubscribe( 'integrate:velocities', this.checkAll );
+            world.off( 'integrate:velocities', this.checkAll );
         },
 
         /**
@@ -250,8 +250,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
             if ( collisions.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                this._world.emit(PUBSUB_COLLISION, {
                     collisions: collisions
                 });
             }

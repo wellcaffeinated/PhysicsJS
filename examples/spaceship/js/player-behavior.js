@@ -68,8 +68,8 @@ define(
                 connect: function( world ){
 
                     // we want to subscribe to world events
-                    world.subscribe('collisions:detected', this.checkPlayerCollision, this);
-                    world.subscribe('integrate:positions', this.behave, this);
+                    world.on('collisions:detected', this.checkPlayerCollision, this);
+                    world.on('integrate:positions', this.behave, this);
                 },
 
                 // this is automatically called by the world
@@ -77,8 +77,8 @@ define(
                 disconnect: function( world ){
 
                     // we want to unsubscribe from world events
-                    world.unsubscribe('collisions:detected', this.checkPlayerCollision);
-                    world.unsubscribe('integrate:positions', this.behave);
+                    world.off('collisions:detected', this.checkPlayerCollision);
+                    world.off('integrate:positions', this.behave);
                 },
 
                 // check to see if the player has collided
@@ -106,7 +106,7 @@ define(
 
                             // when we crash, we'll publish an event to the world
                             // that we can listen for to prompt to restart the game
-                            world.publish('lose-game');
+                            world.emit('lose-game');
                             return;
                         }
                     }

@@ -107,7 +107,7 @@ require(
         planet.view.src = require.toUrl('images/planet.png');
 
         // render on every step
-        world.subscribe('step', function(){
+        world.on('step', function(){
             // middle of canvas
             var middle = { 
                 x: 0.5 * window.innerWidth, 
@@ -120,16 +120,16 @@ require(
 
         // count number of ufos destroyed
         var killCount = 0;
-        world.subscribe('blow-up', function( data ){
+        world.on('blow-up', function( data ){
             
             killCount++;
             if ( killCount === ufos.length ){
-                world.publish('win-game');
+                world.emit('win-game');
             }
         });
 
         // blow up anything that touches a laser pulse
-        world.subscribe('collisions:detected', function( data ){
+        world.on('collisions:detected', function( data ){
             var collisions = data.collisions
                 ,col
                 ;
@@ -149,7 +149,7 @@ require(
         });
 
         // draw minimap
-        world.subscribe('render', function( data ){
+        world.on('render', function( data ){
             // radius of minimap
             var r = 100;
             // padding
@@ -205,11 +205,11 @@ require(
         }
 
         world = Physics( init );
-        world.subscribe('lose-game', function(){
+        world.on('lose-game', function(){
             document.body.className = 'lose-game';
             inGame = false;
         });
-        world.subscribe('win-game', function(){
+        world.on('win-game', function(){
             world.pause();
             document.body.className = 'win-game';
             inGame = false;
@@ -217,7 +217,7 @@ require(
     };
 
     // subscribe to ticker and start looping
-    Physics.util.ticker.subscribe(function( time ){
+    Physics.util.ticker.on(function( time ){
         if (world){
             world.step( time ); 
         }

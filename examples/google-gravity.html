@@ -436,11 +436,11 @@
 				world.render();
 				world.pause();
 
-				Physics.util.ticker.subscribe( loop );
+				Physics.util.ticker.on( loop );
 				Physics.util.ticker.start();
 
 				// magic to trigger GPU
-				world.subscribe('render', function( data ){
+				world.on('render', function( data ){
 					var style;
 					for ( var i = 0, l = data.bodies.length; i < l; ++i ){
 						

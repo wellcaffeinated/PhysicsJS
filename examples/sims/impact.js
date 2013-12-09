@@ -52,7 +52,7 @@ define([
         }
 
         // delay the launching
-        world.subscribe('render', function( data ){
+        world.on('render', function( data, e ){
 
             setTimeout(function(){
                 
@@ -61,7 +61,7 @@ define([
             }, 2000);
 
             // only run once
-            world.unsubscribe( data.topic, data.handler );
+            world.off( e.topic, e.handler );
 
         }, null, 100);
 

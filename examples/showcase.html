@@ -128,7 +128,7 @@ require({
         // add the renderer
         world.add( renderer );
 
-        Physics.util.ticker.subscribe(function( time, dt ){
+        Physics.util.ticker.on(function( time, dt ){
 
             world.step( time );
 

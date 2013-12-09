@@ -213,11 +213,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( this.options.checkAll ){
 
-                world.subscribe( 'integrate:velocities', this.checkAll, this );
+                world.on( 'integrate:velocities', this.checkAll, this );
 
             } else {
 
-                world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+                world.on( PUBSUB_CANDIDATES, this.check, this );
             }
         },
 
@@ -230,11 +230,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( this.options.checkAll ){
 
-                world.unsubscribe( 'integrate:velocities', this.checkAll );
+                world.off( 'integrate:velocities', this.checkAll );
 
             } else {
 
-                world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+                world.off( PUBSUB_CANDIDATES, this.check );
             }
         },
 
@@ -264,8 +264,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( collisions.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                this._world.emit( PUBSUB_COLLISION, {
                     collisions: collisions
                 });
             }
@@ -308,8 +307,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( collisions.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                this._world.emit( PUBSUB_COLLISION, {
                     collisions: collisions
                 });
             }

@@ -70,7 +70,7 @@ require({
         world.add( integrator );
     
         // render on each step
-        world.subscribe('step', function () {
+        world.on('step', function () {
             world.render();
         });
     
@@ -141,7 +141,7 @@ require({
         ]);
     
         // subscribe to ticker to advance the simulation
-        Physics.util.ticker.subscribe(function (time, dt) {
+        Physics.util.ticker.on(function (time, dt) {
     
             world.step(time);
         });

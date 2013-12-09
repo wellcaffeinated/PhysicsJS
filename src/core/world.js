@@ -101,7 +101,6 @@
             this._renderer = null;
             this._paused = false;
             this._opts = {};
-            this.initPubsub( this );
 
             // set options
             this.options( cfg || {} );
@@ -244,8 +243,6 @@
          */
         integrator: function( integrator ){
 
-            var notify;
-
             if ( integrator === undefined ){
                 return this._integrator;
             }
@@ -259,26 +256,18 @@
 
                 this._integrator.setWorld( null );
 
-                // notify
-                notify = {
-                    topic: 'remove:integrator',
+                this.emit( 'remove:integrator', {
                     integrator: this._integrator
-                };
-
-                this.publish( notify );
+                });
             }
 
             if ( integrator ){
                 this._integrator = integrator;
                 this._integrator.setWorld( this );
 
-                // notify
-                notify = {
-                    topic: 'add:integrator',
+                this.emit( 'add:integrator', {
                     integrator: this._integrator
-                };
-
-                this.publish( notify );
+                });
             }
 
             return this;
@@ -290,8 +279,6 @@
          * @return {this|Object}          This or Renderer
          */
         renderer: function( renderer ){
-
-            var notify;
 
             if ( renderer === undefined ){
                 return this._renderer;
@@ -306,26 +293,18 @@
 
                 this._renderer.setWorld( null );
 
-                // notify
-                notify = {
-                    topic: 'remove:renderer',
+                this.emit( 'remove:renderer', {
                     renderer: this._renderer
-                };
-
-                this.publish( notify );
+                });
             }
 
             if ( renderer ){
                 this._renderer = renderer;
                 this._renderer.setWorld( this );
 
-                // notify
-                notify = {
-                    topic: 'add:renderer',
+                this.emit( 'add:renderer', {
                     renderer: this._renderer
-                };
-
-                this.publish( notify );
+                });
             }
 
             return this;
@@ -357,18 +336,12 @@
          */
         addBehavior: function( behavior ){
 
-            var notify;
-
             behavior.setWorld( this );
             this._behaviors.push( behavior );
 
-            // notify
-            notify = {
-                topic: 'add:behavior',
+            this.emit( 'add:behavior', {
                 behavior: behavior
-            };
-
-            this.publish( notify );
+            });
 
             return this;
         },
@@ -390,9 +363,7 @@
          */
         removeBehavior: function( behavior ){
 
-            var behaviors = this._behaviors
-                ,notify
-                ;
+            var behaviors = this._behaviors;
 
             if (behavior){
                 
@@ -402,13 +373,9 @@
                         
                         behaviors.splice( i, 1 );
 
-                        // notify
-                        notify = {
-                            topic: 'remove:behavior',
+                        this.emit( 'remove:behavior', {
                             behavior: behavior
-                        };
-
-                        this.publish( notify );
+                        });
 
                         break;
                     }
@@ -425,18 +392,12 @@
          */
         addBody: function( body ){
 
-            var notify;
-
             body.setWorld( this );
             this._bodies.push( body );
 
-            // notify
-            notify = {
-                topic: 'add:body',
+            this.emit( 'add:body', {
                 body: body
-            };
-
-            this.publish( notify );
+            });
 
             return this;
         },
@@ -458,9 +419,7 @@
          */
         removeBody: function( body ){
 
-            var bodies = this._bodies
-                ,notify
-                ;
+            var bodies = this._bodies;
 
             if (body){
                 
@@ -470,13 +429,9 @@
                         
                         bodies.splice( i, 1 );
 
-                        // notify
-                        notify = {
-                            topic: 'remove:body',
+                        this.emit( 'remove:body', {
                             body: body
-                        };
-
-                        this.publish( notify );
+                        });
 
                         break;
                     }
@@ -585,9 +540,7 @@
                 this.iterate( dt );
             }
 
-            this.publish({
-                topic: 'step'
-            });
+            this.emit('step');
             return this;
         },
 
@@ -602,8 +555,7 @@
             }
             
             this._renderer.render( this._bodies, this._stats );
-            this.publish({
-                topic: 'render',
+            this.emit('render', {
                 bodies: this._bodies,
                 stats: this._stats,
                 renderer: this._renderer
@@ -618,9 +570,7 @@
         pause: function(){
 
             this._paused = true;
-            this.publish({
-                topic: 'pause'
-            });
+            this.emit('pause');
             return this;
         },
 
@@ -631,9 +581,7 @@
         unpause: function(){
 
             this._paused = false;
-            this.publish({
-                topic: 'unpause'
-            });
+            this.emit('unpause');
             return this;
         },
 
@@ -657,7 +605,7 @@
             self.pause();
 
             // notify before
-            this.publish( 'destroy' );
+            this.emit('destroy');
 
             // remove all listeners
             self.unsubscribe( true );

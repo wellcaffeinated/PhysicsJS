@@ -114,8 +114,8 @@
     Physics.util.ticker = {
         start: start,
         stop: stop,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe,
+        on: subscribe,
+        off: unsubscribe,
         isActive: isActive
     };
 

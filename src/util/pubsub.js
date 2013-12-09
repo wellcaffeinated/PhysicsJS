@@ -3,29 +3,17 @@
     /**
      * PubSub implementation (fast)
      */
-    var PubSub = function PubSub( defaultScope ){
+    var PubSub = function PubSub(){
 
         if (!(this instanceof PubSub)){
-            return new PubSub( defaultScope );
+            return new PubSub();
         }
-
-        this.initPubsub( defaultScope );
     };
 
     PubSub.prototype = {
 
         /**
-         * Initialize
-         * @param  {Object} defaultScope Default scope to bind events to
-         * @return {void}
-         */
-        initPubsub: function( defaultScope ){
-            this._topics = {};
-            this._defaultScope = defaultScope || this;
-        },
-
-        /**
-         * Subscribe a callback (or callbacks) to a topic (topics).
+         * Subscribe callback(s) to a topic(s).
          * 
          * @param  {String|Object}   topic The topic name, or a config with key/value pairs of { topic: callbackFn, ... }
          * @param  {Function} fn The callback function (if not using Object as previous argument)
@@ -33,12 +21,15 @@
          * @param  {Number}   priority (optional) The priority of the callback (higher = earlier)
          * @return {this}
          */
-        subscribe: function( topic, fn, scope, priority ){
+        on: function( topic, fn, scope, priority ){
 
-            var listeners = this._topics[ topic ] || (this._topics[ topic ] = [])
-                ,orig = fn
+            var listeners
+                ,orig
                 ,idx
                 ;
+
+            // ensure topics hash is initialized
+            this._topics = this._topics || (this._topics = {});
 
             // check if we're subscribing to multiple topics
             // with an object
@@ -46,11 +37,14 @@
 
                 for ( var t in topic ){
                     
-                    this.subscribe( t, topic[ t ], fn, scope );
+                    this.on( t, topic[ t ], fn, scope );
                 }
 
                 return this;
             }
+
+            listeners = this._topics[ topic ] || (this._topics[ topic ] = []);
+            orig = fn;
 
             if ( Physics.util.isObject( scope ) ){
                 
@@ -71,27 +65,49 @@
         },
 
         /**
-         * Unsubscribe function from topic.
-         * @param  {String}   topic Topic name OR true to remove all listeners on all topics
-         * @param  {Function} fn The original callback function OR true to remove all listeners
+         * Unsubscribe callback(s) from topic(s).
+         * 
+         * @param  {String|Object|Boolean}   topic The topic name, or a config with key/value pairs of { topic: callbackFn, ... }, or true to remove all listeners for all topics 
+         * @param  {Function} fn The original callback function OR true to remove all listeners for specified topic
          * @return {this}
          */
-        unsubscribe: function( topic, fn ){
+        off: function( topic, fn ){
+
+            var listeners
+                ,listn
+                ;
+
+            if ( !this._topics ){
+                // nothing subscribed
+                return this;
+            }
 
             if ( topic === true ){
+                // purge all listeners
                 this._topics = {};
                 return this;
             }
 
-            var listeners = this._topics[ topic ]
-                ,listn
-                ;
+            // check if we're subscribing to multiple topics
+            // with an object
+            if ( Physics.util.isObject( topic ) ){
+
+                for ( var t in topic ){
+                    
+                    this.off( t, topic[ t ] );
+                }
+
+                return this;
+            }
+
+            listeners = this._topics[ topic ];
 
             if (!listeners){
                 return this;
             }
 
             if ( fn === true ){
+                // purge all listeners for topic
                 this._topics[ topic ] = [];
                 return this;
             }
@@ -111,35 +127,35 @@
 
         /**
          * Publish data to a topic
-         * @param  {Object|String} data
-         * @param  {Object} scope The scope to be included in the data argument passed to callbacks
+         * @param  {String} topic The topic name
+         * @param  {Object|String} data The data to send
          * @return {this}
          */
-        publish: function( data, scope ){
+        emit: function( topic, data ){
 
-            if (typeof data !== 'object'){
-                data = { topic: data };
+            if ( !this._topics ){
+                // nothing subscribed
+                return this;
             }
 
-            var topic = data.topic
-                ,listeners = this._topics[ topic ]
+            var listeners = this._topics[ topic ]
                 ,l = listeners && listeners.length
+                ,handler
                 ;
-
-            if ( !topic ){
-                throw 'Error: No topic specified in call to world.publish()';
-            }
 
             if ( !l ){
                 return this;
             }
-            
-            data.scope = data.scope || this._defaultScope;
 
+            // reverse iterate so priorities work out correctly
             while ( l-- ){
                 
-                data.handler = listeners[ l ];
-                data.handler( data );
+                handler = listeners[ l ];
+                handler( data, {
+                    // event data
+                    topic: topic,
+                    handler: handler
+                });
             }
 
             return this;

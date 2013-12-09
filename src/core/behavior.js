@@ -27,7 +27,7 @@
         connect: function( world ){
 
             if (this.behave){
-                world.subscribe('integrate:positions', this.behave, this, this.priority);
+                world.on('integrate:positions', this.behave, this, this.priority);
             }
         },
 
@@ -39,7 +39,7 @@
         disconnect: function( world ){
 
             if (this.behave){
-                world.unsubscribe('integrate:positions', this.behave);
+                world.off('integrate:positions', this.behave);
             }
         },
 

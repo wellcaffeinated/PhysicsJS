@@ -44,7 +44,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 throw 'The rigid constraint manager needs a world with a "verlet" compatible integrator.';
             }
 
-            world.subscribe('integrate:positions', this.resolve, this);
+            world.on('integrate:positions', this.resolve, this);
         },
 
         /**
@@ -54,7 +54,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          */
         disconnect: function( world ){
 
-            world.unsubscribe('integrate:positions', this.resolve);
+            world.off('integrate:positions', this.resolve);
         },
 
         /**

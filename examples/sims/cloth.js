@@ -48,7 +48,7 @@ define([
             }
         }
 
-        world.subscribe('integrate:positions', function(){
+        world.on('integrate:positions', function(){
 
             var constraints = rigidConstraints.getConstraints()
                 ,c
@@ -75,7 +75,7 @@ define([
         }, null, 100);
 
         // render
-        world.subscribe('render', function( data ){
+        world.on('render', function( data ){
 
             var renderer = data.renderer
                 ,constraints = rigidConstraints.getConstraints()

@@ -126,7 +126,7 @@ define([
             world.add( tree );
 
             // handle detaching the leaves
-            world.subscribe('integrate:positions', function(){
+            world.on('integrate:positions', function(){
 
                 var constrs = tree.constraints.getConstraints().distanceConstraints
                     ,c
@@ -158,7 +158,7 @@ define([
             }, null, 100);
 
             // render the branches
-            world.subscribe('beforeRender', function( data ){
+            world.on('beforeRender', function( data ){
 
                 var renderer = data.renderer
                     ,constrs = tree.constraints.getConstraints().distanceConstraints

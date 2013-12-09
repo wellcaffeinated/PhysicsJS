@@ -63,8 +63,7 @@ define(
                     world.add( debris );
                     world.removeBody( self );
                     scratch.done();
-                    world.publish({
-                        topic: 'blow-up', 
+                    world.publish('blow-up', {
                         body: self
                     });
                     return self;
