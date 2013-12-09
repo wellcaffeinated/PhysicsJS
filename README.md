@@ -43,6 +43,22 @@ when you modify the source in `src/` then run:
 
 **Note** grunt watch won't run unit tests.
 
+### Pull Requests
+
+If you are contributing a bug-fix or a very minor addition, feel free to
+do a pull request on the master branch.
+
+If it is something else create a new (or existing) feature branch (eg: `feature/MY_FEAT`)
+and issue a pull request on that.
+
+If unsure, create an issue to discuss.
+
+Please ensure that:
+
+* the files in `dist/` are _unmodified_.
+* the features you add are well documented with jsdoc comments if applicable.
+* the code is indented with 4 space characters.
+
 ## License MIT
 
 Copyright (c) 2013 Jasper Palfree http://wellcaffeinated.net/PhysicsJS/
