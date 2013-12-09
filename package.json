@@ -26,7 +26,8 @@
     "grunt-contrib-jshint": "0.x.x",
     "grunt-contrib-watch": "~0.3.1",
     "grunt-lodash": "~0.3.0",
-    "grunt-template-jasmine-requirejs": "~0.1.1"
+    "grunt-template-jasmine-requirejs": "~0.1.1",
+    "codepainter": "0.3.x"
   },
   "bundledDependencies": [],
   "license": "MIT"
