@@ -2,10 +2,7 @@
 
 module.exports = function(grunt) {
     "use strict";
-    var pkg
-        ,config
-        ,codepaint = require('codepainter')
-        ;
+    var pkg, config;
 
     pkg = grunt.file.readJSON('package.json');
 
@@ -311,24 +308,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-
-
-    // prettify code
-    grunt.registerTask('codepaint', function(){
-
-        grunt.log.writeln('Beautifying js with codepaint');
-        codepaint.xform('src/**/*.js', codepaintStyle, function ( err, xformed, skipped, errored ){
-
-            if ( err ){
-                grunt.log.error('codepaint failed', err.toString());
-                throw err;
-            }
-
-            grunt.log.writeln('transformed:', xformed);
-            grunt.log.writeln('skipped:', skipped);
-            grunt.log.writeln('errored:', errored);
-        });
-    });
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
