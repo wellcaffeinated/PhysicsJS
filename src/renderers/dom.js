@@ -109,7 +109,7 @@ Physics.renderer('dom', function( proto ){
         /**
          * Set dom element style properties for a circle
          * @param  {HTMLElement} el       The element
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {void}
          */
         circleProperties: function( el, geometry ){
@@ -124,7 +124,7 @@ Physics.renderer('dom', function( proto ){
 
         /**
          * Create a dom element for the specified geometry
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {HTMLElement}          The element
          */
         createView: function( geometry ){
@@ -158,7 +158,7 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Update dom element to reflect bodie's current state
+         * Update dom element to reflect body's current state
          * @param  {Body} body The body to draw
          * @param  {HTMLElement} view The view for that body
          * @return {void}
