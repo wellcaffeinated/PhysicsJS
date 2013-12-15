@@ -318,7 +318,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-dox');
+
+    require('./docs/gen-docs')(grunt);
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
