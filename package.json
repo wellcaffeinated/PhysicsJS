@@ -34,7 +34,13 @@
     "grunt-contrib-watch": "~0.3.1",
     "grunt-lodash": "~0.3.0",
     "grunt-template-jasmine-requirejs": "~0.1.1",
-    "grunt-dox": "~0.5.0"
+    "grunt-dox": "~0.5.0",
+    "jade": "~0.35.0",
+    "dox": "~0.4.4",
+    "underscore": "~1.5.2",
+    "mkdirp": "~0.3.5",
+    "walkdir": "0.0.7",
+    "stylus": "~0.41.3"
   },
   "bundledDependencies": [],
   "license": "MIT"
