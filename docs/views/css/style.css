@@ -1,0 +1,59 @@
+/* Foundation hacks */
+.section-container.auto>.section .content {
+  background-color: transparent !important;
+}
+
+a {
+  color:#C30000 !important;
+  font-weight:200 !important;
+  text-decoration:none !important;
+}
+
+.row.banner {
+  background: black;
+}
+
+.section-container.accordian {
+  margin-top: 10px;
+}
+
+/* PhysicsJS Styles */
+
+body {
+  background: #FFF9D0 url(images/texture.png);
+}
+
+h1.header {
+  font-family: "CaviarDreamsRegular", sans-serif;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.3em;
+  border-bottom: none;
+  margin-top: 10px;
+  margin-bottom: -10px;
+}
+
+h1.header a:hover {
+  text-decoration: none;
+}
+
+h1.header span,
+h1 .js {
+  color: #C30000;
+}
+
+h1.header a {
+  color: #fff !important;
+}
+
+a {
+  color:#C30000;
+  font-weight:200;
+  text-decoration:none;
+}
+
+a.back {
+  display: block;
+  margin-top: 10px;
+}
+

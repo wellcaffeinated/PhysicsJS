@@ -4,14 +4,18 @@ html
     include ./_head.jade
 
   body
-    .row
+    .row.banner
       .small-12.columns
-        h1.page-title= title
+        h1.header
+          a(href='http.wellcaffeinated.net/PhysicsJS') Physics
+            span JS
+        //-h1.page-title= title
+        h1.page-title
           if subTitle
             small=' '+subTitle
     .row
       #nav.large-3.columns
-        a(href='http://wellcaffeinated.net/PhysicsJS') Back to Site
+        a.back(href='http://wellcaffeinated.net/PhysicsJS') &lsaquo; Back to Site
         .section-container.accordian(data-section="accordian", data-options="")
           if locals.structure
             each file in structure
