@@ -99,7 +99,7 @@ module.exports = function(grunt) {
         packages: [
             {
                 name: 'physicsjs',
-                location: './',
+                location: '.',
                 main: 'physicsjs-'+pkg.version
             }
         ],
@@ -306,6 +306,18 @@ module.exports = function(grunt) {
                 }
             }
         },
+        jasmine_node: {
+            specNameMatcher: "spec", // load only specs containing specNameMatcher
+            projectRoot: "test/node",
+            requirejs: false,
+            forceExit: true,
+            jUnit: {
+                report: false,
+                savePath : false,
+                useDotNotation: true,
+                consolidate: true
+            }
+        },
         jshint : {
             options : {
                 jshintrc : 'jshint.json'
@@ -359,6 +371,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-lodash');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -384,7 +397,7 @@ module.exports = function(grunt) {
     grunt.registerTask('testDev', ['jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
     // tests on dist code
-    grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test']);
+    grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);
 
     // create a distribution build
     grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
