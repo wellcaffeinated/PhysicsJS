@@ -8,15 +8,37 @@ module.exports = function(grunt) {
 
     config = {
         banner : [
-            '/**\n',
-            ' * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n',
-            ' * <%= pkg.description %>\n',
-            ' * http://wellcaffeinated.net/PhysicsJS\n',
-            ' *\n',
-            ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n',
-            ' * Licensed <%= pkg.license %>\n',
-            ' */\n'
-        ].join(''),
+            '/**',
+            ' * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>',
+            ' * <%= pkg.description %>',
+            ' * http://wellcaffeinated.net/PhysicsJS',
+            ' *',
+            ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>',
+            ' * Licensed <%= pkg.license %>',
+            ' */'
+        ].join('\n'),
+
+        extensionWrapper: [
+            "(function (root, factory) {",
+            "    var deps = [<%= deps =>];",
+            "    if (typeof exports === 'object') {",
+            "        // Node. ",
+            "        var mods = deps.map(require);",
+            "        module.exports = factory.call(root, mods[ 0 ]);",
+            "    } else if (typeof define === 'function' && define.amd) {",
+            "        // AMD. Register as an anonymous module.",
+            "        define(deps, function( p ){ return factory.call(root, p); });",
+            "    } else {",
+            "        // Browser globals (root is window). Dependency management is up to you.",
+            "        root.Physics = factory.call(root, root.Physics);",
+            "    }",
+            "}(this, function ( Physics ) {",
+            "    'use strict';",
+            "    <%= src =>",
+            "    // end module: <%= path =>",
+            "    return Physics;",
+            "})); // UMD ";
+        ].join('\n'),
 
         sources : [
             'src/intro.js',
@@ -96,25 +118,14 @@ module.exports = function(grunt) {
             return match;
         });
 
-        return grunt.template.process(config.banner, config) + "(function (root, factory) {\n" +
-        "    var deps = ['" + deps.join("', '") + "'];\n" +
-        "    if (typeof exports === 'object') {\n" +
-        "        // Node. \n" +
-        "        var mods = deps.map(require);\n" +
-        "        module.exports = factory.call(root, mods[ 0 ]);\n" +
-        "    } else if (typeof define === 'function' && define.amd) {\n" +
-        "        // AMD. Register as an anonymous module.\n" +
-        "        define(deps, function( p ){ return factory.call(root, p); });\n" +
-        "    } else {\n" +
-        "        // Browser globals (root is window). Dependency management is up to you.\n" +
-        "        root.Physics = factory.call(root, root.Physics);\n" +
-        "    }\n" +
-        "}(this, function ( Physics ) {\n" +
-        "    'use strict';\n" +
-        "    " + src.replace(/\n/g, '\n    ') + '\n' +
-        '    // end module: ' + path + '\n' +
-        '    return Physics;\n' +
-        "})); // UMD ";
+        var data = {
+            src: src.replace(/\n/g, '\n    '),
+            path: path,
+            deps: "'" + deps.join("', '") + "'"
+        };
+
+        return grunt.template.process(config.banner, config) + 
+            grunt.template.process(config.extensionWrapper, data);
     }
 
     // write out the source file identifier as a comment
