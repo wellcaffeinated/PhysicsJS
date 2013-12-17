@@ -297,7 +297,17 @@ module.exports = function(grunt) {
                     // ]
                 }
             }
-        }
+        },
+
+        dox: {
+          options: {
+            title: "PhysicsJS Documentation"
+          },
+          files: {
+            src: ['src/**/*.js'],
+            dest: 'docs'
+          }
+        },
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -308,6 +318,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+
+    require('./docs/gen-docs')(grunt);
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
@@ -332,5 +344,6 @@ module.exports = function(grunt) {
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);
-    
+
+    grunt.registerTask('docs', ['dox']);
 };

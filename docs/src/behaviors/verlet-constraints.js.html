@@ -1,0 +1,615 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width" charset="utf-8"><title>PhysicsJS Documentation</title><!-- Foundation CSS--><link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.min.css"><!-- Prism CSS--><style type="text/css">/**
+ * prism.js default theme for JavaScript, CSS and HTML
+ * Based on dabblet (http://dabblet.com)
+ * @author Lea Verou
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', monospace;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+::-moz-selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+::selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0,0%,100%,.5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+
+.token.regex,
+.token.important {
+	color: #e90;
+}
+
+.token.important {
+	font-weight: bold;
+}
+
+.token.entity {
+	cursor: help;
+}
+</style><!-- Custom Styles--><style type="text/css">h1.page-title small {
+  font-weight: 400;
+}
+/*.section-container, .section-container .section .title
+  border-color #e6e6e6*/
+#nav .section.active {
+  padding-top: 0 !important;
+}
+#nav .section.active .title {
+  background: #ddd;
+}
+#nav .section .title {
+  background-color: #eee;
+}
+#nav .section .title a {
+  font-weight: 700;
+  padding: 0.6em;
+}
+#nav .section .title a small {
+  font-size: 0.8em;
+  line-height: 1em;
+  display: block;
+  color: #888;
+  margin: 2px 0 -2px;
+}
+#nav .section .title:hover {
+  background: #ddd;
+}
+#nav ul.solo {
+  border-top: 1px solid #ccc;
+  padding: 0.875em;
+}
+code {
+  background: transparent;
+  line-height: 1.3em;
+  font-weight: normal;
+}
+.comment {
+  position: relative;
+  padding-bottom: 1.5em;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #ddd;
+}
+.comment ol,
+.comment ul {
+  margin-left: 2.25em;
+}
+.comment ol.no-bullet,
+.comment ul.no-bullet {
+  margin-left: 0;
+}
+.comment header {
+  margin-bottom: 1.5em;
+}
+.comment header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.2em;
+}
+.comment .section-container,
+.comment .section-container > .section > .content {
+  border: none;
+}
+.comment .section-container > .section > .title {
+  padding: auto;
+  background: none !important;
+  border: none !important;
+}
+.comment .section-container > .section > .title a {
+  border-radius: 4px;
+  font-weight: 700;
+  padding: 1px 10px 1px 0;
+  margin-right: 5px;
+  color: #ccc;
+}
+.comment .section-container > .section:hover .title a {
+  color: #999;
+}
+.comment .section-container > .section.active .title a {
+  color: #2ba6cb;
+}
+.comment .section-container > .section > .content {
+  padding: 0.9em 0 0;
+}
+.comment div.description h2 {
+  font-size: 1.2em;
+}
+.comment .tags span {
+  margin-right: 4px;
+}
+.comment .tags .name,
+.comment .tags .type {
+  font-weight: 700;
+}
+.comment .tags .types {
+  color: #666;
+}
+.comment .tags .description {
+  margin-left: 15px;
+}
+.ctx-type {
+  margin-right: 6px;
+  font-size: 0.7em;
+}
+</style><style type="text/css">/* Foundation hacks */
+.section-container.auto>.section .content {
+  background-color: transparent !important;
+}
+
+a {
+  color:#C30000 !important;
+  font-weight:200 !important;
+  text-decoration:none !important;
+}
+
+.row.banner {
+  background: black;
+}
+
+.section-container.accordian {
+  margin-top: 10px;
+}
+
+/* PhysicsJS Styles */
+
+body {
+  background: #FFF9D0 url(images/texture.png);
+}
+
+h1.header {
+  font-family: "CaviarDreamsRegular", sans-serif;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1.3em;
+  border-bottom: none;
+  margin-top: 10px;
+  margin-bottom: -10px;
+}
+
+h1.header a:hover {
+  text-decoration: none;
+}
+
+h1.header span,
+h1 .js {
+  color: #C30000;
+}
+
+h1.header a {
+  color: #fff !important;
+}
+
+a {
+  color:#C30000;
+  font-weight:200;
+  text-decoration:none;
+}
+
+a.back {
+  display: block;
+  margin-top: 10px;
+}
+
+</style><script srr="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/vendor/custom.modernizr.js"></script></head><body><div class="row banner"><div class="small-12 columns"><h1 class="header"><a href="http.wellcaffeinated.net/PhysicsJS">Physics<span>JS</span></a></h1><h1 class="page-title"><small> src/behaviors/verlet-constraints.js</small></h1></div></div><div class="row"><div id="nav" class="large-3 columns"><a href="http://wellcaffeinated.net/PhysicsJS" class="back">&lsaquo; Back to Site</a><div data-section="accordian" data-options="" class="section-container accordian"><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/body-collision-detection.js.html"><small>src/behaviors/</small>body-collision-detection.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/behaviors/body-collision-detection.js.html#getSupportFn">getSupportFn</a></li><li><a href="../../../docs/src/behaviors/body-collision-detection.js.html#checkGJK">checkGJK</a></li><li><a href="../../../docs/src/behaviors/body-collision-detection.js.html#checkCircles">checkCircles</a></li><li><a href="../../../docs/src/behaviors/body-collision-detection.js.html#checkPair">checkPair</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/body-impulse-response.js.html"><small>src/behaviors/</small>body-impulse-response.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/constant-acceleration.js.html"><small>src/behaviors/</small>constant-acceleration.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/edge-collision-detection.js.html"><small>src/behaviors/</small>edge-collision-detection.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/behaviors/edge-collision-detection.js.html#checkGeneral">checkGeneral</a></li><li><a href="../../../docs/src/behaviors/edge-collision-detection.js.html#checkEdgeCollide">checkEdgeCollide</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/newtonian.js.html"><small>src/behaviors/</small>newtonian.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/rigid-constraint-manager.js.html"><small>src/behaviors/</small>rigid-constraint-manager.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/behaviors/sweep-prune.js.html"><small>src/behaviors/</small>sweep-prune.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/behaviors/sweep-prune.js.html#getUniqueId">getUniqueId</a></li><li><a href="../../../docs/src/behaviors/sweep-prune.js.html#pairHash">pairHash</a></li></ul></div></div><div class="section active"><p data-section-title class="title"><a href="../../../docs/src/behaviors/verlet-constraints.js.html"><small>src/behaviors/</small>verlet-constraints.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/bodies/circle.js.html"><small>src/bodies/</small>circle.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/bodies/convex-polygon.js.html"><small>src/bodies/</small>convex-polygon.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/bodies/point.js.html"><small>src/bodies/</small>point.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/behavior.js.html"><small>src/core/</small>behavior.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/body.js.html"><small>src/core/</small>body.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/geometry-helpers.js.html"><small>src/core/</small>geometry-helpers.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/core/geometry-helpers.js.html#isPolygonConvex">isPolygonConvex</a></li><li><a href="../../../docs/src/core/geometry-helpers.js.html#getPolygonMOI">getPolygonMOI</a></li><li><a href="../../../docs/src/core/geometry-helpers.js.html#isPointInPolygon">isPointInPolygon</a></li><li><a href="../../../docs/src/core/geometry-helpers.js.html#getPolygonArea">getPolygonArea</a></li><li><a href="../../../docs/src/core/geometry-helpers.js.html#getPolygonCentroid">getPolygonCentroid</a></li><li><a href="../../../docs/src/core/geometry-helpers.js.html#nearestPointOnLine">nearestPointOnLine</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/geometry.js.html"><small>src/core/</small>geometry.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/integrator.js.html"><small>src/core/</small>integrator.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/renderer.js.html"><small>src/core/</small>renderer.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/core/world.js.html"><small>src/core/</small>world.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/core/world.js.html#World">World</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/geometries/circle.js.html"><small>src/geometries/</small>circle.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/geometries/convex-polygon.js.html"><small>src/geometries/</small>convex-polygon.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/geometries/point.js.html"><small>src/geometries/</small>point.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/integrators/improved-euler.js.html"><small>src/integrators/</small>improved-euler.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/integrators/verlet.js.html"><small>src/integrators/</small>verlet.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/intro.js.html"><small>src/</small>intro.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/math/aabb.js.html"><small>src/math/</small>aabb.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/math/aabb.js.html#AABB">AABB</a></li><li><a href="../../../docs/src/math/aabb.js.html#set">set</a></li><li><a href="../../../docs/src/math/aabb.js.html#get">get</a></li><li><a href="../../../docs/src/math/aabb.js.html#halfWidth">halfWidth</a></li><li><a href="../../../docs/src/math/aabb.js.html#halfHeight">halfHeight</a></li><li><a href="../../../docs/src/math/aabb.js.html#contains">contains</a></li><li><a href="../../../docs/src/math/aabb.js.html#transform">transform</a></li><li><a href="../../../docs/src/math/aabb.js.html#contains">contains</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/math/gjk.js.html"><small>src/math/</small>gjk.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/math/gjk.js.html#getClosestPoints">getClosestPoints</a></li><li><a href="../../../docs/src/math/gjk.js.html#gjk">gjk</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/math/transform.js.html"><small>src/math/</small>transform.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/math/transform.js.html#Transform">Transform</a></li><li><a href="../../../docs/src/math/transform.js.html#setTranslation">setTranslation</a></li><li><a href="../../../docs/src/math/transform.js.html#setRotation">setRotation</a></li><li><a href="../../../docs/src/math/transform.js.html#clone">clone</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/math/vector.js.html"><small>src/math/</small>vector.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/math/vector.js.html#Vector">Vector</a></li><li><a href="../../../docs/src/math/vector.js.html#set">set</a></li><li><a href="../../../docs/src/math/vector.js.html#get">get</a></li><li><a href="../../../docs/src/math/vector.js.html#vadd">vadd</a></li><li><a href="../../../docs/src/math/vector.js.html#vsub">vsub</a></li><li><a href="../../../docs/src/math/vector.js.html#add">add</a></li><li><a href="../../../docs/src/math/vector.js.html#sub">sub</a></li><li><a href="../../../docs/src/math/vector.js.html#mult">mult</a></li><li><a href="../../../docs/src/math/vector.js.html#dot">dot</a></li><li><a href="../../../docs/src/math/vector.js.html#cross">cross</a></li><li><a href="../../../docs/src/math/vector.js.html#proj">proj</a></li><li><a href="../../../docs/src/math/vector.js.html#vproj">vproj</a></li><li><a href="../../../docs/src/math/vector.js.html#angle">angle</a></li><li><a href="../../../docs/src/math/vector.js.html#angle2">angle2</a></li><li><a href="../../../docs/src/math/vector.js.html#norm">norm</a></li><li><a href="../../../docs/src/math/vector.js.html#normSq">normSq</a></li><li><a href="../../../docs/src/math/vector.js.html#dist">dist</a></li><li><a href="../../../docs/src/math/vector.js.html#distSq">distSq</a></li><li><a href="../../../docs/src/math/vector.js.html#perp">perp</a></li><li><a href="../../../docs/src/math/vector.js.html#normalize">normalize</a></li><li><a href="../../../docs/src/math/vector.js.html#transform">transform</a></li><li><a href="../../../docs/src/math/vector.js.html#transformInv">transformInv</a></li><li><a href="../../../docs/src/math/vector.js.html#rotate">rotate</a></li><li><a href="../../../docs/src/math/vector.js.html#rotateInv">rotateInv</a></li><li><a href="../../../docs/src/math/vector.js.html#translate">translate</a></li><li><a href="../../../docs/src/math/vector.js.html#translateInv">translateInv</a></li><li><a href="../../../docs/src/math/vector.js.html#clone">clone</a></li><li><a href="../../../docs/src/math/vector.js.html#swap">swap</a></li><li><a href="../../../docs/src/math/vector.js.html#values">values</a></li><li><a href="../../../docs/src/math/vector.js.html#zero">zero</a></li><li><a href="../../../docs/src/math/vector.js.html#negate">negate</a></li><li><a href="../../../docs/src/math/vector.js.html#clamp">clamp</a></li><li><a href="../../../docs/src/math/vector.js.html#toString">toString</a></li><li><a href="../../../docs/src/math/vector.js.html#equals">equals</a></li><li><a href="../../../docs/src/math/vector.js.html#vadd">vadd</a></li><li><a href="../../../docs/src/math/vector.js.html#vsub">vsub</a></li><li><a href="../../../docs/src/math/vector.js.html#mult">mult</a></li><li><a href="../../../docs/src/math/vector.js.html#vproj">vproj</a></li><li><a href="../../../docs/src/math/vector.js.html#axis">axis</a></li><li><a href="../../../docs/src/math/vector.js.html#zero">zero</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/outro.js.html"><small>src/</small>outro.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/renderers/canvas.js.html"><small>src/renderers/</small>canvas.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/renderers/dom.js.html"><small>src/renderers/</small>dom.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/decorator.js.html"><small>src/util/</small>decorator.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/util/decorator.js.html#Decorator">Decorator</a></li><li><a href="../../../docs/src/util/decorator.js.html#getProto">getProto</a></li><li><a href="../../../docs/src/util/decorator.js.html#objectCreate">objectCreate</a></li><li><a href="../../../docs/src/util/decorator.js.html#mixin">mixin</a></li><li><a href="../../../docs/src/util/decorator.js.html#factory">factory</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/noconflict.js.html"><small>src/util/</small>noconflict.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/util/noconflict.js.html#noConflict">noConflict</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/pubsub.js.html"><small>src/util/</small>pubsub.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/util/pubsub.js.html#PubSub">PubSub</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/request-anim-frame.js.html"><small>src/util/</small>request-anim-frame.js</a></p><div data-section-content class="content"><ul class="side-nav"></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/scratchpad.js.html"><small>src/util/</small>scratchpad.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/util/scratchpad.js.html#scratchpad">scratchpad</a></li></ul></div></div><div class="section"><p data-section-title class="title"><a href="../../../docs/src/util/ticker.js.html"><small>src/util/</small>ticker.js</a></p><div data-section-content class="content"><ul class="side-nav"><li><a href="../../../docs/src/util/ticker.js.html#step">step</a></li><li><a href="../../../docs/src/util/ticker.js.html#start">start</a></li><li><a href="../../../docs/src/util/ticker.js.html#stop">stop</a></li><li><a href="../../../docs/src/util/ticker.js.html#subscribe">subscribe</a></li><li><a href="../../../docs/src/util/ticker.js.html#unsubscribe">unsubscribe</a></li><li><a href="../../../docs/src/util/ticker.js.html#isActive">isActive</a></li></ul></div></div></div></div><div class="small-12 large-9 columns"><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@module: </span><span class="string">behaviors/rigid-constraint-manager</span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Verlet constraints manager.<br />Handles distance constraints, and angle constraints</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">Physics.behavior('verlet-constraints', function( parent ){
+
+    var TWOPI = 2 * Math.PI;
+
+    var defaults = {
+
+        // number of iterations to resolve constraints
+        iterations: 2
+    };
+
+    return {</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">options</span><span class="description">Configuration object</span></li><li class="tag"><span class="type">@return: </span><span class="types">{void}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Initialization</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">init: function( options ){
+
+            parent.init.call(this, options);
+
+            Physics.util.extend(this.options, defaults, options);
+
+            this._distanceConstraints = [];
+            this._angleConstraints = [];
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">world</span><span class="description">The world to connect to</span></li><li class="tag"><span class="type">@return: </span><span class="types">{void}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Connect to world. Automatically called when added to world by the setWorld method</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">connect: function( world ){
+
+            var intg = world.integrator();
+
+            if ( intg &amp;&amp; intg.name.indexOf('verlet') &lt; 0 ){
+
+                throw 'The rigid constraint manager needs a world with a &quot;verlet&quot; compatible integrator.';
+            }
+
+            world.subscribe('integrate:positions', this.resolve, this);
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">world</span><span class="description">The world to disconnect from</span></li><li class="tag"><span class="type">@return: </span><span class="types">{void}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Disconnect from world</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">disconnect: function( world ){
+
+            world.unsubscribe('integrate:positions', this.resolve);
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@return: </span><span class="types">{self}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Remove all constraints</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">drop: function(){
+
+            // drop the current constraints
+            this._distanceConstraints = [];
+            this._angleConstraints = [];
+            return this;
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">bodyA</span><span class="description">First body</span></li><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">bodyB</span><span class="description">Second body</span></li><li class="tag"><span class="type">@param: </span><span class="types">{Number}</span><span class="name">targetLength</span><span class="description">(optional) Target length. defaults to target length specified in configuration options</span></li><li class="tag"><span class="type">@return: </span><span class="types">{object}</span><span class="description">The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length</span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Constrain two bodies to a target relative distance</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">distanceConstraint: function( bodyA, bodyB, stiffness, targetLength ){
+
+            var cst;
+
+            if (!bodyA || !bodyB){
+
+                return false;
+            }
+
+            cst = {
+                id: Physics.util.uniqueId('dis-constraint'),
+                type: 'dis',
+                bodyA: bodyA,
+                bodyB: bodyB,
+                stiffness: stiffness || 0.5,
+                targetLength: targetLength || bodyB.state.pos.dist( bodyA.state.pos )
+            };
+
+            cst.targetLengthSq = cst.targetLength * cst.targetLength;
+
+            this._distanceConstraints.push( cst );
+            return cst;
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">bodyA</span><span class="description">First body</span></li><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">bodyB</span><span class="description">Second body</span></li><li class="tag"><span class="type">@param: </span><span class="types">{Object}</span><span class="name">bodyC</span><span class="description">Third body</span></li><li class="tag"><span class="type">@param: </span><span class="types">{Number}</span><span class="name">targetLength</span><span class="description">(optional) Target length. defaults to target length specified in configuration options</span></li><li class="tag"><span class="type">@return: </span><span class="types">{object}</span><span class="description">The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length</span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Constrain three bodies to a target relative angle</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">angleConstraint: function( bodyA, bodyB, bodyC, stiffness, targetAngle ){
+
+            var cst;
+
+            if (!bodyA || !bodyB){
+
+                return false;
+            }
+
+            cst = {
+                id: Physics.util.uniqueId('ang-constraint'),
+                type: 'ang',
+                bodyA: bodyA,
+                bodyB: bodyB,
+                bodyC: bodyC,
+                stiffness: stiffness || 0.5,
+                targetAngle: targetAngle || bodyB.state.pos.angle2( bodyA.state.pos, bodyC.state.pos )
+            };
+
+            this._angleConstraints.push( cst );
+            return cst;
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@param: </span><span class="types">{Mixed}</span><span class="name">indexCstrOrId</span><span class="description">Either the constraint object or the constraint id</span></li><li class="tag"><span class="type">@return: </span><span class="types">{self}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Remove a constraint</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">remove: function( cstrOrId ){
+
+            var constraints
+                ,type
+                ,isObj
+                ,i
+                ,l
+                ;
+
+            isObj = Physics.util.isObject( cstrOrId );
+
+            type = (isObj) ? cstrOrId.type : cstrOrId.substr(0, 3);
+            constraints = ( type === 'ang' ) ? this._angleConstraints : this._distanceConstraints;
+
+            if ( isObj ){
+
+                for ( i = 0, l = constraints.length; i &lt; l; ++i ){
+                    
+                    if ( constraints[ i ] === cstrOrId ){
+
+                        constraints.splice( i, 1 );
+                        return this;
+                    }
+                }
+            } else {
+
+                for ( i = 0, l = constraints.length; i &lt; l; ++i ){
+                    
+                    if ( constraints[ i ].id === cstrOrId ){
+
+                        constraints.splice( i, 1 );
+                        return this;
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        resolveAngleConstraints: function( coef ){
+
+            var constraints = this._angleConstraints
+                ,scratch = Physics.scratchpad()
+                ,trans = scratch.transform()
+                ,con
+                ,ang
+                ,corr
+                ,proportion
+                ,invMassSum
+                ;
+
+            for ( var i = 0, l = constraints.length; i &lt; l; ++i ){
+            
+                con = constraints[ i ];
+
+                ang = con.bodyB.state.pos.angle2( con.bodyA.state.pos, con.bodyC.state.pos );
+                corr = ang - con.targetAngle;
+
+                if (!corr){
+
+                    continue;
+
+                } else if (corr &lt;= -Math.PI){
+                
+                    corr += TWOPI;
+
+                } else if (corr &gt;= Math.PI){
+                
+                    corr -= TWOPI;
+                }
+
+                trans.setTranslation( con.bodyB.state.pos );
+
+                corr *= -coef * con.stiffness;
+
+                if ( !con.bodyA.fixed &amp;&amp; !con.bodyB.fixed &amp;&amp; !con.bodyC.fixed ){
+                    invMassSum = 1 / (con.bodyA.mass + con.bodyB.mass + con.bodyC.mass);
+                }
+
+                if ( !con.bodyA.fixed ){
+
+                    if ( !con.bodyB.fixed &amp;&amp; !con.bodyC.fixed ){
+                        
+                        ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
+
+                    } else if ( con.bodyB.fixed ){
+
+                        ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyA.mass );
+
+                    } else {
+
+                        ang = corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyA.mass );
+                    }
+
+                    // ang = corr;
+
+                    trans.setRotation( ang );
+                    con.bodyA.state.pos.translateInv( trans );
+                    con.bodyA.state.pos.rotate( trans );
+                    con.bodyA.state.pos.translate( trans );
+                }
+
+                if ( !con.bodyC.fixed ){
+
+                    if ( !con.bodyA.fixed &amp;&amp; !con.bodyB.fixed ){
+                        
+                        ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
+
+                    } else if ( con.bodyB.fixed ){
+
+                        ang = -corr * con.bodyA.mass / ( con.bodyC.mass + con.bodyA.mass );
+                        
+                    } else {
+
+                        ang = -corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyC.mass );
+                    }
+
+                    // ang = -corr;
+
+                    trans.setRotation( ang );
+                    con.bodyC.state.pos.translateInv( trans );
+                    con.bodyC.state.pos.rotate( trans );
+                    con.bodyC.state.pos.translate( trans );
+                }
+
+                if ( !con.bodyB.fixed ){
+
+                    if ( !con.bodyA.fixed &amp;&amp; !con.bodyC.fixed ){
+                        
+                        ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
+
+                    } else if ( con.bodyA.fixed ){
+
+                        ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyB.mass );
+                        
+                    } else {
+
+                        ang = corr * con.bodyA.mass / ( con.bodyA.mass + con.bodyC.mass );
+                    }
+
+                    // ang = corr;
+
+                    trans.setRotation( ang ).setTranslation( con.bodyA.state.pos );
+                    con.bodyB.state.pos.translateInv( trans );
+                    con.bodyB.state.pos.rotate( trans );
+                    con.bodyB.state.pos.translate( trans );
+
+                    trans.setTranslation( con.bodyC.state.pos );
+                    con.bodyB.state.pos.translateInv( trans );
+                    con.bodyB.state.pos.rotateInv( trans );
+                    con.bodyB.state.pos.translate( trans );
+                }
+            }
+
+            scratch.done();
+        },
+
+        resolveDistanceConstraints: function( coef ){
+
+            var constraints = this._distanceConstraints
+                ,scratch = Physics.scratchpad()
+                ,BA = scratch.vector()
+                ,con
+                ,len
+                ,corr
+                ,proportion
+                ;
+
+            for ( var i = 0, l = constraints.length; i &lt; l; ++i ){
+            
+                con = constraints[ i ];
+
+                // move constrained bodies to target length based on their
+                // mass proportions
+                BA.clone( con.bodyB.state.pos ).vsub( con.bodyA.state.pos );
+                len = BA.normSq() || Math.random() * 0.0001;
+                corr = coef * con.stiffness * ( len - con.targetLengthSq ) / len;
+                
+                BA.mult( corr );
+                proportion = (con.bodyA.fixed || con.bodyB.fixed) ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
+
+                if ( !con.bodyA.fixed ){
+
+                    if ( !con.bodyB.fixed ){
+                        BA.mult( proportion );
+                    }
+
+                    con.bodyA.state.pos.vadd( BA );
+
+                    if ( !con.bodyB.fixed ){
+                        BA.mult( 1 / proportion );
+                    }
+                }
+
+                if ( !con.bodyB.fixed ){
+
+                    if ( !con.bodyA.fixed ){
+                        BA.mult( 1 - proportion );
+                    }
+
+                    con.bodyB.state.pos.vsub( BA );
+                }
+            }
+
+            scratch.done();
+        },
+
+        shuffleConstraints: function(){
+
+            this._distanceConstraints = Physics.util.shuffle( this._distanceConstraints );
+            this._angleConstraints = Physics.util.shuffle( this._angleConstraints );
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@return: </span><span class="types">{void}</span><span class="description"></span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Resolve constraints</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">resolve: function(){
+
+            var its = this.options.iterations
+                ,coef = 1 / its
+                ;
+
+            for (var i = 0; i &lt; its; i++){
+
+                // this.shuffleConstraints();
+                this.resolveDistanceConstraints( coef );
+                this.resolveAngleConstraints( coef );
+            }
+        },</code></pre></div></div></div></article><article class="comment"><header></header><ul class="no-bullet tags"><li class="tag"><span class="type">@return: </span><span class="types">{Object}</span><span class="description">The object containing copied arrays of the constraints</span></li></ul><div data-section="accordian" data-options="one_up: false;" class="section-container code auto"><div class="section"><p data-section-title class="title"><a href="#">Description</a></p><div data-section-content class="content description"><p>Get all constraints</p></div></div><div class="section"><p data-section-title class="title"><a href="#">Source</a></p><div data-section-content class="content"><pre><code class="language-javascript">getConstraints: function(){
+
+            return {
+                distanceConstraints: [].concat(this._distanceConstraints),
+                angleConstraints: [].concat(this._angleConstraints)
+            };
+        }
+    };
+});</code></pre></div></div></div></article></div></div><!-- Foundation JS--><script type="text/javascript">document.write('<script src=' +
+('__proto__' in {} ? 'http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min' : 'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min') +
+'.js><\/script>')
+</script><script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation.min.js"></script><script src="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation/foundation.reveal.min.js"></script><!-- Prism js--><script type="text/javascript">
+/**
+ * Prism: Lightweight, robust, elegant syntax highlighting
+ * MIT license http://www.opensource.org/licenses/mit-license.php/
+ * @author Lea Verou http://lea.verou.me
+ */(function(){var e=/\blang(?:uage)?-(?!\*)(\w+)\b/i,t=self.Prism={util:{type:function(e){return Object.prototype.toString.call(e).match(/\[object (\w+)\]/)[1]},clone:function(e){var n=t.util.type(e);switch(n){case"Object":var r={};for(var i in e)e.hasOwnProperty(i)&&(r[i]=t.util.clone(e[i]));return r;case"Array":return e.slice()}return e}},languages:{extend:function(e,n){var r=t.util.clone(t.languages[e]);for(var i in n)r[i]=n[i];return r},insertBefore:function(e,n,r,i){i=i||t.languages;var s=i[e],o={};for(var u in s)if(s.hasOwnProperty(u)){if(u==n)for(var a in r)r.hasOwnProperty(a)&&(o[a]=r[a]);o[u]=s[u]}return i[e]=o},DFS:function(e,n){for(var r in e){n.call(e,r,e[r]);t.util.type(e)==="Object"&&t.languages.DFS(e[r],n)}}},highlightAll:function(e,n){var r=document.querySelectorAll('code[class*="language-"], [class*="language-"] code, code[class*="lang-"], [class*="lang-"] code');for(var i=0,s;s=r[i++];)t.highlightElement(s,e===!0,n)},highlightElement:function(r,i,s){var o,u,a=r;while(a&&!e.test(a.className))a=a.parentNode;if(a){o=(a.className.match(e)||[,""])[1];u=t.languages[o]}if(!u)return;r.className=r.className.replace(e,"").replace(/\s+/g," ")+" language-"+o;a=r.parentNode;/pre/i.test(a.nodeName)&&(a.className=a.className.replace(e,"").replace(/\s+/g," ")+" language-"+o);var f=r.textContent;if(!f)return;f=f.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\u00a0/g," ");var l={element:r,language:o,grammar:u,code:f};t.hooks.run("before-highlight",l);if(i&&self.Worker){var c=new Worker(t.filename);c.onmessage=function(e){l.highlightedCode=n.stringify(JSON.parse(e.data),o);t.hooks.run("before-insert",l);l.element.innerHTML=l.highlightedCode;s&&s.call(l.element);t.hooks.run("after-highlight",l)};c.postMessage(JSON.stringify({language:l.language,code:l.code}))}else{l.highlightedCode=t.highlight(l.code,l.grammar,l.language);t.hooks.run("before-insert",l);l.element.innerHTML=l.highlightedCode;s&&s.call(r);t.hooks.run("after-highlight",l)}},highlight:function(e,r,i){return n.stringify(t.tokenize(e,r),i)},tokenize:function(e,n,r){var i=t.Token,s=[e],o=n.rest;if(o){for(var u in o)n[u]=o[u];delete n.rest}e:for(var u in n){if(!n.hasOwnProperty(u)||!n[u])continue;var a=n[u],f=a.inside,l=!!a.lookbehind,c=0;a=a.pattern||a;for(var h=0;h<s.length;h++){var p=s[h];if(s.length>e.length)break e;if(p instanceof i)continue;a.lastIndex=0;var d=a.exec(p);if(d){l&&(c=d[1].length);var v=d.index-1+c,d=d[0].slice(c),m=d.length,g=v+m,y=p.slice(0,v+1),b=p.slice(g+1),w=[h,1];y&&w.push(y);var E=new i(u,f?t.tokenize(d,f):d);w.push(E);b&&w.push(b);Array.prototype.splice.apply(s,w)}}}return s},hooks:{all:{},add:function(e,n){var r=t.hooks.all;r[e]=r[e]||[];r[e].push(n)},run:function(e,n){var r=t.hooks.all[e];if(!r||!r.length)return;for(var i=0,s;s=r[i++];)s(n)}}},n=t.Token=function(e,t){this.type=e;this.content=t};n.stringify=function(e,r,i){if(typeof e=="string")return e;if(Object.prototype.toString.call(e)=="[object Array]")return e.map(function(t){return n.stringify(t,r,e)}).join("");var s={type:e.type,content:n.stringify(e.content,r,i),tag:"span",classes:["token",e.type],attributes:{},language:r,parent:i};s.type=="comment"&&(s.attributes.spellcheck="true");t.hooks.run("wrap",s);var o="";for(var u in s.attributes)o+=u+'="'+(s.attributes[u]||"")+'"';return"<"+s.tag+' class="'+s.classes.join(" ")+'" '+o+">"+s.content+"</"+s.tag+">"};if(!self.document){self.addEventListener("message",function(e){var n=JSON.parse(e.data),r=n.language,i=n.code;self.postMessage(JSON.stringify(t.tokenize(i,t.languages[r])));self.close()},!1);return}var r=document.getElementsByTagName("script");r=r[r.length-1];if(r){t.filename=r.src;document.addEventListener&&!r.hasAttribute("data-manual")&&document.addEventListener("DOMContentLoaded",t.highlightAll)}})();;
+Prism.languages.markup={comment:/&lt;!--[\w\W]*?-->/g,prolog:/&lt;\?.+?\?>/,doctype:/&lt;!DOCTYPE.+?>/,cdata:/&lt;!\[CDATA\[[\w\W]*?]]>/i,tag:{pattern:/&lt;\/?[\w:-]+\s*(?:\s+[\w:-]+(?:=(?:("|')(\\?[\w\W])*?\1|\w+))?\s*)*\/?>/gi,inside:{tag:{pattern:/^&lt;\/?[\w:-]+/i,inside:{punctuation:/^&lt;\/?/,namespace:/^[\w-]+?:/}},"attr-value":{pattern:/=(?:('|")[\w\W]*?(\1)|[^\s>]+)/gi,inside:{punctuation:/=|>|"/g}},punctuation:/\/?>/g,"attr-name":{pattern:/[\w:-]+/g,inside:{namespace:/^[\w-]+?:/}}}},entity:/&amp;#?[\da-z]{1,8};/gi};Prism.hooks.add("wrap",function(e){e.type==="entity"&&(e.attributes.title=e.content.replace(/&amp;/,"&"))});;
+Prism.languages.css={comment:/\/\*[\w\W]*?\*\//g,atrule:{pattern:/@[\w-]+?.*?(;|(?=\s*{))/gi,inside:{punctuation:/[;:]/g}},url:/url\((["']?).*?\1\)/gi,selector:/[^\{\}\s][^\{\};]*(?=\s*\{)/g,property:/(\b|\B)[\w-]+(?=\s*:)/ig,string:/("|')(\\?.)*?\1/g,important:/\B!important\b/gi,ignore:/&(lt|gt|amp);/gi,punctuation:/[\{\};:]/g};Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{style:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/style(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)style[\w\W]*?(>|&gt;)|(&lt;|<)\/style(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.css}}});;
+Prism.languages.clike={comment:{pattern:/(^|[^\\])(\/\*[\w\W]*?\*\/|(^|[^:])\/\/.*?(\r?\n|$))/g,lookbehind:!0},string:/("|')(\\?.)*?\1/g,"class-name":{pattern:/((?:(?:class|interface|extends|implements|trait|instanceof|new)\s+)|(?:catch\s+\())[a-z0-9_\.\\]+/ig,lookbehind:!0,inside:{punctuation:/(\.|\\)/}},keyword:/\b(if|else|while|do|for|return|in|instanceof|function|new|try|catch|finally|null|break|continue)\b/g,"boolean":/\b(true|false)\b/g,"function":{pattern:/[a-z0-9_]+\(/ig,inside:{punctuation:/\(/}}, number:/\b-?(0x[\dA-Fa-f]+|\d*\.?\d+([Ee]-?\d+)?)\b/g,operator:/[-+]{1,2}|!|&lt;=?|>=?|={1,3}|(&amp;){1,2}|\|?\||\?|\*|\/|\~|\^|\%/g,ignore:/&(lt|gt|amp);/gi,punctuation:/[{}[\];(),.:]/g};;
+Prism.languages.javascript=Prism.languages.extend("clike",{keyword:/\b(var|let|if|else|while|do|for|return|in|instanceof|function|new|with|typeof|try|catch|finally|null|break|continue)\b/g,number:/\b-?(0x[\dA-Fa-f]+|\d*\.?\d+([Ee]-?\d+)?|NaN|-?Infinity)\b/g});Prism.languages.insertBefore("javascript","keyword",{regex:{pattern:/(^|[^/])\/(?!\/)(\[.+?]|\\.|[^/\r\n])+\/[gim]{0,3}(?=\s*($|[\r\n,.;})]))/g,lookbehind:!0}});Prism.languages.markup&&Prism.languages.insertBefore("markup","tag",{script:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)[\w\W]*?(&lt;|<)\/script(>|&gt;)/ig,inside:{tag:{pattern:/(&lt;|<)script[\w\W]*?(>|&gt;)|(&lt;|<)\/script(>|&gt;)/ig,inside:Prism.languages.markup.tag.inside},rest:Prism.languages.javascript}}});;
+Prism.languages.coffeescript=Prism.languages.extend("javascript",{"block-comment":/([#]{3}\s*\r?\n(.*\s*\r*\n*)\s*?\r?\n[#]{3})/g,comment:/(\s|^)([#]{1}[^#^\r^\n]{2,}?(\r?\n|$))/g,keyword:/\b(this|window|delete|class|extends|namespace|extend|ar|let|if|else|while|do|for|each|of|return|in|instanceof|new|with|typeof|try|catch|finally|null|undefined|break|continue)\b/g});Prism.languages.insertBefore("coffeescript","keyword",{"function":{pattern:/[a-z|A-z]+\s*[:|=]\s*(\([.|a-z\s|,|:|{|}|\"|\'|=]*\))?\s*-&gt;/gi,inside:{"function-name":/[_?a-z-|A-Z-]+(\s*[:|=])| @[_?$?a-z-|A-Z-]+(\s*)| /g,operator:/[-+]{1,2}|!|=?&lt;|=?&gt;|={1,2}|(&amp;){1,2}|\|?\||\?|\*|\//g}},"attr-name":/[_?a-z-|A-Z-]+(\s*:)| @[_?$?a-z-|A-Z-]+(\s*)| /g});;
+Prism.languages.scss=Prism.languages.extend("css",{comment:{pattern:/(^|[^\\])(\/\*[\w\W]*?\*\/|\/\/.*?(\r?\n|$))/g,lookbehind:!0},atrule:/@[\w-]+(?=\s+(\(|\{|;))/gi,url:/([-a-z]+-)*url(?=\()/gi,selector:/([^@;\{\}\(\)]?([^@;\{\}\(\)]|&amp;|\#\{\$[-_\w]+\})+)(?=\s*\{(\}|\s|[^\}]+(:|\{)[^\}]+))/gm});Prism.languages.insertBefore("scss","atrule",{keyword:/@(if|else if|else|for|each|while|import|extend|debug|warn|mixin|include|function|return)|(?=@for\s+\$[-_\w]+\s)+from/i});Prism.languages.insertBefore("scss","property",{variable:/((\$[-_\w]+)|(#\{\$[-_\w]+\}))/i});Prism.languages.insertBefore("scss","ignore",{placeholder:/%[-_\w]+/i,statement:/\B!(default|optional)\b/gi,"boolean":/\b(true|false)\b/g,"null":/\b(null)\b/g,operator:/\s+([-+]{1,2}|={1,2}|!=|\|?\||\?|\*|\/|\%)\s+/g});
+;
+</script><script type="text/javascript">
+  var headerHeight = 64;
+
+  $(document).foundation();
+
+  $(function(){
+    $('pre code').addClass('language-javascript');
+  //   $('#nav > ul > li > a[href$="'+location.pathname.substring(location.pathname.lastIndexOf('/')+1, location.pathname.length)+'"]').parent().addClass('active');
+  })</script></body></html>
