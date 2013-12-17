@@ -3,6 +3,11 @@
  */
 Physics.renderer('dom', function( proto ){
 
+    if ( !document ){
+        // must be in node environment
+        return {};
+    }
+
     // utility methods
     var thePrefix = {}
         ,tmpdiv = document.createElement("div")

@@ -13,6 +13,9 @@
 
 'use strict';
 
+var window = this;
+var document = window.document;
+
 var Physics = function Physics(){
 
     return Physics.world.apply(Physics, arguments);
