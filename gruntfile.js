@@ -15,12 +15,12 @@ module.exports = function(grunt) {
             ' *',
             ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>',
             ' * Licensed <%= pkg.license %>',
-            ' */'
+            ' */\n'
         ].join('\n'),
 
         extensionWrapper: [
             "(function (root, factory) {",
-            "    var deps = [<%= deps =>];",
+            "    var deps = [<%= deps %>];",
             "    if (typeof exports === 'object') {",
             "        // Node. ",
             "        var mods = deps.map(require);",
@@ -34,10 +34,10 @@ module.exports = function(grunt) {
             "    }",
             "}(this, function ( Physics ) {",
             "    'use strict';",
-            "    <%= src =>",
-            "    // end module: <%= path =>",
+            "    <%= src %>",
+            "    // end module: <%= path %>",
             "    return Physics;",
-            "})); // UMD ";
+            "})); // UMD "
         ].join('\n'),
 
         sources : [
@@ -73,8 +73,24 @@ module.exports = function(grunt) {
             'src/renderers/*.js'
         ],
 
+        rjsHelper: 'test/r.js.spec.helper.js',
+
         pkg : pkg,
         uglifyFiles : {}
+    };
+
+    config.distRequireJS = {
+        baseUrl: 'dist/',
+        packages: [
+            {
+                name: 'physicsjs',
+                location: './',
+                main: 'physicsjs-'+pkg.version
+            }
+        ],
+        optimize: 'none',
+        name: '../' + config.rjsHelper.replace(/\.js$/, ''),
+        out: 'test/physicsjs-built.js'
     };
 
     // setup dynamic filenames
@@ -125,7 +141,7 @@ module.exports = function(grunt) {
         };
 
         return grunt.template.process(config.banner, config) + 
-            grunt.template.process(config.extensionWrapper, data);
+            grunt.template.process(config.extensionWrapper, {data: data});
     }
 
     // write out the source file identifier as a comment
@@ -139,7 +155,8 @@ module.exports = function(grunt) {
         pkg : config.pkg,
         clean : {
             dist : ['dist/'],
-            dev : ['_working/physicsjs/']
+            dev : ['_working/physicsjs/'],
+            test: [config.distRequireJS.out]
         },
         concat : {
             options : {
@@ -209,6 +226,12 @@ module.exports = function(grunt) {
                 files : config.uglifyFiles
             }
         },
+        // for testing builds
+        requirejs: {
+            compile: {
+                options: config.distRequireJS
+            }
+        },
         jasmine : {
             dev : {
                 src : config.devFull,
@@ -249,15 +272,20 @@ module.exports = function(grunt) {
                     specs : 'test/requirejs.spec.js',
                     template : require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
+                        requireConfig: config.distRequireJS
+                    }
+                }
+            },
+            distRequireJSBuild : {
+                options : {
+                    specs : 'test/requirejs.build.spec.js',
+                    template : require('grunt-template-jasmine-requirejs'),
+                    templateOptions: {
                         requireConfig: {
-                            baseUrl: 'dist/',
-                            packages: [
-                                {
-                                    name: 'physicsjs',
-                                    location: './',
-                                    main: 'physicsjs-'+config.pkg.version
-                                }
-                            ]
+                            baseUrl: './',
+                            paths: {
+                                'bundle': config.distRequireJS.out.replace(/\.js$/, '')
+                            }
                         }
                     }
                 }
@@ -319,15 +347,17 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
 
         var cfg = {
-            modules: grunt.file.expand({ cwd: './' }, config.moduleSources ).join(' ').replace(/src\//g, 'physicsjs/').split(' ')
+            modules: grunt.file.expand({ cwd: './' }, config.moduleSources ).join(' ').replace(/src\//g, 'physicsjs/').replace(/\.js/g, '').split(' ')
         };
 
         grunt.file.write('test/requirejs.spec.helper.js', 'var cfg = ' + JSON.stringify( cfg ) + ';' );
+        grunt.file.write(config.rjsHelper, 'require(' + JSON.stringify( cfg.modules ) + ');' );
 
     });
 
@@ -338,8 +368,11 @@ module.exports = function(grunt) {
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
     grunt.registerTask('testDev', ['jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
+    // tests on dist code
+    grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test']);
+
     // create a distribution build
-    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS']);
+    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);
