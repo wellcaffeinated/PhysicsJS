@@ -11,57 +11,55 @@ var exec = require('child_process').exec,
 
 var templatePath = 'views/template.jade';
 
-module.exports = function (grunt) {
-  grunt.registerMultiTask('dox', 'Generate dox output', function () {
-    var dir = this.filesSrc,
-        dest = this.data.dest,
-        done = this.async(),
-        _opts = this.options();
+module.exports.task = function () {
+  var dir = this.filesSrc,
+      dest = this.data.dest,
+      done = this.async(),
+      _opts = this.options();
 
-    var target  = dest;
-    //var ignore  = program.ignore || ignoredDirs, source = program.source;
+  var target  = dest;
+  //var ignore  = program.ignore || ignoredDirs, source = program.source;
 
-    // Cleanup and turn into an array the ignoredDirs
-    //ignore = ignore.trim().replace(' ','').split(',');
+  // Cleanup and turn into an array the ignoredDirs
+  //ignore = ignore.trim().replace(' ','').split(',');
 
-    // Find, cleanup and validate all potential files
-    dir = dir.join(',');
-    var files = exports.collectFiles(dir, { ignore: [] });
+  // Find, cleanup and validate all potential files
+  dir = dir.join(',');
+  var files = exports.collectFiles(dir, { ignore: [] });
 
-    // Dox all those files
-    files = exports.doxFiles(dir, target, { raw: false }, files);
+  // Dox all those files
+  files = exports.doxFiles(dir, target, { raw: false }, files);
 
-    // Set correct paths to produce the index.html file
-    var indexPath = path.relative(process.cwd(), target) + path.sep + 'index.html';
-    files.push({
-      sourceFile: indexPath,
-      targetFile: indexPath,
-      dox: []
-    });
+  // Set correct paths to produce the index.html file
+  var indexPath = path.relative(process.cwd(), target) + path.sep + 'index.html';
+  files.push({
+    sourceFile: indexPath,
+    targetFile: indexPath,
+    dox: []
+  });
 
-    var options = {};
-    if (_opts.title){
-      options.title = _opts.title;
-    } /*else if(fs.existsSync(process.cwd() + '/package.json')) {
-      options.title = require(process.cwd() + '/package.json').name;
-    }*/ else {
-      options.title = 'Documentation';
+  var options = {};
+  if (_opts.title){
+    options.title = _opts.title;
+  } /*else if(fs.existsSync(process.cwd() + '/package.json')) {
+    options.title = require(process.cwd() + '/package.json').name;
+  }*/ else {
+    options.title = 'Documentation';
+  }
+
+  // Render and save each file
+  files.forEach(function(file) {
+    var output = exports.render(file, files, options);
+
+    var dir = path.dirname(file.targetFile);
+    if (!fs.existsSync(dir)) {
+      mkdirp.sync(dir);
     }
 
-    // Render and save each file
-    files.forEach(function(file) {
-      var output = exports.render(file, files, options);
-
-      var dir = path.dirname(file.targetFile);
-      if (!fs.existsSync(dir)) {
-        mkdirp.sync(dir);
-      }
-
-      fs.writeFileSync(file.targetFile, output);
-    });
-
-    done(true);
+    fs.writeFileSync(file.targetFile, output);
   });
+
+  done(true);
 };
 
 function buildStructureForFile(file) {

@@ -319,7 +319,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    require('./docs/gen-docs')(grunt);
+    grunt.registerMultiTask('dox', 'Generate dox output', require('./docs/gen-docs').task);
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
@@ -334,6 +334,9 @@ module.exports = function(grunt) {
 
 
     // Run `grunt watch` to create a dev build whenever a file is changed
+    
+    // documentation
+    grunt.registerTask('docs', ['dox']);
 
     // create a build for development
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
@@ -344,6 +347,4 @@ module.exports = function(grunt) {
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);
-
-    grunt.registerTask('docs', ['dox']);
 };
