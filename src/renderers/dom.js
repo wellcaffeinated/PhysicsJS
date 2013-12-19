@@ -152,6 +152,67 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
+
+            world.subscribe( 'add:body', this.attach, this );
+            world.subscribe( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( 'add:body', this.attach );
+            world.unsubscribe( 'remove:body', this.detach );
+        },
+
+        /**
+         * Detach a node from the DOM
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ,par = el && el.parentNode
+                ;
+
+            if ( el && par ){
+                // remove view from dom
+                par.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * Attach a node to the viewport
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ;
+
+            if ( el ){
+                // attach to viewport
+                this.el.appendChild( el );
+            }
+
+            return this;
+        },
+
+        /**
          * Draw the meta data
          * @param  {Object} meta The meta data
          * @return {void}
