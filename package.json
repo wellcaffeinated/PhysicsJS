@@ -18,19 +18,24 @@
     "type": "git",
     "url": "git@github.com:wellcaffeinated/PhysicsJS.git"
   },
-  "keywords": ["physics", "engine"],
+  "keywords": [
+    "physics",
+    "engine"
+  ],
   "dependencies": {},
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-contrib-concat": "0.x.x",
     "grunt-contrib-uglify": "0.x.x",
     "grunt-contrib-jasmine": "0.4.x",
+    "grunt-jasmine-node": "~0.1.0",
     "grunt-contrib-clean": "0.x.x",
     "grunt-contrib-copy": "0.x.x",
     "grunt-contrib-jshint": "0.x.x",
     "grunt-contrib-watch": "~0.3.1",
     "grunt-lodash": "~0.3.0",
-    "grunt-template-jasmine-requirejs": "~0.1.1"
+    "grunt-template-jasmine-requirejs": "~0.1.1",
+    "grunt-contrib-requirejs": "~0.4.1"
   },
   "bundledDependencies": [],
   "license": "MIT"

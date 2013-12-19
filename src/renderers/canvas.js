@@ -4,6 +4,11 @@
  */
 Physics.renderer('canvas', function( proto ){
 
+    if ( !document ){
+        // must be in node environment
+        return {};
+    }
+
     var Pi2 = Math.PI * 2
         // helper to create new dom elements
         ,newEl = function( node, content ){
