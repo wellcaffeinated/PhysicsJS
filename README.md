@@ -4,6 +4,10 @@ A modular, extendable, and easy-to-use physics engine for javascript.
 
 Latest version: 0.5.3 (alpha)
 
+## Announcement
+
+<a href="http://physicsjs.challengepost.com/?utm_source=partner&amp;utm_medium=banner&amp;utm_campaign=physicsjs" target="_blank" ><img src="http://wellcaffeinated.net/images/physics-js-promo-widget.gif"></a>
+
 ## Usage
 
 **Please [visit the website](http://wellcaffeinated.net/PhysicsJS/) for
