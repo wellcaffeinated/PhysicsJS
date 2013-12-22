@@ -14,8 +14,10 @@ Physics.behavior('pin-constraints', function (parent) {
         connect: function (world) {
 
             var integrator = world.integrator();
+
             if (integrator && integrator.name.indexOf('verlet') < 0) {
-                throw 'The pin constraints behavior needs a world with an "verlet" compatible integrator.';
+
+                throw 'The pin constraints behavior needs a world with a "verlet" compatible integrator.';
             }
 
             world.subscribe('integrate:positions', this.resolve, this);
@@ -28,7 +30,6 @@ Physics.behavior('pin-constraints', function (parent) {
 
         drop: function () {
 
-            // drop the current constraints
             this._constraints = [];
             return this;
         },
@@ -39,8 +40,8 @@ Physics.behavior('pin-constraints', function (parent) {
                 id: Physics.util.uniqueId('pin-constraint'),
                 bodyA: bodyA,
                 bodyB: bodyB,
-                offsetA: Physics.vector(offsetA.x, offsetA.y),
-                offsetB: Physics.vector(offsetB.x, offsetB.y),
+                offsetA: offsetA,
+                offsetB: offsetB
             };
 
             this._constraints.push(constraint);
@@ -76,85 +77,98 @@ Physics.behavior('pin-constraints', function (parent) {
         },
 
         resolve: function () {
-            
+
             var constraints = this._constraints
+                , l = constraints.length
                 , constraint
                 , bodyA
                 , bodyB
+                , bodyAAngle
+                , bodyBAngle
+                , bodyAPosX
+                , bodyBPosY
                 , offsetA
                 , offsetB
-                , offsetAngleA
-                , offsetAngleB
+                , offsetADistance
+                , offsetBDistance
+                , offsetAAngle
+                , offsetBAngle
+                , pinAPosX
+                , pinAPosY
+                , pinBPosX
+                , pinBPosY
                 , bodyBProportion
-                , scratch = Physics.scratchpad()
-                , pinA = scratch.vector()
-                , pinB = scratch.vector()
-                , targetPoint = scratch.vector()
                 , bodyACorrectedAngle
                 , bodyBCorrectedAngle
-                , i
-                , l = constraints.length;
+                , i;
 
             for (i = 0; i < l; i++) {
+
                 constraint = constraints[i];
 
                 bodyA = constraint.bodyA;
                 bodyB = constraint.bodyB;
 
+                bodyAPosX = bodyA.state.pos._[0];
+                bodyAPosY = bodyA.state.pos._[1];
+                bodyBPosX = bodyB.state.pos._[0];
+                bodyBPosY = bodyB.state.pos._[1];
+
+                bodyAAngle = bodyA.state.angular.pos;
+                bodyBAngle = bodyB.state.angular.pos;
+
                 offsetA = constraint.offsetA;
                 offsetB = constraint.offsetB;
 
-                offsetAngleA = offsetA.angle() + halfPi;
-                offsetAngleB = offsetB.angle() + halfPi;
+                // Find the distance from each body's COM to its pin offset
+                offsetADistance = Math.sqrt((offsetA.x * offsetA.x) + (offsetA.y * offsetA.y));
+                offsetBDistance = Math.sqrt((offsetB.x * offsetB.x) + (offsetB.y * offsetB.y));
 
+                // Find the angle between each body's COM and its pin offset
+                offsetAAngle = -(Math.atan2(-offsetA.y, offsetA.x) - halfPi);
+                offsetBAngle = -(Math.atan2(-offsetB.y, offsetB.x) - halfPi);
 
-                // Find world position of pin A
-                pinA.clone(bodyA.state.pos);
-                pinA.vadd(offsetA);
-                pinA.rotate(bodyA.state.angular.pos, bodyA.state.pos);
-
-                // Find world position of pin B
-                pinB.clone(bodyB.state.pos);
-                pinB.vadd(offsetB);
-                pinB.rotate(bodyB.state.angular.pos, bodyB.state.pos);
-
+                // Find world positions of pins
+                pinAPosX = bodyAPosX + (offsetADistance * Math.sin(bodyAAngle + offsetAAngle));
+                pinAPosY = bodyAPosY - (offsetADistance * Math.cos(bodyAAngle + offsetAAngle));
+                pinBPosX = bodyBPosX + (offsetBDistance * Math.sin(bodyBAngle + offsetBAngle));
+                pinBPosY = bodyBPosY - (offsetBDistance * Math.cos(bodyBAngle + offsetBAngle));
 
                 // Find the target point between the 2 bodies' pin positions based on the relative mass of body A and B
                 bodyBProportion = bodyB.mass / (bodyA.mass + bodyB.mass);
-                targetPoint.clone(pinB).vsub(pinA);
-                targetPoint.mult(bodyBProportion);
-                targetPoint.vadd(pinA);
+                midPoint = {
+                    x: pinAPosX + (bodyBProportion * (pinBPosX - pinAPosX))
+                    , y: pinAPosY + (bodyBProportion * (pinBPosY - pinAPosY))
+                };
 
 
                 // Rotate body A so that its COM and its pin lie along the same angle towards the target point
-                bodyACorrectedAngle = -(Math.atan2(-(targetPoint._[1] - bodyA.state.pos._[1]), targetPoint._[0] - bodyA.state.pos._[0]) - halfPi);
-                bodyACorrectedAngle -= offsetAngleA;
+                bodyACorrectedAngle = -(Math.atan2(-(midPoint.y - bodyAPosY), midPoint.x - bodyAPosX) - halfPi);
+                bodyACorrectedAngle -= offsetAAngle;
                 bodyA.state.angular.pos = bodyACorrectedAngle;
 
                 // Recalculate pin A position
-                pinA.clone(bodyA.state.pos);
-                pinA.vadd(offsetA);
-                pinA.rotate(bodyACorrectedAngle, bodyA.state.pos);
+                pinAPosX = bodyAPosX + (offsetADistance * Math.sin(bodyACorrectedAngle + offsetAAngle));
+                pinAPosY = bodyAPosY - (offsetADistance * Math.cos(bodyACorrectedAngle + offsetAAngle));
 
-                // Move body A so that its pin meets the new pin position
-                bodyA.state.pos.vadd(targetPoint).vsub(pinA);
+                // Move body A along its new angle to meet its required pin position
+                bodyA.state.pos._[0] += (midPoint.x - pinAPosX);
+                bodyA.state.pos._[1] += (midPoint.y - pinAPosY);
 
 
                 // Rotate body B so that its COM and its pin lie along the same angle towards the target point
-                bodyBCorrectedAngle = -(Math.atan2(-(targetPoint._[1] - bodyB.state.pos._[1]), targetPoint._[0] - bodyB.state.pos._[0]) - halfPi);
-                bodyBCorrectedAngle -= offsetAngleB;
+                bodyBCorrectedAngle = -(Math.atan2(-(midPoint.y - bodyBPosY), midPoint.x - bodyBPosX) - halfPi);
+                bodyBCorrectedAngle -= offsetBAngle;
                 bodyB.state.angular.pos = bodyBCorrectedAngle;
 
                 // Recalculate pin B position
-                pinB.clone(bodyB.state.pos);
-                pinB.vadd(offsetB);
-                pinB.rotate(bodyBCorrectedAngle, bodyB.state.pos);
+                pinBPosX = bodyBPosX + (offsetBDistance * Math.sin(bodyBCorrectedAngle + offsetBAngle));
+                pinBPosY = bodyBPosY - (offsetBDistance * Math.cos(bodyBCorrectedAngle + offsetBAngle));
 
                 // Move body B so that its pin meets the new pin position
-                bodyB.state.pos.vadd(targetPoint).vsub(pinB);
+                bodyB.state.pos._[0] += (midPoint.x - pinBPosX);
+                bodyB.state.pos._[1] += (midPoint.y - pinBPosY);
             }
-
-            scratch.done();
         },
 
         getConstraints: function () {
