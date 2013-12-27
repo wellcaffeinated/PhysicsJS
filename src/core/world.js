@@ -238,6 +238,56 @@
         },
 
         /**
+         * Determine if object has been added to world
+         * @param  {Object}  thing The object to test
+         * @return {Boolean}       The test result.
+         */
+        has: function( thing ){
+
+            var arr
+                ,i
+                ,l
+                ;
+
+            if ( !thing ){
+                return false;
+            }
+
+            switch (thing.type){
+
+                case 'behavior':
+                    arr = this._behaviors;
+                break; // end behavior
+
+                case 'integrator':
+                    return ( this._integrator === integrator );
+                break; // end integrator
+
+                case 'renderer':
+                    return ( this._renderer === renderer );
+                break; // end renderer
+
+                case 'body':
+                    arr = this._bodies;
+                break; // end body
+                
+                default:
+                    throw 'Error: unknown type "'+ thing.type +'"';
+                // end default
+            }
+
+            // check array
+            for ( i = 0, l = arr.length; i < l; ++i ){
+                
+                if ( thing === arr[ i ] ){
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        /**
          * Get or Set the integrator
          * @param {Object} integrator Integrator instance to use
          * @return {this|Object} This or Integrator
@@ -359,6 +409,11 @@
 
             var notify;
 
+            // don't allow duplicates
+            if ( this.has( behavior ) ){
+                return this;
+            }
+
             behavior.setWorld( this );
             this._behaviors.push( behavior );
 
@@ -401,6 +456,7 @@
                     if (behavior === behaviors[ i ]){
                         
                         behaviors.splice( i, 1 );
+                        behavior.setWorld( null );
 
                         // notify
                         notify = {
@@ -426,6 +482,11 @@
         addBody: function( body ){
 
             var notify;
+
+            // don't allow duplicates
+            if ( this.has( body ) ){
+                return this;
+            }
 
             body.setWorld( this );
             this._bodies.push( body );
@@ -469,6 +530,7 @@
                     if (body === bodies[ i ]){
                         
                         bodies.splice( i, 1 );
+                        body.setWorld( null );
 
                         // notify
                         notify = {

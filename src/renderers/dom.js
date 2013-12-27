@@ -3,6 +3,11 @@
  */
 Physics.renderer('dom', function( proto ){
 
+    if ( !document ){
+        // must be in node environment
+        return {};
+    }
+
     // utility methods
     var thePrefix = {}
         ,tmpdiv = document.createElement("div")
@@ -109,7 +114,7 @@ Physics.renderer('dom', function( proto ){
         /**
          * Set dom element style properties for a circle
          * @param  {HTMLElement} el       The element
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {void}
          */
         circleProperties: function( el, geometry ){
@@ -124,7 +129,7 @@ Physics.renderer('dom', function( proto ){
 
         /**
          * Create a dom element for the specified geometry
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {HTMLElement}          The element
          */
         createView: function( geometry ){
@@ -147,6 +152,67 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
+
+            world.subscribe( 'add:body', this.attach, this );
+            world.subscribe( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( 'add:body', this.attach );
+            world.unsubscribe( 'remove:body', this.detach );
+        },
+
+        /**
+         * Detach a node from the DOM
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ,par = el && el.parentNode
+                ;
+
+            if ( el && par ){
+                // remove view from dom
+                par.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * Attach a node to the viewport
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ;
+
+            if ( el ){
+                // attach to viewport
+                this.el.appendChild( el );
+            }
+
+            return this;
+        },
+
+        /**
          * Draw the meta data
          * @param  {Object} meta The meta data
          * @return {void}
@@ -158,7 +224,7 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Update dom element to reflect bodie's current state
+         * Update dom element to reflect body's current state
          * @param  {Body} body The body to draw
          * @param  {HTMLElement} view The view for that body
          * @return {void}

@@ -4,6 +4,10 @@ A modular, extendable, and easy-to-use physics engine for javascript.
 
 Latest version: 0.5.3 (alpha)
 
+## Announcement
+
+<a href="http://physicsjs.challengepost.com/?utm_source=partner&amp;utm_medium=banner&amp;utm_campaign=physicsjs" target="_blank" ><img src="http://wellcaffeinated.net/images/physics-js-promo-widget.gif"></a>
+
 ## Usage
 
 **Please [visit the website](http://wellcaffeinated.net/PhysicsJS/) for
@@ -17,7 +21,9 @@ Source code is kept in the `src/` directory. After any source code
 modifications it will be necessary to run the grunt build task to
 rebuild the source and run unit tests.
 
-First install grunt dependencies:
+First install [grunt](http://gruntjs.com/).
+
+Next install dev dependencies:
 
     $ npm install
 
@@ -38,6 +44,22 @@ when you modify the source in `src/` then run:
     $ grunt watch
 
 **Note** grunt watch won't run unit tests.
+
+### Pull Requests
+
+If you are contributing a bug-fix or a very minor addition, feel free to
+do a pull request on the master branch.
+
+If it is something else create a new (or existing) feature branch (eg: `feature/MY_FEAT`)
+and issue a pull request on that.
+
+If unsure, create an issue to discuss.
+
+Please ensure that:
+
+* the files in `dist/` are _unmodified_.
+* the features you add are well documented with jsdoc comments if applicable.
+* the code is indented with 4 space characters.
 
 ## License MIT
 
