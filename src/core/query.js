@@ -49,10 +49,39 @@
         return function( thing ){
             
             thing = prop ? thing[ prop ] : thing;
+
+            var fr = 0
+                ,bk
+                ;
             
             if ( Physics.util.isArray( thing ) ){
-                // find in array
-                return (indexOf( thing, toMatch ) > -1);
+
+                if ( Physics.util.isArray( toMatch ) ){
+                    // match all
+                    bk = thing.length;
+
+                    // check lengths
+                    if ( bk !== toMatch.length ){
+                        return false;
+                    }
+
+                    while ( fr < bk ){
+                        bk--;
+                        if (
+                            // check front
+                            (indexOf(toMatch, thing[ fr ]) === -1) ||
+                            // check back
+                            (indexOf(toMatch, thing[ bk ]) === -1)
+                        ) {
+                            return false;
+                        }
+                        fr++;
+                    }
+                    return true;
+                } else {
+                    // find in array
+                    return (indexOf( thing, toMatch ) > -1);
+                }
             }
 
             // exact match
@@ -67,17 +96,9 @@
      * @return {Function}         The test function
      */
     var $ne = function $ne( toMatch, prop ){
+        var fn = $eq( toMatch, prop );
         return function( thing ){
-            
-            thing = prop ? thing[ prop ] : thing;
-            
-            if ( Physics.util.isArray( thing ) ){
-                // find in array
-                return (indexOf( thing, toMatch ) === -1);
-            }
-
-            // exact match
-            return (thing !== toMatch);
+            return !fn( thing );
         };
     };
 
@@ -126,34 +147,9 @@
      * @return {Function}         The test function
      */
     var $nin = function $nin( toMatch, prop ){
+        var fn = $in( toMatch, prop );
         return function( thing ){
-
-            thing = prop ? thing[ prop ] : thing;
-            
-            var fr = 0
-                ,bk
-                ;
-
-            if ( Physics.util.isArray( thing ) ){
-                bk = thing.length;
-
-                while( fr < bk ){
-                    bk--;
-                    if (
-                        // check front
-                        (indexOf(toMatch, thing[ fr ]) > -1) ||
-                        // check back
-                        (indexOf(toMatch, thing[ bk ]) > -1)
-                    ) {
-                        return false;
-                    }
-                    fr++;
-                }
-                return true;
-            }
-
-            // if thing matches any in array
-            return (indexOf(toMatch, thing) === -1);
+            return !fn( thing );
         };
     };
 
@@ -247,7 +243,7 @@
                 // it's an operation rule
                 fn = build( rule, op );
                 
-            } else if ( typeof rule === 'object' ) {
+            } else if ( Physics.util.isPlainObject( rule ) ) {
                 // it's an object so parse subrules
                 fn = wrapRule( build( rule ), op );
             } else {
@@ -311,7 +307,7 @@
          * @param  {Object} q (optional) The query rules to set
          * @return {Object|self}   The query rules (if q not specified)
          */
-        rules: function (q) {
+        rules: function ( q ) {
 
             var self = this;
 
@@ -320,6 +316,7 @@
             }
 
             self._rules = q;
+            self._fn = build( q );
 
             return self;
         },
@@ -329,7 +326,7 @@
          * @param  {Query} base The query to extend
          * @return {self}
          */
-        extend: function (base) {
+        extend: function ( base ) {
 
             var self = this;
 
@@ -343,7 +340,7 @@
          * @param  {[type]} world [description]
          * @return {[type]}       [description]
          */
-        applyTo: function (world) {
+        applyTo: function ( world ) {
 
             var self = this
                 , events = {
@@ -388,35 +385,11 @@
          * @param  {Object} thing The object to check
          * @return {Boolean}       The test result
          */
-        check: function (thing) {
+        check: function ( thing ) {
 
-            var self = this
-                , rules = self._rules
-                , i
-                , filter
-                , filterValue
-                , thingValue;
+            var self = this;
 
-            for (filter in rules) {
-                filterValue = rules[filter];
-                thingValue = thing[filter];
-
-                if (!thingValue) {
-                    return false;
-                }
-
-                if (thingValue.length && filterValue.length) {
-                    for (i = 0; i < filterValue.length; i++) {
-                        if (thingValue.indexOf(filterValue[i]) === -1) {
-                            return false;
-                        }
-                    }
-                } else if (thingValue !== filterValue) {
-                    return false;
-                }
-            }
-
-            return true;
+            return self._fn( thing );
         },
 
         /**
@@ -424,12 +397,12 @@
          * @param  {Object} data The object to check and add (or pubsub event data)
          * @return {self}
          */
-        checkAndAdd: function (data) {
+        checkAndAdd: function ( data ) {
 
             var self = this
                 // expect pubsub event data OR a body
                 , thing = data && data.topic && data.body || data
-            ;
+                ;
 
             if (!thing) {
                 return self;
@@ -448,7 +421,7 @@
          * @param  {Object} data The object to be removed (or pubsub event data)
          * @return {self}
          */
-        remove: function (data) {
+        remove: function ( data ) {
 
             var self = this
                 // expect pubsub event data OR a body
@@ -475,7 +448,7 @@
          * @param  {Object} thing The object to check
          * @return {Boolean} The test result
          */
-        contains: function (thing) {
+        contains: function ( thing ) {
 
             return this._collection.indexOf(thing) > -1;
         },
