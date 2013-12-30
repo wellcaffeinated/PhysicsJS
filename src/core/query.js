@@ -4,8 +4,6 @@
      * Helpers
      */
     
-    // @TODO edge cases aren't working
-    
     /*!
      * Fast indexOf
      * @param  {Array} arr   The array to search
@@ -297,7 +295,7 @@
 
             var self = this;
 
-            self._collection = [];
+            self._ = [];
 
             return self;
         },
@@ -330,19 +328,25 @@
 
             var self = this;
 
-            // extend another query
+            if ( self._fn ){
+                self._fn.next = base._fn;
+                self._fn = $and( self._fn );
+            } else {
+                self._fn = base._fn;
+            }
 
             return self;
         },
 
         /**
          * Apply the query to a world
-         * @param  {[type]} world [description]
-         * @return {[type]}       [description]
+         * @param  {Object} world The world to apply the query to
+         * @return {self}
          */
         applyTo: function ( world ) {
 
             var self = this
+                ,topic
                 , events = {
                     'add:body': this.checkAndAdd,
                     'remove:body': this.remove
@@ -351,22 +355,22 @@
                     // 'remove:behavior': this.remove
                 }
                 , bodies
-            ;
+                ;
 
-            if (self._world) {
+            if ( self._world ) {
 
                 // do nothing if already applied
-                if (self._world === world) {
+                if ( self._world === world ) {
                     return self;
                 }
 
-                for (var topic in events) {
-                    self._world.disconnect(topic, events[topic]);
+                for ( topic in events ) {
+                    self._world.disconnect( topic, events[topic] );
                 }
             }
 
             self._world = world;
-            self._world.subscribe(events, self);
+            self._world.subscribe( events, self );
 
             self.reset();
 
@@ -374,7 +378,7 @@
 
             for (var i = 0, l = bodies.length; i < l; ++i) {
 
-                self.checkAndAdd(bodies[i]);
+                self.checkAndAdd( bodies[i] );
             }
 
             return self;
@@ -388,7 +392,6 @@
         check: function ( thing ) {
 
             var self = this;
-
             return self._fn( thing );
         },
 
@@ -404,13 +407,13 @@
                 , thing = data && data.topic && data.body || data
                 ;
 
-            if (!thing) {
+            if ( !thing ) {
                 return self;
             }
 
             // check for a match and add to collection if matched
-            if (self.check(thing)) {
-                self._collection.push(thing);
+            if ( self.check(thing) ) {
+                self._.push( thing );
             }
 
             return self;
@@ -426,17 +429,17 @@
             var self = this
                 // expect pubsub event data OR a body
                 , thing = data && data.topic && data.body || data
-                , collection = this._collection
+                , collection = this._
                 , index
-            ;
+                ;
 
-            if (!thing) {
+            if ( !thing ) {
                 return self;
             }
 
-            index = collection.indexOf(thing);
-            if (index > -1) {
-                collection.splice(index, 1);
+            index = indexOf( collection, thing );
+            if ( index > -1 ) {
+                collection.splice( index, 1 );
             }
 
             return self;
@@ -450,7 +453,7 @@
          */
         contains: function ( thing ) {
 
-            return this._collection.indexOf(thing) > -1;
+            return (indexOf(this._, thing) > -1);
         },
 
         /**
@@ -459,7 +462,7 @@
          */
         getAll: function () {
 
-            return [].concat(this._collection);
+            return [].concat( this._ );
         }
 
     };
