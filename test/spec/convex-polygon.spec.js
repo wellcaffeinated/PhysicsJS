@@ -106,4 +106,26 @@ describe("Polygon geometry", function() {
         expect( aabb.halfWidth ).toEqual( 1 );
         expect( aabb.halfHeight ).toEqual( 1.5 / 2 );
     });
+
+    it("should return correct vertices for getFarthestHullPoint", function(){
+        var shape = Physics.geometry('convex-polygon',{
+            vertices: [
+                { x:0, y:242 },
+                { x:300, y:242.01 },
+                { x:150, y:45 }
+            ]
+        });
+
+        var vertex = shape.getFarthestHullPoint( Physics.vector(1, 0) );
+        expect( vertex.equals(shape.vertices[1]) ).toBe( true );
+
+        vertex = shape.getFarthestHullPoint( Physics.vector(-1, 0) );
+        expect( vertex.equals(shape.vertices[0]) ).toBe( true );
+
+        vertex = shape.getFarthestHullPoint( Physics.vector(0, 1) );
+        expect( vertex.equals(shape.vertices[1]) ).toBe( true );
+
+        vertex = shape.getFarthestHullPoint( Physics.vector(0, -1) );
+        expect( vertex.equals(shape.vertices[2]) ).toBe( true );
+    });
 });
