@@ -25,7 +25,7 @@ module.exports = function(grunt) {
             "    } else if (typeof exports === 'object') {",
             "        module.exports = factory.apply(root, ['<%= deps.join(\"','\")%>'].map(require));",
             "    } else {",
-            "        factory.call(root, Physics);",
+            "        factory.call(root, root.Physics);",
             "    }",
             "}(this, function (Physics) {",
             "    'use strict';",
