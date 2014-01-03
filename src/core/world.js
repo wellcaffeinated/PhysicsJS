@@ -260,12 +260,12 @@
                 break; // end behavior
 
                 case 'integrator':
-                    return ( this._integrator === integrator );
-                break; // end integrator
+                return ( this._integrator === thing );
+                // end integrator
 
                 case 'renderer':
-                    return ( this._renderer === renderer );
-                break; // end renderer
+                return ( this._renderer === thing );
+                // end renderer
 
                 case 'body':
                     arr = this._bodies;
