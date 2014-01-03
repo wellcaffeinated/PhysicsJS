@@ -374,7 +374,7 @@ module.exports = function(grunt) {
 
     // create a build for development
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
-    grunt.registerTask('testDev', ['jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
+    grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
     // tests on dist code
     grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);
