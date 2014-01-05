@@ -19,40 +19,20 @@ module.exports = function(grunt) {
         ].join('\n'),
 
         extensionWrapper: [
-            "(function( root, define, fn ){",
-            "    ",
-            "    define = (typeof define === 'function' && define.amd) ? define : function( name, deps, fn ){",
-            "        if ( !fn ){",
-            "            fn = deps;",
-            "            deps = name;",
-            "        }",
-            "        ",
-            "        // Node",
-            "        if ( typeof exports === 'object' ){",
-            "            ",
-            "            deps = deps.map( require );",
-            "            module.exports = fn.apply( root, deps );",
-            "            ",
-            "        } else {",
-            "            ",
-            "            // map",
-            "            for ( var i = 0, l = deps.length; i < l; ++i ){",
-            "                ",
-            "                deps[ i ] = root[ deps[i] ];",
-            "            }",
-            "            ",
-            "            fn.apply( root, deps );",
-            "        }",
-            "    };",
-            "    ",
-            "    define([<%= deps %>], fn);",
-            "    ",
-            "})(this, this.define, function( Physics ){",
+            "(function (root, factory) {",
+            "    if (typeof define === 'function' && define.amd) {",
+            "        define(['<%= deps.join(\"','\")%>'], factory);",
+            "    } else if (typeof exports === 'object') {",
+            "        module.exports = factory.apply(root, ['<%= deps.join(\"','\")%>'].map(require));",
+            "    } else {",
+            "        factory.call(root, root.Physics);",
+            "    }",
+            "}(this, function (Physics) {",
             "    'use strict';",
             "    <%= src %>",
             "    // end module: <%= path %>",
             "    return Physics;",
-            "}); // UMD"
+            "}));// UMD",
         ].join('\n'),
 
         sources : [
@@ -153,7 +133,7 @@ module.exports = function(grunt) {
         var data = {
             src: src.replace(/\n/g, '\n    '),
             path: path,
-            deps: "'" + deps.join("', '") + "'"
+            deps: deps
         };
 
         return grunt.template.process(config.banner, config) + 
@@ -395,7 +375,7 @@ module.exports = function(grunt) {
 
     // create a build for development
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
-    grunt.registerTask('testDev', ['jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
+    grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
     // tests on dist code
     grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);

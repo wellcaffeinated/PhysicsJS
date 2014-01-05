@@ -156,7 +156,7 @@ Physics.geometry('convex-polygon', function( parent ){
                 // go down
 
                 i = l;
-                while ( i > 2 && prev >= val ){
+                while ( i > 1 && prev >= val ){
                     i--;
                     val = prev;
                     prev = verts[ i ].dot( dir );
