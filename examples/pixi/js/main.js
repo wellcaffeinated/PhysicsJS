@@ -2,7 +2,8 @@
  * PhysicsJS by Jasper Palfree <wellcaffeinated.net>
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Simple "Hello world" example
+ * Example use of PIXI renderer with physics 
+ * By Nathan Gallagher (ngallagher87: bluerex.ca)
  */
 Physics(function(world){
 	
