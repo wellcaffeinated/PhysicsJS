@@ -68,6 +68,26 @@
         },
 
         /**
+         * Set which world to apply to
+         * @param {Object} world The world (or null)
+         * @return {self}
+         */
+        setWorld: function( world ){
+
+            if ( this.disconnect && this._world ){
+                this.disconnect( this._world );
+            }
+
+            this._world = world;
+
+            if ( this.connect && world ){
+                this.connect( world );
+            }
+
+            return this;
+        },
+
+        /**
          * Accelerate the body by adding supplied vector to its current acceleration
          * @param  {Vector} acc The acceleration vector
          * @return {this}

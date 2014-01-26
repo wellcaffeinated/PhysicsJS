@@ -1,5 +1,9 @@
 (function(){
 
+    var defaults = {
+        
+    };
+
     // Service
     Physics.behavior = Physics.behaviour = Decorator('behavior', {
 
@@ -14,9 +18,29 @@
          * @param  {Object} options Config options passed by initializer
          * @return {void}
          */
-        init: function(){
+        init: function( options ){
             
-            this.options = {};
+            this.options = Physics.util.extend({}, defaults, options);
+        },
+
+        /**
+         * Set which world to apply to
+         * @param {Object} world The world (or null)
+         * @return {self}
+         */
+        setWorld: function( world ){
+
+            if ( this.disconnect && this._world ){
+                this.disconnect( this._world );
+            }
+
+            this._world = world;
+
+            if ( this.connect && world ){
+                this.connect( world );
+            }
+
+            return this;
         },
 
         /**

@@ -3,26 +3,6 @@
  */
 (function(){
 
-    // bodies, behaviors, integrators, and renderers all need the setWorld method
-    var setWorld = function( world ){
-
-        if ( this.disconnect && this._world ){
-            this.disconnect( this._world );
-        }
-
-        this._world = world;
-
-        if ( this.connect && world ){
-            this.connect( world );
-        }
-    };
-
-    Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
-
-        // add a setWorld method to all of these types
-        Physics[ key ].mixin('setWorld', setWorld);
-    });
-
     var execCallbacks = function execCallbacks( fns, scope, args ){
         
         var fn

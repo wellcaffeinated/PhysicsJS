@@ -1,4 +1,4 @@
-describe("Query objects", function() {
+describe("Query functions", function() {
 
     var tester = {
         foo: 'foo',
@@ -12,8 +12,8 @@ describe("Query objects", function() {
             bar: 'bar'
         });
         
-        expect( q.check(tester) ).toBe( true );
-        expect( q.check({ bar: 'bar' }) ).toBe( false );
+        expect( q(tester) ).toBe( true );
+        expect( q({ bar: 'bar' }) ).toBe( false );
     });
 
     describe("array matching", function(){
@@ -24,7 +24,7 @@ describe("Query objects", function() {
                 bar: 'bar'
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
 
         it("should match whole arrays", function(){
@@ -33,7 +33,7 @@ describe("Query objects", function() {
                 bar: 'bar'
             });
             
-            expect( q.check(tester) ).toBe( true );            
+            expect( q(tester) ).toBe( true );            
         });
 
         it("should not match array portions", function(){
@@ -42,7 +42,7 @@ describe("Query objects", function() {
                 bar: 'bar'
             });
             
-            expect( q.check(tester) ).toBe( false );            
+            expect( q(tester) ).toBe( false );            
         });
     });
 
@@ -55,7 +55,7 @@ describe("Query objects", function() {
                 bar: { $in: ['foo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
 
         it("shouldn't match values not in $in", function(){
@@ -65,7 +65,7 @@ describe("Query objects", function() {
                 bar: { $in: ['booo', 'blah'] }
             });
             
-            expect( q.check(tester) ).toBe( false );
+            expect( q(tester) ).toBe( false );
         });
 
         it("should match values in arrays", function(){
@@ -74,7 +74,7 @@ describe("Query objects", function() {
                 arr: { $in: ['foo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
 
         it("shouldn't match values not in arrays", function(){
@@ -83,7 +83,7 @@ describe("Query objects", function() {
                 arr: { $in: ['boo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( false );
+            expect( q(tester) ).toBe( false );
         });
 
         it("shouldn't match empty values", function(){
@@ -92,7 +92,7 @@ describe("Query objects", function() {
                 empty: { $in: ['foo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( false );
+            expect( q(tester) ).toBe( false );
         });
     });
 
@@ -105,7 +105,7 @@ describe("Query objects", function() {
                 bar: { $nin: ['bar', 'that'] }
             });
             
-            expect( q.check(tester) ).toBe( false );
+            expect( q(tester) ).toBe( false );
         });
 
         it("should match values not in $nin", function(){
@@ -115,7 +115,7 @@ describe("Query objects", function() {
                 bar: { $nin: ['booo', 'bah'] }
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
 
         it("shouldn't match values in arrays", function(){
@@ -124,7 +124,7 @@ describe("Query objects", function() {
                 arr: { $nin: ['foo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( false );
+            expect( q(tester) ).toBe( false );
         });
 
         it("should match values not in arrays", function(){
@@ -133,7 +133,7 @@ describe("Query objects", function() {
                 arr: { $nin: ['boo', 'blah'] }
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
 
         it("should match empty values", function(){
@@ -142,7 +142,7 @@ describe("Query objects", function() {
                 empty: { $nin: ['foo', 'bar'] }
             });
             
-            expect( q.check(tester) ).toBe( true );
+            expect( q(tester) ).toBe( true );
         });
     });
      
