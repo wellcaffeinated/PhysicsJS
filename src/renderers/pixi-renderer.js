@@ -61,6 +61,9 @@ Physics.renderer('pixi', function( proto ){
 		 */
 		init: function( options ){
 
+			if (typeof PIXI === 'undefined')
+				throw "PIXI obj not present - cannot continue ";
+				
 			// call proto init
 			proto.init.call(this, options);
 
