@@ -134,6 +134,19 @@
     };
 
     /*!
+     * Get a test function to match any body who's aabb intersects point
+     * @param  {Vectorish} point The point to check
+     * @return {Function}       The test function
+     */
+    var $at = function $at( point ){
+        point = Physics.vector( point );
+        return function( body ){
+            var aabb = body.aabb();
+            return Physics.aabb.contains( aabb, point );
+        }
+    };
+
+    /*!
      * Get an AND test function
      * @param  {Function} first First function node
      * @return {Function}       Test function

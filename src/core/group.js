@@ -1,3 +1,7 @@
+/*
+WIP
+NOT NEEDED. Likely delete
+ */
 (function(){
 
     var indexOf = Physics.util.indexOf;
@@ -34,32 +38,51 @@
         },
 
         /**
+         * Clone another group, or return a clone of this group
+         * @param  {Group} other (optional) other group to clone
+         * @return {self|Group}       If `other` is specified it returns self. Otherwise it returns a new group.
+         */
+        clone: function( other ){
+
+            if ( other ){
+                return this.clear().add( other );
+            } else {
+                return new Group( this.items );
+            }
+        },
+
+        /**
          * Add an object (or objects) to the group
          * @param {Object} things The object (or array of objects) to add
+         * @param {boolean} nocheck (optional) Set to true to disable duplicate checks
          * @return {self}
          */
-        add: function ( things ) {
+        add: function ( things, nocheck ) {
 
             var self = this
                 ,th
+                ,items
                 ;
 
             if ( !things ) {
                 return self;
             }
 
-            if ( Physics.util.isArray( things ) ){
-                for ( var i = 0, l = things.length; i < l; ++i ){
+            // convert to array if possible
+            items = Group.asArray( things );
+
+            if ( items ){
+                for ( var i = 0, l = items.length; i < l; ++i ){
                         
-                    th = things[ i ];
+                    th = items[ i ];
 
                     // ensure we don't already have the item
-                    if ( !self.has( th ) ){
+                    if ( nocheck || !self.has( th ) ){
                         self.items.push( th );
                     }
                 }
             } else {
-                if ( !self.has( things ) ){
+                if ( nocheck || !self.has( things ) ){
                     self.items.push( things );
                 }
             }
@@ -77,13 +100,17 @@
             var self = this
                 ,index
                 ,th
+                ,items
                 ;
 
             if ( !things ) {
                 return self;
             }
 
-            if ( Physics.util.isArray( things ) ){
+            // convert to array if possible
+            items = Group.asArray( things );
+
+            if ( items ){
                 for ( var i = 0, l = things.length; i < l; ++i ){
                         
                     th = things[ i ];
@@ -133,12 +160,7 @@
             }
 
             // determine what we need to search
-            items = Physics.util.isArray( things ) ? 
-                things :
-                (things.getBodies) ?
-                    things.getBodies :
-                    things.items
-                ;
+            items = things._bodies ? things._bodies.items : Group.asArray( things );
 
             // search and add
             for ( var i = 0, l = items.length; i < l; ++i ){
@@ -177,6 +199,13 @@
             return matched;
         }
 
+    };
+
+    Group.asArray = function asArray( thing ){
+        return Physics.util.isArray( thing ) ? 
+            thing : // it's an array
+            thing.items || false // it's a Group
+            ;
     };
 
     Physics.group = Group;

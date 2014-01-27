@@ -257,14 +257,7 @@
             }
 
             // check array
-            for ( i = 0, l = arr.length; i < l; ++i ){
-                
-                if ( thing === arr[ i ] ){
-                    return true;
-                }
-            }
-
-            return false;
+            return (Physics.util.indexOf( arr, thing ) > -1);
         },
 
         /**
@@ -529,52 +522,31 @@
         },
 
         /**
-         * Find first matching body based on query parameters
-         * @param  {Object} query The query
+         * Find first matching body based on query rules
+         * @param  {Object|Function} rules The query rules or custom function
          * @return {Object|false}       Body or false if no match
          */
-        findOne: function( query ){
+        findOne: function( rules ){
 
-            // @TODO: refactor to use a new Query object helper
-            // @TODO: make $and the default. not $or.
-            var list = {
-                    check: function( arg ){
-                        var fn = this;
-                        while ( fn = fn.next ){
-
-                            if ( fn( arg ) ){
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
-                ,test = list
-                ,bodies = this._bodies
+            var self = this
+                ,fn = (typeof query === 'function') ? query : Physics.query( query )
                 ;
 
-            // init tests
-            if ( query.$within ){
-                //aabb
-            }
-            if ( query.$at ){
+            return Physics.util.find( self._bodies, fn ) || false;
+        },
 
-                test.next = function( body ){
+        /**
+         * Find all matching bodies based on query rules
+         * @param  {Object|Function} rules The query rules or custom function
+         * @return {Array}       Array of matching bodies
+         */
+        find: function( rules ){
 
-                    var aabb = body.aabb();
-                    return Physics.aabb.contains( aabb, query.$at );
-                };
-            }
+            var self = this
+                ,fn = (typeof query === 'function') ? query : Physics.query( query )
+                ;
 
-            // do search
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
-                if (list.check( bodies[ i ] )){
-                    return bodies[ i ];
-                }
-            }
-
-            return false;
+            return Physics.util.filter( self._bodies, fn );
         },
 
         /**

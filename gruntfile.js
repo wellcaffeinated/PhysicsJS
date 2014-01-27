@@ -42,7 +42,6 @@ module.exports = function(grunt) {
             'src/math/*.js',
 
             'src/core/query.js',
-            'src/core/group.js',
             'src/core/behavior.js',
             'src/core/body.js',
             'src/core/geometry.js',
@@ -318,7 +317,7 @@ module.exports = function(grunt) {
                     // category: ['collections', 'functions'],
                     exports: ['none'],
                     iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
-                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'each', 'random', 'extend', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
+                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'each', 'random', 'extend', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
                     
                     // minus: ['result', 'shuffle'],
                     // plus: ['random', 'template'],
