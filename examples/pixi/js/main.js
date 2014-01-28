@@ -7,14 +7,14 @@
  */
 Physics(function(world){
 	
-	var viewWidth = 500;
-	var viewHeight = 300;
+	var viewWidth = 630;
+	var viewHeight = 410;
 	
 	var renderer = Physics.renderer('pixi', {
 		el: 'viewport',
 		width: viewWidth,
 		height: viewHeight,
-		meta: true
+		meta: false
 	});
 	
 	// add the renderer
@@ -42,7 +42,6 @@ Physics(function(world){
 	// ensure objects bounce when edge collision is detected
 	world.add( Physics.behavior('body-impulse-response') );
 	// Bounce the comet of the monster
-	world.add( Physics.behavior('body-collision-detection', { checkAll: false }) );
 	world.add( Physics.behavior('sweep-prune') );
 	
 	// subscribe to ticker to advance the simulation
