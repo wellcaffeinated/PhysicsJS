@@ -2,13 +2,14 @@
  * A PIXI renderer
  * Renders physics object with PIXI components
  */
+ /* global PIXI */
 Physics.renderer('pixi', function( proto ){
 
 	if ( !document ){
 		// must be in node environment
 		return {};
 	}
-
+	
 	var Pi2 = Math.PI * 2;
 
 	var defaults = {
@@ -61,8 +62,9 @@ Physics.renderer('pixi', function( proto ){
 		 */
 		init: function( options ){
 
-			if (typeof PIXI === 'undefined')
+			if (typeof PIXI === 'undefined') {
 				throw "PIXI obj not present - cannot continue ";
+			}
 				
 			// call proto init
 			proto.init.call(this, options);
@@ -79,10 +81,11 @@ Physics.renderer('pixi', function( proto ){
 			this.meta = {};
 			
 			// add the renderer view element to the DOM
-			if (this.el !== null)
+			if (this.el !== null) {
 				this.el.appendChild(this.renderer.view);
-			else	
+			} else {
 				document.body.appendChild(this.renderer.view);
+			}
 		},
 		
 		/**
@@ -92,9 +95,10 @@ Physics.renderer('pixi', function( proto ){
 		* @return {void}
 		*/
 		loadSpritesheets: function ( assetsToLoad, callback ){
-			if (!assetsToLoad instanceof Array)
+			if (!assetsToLoad instanceof Array) {
 				throw "Spritesheets must be defined in arrays";
-				
+			}
+			
 			var loader = new PIXI.AssetLoader(assetsToLoad);
 			
 			// Start loading resources!
@@ -163,7 +167,7 @@ Physics.renderer('pixi', function( proto ){
 			var start = {
 				x: x,
 				y: y
-			}
+			};
 			var graphics = new PIXI.Graphics();
 			
 			graphics.beginFill(styles.fillStyle);
@@ -236,11 +240,11 @@ Physics.renderer('pixi', function( proto ){
 			
 			if (name === 'circle'){
 			
-				var view = this.createCircle(x, y, geometry.radius, styles);
+				view = this.createCircle(x, y, geometry.radius, styles);
 			
 			} else if (name === 'convex-polygon'){
 			
-				var view = this.createPolygon(geometry.vertices, styles);
+				view = this.createPolygon(geometry.vertices, styles);
 			}
 			
 			if (styles.angleIndicator){
@@ -252,8 +256,12 @@ Physics.renderer('pixi', function( proto ){
 				view.endFill();
 				
 			}
-			this.stage.addChild(view);
-			return view;
+			if (view) {
+				this.stage.addChild(view);
+				return view;
+			} else {
+				throw "Invalid view name passed.";
+			}
 
 		},
 
@@ -269,7 +277,7 @@ Physics.renderer('pixi', function( proto ){
 					font: "18px Snippet", 
 					fill: "white", 
 					align: "left"
-				}
+				};
 				this.meta.fps = new PIXI.Text('FPS: ' + meta.fps.toFixed(2), fontStyles);
 				this.meta.fps.position.x = 15;
 				this.meta.fps.position.y = 5;
@@ -303,11 +311,13 @@ Physics.renderer('pixi', function( proto ){
 		 * @return {PIXI.DisplayObject} An object that is renderable
 		 */
 		createDisplay: function( type, options ){
-			var view = null;
+			var view = null
+				,texture = null
+				;
 			switch (type){
 				// Create a sprite object
 				case 'sprite':
-					var texture = PIXI.Texture.fromImage(options.texture);
+					texture = PIXI.Texture.fromImage(options.texture);
 					view = new PIXI.Sprite(texture);
 					if (options.anchor ) {
 						view.anchor.x = options.anchor.x;
@@ -315,23 +325,23 @@ Physics.renderer('pixi', function( proto ){
 					}
 					// If a container is specified, use add to that container
 					if (options.container) {
-						options.container.addChild(view)
+						options.container.addChild(view);
 					} else {
 						// Otherwise just add the view to the stage
 						this.stage.addChild(view);
 					}
 					return view;
-				break;
 				// Create a movieclip object
 				case 'movieclip':
-					if (!this.assetsLoaded)
+					if (!this.assetsLoaded) {
 						throw "No assets have been loaded. Use loadSpritesheet() first";
+					}
 					var tex = []
 						,i = 0
 						;
 					// Populate our movieclip
 					for (i; i < options.frames.length; i++) {
-						var texture = PIXI.Texture.fromFrame(options.frames[i]);
+						texture = PIXI.Texture.fromFrame(options.frames[i]);
 						tex.push(texture);
 					}
 					view = new PIXI.MovieClip(tex);
@@ -341,13 +351,12 @@ Physics.renderer('pixi', function( proto ){
 					}
 					// If a container is specified, use add to that container
 					if (options.container) {
-						options.container.addChild(view)
+						options.container.addChild(view);
 					} else {
 						// Otherwise just add the view to the stage
 						this.stage.addChild(view);
 					}
 					return view;
-				break;
 				// Create a default case
 				default: 
 					throw 'Invalid PIXI.DisplayObject passed';
