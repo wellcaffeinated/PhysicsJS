@@ -313,7 +313,13 @@ Physics.renderer('pixi', function( proto ){
 						view.anchor.x = options.anchor.x;
 						view.anchor.y = options.anchor.y;
 					}
-					this.stage.addChild(view);
+					// If a container is specified, use add to that container
+					if (options.container) {
+						options.container.addChild(view)
+					} else {
+						// Otherwise just add the view to the stage
+						this.stage.addChild(view);
+					}
 					return view;
 				break;
 				// Create a movieclip object
@@ -333,7 +339,13 @@ Physics.renderer('pixi', function( proto ){
 						view.anchor.x = options.anchor.x;
 						view.anchor.y = options.anchor.y;
 					}
-					this.stage.addChild(view);
+					// If a container is specified, use add to that container
+					if (options.container) {
+						options.container.addChild(view)
+					} else {
+						// Otherwise just add the view to the stage
+						this.stage.addChild(view);
+					}
 					return view;
 				break;
 				// Create a default case
