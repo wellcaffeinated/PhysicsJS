@@ -141,7 +141,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
                 };
 
                 result.prototype = objectCreate( parent );
-                result.prototype = Physics.util.extend(result.prototype, decorator( parent ), copyFn);
+                result.prototype = Physics.util.extend(result.prototype, decorator( parent, result.prototype ), copyFn);
             }
 
             result.prototype.type = type;
