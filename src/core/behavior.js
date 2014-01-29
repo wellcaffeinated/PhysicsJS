@@ -5,7 +5,7 @@
     };
 
     // Service
-    Physics.behavior = Physics.behaviour = Decorator('behavior', {
+    Physics.behavior = Decorator('behavior', {
 
         /**
          * Priority for behavior pubsub event
@@ -21,6 +21,30 @@
         init: function( options ){
             
             this.options = Physics.util.extend({}, defaults, options);
+        },
+
+        /**
+         * Apply the behavior to a group of bodies
+         * @param  {Array} arr Array of bodies to apply to OR set to true to apply to all bodies in world
+         * @return {self}
+         */
+        applyTo: function( arr ){
+
+            if ( arr === true ){
+                this._targets = null;
+            } else {
+                this._targets = Physics.util.uniq( arr );
+            }
+            return this;
+        },
+
+        /**
+         * Get the array of bodies (by reference!) this behavior is applied to.
+         * @return {Array} Array of bodies the behavior applies to
+         */
+        getTargets: function(){
+            
+            return this._targets || ( this._world ? this._world._bodies : [] );
         },
 
         /**

@@ -34,7 +34,7 @@ Physics.behavior('newtonian', function( parent ){
          */
         behave: function( data ){
 
-            var bodies = data.bodies
+            var bodies = this.getTargets()
                 ,body
                 ,other
                 ,strength = this.strength

@@ -278,7 +278,7 @@ Physics.behavior('body-collision-detection', function( parent ){
          */
         checkAll: function( data ){
 
-            var bodies = data.bodies
+            var bodies = this.targets()
                 ,dt = data.dt
                 ,bodyA
                 ,bodyB

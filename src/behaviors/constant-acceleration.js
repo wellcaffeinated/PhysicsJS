@@ -44,7 +44,7 @@ Physics.behavior('constant-acceleration', function( parent ){
          */
         behave: function( data ){
 
-            var bodies = data.bodies;
+            var bodies = this.getTargets();
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
                 

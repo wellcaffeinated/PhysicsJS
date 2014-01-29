@@ -312,12 +312,12 @@ module.exports = function(grunt) {
                 options: {
                     // modifiers for prepared builds
                     // backbone, legacy, modern, mobile, strict, underscore
-                    // modifier: 'backbone',
+                    modifier: 'modern',
                     // modularize: true,
                     // category: ['collections', 'functions'],
                     exports: ['none'],
                     iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
-                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'each', 'random', 'extend', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
+                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'find', 'each', 'random', 'extend', 'transform', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
                     
                     // minus: ['result', 'shuffle'],
                     // plus: ['random', 'template'],

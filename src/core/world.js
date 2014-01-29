@@ -529,7 +529,7 @@
         findOne: function( rules ){
 
             var self = this
-                ,fn = (typeof query === 'function') ? query : Physics.query( query )
+                ,fn = (typeof rules === 'function') ? rules : Physics.query( rules )
                 ;
 
             return Physics.util.find( self._bodies, fn ) || false;
@@ -543,7 +543,7 @@
         find: function( rules ){
 
             var self = this
-                ,fn = (typeof query === 'function') ? query : Physics.query( query )
+                ,fn = (typeof rules === 'function') ? rules : Physics.query( rules )
                 ;
 
             return Physics.util.filter( self._bodies, fn );

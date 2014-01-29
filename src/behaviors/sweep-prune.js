@@ -447,7 +447,7 @@ Physics.behavior('sweep-prune', function( parent ){
         sweep: function( data ){
 
             var self = this
-                ,bodies = data.bodies
+                ,bodies = this.getTargets()
                 ,dt = data.dt
                 ,candidates
                 ;

@@ -143,7 +143,7 @@
         return function( body ){
             var aabb = body.aabb();
             return Physics.aabb.contains( aabb, point );
-        }
+        };
     };
 
     /*!
@@ -256,7 +256,7 @@
         }
 
         // return the rules test
-        return $and( first );
+        return $and( first || fnTrue );
     };
 
     Physics.query = Query;

@@ -224,7 +224,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
          */
         checkAll: function( data ){
             
-            var bodies = data.bodies
+            var bodies = this.getTargets()
                 ,dt = data.dt
                 ,body
                 ,collisions = []
