@@ -31,10 +31,24 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,proto = {}
         ;
 
-    // extend callback that only extends functions
-    var copyFn = function copyFn( a, b ){
+    // transform callback that only extends functions
+    var transformFn = function transformFn( to, val, key, from ){
 
-        return Physics.util.isFunction( b ) ? b : a;
+        var desc = Object.getOwnPropertyDescriptor( from, key );
+        if ( desc.get || desc.set ){
+
+            Object.defineProperty( to, key, desc );
+
+        } else if ( Physics.util.isFunction( desc.value ) ){
+
+            to[ key ] = desc.value;
+        }
+    };
+
+    // extend that supports getters/setters
+    var extend = function extend( to, from ){
+
+        return Physics.util.transform( from, transformFn, to );
     };
 
     // http://ejohn.org/blog/objectgetprototypeof/
@@ -72,7 +86,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     var mixin = function mixin( key, val ){
 
         if ( typeof key === 'object' ){
-            proto = Physics.util.extend(proto, key, copyFn);
+            proto = extend(proto, key);
             proto.type = type;
             return;
         }
@@ -129,7 +143,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             if ( result ){
 
-                result.prototype = Physics.util.extend(result.prototype, decorator( getProto(result.prototype) ), copyFn);
+                result.prototype = extend(result.prototype, decorator( getProto(result.prototype) ));
                 
             } else {
                 // newly defined
@@ -141,7 +155,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
                 };
 
                 result.prototype = objectCreate( parent );
-                result.prototype = Physics.util.extend(result.prototype, decorator( parent, result.prototype ), copyFn);
+                result.prototype = extend(result.prototype, decorator( parent, result.prototype ));
             }
 
             result.prototype.type = type;

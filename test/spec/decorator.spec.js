@@ -189,6 +189,14 @@ describe("Decorator helper function", function() {
 
         mod('childgetset', 'getset', function( parent, child ){
 
+            return {
+                get newProp(){
+                    return 'gotit';
+                },
+                set newProp( val ){
+                    this._newOtherProp = val;
+                }
+            };
         });
 
         var inst = mod('getset', {});
@@ -199,9 +207,12 @@ describe("Decorator helper function", function() {
 
         var child = mod('childgetset', {});
         child.someProp = 5;
+        child.newProp = 4;
 
         expect( child.someProp ).toEqual( 'got' );
         expect( child._otherProp ).toEqual( 5 );
+        expect( child.newProp ).toEqual( 'gotit' );
+        expect( child._newOtherProp ).toEqual( 4 );
 
     });
 });
