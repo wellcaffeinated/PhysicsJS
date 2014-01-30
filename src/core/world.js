@@ -65,6 +65,8 @@
          */
         init: function( cfg, fn ){
 
+            var self = this;
+
             if ( Physics.util.isFunction( cfg ) || Physics.util.isArray( cfg ) ){
                 fn = cfg;
                 cfg = {};
@@ -84,7 +86,16 @@
             this.initPubsub( this );
 
             // set options
-            this.options( cfg || {} );
+            this.options = Physics.util.options( defaults );
+            this.options.onChange(function( opts ){
+
+                // set timestep
+                self.timeStep( opts.timestep );
+            });
+            this.options( cfg );
+
+            // add integrator
+            this.add(Physics.integrator( this.options.integrator ));
 
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
@@ -98,26 +109,11 @@
         },
 
         /**
-         * Get or set options
+         * Set options
          * @param  {Object} cfg Config options to set
-         * @return {Object|this}     Options or this
+         * @return {Object}     Options container
          */
-        options: function( cfg ){
-
-            if (cfg){
-
-                // extend the defaults
-                Physics.util.extend(this._opts, defaults, cfg);
-                // set timestep
-                this.timeStep(this._opts.timestep);
-                // add integrator
-                this.add(Physics.integrator(this._opts.integrator));
-
-                return this;
-            }
-
-            return Physics.util.clone(this._opts);
-        },
+        options: null,
 
         /**
          * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...

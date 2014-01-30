@@ -20,7 +20,7 @@
          */
         init: function( options ){
             
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options( defaults );
         },
 
         /**

@@ -2,6 +2,8 @@
 
     var defaults = {
 
+        // is the body hidden (not to be rendered)?
+        hidden: false,
         // is the body fixed and imovable?
         fixed: false,
         // body mass
@@ -25,26 +27,18 @@
 
             var vector = Physics.vector;
 
-            this.options = Physics.util.extend({}, defaults, options);
-
-            // properties
-            this.fixed = this.options.fixed;
-            this.hidden = this.options.hidden;
-            this.mass = this.options.mass;
-            this.restitution = this.options.restitution;
-            this.cof = this.options.cof;
-
-            // placeholder for renderers
-            this.view = this.options.view;
+            // properties set onto 
+            this.options = Physics.util.options( defaults, this );
+            this.options( options );
 
             // physical properties
             this.state = {
-                pos: vector( options.x, options.y ),
-                vel: vector( options.vx, options.vy ),
+                pos: vector( this.x, this.y ),
+                vel: vector( this.vx, this.vy ),
                 acc: vector(),
                 angular: {
-                    pos: options.angle || 0.0,
-                    vel: options.angularVelocity || 0.0,
+                    pos: this.angle || 0.0,
+                    vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
@@ -58,6 +52,14 @@
                     }
                 }
             };
+
+            // cleanup
+            delete this.x;
+            delete this.y;
+            delete this.vx;
+            delete this.vy;
+            delete this.angle;
+            delete this.angularVelocity;
 
             if (this.mass === 0){
                 throw "Error: Bodies must have non-zero mass";

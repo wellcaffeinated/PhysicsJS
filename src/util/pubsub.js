@@ -127,7 +127,7 @@
                 ;
 
             if ( !topic ){
-                throw 'Error: No topic specified in call to world.publish()';
+                throw 'Error: No topic specified in call to .publish()';
             }
 
             if ( !l ){

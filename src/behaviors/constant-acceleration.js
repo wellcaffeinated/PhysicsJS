@@ -18,12 +18,14 @@ Physics.behavior('constant-acceleration', function( parent ){
          */
         init: function( options ){
 
-            parent.init.call(this, options);
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
 
             // extend options
-            this.options = Physics.util.extend(this.options, defaults, options);
             this._acc = Physics.vector();
             this.setAcceleration( this.options.acc );
+            delete this.options.acc;
         },
 
         /**

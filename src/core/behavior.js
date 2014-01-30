@@ -1,17 +1,11 @@
 (function(){
 
     var defaults = {
-        
+        priority: 0
     };
 
     // Service
     Physics.behavior = Decorator('behavior', {
-
-        /**
-         * Priority for behavior pubsub event
-         * @type {Number}
-         */
-        priority: 0,
 
         /**
          * Initialization
@@ -20,7 +14,8 @@
          */
         init: function( options ){
             
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options( defaults );
+            this.options( options );
         },
 
         /**
@@ -75,7 +70,7 @@
         connect: function( world ){
 
             if (this.behave){
-                world.subscribe('integrate:positions', this.behave, this, this.priority);
+                world.subscribe('integrate:positions', this.behave, this, this.options.priority);
             }
         },
 

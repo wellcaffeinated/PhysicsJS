@@ -5,8 +5,6 @@
  */
 Physics.behavior('edge-collision-detection', function( parent ){
 
-    var PUBSUB_COLLISION = 'collisions:detected';
-
     /**
      * Check if a body collides with the boundary
      * @param  {Object} body   The body to check
@@ -146,7 +144,8 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
         aabb: null,
         restitution: 0.99,
-        cof: 1.0
+        cof: 1.0,
+        channel: 'collisions:detected'
     };
 
     return {
@@ -158,12 +157,12 @@ Physics.behavior('edge-collision-detection', function( parent ){
          */
         init: function( options ){
 
-            parent.init.call(this, options);
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
 
-            this.options = Physics.util.extend({}, this.options, defaults, options);
-
-            this.setAABB( options.aabb );
-            this.restitution = options.restitution;
+            this.setAABB( this.options.aabb );
+            this.restitution = this.options.restitution;
             
             this._dummy = Physics.body('_dummy', function(){}, { 
                 fixed: true,
@@ -251,7 +250,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             if ( collisions.length ){
 
                 this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                    topic: this.options.channel,
                     collisions: collisions
                 });
             }
