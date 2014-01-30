@@ -132,9 +132,9 @@ Physics.renderer('canvas', function( proto ){
 
             if ( Physics.util.isObject(styles) ){
 
-                ctx.strokeStyle = styles.strokeStyle;
-                ctx.fillStyle = styles.fillStyle;
                 ctx.lineWidth = styles.lineWidth;
+                ctx.strokeStyle = styles.lineWidth ? styles.strokeStyle : 'rgba(0,0,0,0)';
+                ctx.fillStyle = styles.fillStyle;
 
             } else {
 
