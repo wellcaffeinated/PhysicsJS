@@ -1,5 +1,6 @@
 /**
  * A pathetically simple dom renderer
+ * @module renderers/dom
  */
 Physics.renderer('dom', function( proto ){
 

@@ -1,6 +1,7 @@
 /**
  * A simple canvas renderer.
  * Renders circles and convex-polygons
+ * @module renderers/canvas
  */
 Physics.renderer('canvas', function( proto ){
 

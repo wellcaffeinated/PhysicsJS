@@ -1,0 +1,68 @@
+{"frames": {
+
+"Small-Frog-1.png":
+{
+	"frame": {"x":2,"y":2,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-2.png":
+{
+	"frame": {"x":64,"y":2,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-3.png":
+{
+	"frame": {"x":126,"y":2,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-4.png":
+{
+	"frame": {"x":188,"y":2,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-5.png":
+{
+	"frame": {"x":2,"y":106,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-6.png":
+{
+	"frame": {"x":64,"y":106,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+},
+"Small-Frog-7.png":
+{
+	"frame": {"x":126,"y":106,"w":60,"h":102},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":60,"h":102},
+	"sourceSize": {"w":60,"h":102}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "frog.png",
+	"format": "RGBA8888",
+	"size": {"w":256,"h":256},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:c8b9d0c6aca03a38f099614b78061212:3289be545af80a80f389187c6005b9b4:8dde0dd0197344c2f9f9f01d8d204375$"
+}
+}
