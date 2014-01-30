@@ -55,6 +55,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBeGreaterThan( 0 );
         expect( world.getBehaviors().length ).toBeGreaterThan( 0 );
+        expect( world.has( circle ) ).toBe( true );
+        expect( world.has( square ) ).toBe( true );
+        expect( world.has( sweepPrune ) ).toBe( true );
+        expect( world.has( bodyCollision ) ).toBe( true );
         expect( callbacks.addedBodies.calls.length ).toEqual( 2 );
         expect( callbacks.addedBehaviors.calls.length ).toEqual( 2 );
         expect( callbacks.removedBodies.calls.length ).toEqual( 0 );
@@ -70,6 +74,10 @@ describe("Adding and Removing things from world", function() {
 
         expect( world.getBodies().length ).toBe( 0 );
         expect( world.getBehaviors().length ).toBe( 0 );
+        expect( world.has( circle ) ).toBe( false );
+        expect( world.has( square ) ).toBe( false );
+        expect( world.has( sweepPrune ) ).toBe( false );
+        expect( world.has( bodyCollision ) ).toBe( false );
         expect( callbacks.addedBodies.calls.length ).toEqual( 0 );
         expect( callbacks.addedBehaviors.calls.length ).toEqual( 0 );
         expect( callbacks.removedBodies.calls.length ).toEqual( 2 );
@@ -108,6 +116,25 @@ describe("Adding and Removing things from world", function() {
         expect( callbacks.addedBehaviors.calls.length ).toEqual( 0 );
         expect( callbacks.removedBodies.calls.length ).toEqual( 2 );
         expect( callbacks.removedBehaviors.calls.length ).toEqual( 2 );
+    });
+
+    it("should not allow duplicates", function() {
+
+        world.add([ 
+            circle,
+            circle,
+            square,
+            sweepPrune,
+            sweepPrune,
+            bodyCollision
+        ]);
+
+        expect( world.getBodies().length ).toBeGreaterThan( 0 );
+        expect( world.getBehaviors().length ).toBeGreaterThan( 0 );
+        expect( callbacks.addedBodies.calls.length ).toEqual( 2 );
+        expect( callbacks.addedBehaviors.calls.length ).toEqual( 2 );
+        expect( callbacks.removedBodies.calls.length ).toEqual( 0 );
+        expect( callbacks.removedBehaviors.calls.length ).toEqual( 0 );
     });
 
 });

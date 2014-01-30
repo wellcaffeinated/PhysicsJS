@@ -31,8 +31,27 @@
             this.options = Physics.util.extend({}, defaults, options);
 
             this.el = el ? el : document.body;
-
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
+        },
+
+        /**
+         * Set which world to apply to
+         * @param {Object} world The world (or null)
+         * @return {self}
+         */
+        setWorld: function( world ){
+
+            if ( this.disconnect && this._world ){
+                this.disconnect( this._world );
+            }
+
+            this._world = world;
+
+            if ( this.connect && world ){
+                this.connect( world );
+            }
+
+            return this;
         },
 
         /**
@@ -89,7 +108,7 @@
             // el.style.height = geometry.height + 'px';
             // el.style.width = geometry.width + 'px';
             // return el;
-            throw 'You must overried the renderer.createView() method.';
+            throw 'You must override the renderer.createView() method.';
         },
 
         /**
@@ -102,7 +121,7 @@
             // example:
             // this.els.fps.innerHTML = meta.fps.toFixed(2);
             // this.els.steps.innerHTML = meta.steps;
-            throw 'You must overried the renderer.drawMeta() method.';
+            throw 'You must override the renderer.drawMeta() method.';
         },
 
         /**
@@ -116,7 +135,7 @@
             // example (pseudocode):
             // view.angle = body.state.angle
             // view.position = body.state.position
-            throw 'You must overried the renderer.drawBody() method.';
+            throw 'You must override the renderer.drawBody() method.';
         }
 
         

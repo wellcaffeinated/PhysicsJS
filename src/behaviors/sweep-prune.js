@@ -4,7 +4,6 @@
  */
 Physics.behavior('sweep-prune', function( parent ){
 
-    var PUBSUB_CANDIDATES = 'collisions:candidates';
     var uid = 1;
 
     /**
@@ -48,7 +47,11 @@ Physics.behavior('sweep-prune', function( parent ){
          */
         init: function( options ){
 
-            parent.init.call(this, options);
+            parent.init.call( this );
+            this.options.defaults({
+                channel: 'collisions:candidates' //default channel
+            });
+            this.options( options );
 
             this.clear();
         },
@@ -447,8 +450,6 @@ Physics.behavior('sweep-prune', function( parent ){
         sweep: function( data ){
 
             var self = this
-                ,bodies = data.bodies
-                ,dt = data.dt
                 ,candidates
                 ;
 
@@ -456,7 +457,8 @@ Physics.behavior('sweep-prune', function( parent ){
             
             if ( candidates.length ){
 
-                this._world.emit(PUBSUB_CANDIDATES, {
+                this._world.emit({
+                    topic: this.options.channel,
                     candidates: candidates
                 });
             }

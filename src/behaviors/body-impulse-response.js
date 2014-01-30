@@ -5,12 +5,21 @@
 Physics.behavior('body-impulse-response', function( parent ){
     
     var defaults = {
-
+        // channel to listen to for collisions
+        check: 'collisions:detected'
     };
 
-    var PUBSUB_COLLISION = 'collisions:detected';
-
     return {
+
+        init: function( options ){
+
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
+        },
+
+        // no applyTo method
+        applyTo: false,
 
         /**
          * Connect to world. Automatically called when added to world by the setWorld method
@@ -19,7 +28,7 @@ Physics.behavior('body-impulse-response', function( parent ){
          */
         connect: function( world ){
 
-            world.on( PUBSUB_COLLISION, this.respond, this );
+            world.on( this.options.check, this.respond, this );
         },
 
         /**
@@ -29,7 +38,7 @@ Physics.behavior('body-impulse-response', function( parent ){
          */
         disconnect: function( world ){
 
-            world.off( PUBSUB_COLLISION, this.respond );
+            world.off( this.options.check, this.respond );
         },
 
         /**

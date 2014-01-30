@@ -34,7 +34,7 @@
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
             // if (left handed coordinate system) 
-            // A cross AB < 0 then get perpendicular counter clockwise 
+            // A cross AB < 0 then get perpendicular clockwise
             return dir.perp( (ptA.cross( dir ) < 0) );
         }
     };

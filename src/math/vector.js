@@ -290,15 +290,15 @@
 
     /**
      * Change vector into a vector perpendicular
-     * @param {Boolean} neg Set to true if want to go in the negative direction
+     * @param {Boolean} clockwise Set to true if want to go in the positive direction
      * @return {this}
      */
-    Vector.prototype.perp = function( neg ) {
+    Vector.prototype.perp = function(clockwise) {
 
         var tmp = this._[0]
             ;
 
-        if ( neg ){
+        if (clockwise){
 
             // x <-> y
             // negate x

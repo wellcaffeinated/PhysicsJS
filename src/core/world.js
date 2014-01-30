@@ -3,26 +3,6 @@
  */
 (function(){
 
-    // bodies, behaviors, integrators, and renderers all need the setWorld method
-    var setWorld = function( world ){
-
-        if ( this.disconnect && this._world ){
-            this.disconnect( this._world );
-        }
-
-        this._world = world;
-
-        if ( this.connect && world ){
-            this.connect( world );
-        }
-    };
-
-    Physics.util.each('body,behavior,integrator,renderer'.split(','), function( key, val ){
-
-        // add a setWorld method to all of these types
-        Physics[ key ].mixin('setWorld', setWorld);
-    });
-
     var execCallbacks = function execCallbacks( fns, scope, args ){
         
         var fn
@@ -85,6 +65,8 @@
          */
         init: function( cfg, fn ){
 
+            var self = this;
+
             if ( Physics.util.isFunction( cfg ) || Physics.util.isArray( cfg ) ){
                 fn = cfg;
                 cfg = {};
@@ -103,7 +85,16 @@
             this._opts = {};
 
             // set options
-            this.options( cfg || {} );
+            this.options = Physics.util.options( defaults );
+            this.options.onChange(function( opts ){
+
+                // set timestep
+                self.timeStep( opts.timestep );
+            });
+            this.options( cfg );
+
+            // add integrator
+            this.add(Physics.integrator( this.options.integrator ));
 
             // apply the callback function
             if ( Physics.util.isFunction( fn ) ){
@@ -117,26 +108,11 @@
         },
 
         /**
-         * Get or set options
+         * Set options
          * @param  {Object} cfg Config options to set
-         * @return {Object|this}     Options or this
+         * @return {Object}     Options container
          */
-        options: function( cfg ){
-
-            if (cfg){
-
-                // extend the defaults
-                Physics.util.extend(this._opts, defaults, cfg);
-                // set timestep
-                this.timeStep(this._opts.timestep);
-                // add integrator
-                this.add(Physics.integrator(this._opts.integrator));
-
-                return this;
-            }
-
-            return Physics.util.clone(this._opts);
-        },
+        options: null,
 
         /**
          * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...
@@ -234,6 +210,49 @@
             } while ( ++i < len && (thing = arg[ i ]) );
 
             return this;
+        },
+
+        /**
+         * Determine if object has been added to world
+         * @param  {Object}  thing The object to test
+         * @return {Boolean}       The test result.
+         */
+        has: function( thing ){
+
+            var arr
+                ,i
+                ,l
+                ;
+
+            if ( !thing ){
+                return false;
+            }
+
+            switch (thing.type){
+
+                case 'behavior':
+                    arr = this._behaviors;
+                break; // end behavior
+
+                case 'integrator':
+                return ( this._integrator === thing );
+                // end integrator
+
+                case 'renderer':
+                return ( this._renderer === thing );
+                // end renderer
+
+                case 'body':
+                    arr = this._bodies;
+                break; // end body
+                
+                default:
+                    throw 'Error: unknown type "'+ thing.type +'"';
+                // end default
+            }
+
+            // check array
+            return (Physics.util.indexOf( arr, thing ) > -1);
         },
 
         /**
@@ -336,6 +355,13 @@
          */
         addBehavior: function( behavior ){
 
+            var notify;
+
+            // don't allow duplicates
+            if ( this.has( behavior ) ){
+                return this;
+            }
+
             behavior.setWorld( this );
             this._behaviors.push( behavior );
 
@@ -372,6 +398,7 @@
                     if (behavior === behaviors[ i ]){
                         
                         behaviors.splice( i, 1 );
+                        behavior.setWorld( null );
 
                         this.emit( 'remove:behavior', {
                             behavior: behavior
@@ -391,6 +418,13 @@
          * @return {this} 
          */
         addBody: function( body ){
+
+            var notify;
+
+            // don't allow duplicates
+            if ( this.has( body ) ){
+                return this;
+            }
 
             body.setWorld( this );
             this._bodies.push( body );
@@ -428,6 +462,7 @@
                     if (body === bodies[ i ]){
                         
                         bodies.splice( i, 1 );
+                        body.setWorld( null );
 
                         this.emit( 'remove:body', {
                             body: body
@@ -442,52 +477,31 @@
         },
 
         /**
-         * Find first matching body based on query parameters
-         * @param  {Object} query The query
+         * Find first matching body based on query rules
+         * @param  {Object|Function} rules The query rules or custom function
          * @return {Object|false}       Body or false if no match
          */
-        findOne: function( query ){
+        findOne: function( rules ){
 
-            // @TODO: refactor to use a new Query object helper
-            // @TODO: make $and the default. not $or.
-            var list = {
-                    check: function( arg ){
-                        var fn = this;
-                        while ( fn = fn.next ){
-
-                            if ( fn( arg ) ){
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                }
-                ,test = list
-                ,bodies = this._bodies
+            var self = this
+                ,fn = (typeof rules === 'function') ? rules : Physics.query( rules )
                 ;
 
-            // init tests
-            if ( query.$within ){
-                //aabb
-            }
-            if ( query.$at ){
+            return Physics.util.find( self._bodies, fn ) || false;
+        },
 
-                test.next = function( body ){
+        /**
+         * Find all matching bodies based on query rules
+         * @param  {Object|Function} rules The query rules or custom function
+         * @return {Array}       Array of matching bodies
+         */
+        find: function( rules ){
 
-                    var aabb = body.aabb();
-                    return Physics.aabb.contains( aabb, query.$at );
-                };
-            }
+            var self = this
+                ,fn = (typeof rules === 'function') ? rules : Physics.query( rules )
+                ;
 
-            // do search
-            for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
-                if (list.check( bodies[ i ] )){
-                    return bodies[ i ];
-                }
-            }
-
-            return false;
+            return Physics.util.filter( self._bodies, fn );
         },
 
         /**

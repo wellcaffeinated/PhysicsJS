@@ -20,7 +20,27 @@
          */
         init: function( options ){
             
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options( defaults );
+        },
+
+        /**
+         * Set which world to apply to
+         * @param {Object} world The world (or null)
+         * @return {self}
+         */
+        setWorld: function( world ){
+
+            if ( this.disconnect && this._world ){
+                this.disconnect( this._world );
+            }
+
+            this._world = world;
+
+            if ( this.connect && world ){
+                this.connect( world );
+            }
+
+            return this;
         },
 
         /**

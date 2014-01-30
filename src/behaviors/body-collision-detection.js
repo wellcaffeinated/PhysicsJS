@@ -4,9 +4,6 @@
  */
 Physics.behavior('body-collision-detection', function( parent ){
 
-    var PUBSUB_CANDIDATES = 'collisions:candidates';
-    var PUBSUB_COLLISION = 'collisions:detected';
-
     /**
      * Get a general support function for use with GJK algorithm
      * @param  {Object} bodyA First body
@@ -174,6 +171,11 @@ Physics.behavior('body-collision-detection', function( parent ){
      */
     var checkPair = function checkPair( bodyA, bodyB ){
 
+        // don't detect two fixed bodies
+        if ( bodyA.fixed && bodyB.fixed ){
+            return false;
+        }
+
         if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
 
             return checkCircles( bodyA, bodyB );
@@ -186,8 +188,12 @@ Physics.behavior('body-collision-detection', function( parent ){
 
     var defaults = {
 
-        // force check every pair of bodies in the world
-        checkAll: false
+        // channel to listen to for collision candidates
+        // set to "true" to force check every pair of bodies in the world
+        check: 'collisions:candidates',
+
+        // channel to publish events to
+        channel: 'collisions:detected'
     };
 
     return {
@@ -199,9 +205,9 @@ Physics.behavior('body-collision-detection', function( parent ){
          */
         init: function( options ){
 
-            parent.init.call(this, options);
-
-            this.options = Physics.util.extend({}, this.options, defaults, options);
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
         },
 
         /**
@@ -211,13 +217,13 @@ Physics.behavior('body-collision-detection', function( parent ){
          */
         connect: function( world ){
 
-            if ( this.options.checkAll ){
+            if ( this.options.check === true ){
 
                 world.on( 'integrate:velocities', this.checkAll, this );
 
             } else {
 
-                world.on( PUBSUB_CANDIDATES, this.check, this );
+                world.on( this.options.check, this.check, this );
             }
         },
 
@@ -228,13 +234,13 @@ Physics.behavior('body-collision-detection', function( parent ){
          */
         disconnect: function( world ){
 
-            if ( this.options.checkAll ){
+            if ( this.options.check === true ){
 
                 world.off( 'integrate:velocities', this.checkAll );
 
             } else {
 
-                world.off( PUBSUB_CANDIDATES, this.check );
+                world.off( this.options.check, this.check );
             }
         },
 
@@ -247,6 +253,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             var candidates = data.candidates
                 ,pair
+                ,targets = this.getTargets()
                 ,collisions = []
                 ,ret
                 ;
@@ -255,16 +262,23 @@ Physics.behavior('body-collision-detection', function( parent ){
                 
                 pair = candidates[ i ];
 
-                ret = checkPair( pair.bodyA, pair.bodyB );
+                if ( targets === this._world._bodies || 
+                    // only check if the members are targeted by this behavior
+                    (Physics.util.indexOf( targets, pair.bodyA ) > -1) &&
+                    (Physics.util.indexOf( targets, pair.bodyB ) > -1)
+                ){
+                    ret = checkPair( pair.bodyA, pair.bodyB );
 
-                if ( ret ){
-                    collisions.push( ret );
+                    if ( ret ){
+                        collisions.push( ret );
+                    }
                 }
             }
 
             if ( collisions.length ){
 
-                this._world.emit( PUBSUB_COLLISION, {
+                this._world.emit({
+                    topic: this.options.channel,
                     collisions: collisions
                 });
             }
@@ -277,7 +291,7 @@ Physics.behavior('body-collision-detection', function( parent ){
          */
         checkAll: function( data ){
 
-            var bodies = data.bodies
+            var bodies = this.getTargets()
                 ,dt = data.dt
                 ,bodyA
                 ,bodyB
@@ -293,21 +307,18 @@ Physics.behavior('body-collision-detection', function( parent ){
 
                     bodyB = bodies[ i ];
 
-                    // don't detect two fixed bodies
-                    if ( !bodyA.fixed || !bodyB.fixed ){
-                        
-                        ret = checkPair( bodyA, bodyB );
+                    ret = checkPair( bodyA, bodyB );
 
-                        if ( ret ){
-                            collisions.push( ret );
-                        }
+                    if ( ret ){
+                        collisions.push( ret );
                     }
                 }
             }
 
             if ( collisions.length ){
 
-                this._world.emit( PUBSUB_COLLISION, {
+                this._world.emit({
+                    topic: this.options.channel,
                     collisions: collisions
                 });
             }

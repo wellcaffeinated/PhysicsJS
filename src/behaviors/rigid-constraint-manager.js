@@ -20,9 +20,9 @@ Physics.behavior('rigid-constraint-manager', function( parent ){
          */
         init: function( options ){
 
-            parent.init.call(this, options);
-
-            Physics.util.extend(this.options, defaults, options);
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
 
             this._constraints = [];
         },

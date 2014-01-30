@@ -171,4 +171,48 @@ describe("Decorator helper function", function() {
         val = extendedInst.extMixin();
         expect( val ).toEqual( 'extMixin' );        
     });
+
+
+    it("should allow for new module definitions to define getters/setters", function() {
+
+        mod('getset', function( parent, child ){
+
+            Object.defineProperty( child, 'someProp', {
+                get: function(){
+                    return 'got';
+                },
+                set: function( val ){
+                    this._otherProp = val;
+                }
+            });
+        });
+
+        mod('childgetset', 'getset', function( parent, child ){
+
+            return {
+                get newProp(){
+                    return 'gotit';
+                },
+                set newProp( val ){
+                    this._newOtherProp = val;
+                }
+            };
+        });
+
+        var inst = mod('getset', {});
+        inst.someProp = 5;
+
+        expect( inst.someProp ).toEqual( 'got' );
+        expect( inst._otherProp ).toEqual( 5 );
+
+        var child = mod('childgetset', {});
+        child.someProp = 5;
+        child.newProp = 4;
+
+        expect( child.someProp ).toEqual( 'got' );
+        expect( child._otherProp ).toEqual( 5 );
+        expect( child.newProp ).toEqual( 'gotit' );
+        expect( child._newOtherProp ).toEqual( 4 );
+
+    });
 });

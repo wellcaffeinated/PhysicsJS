@@ -8,15 +8,32 @@ module.exports = function(grunt) {
 
     config = {
         banner : [
-            '/**\n',
-            ' * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n',
-            ' * <%= pkg.description %>\n',
-            ' * http://wellcaffeinated.net/PhysicsJS\n',
-            ' *\n',
-            ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n',
-            ' * Licensed <%= pkg.license %>\n',
+            '/**',
+            ' * <%= pkg.name %> v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>',
+            ' * <%= pkg.description %>',
+            ' * http://wellcaffeinated.net/PhysicsJS',
+            ' *',
+            ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>',
+            ' * Licensed <%= pkg.license %>',
             ' */\n'
-        ].join(''),
+        ].join('\n'),
+
+        extensionWrapper: [
+            "(function (root, factory) {",
+            "    if (typeof define === 'function' && define.amd) {",
+            "        define(['<%= deps.join(\"','\")%>'], factory);",
+            "    } else if (typeof exports === 'object') {",
+            "        module.exports = factory.apply(root, ['<%= deps.join(\"','\")%>'].map(require));",
+            "    } else {",
+            "        factory.call(root, root.Physics);",
+            "    }",
+            "}(this, function (Physics) {",
+            "    'use strict';",
+            "    <%= src %>",
+            "    // end module: <%= path %>",
+            "    return Physics;",
+            "}));// UMD",
+        ].join('\n'),
 
         sources : [
             'src/intro.js',
@@ -24,6 +41,7 @@ module.exports = function(grunt) {
             'src/util/*.js',
             'src/math/*.js',
 
+            'src/core/query.js',
             'src/core/behavior.js',
             'src/core/body.js',
             'src/core/geometry.js',
@@ -51,8 +69,24 @@ module.exports = function(grunt) {
             'src/renderers/*.js'
         ],
 
+        rjsHelper: 'test/r.js.spec.helper.js',
+
         pkg : pkg,
         uglifyFiles : {}
+    };
+
+    config.distRequireJS = {
+        baseUrl: 'dist/',
+        packages: [
+            {
+                name: 'physicsjs',
+                location: '.',
+                main: 'physicsjs-'+pkg.version
+            }
+        ],
+        optimize: 'none',
+        name: '../' + config.rjsHelper.replace(/\.js$/, ''),
+        out: 'test/physicsjs-built.js'
     };
 
     // setup dynamic filenames
@@ -96,25 +130,14 @@ module.exports = function(grunt) {
             return match;
         });
 
-        return grunt.template.process(config.banner, config) + "(function (root, factory) {\n" +
-        "    var deps = ['" + deps.join("', '") + "'];\n" +
-        "    if (typeof exports === 'object') {\n" +
-        "        // Node. \n" +
-        "        var mods = deps.map(require);\n" +
-        "        module.exports = factory.call(root, mods[ 0 ]);\n" +
-        "    } else if (typeof define === 'function' && define.amd) {\n" +
-        "        // AMD. Register as an anonymous module.\n" +
-        "        define(deps, function( p ){ return factory.call(root, p); });\n" +
-        "    } else {\n" +
-        "        // Browser globals (root is window). Dependency management is up to you.\n" +
-        "        root.Physics = factory.call(root, root.Physics);\n" +
-        "    }\n" +
-        "}(this, function ( Physics ) {\n" +
-        "    'use strict';\n" +
-        "    " + src.replace(/\n/g, '\n    ') + '\n' +
-        '    // end module: ' + path + '\n' +
-        '    return Physics;\n' +
-        "})); // UMD ";
+        var data = {
+            src: src.replace(/\n/g, '\n    '),
+            path: path,
+            deps: deps
+        };
+
+        return grunt.template.process(config.banner, config) + 
+            grunt.template.process(config.extensionWrapper, {data: data});
     }
 
     // write out the source file identifier as a comment
@@ -128,7 +151,8 @@ module.exports = function(grunt) {
         pkg : config.pkg,
         clean : {
             dist : ['dist/'],
-            dev : ['_working/physicsjs/']
+            dev : ['_working/physicsjs/'],
+            test: [config.distRequireJS.out]
         },
         concat : {
             options : {
@@ -198,6 +222,12 @@ module.exports = function(grunt) {
                 files : config.uglifyFiles
             }
         },
+        // for testing builds
+        requirejs: {
+            compile: {
+                options: config.distRequireJS
+            }
+        },
         jasmine : {
             dev : {
                 src : config.devFull,
@@ -238,18 +268,35 @@ module.exports = function(grunt) {
                     specs : 'test/requirejs.spec.js',
                     template : require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
+                        requireConfig: config.distRequireJS
+                    }
+                }
+            },
+            distRequireJSBuild : {
+                options : {
+                    specs : 'test/requirejs.build.spec.js',
+                    template : require('grunt-template-jasmine-requirejs'),
+                    templateOptions: {
                         requireConfig: {
-                            baseUrl: 'dist/',
-                            packages: [
-                                {
-                                    name: 'physicsjs',
-                                    location: './',
-                                    main: 'physicsjs-'+config.pkg.version
-                                }
-                            ]
+                            baseUrl: './',
+                            paths: {
+                                'bundle': config.distRequireJS.out.replace(/\.js$/, '')
+                            }
                         }
                     }
                 }
+            }
+        },
+        jasmine_node: {
+            specNameMatcher: "spec", // load only specs containing specNameMatcher
+            projectRoot: "test/node",
+            requirejs: false,
+            forceExit: true,
+            jUnit: {
+                report: false,
+                savePath : false,
+                useDotNotation: true,
+                consolidate: true
             }
         },
         jshint : {
@@ -265,12 +312,12 @@ module.exports = function(grunt) {
                 options: {
                     // modifiers for prepared builds
                     // backbone, legacy, modern, mobile, strict, underscore
-                    // modifier: 'backbone',
+                    modifier: 'modern',
                     // modularize: true,
                     // category: ['collections', 'functions'],
                     exports: ['none'],
                     iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
-                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'each', 'random', 'extend', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
+                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'find', 'each', 'random', 'extend', 'transform', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
                     
                     // minus: ['result', 'shuffle'],
                     // plus: ['random', 'template'],
@@ -305,18 +352,21 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-lodash');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-requirejs');
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
 
         var cfg = {
-            modules: grunt.file.expand({ cwd: './' }, config.moduleSources ).join(' ').replace(/src\//g, 'physicsjs/').split(' ')
+            modules: grunt.file.expand({ cwd: './' }, config.moduleSources ).join(' ').replace(/src\//g, 'physicsjs/').replace(/\.js/g, '').split(' ')
         };
 
         grunt.file.write('test/requirejs.spec.helper.js', 'var cfg = ' + JSON.stringify( cfg ) + ';' );
+        grunt.file.write(config.rjsHelper, 'require(' + JSON.stringify( cfg.modules ) + ');' );
 
     });
 
@@ -325,10 +375,13 @@ module.exports = function(grunt) {
 
     // create a build for development
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
-    grunt.registerTask('testDev', ['jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
+    grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
+
+    // tests on dist code
+    grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);
 
     // create a distribution build
-    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS']);
+    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);

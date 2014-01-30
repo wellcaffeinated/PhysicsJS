@@ -58,7 +58,7 @@ describe("AMD Loading", function() {
 
             var loaded, args, modules;
 
-            modules = window.cfg.modules.join(' ').replace(/\.js/g, '').split(' ');
+            modules = window.cfg.modules;
 
             runs(function(){
 
