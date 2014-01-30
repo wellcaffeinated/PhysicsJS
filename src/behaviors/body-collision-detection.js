@@ -277,8 +277,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( collisions.length ){
 
-                this._world.emit({
-                    topic: this.options.channel,
+                this._world.emit( this.options.channel, {
                     collisions: collisions
                 });
             }
@@ -317,8 +316,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( collisions.length ){
 
-                this._world.emit({
-                    topic: this.options.channel,
+                this._world.emit( this.options.channel, {
                     collisions: collisions
                 });
             }

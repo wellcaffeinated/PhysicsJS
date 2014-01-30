@@ -158,8 +158,8 @@ Physics.renderer('dom', function( proto ){
          */
         connect: function( world ){
 
-            world.subscribe( 'add:body', this.attach, this );
-            world.subscribe( 'remove:body', this.detach, this );
+            world.on( 'add:body', this.attach, this );
+            world.on( 'remove:body', this.detach, this );
         },
 
         /**
@@ -169,8 +169,8 @@ Physics.renderer('dom', function( proto ){
          */
         disconnect: function( world ){
 
-            world.unsubscribe( 'add:body', this.attach );
-            world.unsubscribe( 'remove:body', this.detach );
+            world.off( 'add:body', this.attach );
+            world.off( 'remove:body', this.detach );
         },
 
         /**

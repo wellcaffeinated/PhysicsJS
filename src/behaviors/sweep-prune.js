@@ -457,8 +457,7 @@ Physics.behavior('sweep-prune', function( parent ){
             
             if ( candidates.length ){
 
-                this._world.emit({
-                    topic: this.options.channel,
+                this._world.emit( this.options.channel, {
                     candidates: candidates
                 });
             }
