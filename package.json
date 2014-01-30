@@ -11,6 +11,10 @@
     {
       "name": "Tom W Hall",
       "url": "http://booleanoperations.co.nz"
+    },
+    {
+      "name": "Nathan Gallagher",
+      "url": "http://twitter.com/bluerex_ca"
     }
   ],
   "main": "./dist/physicsjs-full-0.5.3.js",
