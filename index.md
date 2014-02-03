@@ -39,5 +39,4 @@ possible to create a 3D fork. It is one of my long-term goals.
 
 [demos]: ./examples
 
-
 <script>require(['homepage-demo']);</script>
