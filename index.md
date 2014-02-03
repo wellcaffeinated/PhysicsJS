@@ -14,8 +14,6 @@ title: PhysicsJS
 is unfinished. Feel free to use it, just be warned that the API is in flux and better
 documentation is on its way!** ([Contributors and help needed](./contribute)!)
 
-<a href="http://physicsjs.challengepost.com/?utm_source=partner&amp;utm_medium=banner&amp;utm_campaign=physicsjs" target="_blank" ><img src="http://wellcaffeinated.net/images/physics-js-promo-widget.gif"></a>
-
 ## Demos
 
 Check out the [demo page][demos] for some sweet examples of what you can do.
