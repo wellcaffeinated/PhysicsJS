@@ -1,6 +1,6 @@
 {
   "name": "PhysicsJS",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
   "description": "A modular, extendable, and easy-to-use physics engine for javascript",
   "contributors": [
@@ -13,7 +13,7 @@
       "url": "http://booleanoperations.co.nz"
     }
   ],
-  "main": "./dist/physicsjs-full-0.5.3.js",
+  "main": "./dist/physicsjs-full-0.5.4.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:wellcaffeinated/PhysicsJS.git"
