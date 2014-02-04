@@ -34,8 +34,8 @@
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
             // if (left handed coordinate system) 
-            // A cross AB < 0 then get perpendicular clockwise
-            return dir.perp( (ptA.cross( dir ) < 0) );
+            // A cross AB < 0 then get perpendicular counterclockwise
+            return dir.perp( (ptA.cross( dir ) > 0) );
         }
     };
 
@@ -256,7 +256,7 @@
                     // if we haven't deduced that we've enclosed the origin
                     // then we know which way to look...
                     // morph the ab vector into its outward facing normal
-                    ab.perp( sign );
+                    ab.perp( !sign );
                     
                     // swap
                     dir.swap( ab );
@@ -273,7 +273,7 @@
                     // point B is dead to us now...
                     simplex.splice(1, 1);
 
-                    ac.perp( !sign );
+                    ac.perp( sign );
                     
                     // swap
                     dir.swap( ab );

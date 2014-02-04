@@ -196,8 +196,8 @@ Physics.geometry('convex-polygon', function( parent ){
             result = this.getFarthestHullPoint( dir, result, data );
 
             // get normalized directions to next and previous vertices
-            next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( !sign );
-            prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( sign );
+            next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( sign );
+            prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( !sign );
 
             // get the magnitude of a vector from the result vertex 
             // that splits down the middle
