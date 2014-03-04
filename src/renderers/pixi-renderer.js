@@ -20,7 +20,7 @@ Physics.renderer('pixi', function( proto ){
 		metaEl: null,
 		offset: {x: 0, y: 0},
 		// Provide some default colours
-		style: {
+		styles: {
 			// Defines the default canvas colour
 			color: 0x66FF99,
 			
@@ -74,7 +74,7 @@ Physics.renderer('pixi', function( proto ){
 			this.options.offset = Physics.vector( this.options.offset );
 
 			// Hook in PIXI stage here
-			this.stage = new PIXI.Stage(defaults.style.color);
+			this.stage = new PIXI.Stage(this.options.styles.color);
 			this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
 			
 			// Create empty meta object for use later
@@ -233,7 +233,7 @@ Physics.renderer('pixi', function( proto ){
 				,name = geometry.name
 				;
 			
-			var styles = styles || defaults.style[ name ];
+			var styles = styles || this.options.styles[ name ];
 			
 			x += styles.lineWidth | 0;
 			y += styles.lineWidth | 0;
