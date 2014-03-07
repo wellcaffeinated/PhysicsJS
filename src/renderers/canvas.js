@@ -341,6 +341,14 @@ Physics.renderer('canvas', function( proto ){
                         { x: aabb.pos.x - aabb.x, y: aabb.pos.y + aabb.y }
                     ], 'rgba(100, 255, 100, 0.3)');
                 ctx.restore();
+                
+                // draw also pathes
+                var debugView = this.createView(body.geometry, 'rgba(0, 255, 0, 0.5)');
+                ctx.save();
+                ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
+                ctx.rotate(body.state.angular.pos);
+                ctx.drawImage(debugView, -debugView.width/2, -debugView.height/2);
+                ctx.restore();
             }
         }
     };
