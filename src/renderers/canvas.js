@@ -343,12 +343,12 @@ Physics.renderer('canvas', function( proto ){
                     ], 'rgba(100, 255, 100, 0.3)');
                 ctx.restore();
                 
-                // draw also pathes
-                var debugView = this.createView(body.geometry, 'rgba(0, 255, 0, 0.5)');
+                // draw also paths
+                body._debugView = body._debugView || this.createView(body.geometry, 'rgba(0, 255, 0, 0.5)');
                 ctx.save();
                 ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
                 ctx.rotate(body.state.angular.pos);
-                ctx.drawImage(debugView, -debugView.width/2, -debugView.height/2);
+                ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();
             }
         }
