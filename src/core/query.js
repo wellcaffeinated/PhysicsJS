@@ -191,6 +191,7 @@
         ,$ne: $ne
         ,$in: $in
         ,$nin: $nin
+        ,$at: $at
     };
 
     /**

@@ -69,6 +69,8 @@ Physics.renderer('canvas', function( proto ){
          */
         init: function( options ){
 
+            var self = this;
+
             // call proto init
             proto.init.call(this, options);
 
