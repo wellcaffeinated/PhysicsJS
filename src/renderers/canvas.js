@@ -202,6 +202,31 @@ Physics.renderer('canvas', function( proto ){
         },
 
         /**
+         * Draw a rectangle to specified canvas context
+         * @param  {Number} x      The x coord
+         * @param  {Number} y      The y coord
+         * @param  {Number} width  Width of the rectangle
+         * @param  {Number} height Height of the rectangle
+         * @param  {Object|String} styles The styles configuration
+         * @param  {Canvas2DContext} ctx    (optional) The canvas context
+         * @return {void}
+         */
+        drawRect: function(x, y, width, height, styles, ctx){
+
+            var hw = width * 0.5
+                ,hh = height * 0.5
+                ;
+
+            ctx = ctx || this.ctx;
+            this.setStyle( styles, ctx );
+            ctx.beginPath();
+            ctx.rect(x - hw, y - hh, width, height);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+        },
+
+        /**
          * Draw a line onto specified canvas context
          * @param  {Vectorish} from   Starting point
          * @param  {Vectorish} to     Ending point
@@ -333,15 +358,7 @@ Physics.renderer('canvas', function( proto ){
 
             if ( this.options.debug ){
                 // draw bounding boxes
-                ctx.save();
-                ctx.translate(offset.get(0), offset.get(1));
-                this.drawPolygon([
-                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y - aabb.y },
-                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y - aabb.y },
-                        { x: aabb.pos.x + aabb.x, y: aabb.pos.y + aabb.y },
-                        { x: aabb.pos.x - aabb.x, y: aabb.pos.y + aabb.y }
-                    ], 'rgba(100, 255, 100, 0.3)');
-                ctx.restore();
+                this.drawRect( aabb.pos.x, aabb.pos.y, 2 * aabb.x, 2 * aabb.y, 'rgba(100, 255, 100, 0.3)' );
                 
                 // draw also paths
                 body._debugView = body._debugView || this.createView(body.geometry, 'rgba(0, 255, 0, 0.5)');
