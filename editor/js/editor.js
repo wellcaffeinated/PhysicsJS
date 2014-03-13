@@ -76,7 +76,7 @@
 
     } );
 
-    var element = editor.getWrapperElement();
+    var element = editor.getWrapperElement().parentNode;
 
     // toolbar
 
