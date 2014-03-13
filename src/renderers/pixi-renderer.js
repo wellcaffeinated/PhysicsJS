@@ -76,17 +76,22 @@ Physics.renderer('pixi', function( proto ){
 
 			// Hook in PIXI stage here
 			this.stage = new PIXI.Stage(defaults.style.color);
-			this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
-			
+		
 			// Create empty meta object for use later
 			this.meta = {};
 			
-			// add the renderer view element to the DOM
-			if (this.el !== null) {
-				this.el.appendChild(this.renderer.view);
-			} else {
-				document.body.appendChild(this.renderer.view);
-			}
+			// add the renderer view element to the DOM according to its type
+			if(this.el.nodeName == 'CANVAS')
+	                	this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, this.el);
+	                else{
+	                	this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+	
+	                	if (this.el !== null) {
+	                    		this.el.appendChild(this.renderer.view);
+	        		} else {
+	                		document.body.appendChild(this.renderer.view);
+	        		 }
+	            	};
 		},
 		
 		/**
