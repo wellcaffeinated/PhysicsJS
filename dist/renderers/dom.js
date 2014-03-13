@@ -1,30 +1,30 @@
 /**
- * PhysicsJS v0.5.3 - 2013-11-25
+ * PhysicsJS v0.5.4 - 2014-02-03
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Copyright (c) 2014 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 (function (root, factory) {
-    var deps = ['physicsjs'];
-    if (typeof exports === 'object') {
-        // Node. 
-        var mods = deps.map(require);
-        module.exports = factory.call(root, mods[ 0 ]);
-    } else if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(deps, function( p ){ return factory.call(root, p); });
+    if (typeof define === 'function' && define.amd) {
+        define(['physicsjs'], factory);
+    } else if (typeof exports === 'object') {
+        module.exports = factory.apply(root, ['physicsjs'].map(require));
     } else {
-        // Browser globals (root is window). Dependency management is up to you.
-        root.Physics = factory.call(root, root.Physics);
+        factory.call(root, root.Physics);
     }
-}(this, function ( Physics ) {
+}(this, function (Physics) {
     'use strict';
     /**
      * A pathetically simple dom renderer
      */
     Physics.renderer('dom', function( proto ){
+    
+        if ( !document ){
+            // must be in node environment
+            return {};
+        }
     
         // utility methods
         var thePrefix = {}
@@ -132,7 +132,7 @@
             /**
              * Set dom element style properties for a circle
              * @param  {HTMLElement} el       The element
-             * @param  {Geometry} geometry The bodie's geometry
+             * @param  {Geometry} geometry The body's geometry
              * @return {void}
              */
             circleProperties: function( el, geometry ){
@@ -147,7 +147,7 @@
     
             /**
              * Create a dom element for the specified geometry
-             * @param  {Geometry} geometry The bodie's geometry
+             * @param  {Geometry} geometry The body's geometry
              * @return {HTMLElement}          The element
              */
             createView: function( geometry ){
@@ -170,6 +170,67 @@
             },
     
             /**
+             * Connect to world. Automatically called when added to world by the setWorld method
+             * @param  {Object} world The world to connect to
+             * @return {void}
+             */
+            connect: function( world ){
+    
+                world.subscribe( 'add:body', this.attach, this );
+                world.subscribe( 'remove:body', this.detach, this );
+            },
+    
+            /**
+             * Disconnect from world
+             * @param  {Object} world The world to disconnect from
+             * @return {void}
+             */
+            disconnect: function( world ){
+    
+                world.unsubscribe( 'add:body', this.attach );
+                world.unsubscribe( 'remove:body', this.detach );
+            },
+    
+            /**
+             * Detach a node from the DOM
+             * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+             * @return {self}
+             */
+            detach: function( data ){
+    
+                // interpred data as either dom node or event data
+                var el = (data.nodeType && data) || (data.body && data.body.view)
+                    ,par = el && el.parentNode
+                    ;
+    
+                if ( el && par ){
+                    // remove view from dom
+                    par.removeChild( el );
+                }
+    
+                return this;
+            },
+    
+            /**
+             * Attach a node to the viewport
+             * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+             * @return {self}
+             */
+            attach: function( data ){
+    
+                // interpred data as either dom node or event data
+                var el = (data.nodeType && data) || (data.body && data.body.view)
+                    ;
+    
+                if ( el ){
+                    // attach to viewport
+                    this.el.appendChild( el );
+                }
+    
+                return this;
+            },
+    
+            /**
              * Draw the meta data
              * @param  {Object} meta The meta data
              * @return {void}
@@ -181,7 +242,7 @@
             },
     
             /**
-             * Update dom element to reflect bodie's current state
+             * Update dom element to reflect body's current state
              * @param  {Body} body The body to draw
              * @param  {HTMLElement} view The view for that body
              * @return {void}
@@ -189,6 +250,7 @@
             drawBody: drawBody
         };
     });
+    
     // end module: renderers/dom.js
     return Physics;
-})); // UMD 
+}));// UMD

@@ -1,9 +1,9 @@
 /**
- * PhysicsJS v0.5.3 - 2013-11-25
+ * PhysicsJS v0.5.4 - 2014-02-03
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Copyright (c) 2013 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Copyright (c) 2014 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 
@@ -24,6 +24,9 @@
 }(this, function () {
 
 'use strict';
+
+var window = this;
+var document = window.document;
 
 var Physics = function Physics(){
 
@@ -935,7 +938,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
             // if (left handed coordinate system) 
-            // A cross AB < 0 then get perpendicular counter clockwise 
+            // A cross AB < 0 then get perpendicular clockwise
             return dir.perp( (ptA.cross( dir ) < 0) );
         }
     };
@@ -1611,15 +1614,15 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     /**
      * Change vector into a vector perpendicular
-     * @param {Boolean} neg Set to true if want to go in the negative direction
+     * @param {Boolean} clockwise Set to true if want to go in the positive direction
      * @return {this}
      */
-    Vector.prototype.perp = function( neg ) {
+    Vector.prototype.perp = function(clockwise) {
 
         var tmp = this._[0]
             ;
 
-        if ( neg ){
+        if (clockwise){
 
             // x <-> y
             // negate x
@@ -2385,7 +2388,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
     }
 
     scratch.done();
-    return ( Math.abs(ang) > 0 );
+    return ( Math.abs(ang) > 1e-6 );
 };
 
 /**
@@ -2665,7 +2668,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 topic: 'beforeRender',
                 renderer: this,
                 bodies: bodies,
-                stats: meta
+                meta: meta
             });
 
             if (this.options.meta){
@@ -2698,7 +2701,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // el.style.height = geometry.height + 'px';
             // el.style.width = geometry.width + 'px';
             // return el;
-            throw 'You must overried the renderer.createView() method.';
+            throw 'You must override the renderer.createView() method.';
         },
 
         /**
@@ -2711,7 +2714,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // example:
             // this.els.fps.innerHTML = meta.fps.toFixed(2);
             // this.els.steps.innerHTML = meta.steps;
-            throw 'You must overried the renderer.drawMeta() method.';
+            throw 'You must override the renderer.drawMeta() method.';
         },
 
         /**
@@ -2725,13 +2728,14 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // example (pseudocode):
             // view.angle = body.state.angle
             // view.position = body.state.position
-            throw 'You must overried the renderer.drawBody() method.';
+            throw 'You must override the renderer.drawBody() method.';
         }
 
         
     });
 
 }());
+
 
 // ---
 // inside: src/core/world.js
@@ -2887,7 +2891,6 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             var i = 0
                 ,len = arg && arg.length || 0
                 ,thing = len ? arg[ 0 ] : arg
-                ,notify
                 ;
 
             if ( !thing ){
@@ -2920,15 +2923,6 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     // end default
                 }
 
-                // notify
-                notify = {
-                    topic: 'add:' + thing.type
-                };
-
-                notify[ thing.type ] = thing;
-
-                this.publish( notify );
-
             } while ( ++i < len && (thing = arg[ i ]) );
 
             return this;
@@ -2944,7 +2938,6 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             var i = 0
                 ,len = arg && arg.length || 0
                 ,thing = len ? arg[ 0 ] : arg
-                ,notify
                 ;
 
             if ( !thing ){
@@ -2957,7 +2950,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 switch (thing.type){
 
                     case 'behavior':
-                        this.removeBehavior(thing);
+                        this.removeBehavior( thing );
                     break; // end behavior
 
                     case 'integrator':
@@ -2973,7 +2966,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     break; // end renderer
 
                     case 'body':
-                        this.removeBody(thing);
+                        this.removeBody( thing );
                     break; // end body
                     
                     default:
@@ -2981,18 +2974,59 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     // end default
                 }
 
-                // notify
-                notify = {
-                    topic: 'add:' + thing.type
-                };
-
-                notify[ thing.type ] = thing;
-
-                this.publish( notify );
-
             } while ( ++i < len && (thing = arg[ i ]) );
 
             return this;
+        },
+
+        /**
+         * Determine if object has been added to world
+         * @param  {Object}  thing The object to test
+         * @return {Boolean}       The test result.
+         */
+        has: function( thing ){
+
+            var arr
+                ,i
+                ,l
+                ;
+
+            if ( !thing ){
+                return false;
+            }
+
+            switch (thing.type){
+
+                case 'behavior':
+                    arr = this._behaviors;
+                break; // end behavior
+
+                case 'integrator':
+                return ( this._integrator === thing );
+                // end integrator
+
+                case 'renderer':
+                return ( this._renderer === thing );
+                // end renderer
+
+                case 'body':
+                    arr = this._bodies;
+                break; // end body
+                
+                default:
+                    throw 'Error: unknown type "'+ thing.type +'"';
+                // end default
+            }
+
+            // check array
+            for ( i = 0, l = arr.length; i < l; ++i ){
+                
+                if ( thing === arr[ i ] ){
+                    return true;
+                }
+            }
+
+            return false;
         },
 
         /**
@@ -3002,18 +3036,41 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         integrator: function( integrator ){
 
+            var notify;
+
             if ( integrator === undefined ){
                 return this._integrator;
+            }
+
+            // do nothing if already added
+            if ( this._integrator === integrator ){
+                return this;
             }
 
             if ( this._integrator ){
 
                 this._integrator.setWorld( null );
+
+                // notify
+                notify = {
+                    topic: 'remove:integrator',
+                    integrator: this._integrator
+                };
+
+                this.publish( notify );
             }
 
             if ( integrator ){
                 this._integrator = integrator;
                 this._integrator.setWorld( this );
+
+                // notify
+                notify = {
+                    topic: 'add:integrator',
+                    integrator: this._integrator
+                };
+
+                this.publish( notify );
             }
 
             return this;
@@ -3026,18 +3083,41 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         renderer: function( renderer ){
 
-            if (renderer === undefined){
+            var notify;
+
+            if ( renderer === undefined ){
                 return this._renderer;
+            }
+
+            // do nothing if renderer already added
+            if ( this._renderer === renderer ){
+                return this;
             }
 
             if ( this._renderer ){
 
                 this._renderer.setWorld( null );
+
+                // notify
+                notify = {
+                    topic: 'remove:renderer',
+                    renderer: this._renderer
+                };
+
+                this.publish( notify );
             }
 
-            if (renderer){
+            if ( renderer ){
                 this._renderer = renderer;
                 this._renderer.setWorld( this );
+
+                // notify
+                notify = {
+                    topic: 'add:renderer',
+                    renderer: this._renderer
+                };
+
+                this.publish( notify );
             }
 
             return this;
@@ -3069,8 +3149,24 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         addBehavior: function( behavior ){
 
+            var notify;
+
+            // don't allow duplicates
+            if ( this.has( behavior ) ){
+                return this;
+            }
+
             behavior.setWorld( this );
             this._behaviors.push( behavior );
+
+            // notify
+            notify = {
+                topic: 'add:behavior',
+                behavior: behavior
+            };
+
+            this.publish( notify );
+
             return this;
         },
 
@@ -3102,18 +3198,19 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     if (behavior === behaviors[ i ]){
                         
                         behaviors.splice( i, 1 );
+                        behavior.setWorld( null );
+
+                        // notify
+                        notify = {
+                            topic: 'remove:behavior',
+                            behavior: behavior
+                        };
+
+                        this.publish( notify );
+
                         break;
                     }
                 }
-
-                // notify
-                notify = {
-                    topic: 'remove:behavior'
-                };
-
-                notify.behavior = behavior;
-
-                this.publish( notify );
             }
 
             return this;
@@ -3126,8 +3223,24 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          */
         addBody: function( body ){
 
+            var notify;
+
+            // don't allow duplicates
+            if ( this.has( body ) ){
+                return this;
+            }
+
             body.setWorld( this );
             this._bodies.push( body );
+
+            // notify
+            notify = {
+                topic: 'add:body',
+                body: body
+            };
+
+            this.publish( notify );
+
             return this;
         },
 
@@ -3159,18 +3272,19 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                     if (body === bodies[ i ]){
                         
                         bodies.splice( i, 1 );
+                        body.setWorld( null );
+
+                        // notify
+                        notify = {
+                            topic: 'remove:body',
+                            body: body
+                        };
+
+                        this.publish( notify );
+
                         break;
                     }
                 }
-
-                // notify
-                notify = {
-                    topic: 'remove:body'
-                };
-
-                notify.body = body;
-
-                this.publish( notify );
             }
 
             return this;
@@ -3345,6 +3459,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             var self = this;
             self.pause();
+
+            // notify before
+            this.publish( 'destroy' );
+
             // remove all listeners
             self.unsubscribe( true );
             // remove everything
@@ -3809,7 +3927,7 @@ Physics.geometry('convex-polygon', function( parent ){
                 // go down
 
                 i = l;
-                while ( i > 2 && prev >= val ){
+                while ( i > 1 && prev >= val ){
                     i--;
                     val = prev;
                     prev = verts[ i ].dot( dir );
@@ -6133,6 +6251,11 @@ Physics.integrator('improved-euler', function( parent ){
  */
 Physics.renderer('canvas', function( proto ){
 
+    if ( !document ){
+        // must be in node environment
+        return {};
+    }
+
     var Pi2 = Math.PI * 2
         // helper to create new dom elements
         ,newEl = function( node, content ){
@@ -6479,6 +6602,11 @@ Physics.renderer('canvas', function( proto ){
  */
 Physics.renderer('dom', function( proto ){
 
+    if ( !document ){
+        // must be in node environment
+        return {};
+    }
+
     // utility methods
     var thePrefix = {}
         ,tmpdiv = document.createElement("div")
@@ -6585,7 +6713,7 @@ Physics.renderer('dom', function( proto ){
         /**
          * Set dom element style properties for a circle
          * @param  {HTMLElement} el       The element
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {void}
          */
         circleProperties: function( el, geometry ){
@@ -6600,7 +6728,7 @@ Physics.renderer('dom', function( proto ){
 
         /**
          * Create a dom element for the specified geometry
-         * @param  {Geometry} geometry The bodie's geometry
+         * @param  {Geometry} geometry The body's geometry
          * @return {HTMLElement}          The element
          */
         createView: function( geometry ){
@@ -6623,6 +6751,67 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
+         * Connect to world. Automatically called when added to world by the setWorld method
+         * @param  {Object} world The world to connect to
+         * @return {void}
+         */
+        connect: function( world ){
+
+            world.subscribe( 'add:body', this.attach, this );
+            world.subscribe( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * Disconnect from world
+         * @param  {Object} world The world to disconnect from
+         * @return {void}
+         */
+        disconnect: function( world ){
+
+            world.unsubscribe( 'add:body', this.attach );
+            world.unsubscribe( 'remove:body', this.detach );
+        },
+
+        /**
+         * Detach a node from the DOM
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ,par = el && el.parentNode
+                ;
+
+            if ( el && par ){
+                // remove view from dom
+                par.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * Attach a node to the viewport
+         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
+         * @return {self}
+         */
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data.nodeType && data) || (data.body && data.body.view)
+                ;
+
+            if ( el ){
+                // attach to viewport
+                this.el.appendChild( el );
+            }
+
+            return this;
+        },
+
+        /**
          * Draw the meta data
          * @param  {Object} meta The meta data
          * @return {void}
@@ -6634,7 +6823,7 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Update dom element to reflect bodie's current state
+         * Update dom element to reflect body's current state
          * @param  {Body} body The body to draw
          * @param  {HTMLElement} view The view for that body
          * @return {void}
@@ -6642,6 +6831,7 @@ Physics.renderer('dom', function( proto ){
         drawBody: drawBody
     };
 });
+
 
 // ---
 // inside: src/outro.js
