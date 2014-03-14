@@ -13,13 +13,8 @@
       "url": "http://booleanoperations.co.nz"
     },
     {
-
       "name": "Nathan Gallagher",
       "url": "http://twitter.com/bluerex_ca"
-    },
-    {
-      "name": "Dan Ristic",
-      "email": "dristic101@gmail.com"
     }
   ],
   "main": "./dist/physicsjs-full-0.5.3.js",
@@ -33,7 +28,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "0.4.x",
     "grunt-contrib-concat": "0.x.x",
     "grunt-contrib-uglify": "0.x.x",
     "grunt-contrib-jasmine": "0.4.x",
@@ -44,17 +39,7 @@
     "grunt-contrib-watch": "~0.3.1",
     "grunt-lodash": "~0.3.0",
     "grunt-template-jasmine-requirejs": "~0.1.1",
-
-    "grunt-contrib-requirejs": "~0.4.1",
-
-    "grunt-dox": "~0.5.0",
-    "jade": "~0.35.0",
-    "dox": "~0.4.4",
-    "underscore": "~1.5.2",
-    "mkdirp": "~0.3.5",
-    "walkdir": "0.0.7",
-    "stylus": "~0.41.3"
-
+    "grunt-contrib-requirejs": "~0.4.1"
   },
   "bundledDependencies": [],
   "license": "MIT"
