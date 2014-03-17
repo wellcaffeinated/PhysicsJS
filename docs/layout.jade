@@ -87,9 +87,15 @@ mixin doc( item, level )
         +title( item )
       !='</h'+level+'>'
     
-    .desc
-      !=md(item.description)
+    if item.short_description
+      .desc
+        !=md(item.short_description)
+        
     +signatures(item)
+
+    if item.description
+      .desc.long
+        !=md(item.description.replace(item.short_description, ''))
     
     if item.children && item.children.length
       .children

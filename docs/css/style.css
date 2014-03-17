@@ -156,7 +156,7 @@ pre {
 
 #main {
   width: 80%;
-  margin: auto;
+  margin: 6em auto;
 }
 
 
@@ -206,11 +206,11 @@ pre {
 }
 
 #main .doc .signatures > li {
-  border-left: 4px solid #171717;
+  border-left: 1em solid #171717;
 }
 
 #main .doc .signatures .declaration {
-  padding: 0.5em;
+  padding: 1em 0;
   background: #171717;
   color: #93a1a1;
   font-size: 0.875em;
@@ -222,12 +222,11 @@ pre {
   padding: 1em;
 
   color: #C1C5C5;
-  background: #171717; /*rgba(10,10,0,0.03);*/
+  background: #25221F; /*rgba(10,10,0,0.03);*/
 }
 
   /* callback functions... */
   #main .doc .signatures .arguments-desc .arguments-desc {
-    border-left: 2px solid #171717;
     background: #000;
   }
 
