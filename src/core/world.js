@@ -1,6 +1,17 @@
 /**
- * The world class
- */
+ * class Physics.world
+ *
+ * The world class and factory function.
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics( cfg, function( world ) {
+ *     // use world
+ *     
+ * }); // returns world
+ * ```
+ **/
 (function(){
 
     var execCallbacks = function execCallbacks( fns, scope, args ){
@@ -35,15 +46,20 @@
     };
 
     // begin world definitions
-    /**
+    
+    /** alias of: Physics
+     * new Physics.world([options, fn(world, Physics)])
+     * - options (Object): configuration options
+        - options.timestep (Number = 1000.0/160): default timestep
+        ...
+     * - fn (Function|Array): Callback function or array of callbacks called with this === world
+     *
      * World Constructor.
      * 
      * If called with an array of functions, and any functions 
      * return a promise-like object, the remaining callbacks will 
      * be called only when that promise is resolved.
-     * @param {Object}   cfg (optional) Configuration options
-     * @param {Function|Array} fn  (optional) Callback function or array of callbacks called with "this" === world
-     */
+     **/
     var World = function World( cfg, fn ){
 
         // allow creation of world without "new"
@@ -57,12 +73,13 @@
     // extend pubsub
     World.prototype = Physics.util.extend({}, Physics.util.pubsub.prototype, {
 
-        /**
+        /** internal, see: new Physics.world
+         * Physics.world#init( [options, fn(world, Physics)] )
+         * - options (Object): configuration options (see constructor)
+         * - fn (Function|Array): Callback function or array of callbacks called with this === world
+         *
          * Initialization
-         * @param {Object}   cfg (optional) Configuration options
-         * @param {Function} fn  (optional) Callback function or array of callbacks called with "this" === world
-         * @return {void}
-         */
+         **/
         init: function( cfg, fn ){
 
             var self = this;
@@ -108,17 +125,20 @@
         },
 
         /**
-         * Set options
-         * @param  {Object} cfg Config options to set
-         * @return {Object}     Options container
-         */
+         * Physics.world#options( cfg ) -> Object
+         * - options (Object): configuration options (see constructor)
+         * + (Object): Options container
+         *
+         * Set config options. Also access options by `.options.<option>`.
+         **/
         options: null,
 
-        /**
+        /** chainable
+         * Physics.world#add( things ) -> this
+         * - things (Object|Array): The thing, or array of things (body, behavior, integrator, or renderer) to add.
+         * 
          * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...
-         * @param {Object|Array} arg The thing to add, or array of things to add
-         * @return {this}
-         */
+         **/
         add: function( arg ){
 
             var i = 0
@@ -161,11 +181,12 @@
             return this;
         },
 
-        /**
+        /** chainable
+         * Physics.world#remove( things ) -> this
+         * - things (Object|Array): The thing, or array of things (body, behavior, integrator, or renderer) to remove.
+         * 
          * Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...
-         * @param {Object|Array} arg The thing to remove, or array of things to remove
-         * @return {this}
-         */
+         **/
         remove: function( arg ){
 
             var i = 0
@@ -212,11 +233,13 @@
             return this;
         },
 
-        /**
-         * Determine if object has been added to world
-         * @param  {Object}  thing The object to test
-         * @return {Boolean}       The test result.
-         */
+        /** chainable
+         * Physics.world#has( thing ) -> Boolean
+         * - thing (Object): The thing to test
+         * + (Boolean): `true` if thing is in the world, `false` otherwise.
+         * 
+         * Determine if a thing has been added to world.
+         **/
         has: function( thing ){
 
             var arr
@@ -255,11 +278,14 @@
             return (Physics.util.indexOf( arr, thing ) > -1);
         },
 
-        /**
+        /** chainable
+         * Physics.world#integrator( [integrator] ) -> Integrator|this
+         * - integrator (Integrator): The integrator to set on the world
+         * + (Integrator): The currently set integrator if `integrator` not specified
+         * + (this): for chaining if `integrator` specified
+         *
          * Get or Set the integrator
-         * @param {Object} integrator Integrator instance to use
-         * @return {this|Object} This or Integrator
-         */
+         **/
         integrator: function( integrator ){
 
             if ( integrator === undefined ){
@@ -292,11 +318,14 @@
             return this;
         },
 
-        /**
-         * Get or Set renderer
-         * @param  {Object} renderer The renderer to set
-         * @return {this|Object}          This or Renderer
-         */
+        /** chainable
+         * Physics.world#renderer( [renderer] ) -> Renderer|this
+         * - renderer (Renderer): The renderer to set on the world
+         * + (Renderer): The currently set renderer if `renderer` not specified
+         * + (this): for chaining if `renderer` specified
+         *
+         * Get or Set the renderer
+         **/
         renderer: function( renderer ){
 
             if ( renderer === undefined ){
@@ -329,11 +358,14 @@
             return this;
         },
 
-        /**
-         * Get or Set timestep
-         * @param  {Number} dt The timestep size
-         * @return {this|Number}    This or the timestep
-         */
+        /** chainable
+         * Physics.world#timeStep( [dt] ) -> Number|this
+         * - dt (Number): The time step for the world
+         * + (Number): The currently set time step if `dt` not specified
+         * + (this): for chaining if `dt` specified
+         *
+         * Get or Set the time step
+         **/
         timeStep: function( dt ){
 
             if ( dt ){
@@ -348,11 +380,12 @@
             return this._dt;
         },
 
-        /**
-         * Add behavior to the world
-         * @param {Object} behavior The behavior to add
-         * @return {this} 
-         */
+        /** chainable
+         * Physics.world#addBehavior( behavior ) -> this 
+         * - behavior (Behavior): The behavior to add
+         *
+         * Add a behavior to the world
+         **/
         addBehavior: function( behavior ){
 
             var notify;
@@ -373,20 +406,23 @@
         },
 
         /**
+         * Physics.world#getBehaviors() -> Array
+         * + (Array): Array of behaviors
+         *
          * Get copied list of behaviors in the world
-         * @return {Array} Array of behaviors
-         */
+         **/
         getBehaviors: function(){
 
             // return the copied array
             return [].concat(this._behaviors);
         },
 
-        /**
-         * Remove behavior from the world
-         * @param {Object} behavior The behavior to remove
-         * @return {this} 
-         */
+        /** chainable
+         * Physics.world#removeBehavior( behavior ) -> this 
+         * - behavior (Behavior): The behavior to remove
+         *
+         * Remove a behavior from the world
+         **/
         removeBehavior: function( behavior ){
 
             var behaviors = this._behaviors;
@@ -412,11 +448,12 @@
             return this;
         },
 
-        /**
-         * Add body to the world
-         * @param {Object} body The body to add
-         * @return {this} 
-         */
+        /** chainable
+         * Physics.world#addBody( body ) -> this 
+         * - body (Body): The behavior to add
+         *
+         * Add a body to the world
+         **/
         addBody: function( body ){
 
             var notify;
@@ -437,20 +474,23 @@
         },
 
         /**
+         * Physics.world#getBodies() -> Array
+         * + (Array): Array of bodies
+         *
          * Get copied list of bodies in the world
-         * @return {Array} Array of bodies
-         */
+         **/
         getBodies: function(){
 
             // return the copied array
             return [].concat(this._bodies);
         },
 
-        /**
-         * Remove body from the world
-         * @param {Object} body The body to remove
-         * @return {this} 
-         */
+        /** chainable
+         * Physics.world#removeBody( body ) -> this 
+         * - body (Body): The body to remove
+         *
+         * Remove a body from the world
+         **/
         removeBody: function( body ){
 
             var bodies = this._bodies;
@@ -476,11 +516,16 @@
             return this;
         },
 
-        /**
-         * Find first matching body based on query rules
-         * @param  {Object|Function} rules The query rules or custom function
-         * @return {Object|false}       Body or false if no match
-         */
+        /** see: Physics.query
+         * Physics.world#findOne( rules ) -> Body | Boolean
+         * Physics.world#findOne( filter(body) ) -> Body | Boolean
+         * - rules (Object): Query rules
+         * - filter (Function): Filter function called to check bodies
+         * - body (Body): Each body in the world
+         * + (Body|Boolean): Returns the first matched body, or false
+         * 
+         * Find first matching body based on query rules.
+         **/
         findOne: function( rules ){
 
             var self = this
@@ -490,11 +535,16 @@
             return Physics.util.find( self._bodies, fn ) || false;
         },
 
-        /**
-         * Find all matching bodies based on query rules
-         * @param  {Object|Function} rules The query rules or custom function
-         * @return {Array}       Array of matching bodies
-         */
+        /** see: Physics.query
+         * Physics.world#find( rules ) -> Array
+         * Physics.world#find( filter(body) ) -> Array
+         * - rules (Object): Query rules
+         * - filter (Function): Filter function called to check bodies
+         * - body (Body): Each body in the world
+         * + (Array): Returns an array of matches
+         * 
+         * Find all matching bodies based on query rules.
+         **/
         find: function( rules ){
 
             var self = this
@@ -504,22 +554,23 @@
             return Physics.util.filter( self._bodies, fn );
         },
 
-        /**
-         * Do a single iteration
-         * @private
-         * @param  {Number} dt The timestep size
-         * @return {void}
-         */
+        /** internal
+         * Physics.world#iterate( dt )
+         * - dt (Number): The timestep
+         *
+         * Do a single iteration.
+         **/
         iterate: function( dt ){
 
             this._integrator.integrate( this._bodies, dt );
         },
 
-        /**
-         * Do a single step
-         * @param  {Number} now Current unix timestamp
-         * @return {this}
-         */
+        /** chainable
+         * Physics.world#step( now ) -> this
+         * - now (Number): now Current unix timestamp
+         *
+         * Do a single step.
+         **/
         step: function( now ){
             
             if ( this._paused ){
@@ -558,10 +609,11 @@
             return this;
         },
 
-        /**
+        /** chainable
+         * Physics.world#render() -> this
+         * 
          * Render current world state using the renderer
-         * @return {this}
-         */
+         **/
         render: function(){
 
             if ( !this._renderer ){
@@ -577,10 +629,11 @@
             return this;
         },
 
-        /**
-         * Pause the world. (step calls do nothing)
-         * @return {this}
-         */
+        /** chainable
+         * Physics.world#pause() -> this
+         * 
+         * Pause the world (step calls do nothing).
+         **/
         pause: function(){
 
             this._paused = true;
@@ -588,10 +641,11 @@
             return this;
         },
 
-        /**
-         * Unpause the world. (step calls continue as usual)
-         * @return {this}
-         */
+        /** chainable
+         * Physics.world#unpause() -> this
+         * 
+         * Unpause the world (step calls continue as usual).
+         **/
         unpause: function(){
 
             this._paused = false;
@@ -600,19 +654,22 @@
         },
 
         /**
-         * Determine if world is paused
-         * @return {Boolean} Is the world paused?
-         */
+         * Physics.world#isPaused() -> Boolean
+         * + (Boolean): Returns `true` if world is paused, `false` otherwise.
+         * 
+         * Determine if world is paused.
+         **/
         isPaused: function(){
 
             return !!this._paused;
         },
 
         /**
+         * Physics.world#destroy()
+         * 
          * Destroy the world.
          * (Bwahahahahaha!)
-         * @return {void}
-         */
+         **/
         destroy: function(){
 
             var self = this;

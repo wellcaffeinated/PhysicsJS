@@ -39,7 +39,12 @@
     "grunt-contrib-watch": "~0.3.1",
     "grunt-lodash": "~0.3.0",
     "grunt-template-jasmine-requirejs": "~0.1.1",
-    "grunt-contrib-requirejs": "~0.4.1"
+    "grunt-contrib-requirejs": "~0.4.1",
+    "panino": "~2.2.6",
+    "jade": "~1.3.0",
+    "marked": "~0.3.2",
+    "synchronize": "~0.7.0",
+    "pygmentize-bundled": "~2.1.0"
   },
   "bundledDependencies": [],
   "license": "MIT"

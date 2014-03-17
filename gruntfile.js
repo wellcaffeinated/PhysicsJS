@@ -344,6 +344,16 @@ module.exports = function(grunt) {
                     // ]
                 }
             }
+        },
+        docs: {
+            api: {
+                dest: 'docs/',
+                src: 'src/core/world.js',
+                options: {
+                    template: 'docs/layout.jade',
+                    debugFile: 'docs/debug.json'
+                }
+            }
         }
     });
 
@@ -357,6 +367,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
+
+    require('./lib/gendoc.js')(grunt);
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){

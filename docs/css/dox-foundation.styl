@@ -1,0 +1,93 @@
+h1.page-title
+  small
+    font-weight 400
+
+/*.section-container, .section-container .section .title
+  border-color #e6e6e6*/
+
+#nav
+  .section
+    &.active
+      padding-top: 0 !important;
+      .title
+        background #ddd
+
+    .title
+      background-color #eee
+      a
+        font-weight 700
+        padding 0.6em
+        small
+          font-size .8em
+          line-height 1em
+          display block
+          color #888
+          margin 2px 0 -2px
+      &:hover
+        background #ddd
+  ul.solo
+    border-top 1px solid #ccc
+    padding 0.875em
+
+
+
+code
+  background transparent
+  line-height 1.3em
+  font-weight normal
+
+.comment
+  position relative
+  padding-bottom 1.5em
+  margin-bottom 2em
+  border-bottom 1px solid #ddd
+
+  ol, ul
+    margin-left 2.25em
+    &.no-bullet
+      margin-left 0
+
+  header
+    margin-bottom 1.5em
+    h1
+      font-size 2rem
+      margin-bottom .2em
+
+  .section-container, .section-container > .section > .content
+    border none
+  .section-container
+    & > .section
+      & > .title
+        padding auto
+        background none !important
+        border none !important
+        a
+          border-radius 4px
+          font-weight 700
+          padding 1px 10px 1px 0
+          margin-right 5px
+          color #ccc
+      &:hover .title a
+        color #999
+      &.active .title a
+        color #2ba6cb
+      & > .content
+        padding .9em 0 0
+
+  div.description
+    h2
+      font-size 1.2em
+
+  .tags
+    span
+      margin-right 4px
+    .name, .type
+      font-weight 700
+    .types
+      color #666
+    .description
+      margin-left 15px
+
+.ctx-type
+  margin-right 6px
+  font-size .7em

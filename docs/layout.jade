@@ -1,0 +1,129 @@
+mixin title( item, nosuff )
+  if item.type === 'constructor'
+    span.constructor=item.id
+  else 
+    span.pfx= item.type === 'instance method' ? 'this.' : item.name_prefix
+    span.name= item.name
+
+  unless nosuff
+    if item.type === 'constructor' || item.type === 'instance method' || item.type === 'class method'
+      | ()
+
+mixin args( sig )
+  -var opt=false
+  span.arguments (
+    each arg, i in sig.arguments
+      if arg.optional
+        unless opt
+          !='<small class="optional">'
+          -opt=true
+      else if opt
+        !='</small>'
+        -opt=false
+
+      =(i === 0 ? '':', ')
+      span(class=[arg.types])
+        =arg.name
+        if arg.callback
+          +args( arg )
+    if opt
+      !='</small>'
+    | )
+
+mixin argdesc( sig )
+  dl.arguments-desc
+  each arg in sig.arguments
+    dt
+      =arg.name
+      if arg.callback
+        +args( arg )
+      if arg.types
+        =' ('+arg.types.join('|')+')'
+      if arg.optional
+        span.optional optional
+    dd
+      if arg.callback
+        +argdesc( arg )
+      if arg.description
+        !=md(arg.description)
+
+mixin signatures( item )
+  if item.signatures
+    ul
+    each sig in item.signatures
+      li
+        +title( item, true )
+        +args( sig )
+
+        if item.type !== 'constructor'
+          | ->
+          span.returns
+            if sig.returns
+              each ret, i in sig.returns
+                =(i === 0 ? '':'|')
+                span(class=ret.type)=ret.type
+            else
+              span.void void
+
+        +argdesc( sig )
+
+
+
+
+mixin doc( item, level )
+  -var level = level || 1
+  article.doc
+    header
+      !='<h'+level+'>'
+      a(id=item.path, href='#'+item.path)
+        +title( item )
+      !='</h'+level+'>'
+      .signatures
+        +signatures(item)
+    
+    .desc
+      !=md(item.description)
+
+    .children
+      for ch in item.children
+        +doc(ch, level+1)
+
+doctype html
+html
+  head
+    meta(name='viewport', content='width=device-width', charset='utf-8')
+
+    title= title
+
+    // Foundation CSS
+    //link(rel="stylesheet", href="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.min.css")
+
+    // Prism CSS
+    //link(rel="stylesheet", href="css/prism.css")
+    link(rel="stylesheet", href="css/highlight.css")
+
+    // Custom Styles
+    link(rel="stylesheet", href="css/style.css")
+
+    script(srr="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/vendor/custom.modernizr.js")
+
+  body
+    
+    section#main
+      for mainItem in tree.children
+        +doc(mainItem)
+
+    // Foundation JS
+    //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')
+    script(type='text/javascript').
+      document.write('<script src=' +
+      ('__proto__' in {} ? 'http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min' : 'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min') +
+      '.js><\/script>')
+
+    //script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation/foundation.reveal.min.js')
+
+    script(src='js/page.js')
+    // Prism js
+    //script(src='js/prism.js')
+
+

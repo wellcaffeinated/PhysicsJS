@@ -1,0 +1,3316 @@
+{
+  "files": [
+    "src/core/world.js"
+  ],
+  "list": {
+    "Physics.world": {
+      "id": "Physics.world",
+      "type": "class",
+      "description": "The world class and factory function.\n\nExample:\n\n```javascript\nPhysics( cfg, function( world ) {\n    // use world\n\n}); // returns world\n```",
+      "short_description": "The world class and factory function.\n",
+      "line": 15,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.world#add",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "things",
+                  "types": [
+                    "Object",
+                    "Array"
+                  ],
+                  "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "things",
+              "types": [
+                "Object",
+                "Array"
+              ],
+              "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+          "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+          "line": 142,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "add",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.add",
+          "outFile": "world.html#Physics.world.prototype.add"
+        },
+        {
+          "id": "Physics.world#addBehavior",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "behavior",
+                  "types": [
+                    "Behavior"
+                  ],
+                  "description": " The behavior to add\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "behavior",
+              "types": [
+                "Behavior"
+              ],
+              "description": " The behavior to add\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Add a behavior to the world",
+          "short_description": "Add a behavior to the world",
+          "line": 389,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "addBehavior",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.addBehavior",
+          "outFile": "world.html#Physics.world.prototype.addBehavior"
+        },
+        {
+          "id": "Physics.world#addBody",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "body",
+                  "types": [
+                    "Body"
+                  ],
+                  "description": " The behavior to add\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " The behavior to add\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Add a body to the world",
+          "short_description": "Add a body to the world",
+          "line": 457,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "addBody",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.addBody",
+          "outFile": "world.html#Physics.world.prototype.addBody"
+        },
+        {
+          "id": "Physics.world#destroy",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": []
+            }
+          ],
+          "description": "Destroy the world.\n(Bwahahahahaha!)",
+          "short_description": "Destroy the world.\n(Bwahahahahaha!)",
+          "line": 673,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "destroy",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.destroy",
+          "outFile": "world.html#Physics.world.prototype.destroy"
+        },
+        {
+          "id": "Physics.world#find",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "rules",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Query rules\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Array",
+                  "description": " Returns an array of matches\n\n     "
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "filter",
+                  "arguments": [
+                    {
+                      "name": "body"
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Query rules\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Array",
+                  "description": " Returns an array of matches\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "rules",
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            },
+            {
+              "name": "filter",
+              "types": [
+                "Function"
+              ],
+              "description": " Filter function called to check bodies\n\n     "
+            },
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " Each body in the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " Returns an array of matches\n\n     "
+            }
+          ],
+          "related_to": "Physics.query",
+          "description": "Find all matching bodies based on query rules.",
+          "short_description": "Find all matching bodies based on query rules.",
+          "line": 548,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "find",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.find",
+          "outFile": "world.html#Physics.world.prototype.find"
+        },
+        {
+          "id": "Physics.world#findOne",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "rules",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Query rules\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Body",
+                  "description": " Returns the first matched body, or false\n\n     "
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "filter",
+                  "arguments": [
+                    {
+                      "name": "body"
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Query rules\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Body",
+                  "description": " Returns the first matched body, or false\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "rules",
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            },
+            {
+              "name": "filter",
+              "types": [
+                "Function"
+              ],
+              "description": " Filter function called to check bodies\n\n     "
+            },
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " Each body in the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Body",
+              "description": " Returns the first matched body, or false\n\n     "
+            }
+          ],
+          "related_to": "Physics.query",
+          "description": "Find first matching body based on query rules.",
+          "short_description": "Find first matching body based on query rules.",
+          "line": 529,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "findOne",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.findOne",
+          "outFile": "world.html#Physics.world.prototype.findOne"
+        },
+        {
+          "id": "Physics.world#getBehaviors",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "Array"
+                }
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " Array of behaviors\n\n     "
+            }
+          ],
+          "description": "Get copied list of behaviors in the world",
+          "short_description": "Get copied list of behaviors in the world",
+          "line": 414,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "getBehaviors",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.getBehaviors",
+          "outFile": "world.html#Physics.world.prototype.getBehaviors"
+        },
+        {
+          "id": "Physics.world#getBodies",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "Array"
+                }
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " Array of bodies\n\n     "
+            }
+          ],
+          "description": "Get copied list of bodies in the world",
+          "short_description": "Get copied list of bodies in the world",
+          "line": 482,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "getBodies",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.getBodies",
+          "outFile": "world.html#Physics.world.prototype.getBodies"
+        },
+        {
+          "id": "Physics.world#has",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "thing",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The thing to test\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "thing",
+              "types": [
+                "Object"
+              ],
+              "description": " The thing to test\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Determine if a thing has been added to world.",
+          "short_description": "Determine if a thing has been added to world.",
+          "line": 243,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "has",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.has",
+          "outFile": "world.html#Physics.world.prototype.has"
+        },
+        {
+          "id": "Physics.world#init",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " configuration options (see constructor)\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "arguments": [
+                    {
+                      "name": "world"
+                    },
+                    {
+                      "name": "Physics"
+                    }
+                  ],
+                  "callback": true,
+                  "optional": true,
+                  "types": [
+                    "Function",
+                    "Array"
+                  ],
+                  "description": " Callback function or array of callbacks called with this === world\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options (see constructor)\n\n     "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function",
+                "Array"
+              ],
+              "description": " Callback function or array of callbacks called with this === world\n\n     "
+            }
+          ],
+          "internal": true,
+          "related_to": "new Physics.world",
+          "description": "Initialization",
+          "short_description": "Initialization",
+          "line": 83,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "init",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.init",
+          "outFile": "world.html#Physics.world.prototype.init"
+        },
+        {
+          "id": "Physics.world#integrator",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "integrator",
+                  "optional": true,
+                  "types": [
+                    "Integrator"
+                  ],
+                  "description": " The integrator to set on the world\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Integrator",
+                  "description": " The currently set integrator if `integrator` not specified\n\n     "
+                },
+                {
+                  "type": "this",
+                  "description": " for chaining if `integrator` specified\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "integrator",
+              "types": [
+                "Integrator"
+              ],
+              "description": " The integrator to set on the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Integrator",
+              "description": " The currently set integrator if `integrator` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `integrator` specified\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Get or Set the integrator",
+          "short_description": "Get or Set the integrator",
+          "line": 289,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "integrator",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.integrator",
+          "outFile": "world.html#Physics.world.prototype.integrator"
+        },
+        {
+          "id": "Physics.world#isPaused",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "Boolean"
+                }
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " Returns `true` if world is paused, `false` otherwise.\n\n     "
+            }
+          ],
+          "description": "Determine if world is paused.",
+          "short_description": "Determine if world is paused.",
+          "line": 662,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "isPaused",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.isPaused",
+          "outFile": "world.html#Physics.world.prototype.isPaused"
+        },
+        {
+          "id": "Physics.world#iterate",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "dt",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The timestep\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "dt",
+              "types": [
+                "Number"
+              ],
+              "description": " The timestep\n\n     "
+            }
+          ],
+          "internal": true,
+          "description": "Do a single iteration.",
+          "short_description": "Do a single iteration.",
+          "line": 563,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "iterate",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.iterate",
+          "outFile": "world.html#Physics.world.prototype.iterate"
+        },
+        {
+          "id": "Physics.world#options",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "cfg",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " configuration options (see constructor)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object",
+                  "description": " Options container\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options (see constructor)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " Options container\n\n     "
+            }
+          ],
+          "description": "Set config options. Also access options by `.options.<option>`.",
+          "short_description": "Set config options. Also access options by `.options.<option>`.",
+          "line": 134,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "options",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.options",
+          "outFile": "world.html#Physics.world.prototype.options"
+        },
+        {
+          "id": "Physics.world#pause",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "chainable": true,
+          "description": "Pause the world (step calls do nothing).",
+          "short_description": "Pause the world (step calls do nothing).",
+          "line": 637,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "pause",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.pause",
+          "outFile": "world.html#Physics.world.prototype.pause"
+        },
+        {
+          "id": "Physics.world#remove",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "things",
+                  "types": [
+                    "Object",
+                    "Array"
+                  ],
+                  "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "things",
+              "types": [
+                "Object",
+                "Array"
+              ],
+              "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+          "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+          "line": 190,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "remove",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.remove",
+          "outFile": "world.html#Physics.world.prototype.remove"
+        },
+        {
+          "id": "Physics.world#removeBehavior",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "behavior",
+                  "types": [
+                    "Behavior"
+                  ],
+                  "description": " The behavior to remove\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "behavior",
+              "types": [
+                "Behavior"
+              ],
+              "description": " The behavior to remove\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Remove a behavior from the world",
+          "short_description": "Remove a behavior from the world",
+          "line": 426,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "removeBehavior",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.removeBehavior",
+          "outFile": "world.html#Physics.world.prototype.removeBehavior"
+        },
+        {
+          "id": "Physics.world#removeBody",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "body",
+                  "types": [
+                    "Body"
+                  ],
+                  "description": " The body to remove\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " The body to remove\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Remove a body from the world",
+          "short_description": "Remove a body from the world",
+          "line": 494,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "removeBody",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.removeBody",
+          "outFile": "world.html#Physics.world.prototype.removeBody"
+        },
+        {
+          "id": "Physics.world#render",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "chainable": true,
+          "description": "Render current world state using the renderer",
+          "short_description": "Render current world state using the renderer",
+          "line": 617,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "render",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.render",
+          "outFile": "world.html#Physics.world.prototype.render"
+        },
+        {
+          "id": "Physics.world#renderer",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "renderer",
+                  "optional": true,
+                  "types": [
+                    "Renderer"
+                  ],
+                  "description": " The renderer to set on the world\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Renderer",
+                  "description": " The currently set renderer if `renderer` not specified\n\n     "
+                },
+                {
+                  "type": "this",
+                  "description": " for chaining if `renderer` specified\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "renderer",
+              "types": [
+                "Renderer"
+              ],
+              "description": " The renderer to set on the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Renderer",
+              "description": " The currently set renderer if `renderer` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `renderer` specified\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Get or Set the renderer",
+          "short_description": "Get or Set the renderer",
+          "line": 329,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "renderer",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.renderer",
+          "outFile": "world.html#Physics.world.prototype.renderer"
+        },
+        {
+          "id": "Physics.world#step",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "now",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " now Current unix timestamp\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "now",
+              "types": [
+                "Number"
+              ],
+              "description": " now Current unix timestamp\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Do a single step.",
+          "short_description": "Do a single step.",
+          "line": 574,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "step",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.step",
+          "outFile": "world.html#Physics.world.prototype.step"
+        },
+        {
+          "id": "Physics.world#timeStep",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "dt",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The time step for the world\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Number",
+                  "description": " The currently set time step if `dt` not specified\n\n     "
+                },
+                {
+                  "type": "this",
+                  "description": " for chaining if `dt` specified\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "dt",
+              "types": [
+                "Number"
+              ],
+              "description": " The time step for the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Number",
+              "description": " The currently set time step if `dt` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `dt` specified\n\n     "
+            }
+          ],
+          "chainable": true,
+          "description": "Get or Set the time step",
+          "short_description": "Get or Set the time step",
+          "line": 369,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "timeStep",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.timeStep",
+          "outFile": "world.html#Physics.world.prototype.timeStep"
+        },
+        {
+          "id": "Physics.world#unpause",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "chainable": true,
+          "description": "Unpause the world (step calls continue as usual).",
+          "short_description": "Unpause the world (step calls continue as usual).",
+          "line": 649,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "unpause",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.unpause",
+          "outFile": "world.html#Physics.world.prototype.unpause"
+        },
+        {
+          "id": "new Physics.world",
+          "type": "constructor",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+                },
+                {
+                  "name": "fn",
+                  "arguments": [
+                    {
+                      "name": "world"
+                    },
+                    {
+                      "name": "Physics"
+                    }
+                  ],
+                  "callback": true,
+                  "optional": true,
+                  "types": [
+                    "Function",
+                    "Array"
+                  ],
+                  "description": " Callback function or array of callbacks called with this === world\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function",
+                "Array"
+              ],
+              "description": " Callback function or array of callbacks called with this === world\n\n "
+            }
+          ],
+          "alias_of": "Physics",
+          "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
+          "short_description": "World Constructor.\n",
+          "line": 63,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "new",
+          "name_prefix": "Physics.world.",
+          "path": "Physics.world.new",
+          "outFile": "world.html#Physics.world.new"
+        }
+      ],
+      "file": "src/core/world.js",
+      "subclasses": [],
+      "name": "world",
+      "name_prefix": "Physics.",
+      "path": "Physics.world",
+      "outFile": "world.html"
+    },
+    "Physics.world.new": {
+      "id": "new Physics.world",
+      "type": "constructor",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "options",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+            },
+            {
+              "name": "fn",
+              "arguments": [
+                {
+                  "name": "world"
+                },
+                {
+                  "name": "Physics"
+                }
+              ],
+              "callback": true,
+              "optional": true,
+              "types": [
+                "Function",
+                "Array"
+              ],
+              "description": " Callback function or array of callbacks called with this === world\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+        },
+        {
+          "name": "fn",
+          "types": [
+            "Function",
+            "Array"
+          ],
+          "description": " Callback function or array of callbacks called with this === world\n\n "
+        }
+      ],
+      "alias_of": "Physics",
+      "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
+      "short_description": "World Constructor.\n",
+      "line": 63,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "new",
+      "name_prefix": "Physics.world.",
+      "path": "Physics.world.new",
+      "outFile": "world.html#Physics.world.new"
+    },
+    "Physics.world#init": {
+      "id": "Physics.world#init",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "options",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options (see constructor)\n\n     "
+            },
+            {
+              "name": "fn",
+              "arguments": [
+                {
+                  "name": "world"
+                },
+                {
+                  "name": "Physics"
+                }
+              ],
+              "callback": true,
+              "optional": true,
+              "types": [
+                "Function",
+                "Array"
+              ],
+              "description": " Callback function or array of callbacks called with this === world\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " configuration options (see constructor)\n\n     "
+        },
+        {
+          "name": "fn",
+          "types": [
+            "Function",
+            "Array"
+          ],
+          "description": " Callback function or array of callbacks called with this === world\n\n     "
+        }
+      ],
+      "internal": true,
+      "related_to": "new Physics.world",
+      "description": "Initialization",
+      "short_description": "Initialization",
+      "line": 83,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "init",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.init",
+      "outFile": "world.html#Physics.world.prototype.init"
+    },
+    "Physics.world#options": {
+      "id": "Physics.world#options",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "cfg",
+              "types": [
+                "Object"
+              ],
+              "description": " configuration options (see constructor)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " Options container\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " configuration options (see constructor)\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Object",
+          "description": " Options container\n\n     "
+        }
+      ],
+      "description": "Set config options. Also access options by `.options.<option>`.",
+      "short_description": "Set config options. Also access options by `.options.<option>`.",
+      "line": 134,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "options",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.options",
+      "outFile": "world.html#Physics.world.prototype.options"
+    },
+    "Physics.world#add": {
+      "id": "Physics.world#add",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "things",
+              "types": [
+                "Object",
+                "Array"
+              ],
+              "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "things",
+          "types": [
+            "Object",
+            "Array"
+          ],
+          "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+      "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+      "line": 142,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "add",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.add",
+      "outFile": "world.html#Physics.world.prototype.add"
+    },
+    "Physics.world#remove": {
+      "id": "Physics.world#remove",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "things",
+              "types": [
+                "Object",
+                "Array"
+              ],
+              "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "things",
+          "types": [
+            "Object",
+            "Array"
+          ],
+          "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+      "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+      "line": 190,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "remove",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.remove",
+      "outFile": "world.html#Physics.world.prototype.remove"
+    },
+    "Physics.world#has": {
+      "id": "Physics.world#has",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "thing",
+              "types": [
+                "Object"
+              ],
+              "description": " The thing to test\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "thing",
+          "types": [
+            "Object"
+          ],
+          "description": " The thing to test\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Boolean",
+          "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Determine if a thing has been added to world.",
+      "short_description": "Determine if a thing has been added to world.",
+      "line": 243,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "has",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.has",
+      "outFile": "world.html#Physics.world.prototype.has"
+    },
+    "Physics.world#integrator": {
+      "id": "Physics.world#integrator",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "integrator",
+              "optional": true,
+              "types": [
+                "Integrator"
+              ],
+              "description": " The integrator to set on the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Integrator",
+              "description": " The currently set integrator if `integrator` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `integrator` specified\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "integrator",
+          "types": [
+            "Integrator"
+          ],
+          "description": " The integrator to set on the world\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Integrator",
+          "description": " The currently set integrator if `integrator` not specified\n\n     "
+        },
+        {
+          "type": "this",
+          "description": " for chaining if `integrator` specified\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Get or Set the integrator",
+      "short_description": "Get or Set the integrator",
+      "line": 289,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "integrator",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.integrator",
+      "outFile": "world.html#Physics.world.prototype.integrator"
+    },
+    "Physics.world#renderer": {
+      "id": "Physics.world#renderer",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "renderer",
+              "optional": true,
+              "types": [
+                "Renderer"
+              ],
+              "description": " The renderer to set on the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Renderer",
+              "description": " The currently set renderer if `renderer` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `renderer` specified\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "renderer",
+          "types": [
+            "Renderer"
+          ],
+          "description": " The renderer to set on the world\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Renderer",
+          "description": " The currently set renderer if `renderer` not specified\n\n     "
+        },
+        {
+          "type": "this",
+          "description": " for chaining if `renderer` specified\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Get or Set the renderer",
+      "short_description": "Get or Set the renderer",
+      "line": 329,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "renderer",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.renderer",
+      "outFile": "world.html#Physics.world.prototype.renderer"
+    },
+    "Physics.world#timeStep": {
+      "id": "Physics.world#timeStep",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "dt",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The time step for the world\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Number",
+              "description": " The currently set time step if `dt` not specified\n\n     "
+            },
+            {
+              "type": "this",
+              "description": " for chaining if `dt` specified\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "dt",
+          "types": [
+            "Number"
+          ],
+          "description": " The time step for the world\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Number",
+          "description": " The currently set time step if `dt` not specified\n\n     "
+        },
+        {
+          "type": "this",
+          "description": " for chaining if `dt` specified\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Get or Set the time step",
+      "short_description": "Get or Set the time step",
+      "line": 369,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "timeStep",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.timeStep",
+      "outFile": "world.html#Physics.world.prototype.timeStep"
+    },
+    "Physics.world#addBehavior": {
+      "id": "Physics.world#addBehavior",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "behavior",
+              "types": [
+                "Behavior"
+              ],
+              "description": " The behavior to add\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "behavior",
+          "types": [
+            "Behavior"
+          ],
+          "description": " The behavior to add\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Add a behavior to the world",
+      "short_description": "Add a behavior to the world",
+      "line": 389,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "addBehavior",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.addBehavior",
+      "outFile": "world.html#Physics.world.prototype.addBehavior"
+    },
+    "Physics.world#getBehaviors": {
+      "id": "Physics.world#getBehaviors",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Array"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Array",
+          "description": " Array of behaviors\n\n     "
+        }
+      ],
+      "description": "Get copied list of behaviors in the world",
+      "short_description": "Get copied list of behaviors in the world",
+      "line": 414,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "getBehaviors",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.getBehaviors",
+      "outFile": "world.html#Physics.world.prototype.getBehaviors"
+    },
+    "Physics.world#removeBehavior": {
+      "id": "Physics.world#removeBehavior",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "behavior",
+              "types": [
+                "Behavior"
+              ],
+              "description": " The behavior to remove\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "behavior",
+          "types": [
+            "Behavior"
+          ],
+          "description": " The behavior to remove\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Remove a behavior from the world",
+      "short_description": "Remove a behavior from the world",
+      "line": 426,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "removeBehavior",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.removeBehavior",
+      "outFile": "world.html#Physics.world.prototype.removeBehavior"
+    },
+    "Physics.world#addBody": {
+      "id": "Physics.world#addBody",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " The behavior to add\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "body",
+          "types": [
+            "Body"
+          ],
+          "description": " The behavior to add\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Add a body to the world",
+      "short_description": "Add a body to the world",
+      "line": 457,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "addBody",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.addBody",
+      "outFile": "world.html#Physics.world.prototype.addBody"
+    },
+    "Physics.world#getBodies": {
+      "id": "Physics.world#getBodies",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Array"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Array",
+          "description": " Array of bodies\n\n     "
+        }
+      ],
+      "description": "Get copied list of bodies in the world",
+      "short_description": "Get copied list of bodies in the world",
+      "line": 482,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "getBodies",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.getBodies",
+      "outFile": "world.html#Physics.world.prototype.getBodies"
+    },
+    "Physics.world#removeBody": {
+      "id": "Physics.world#removeBody",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "body",
+              "types": [
+                "Body"
+              ],
+              "description": " The body to remove\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "body",
+          "types": [
+            "Body"
+          ],
+          "description": " The body to remove\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Remove a body from the world",
+      "short_description": "Remove a body from the world",
+      "line": 494,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "removeBody",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.removeBody",
+      "outFile": "world.html#Physics.world.prototype.removeBody"
+    },
+    "Physics.world#findOne": {
+      "id": "Physics.world#findOne",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "rules",
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Body",
+              "description": " Returns the first matched body, or false\n\n     "
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "filter",
+              "arguments": [
+                {
+                  "name": "body"
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Body",
+              "description": " Returns the first matched body, or false\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "rules",
+          "types": [
+            "Object"
+          ],
+          "description": " Query rules\n\n     "
+        },
+        {
+          "name": "filter",
+          "types": [
+            "Function"
+          ],
+          "description": " Filter function called to check bodies\n\n     "
+        },
+        {
+          "name": "body",
+          "types": [
+            "Body"
+          ],
+          "description": " Each body in the world\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Body",
+          "description": " Returns the first matched body, or false\n\n     "
+        }
+      ],
+      "related_to": "Physics.query",
+      "description": "Find first matching body based on query rules.",
+      "short_description": "Find first matching body based on query rules.",
+      "line": 529,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "findOne",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.findOne",
+      "outFile": "world.html#Physics.world.prototype.findOne"
+    },
+    "Physics.world#find": {
+      "id": "Physics.world#find",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "rules",
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " Returns an array of matches\n\n     "
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "filter",
+              "arguments": [
+                {
+                  "name": "body"
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Object"
+              ],
+              "description": " Query rules\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " Returns an array of matches\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "rules",
+          "types": [
+            "Object"
+          ],
+          "description": " Query rules\n\n     "
+        },
+        {
+          "name": "filter",
+          "types": [
+            "Function"
+          ],
+          "description": " Filter function called to check bodies\n\n     "
+        },
+        {
+          "name": "body",
+          "types": [
+            "Body"
+          ],
+          "description": " Each body in the world\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Array",
+          "description": " Returns an array of matches\n\n     "
+        }
+      ],
+      "related_to": "Physics.query",
+      "description": "Find all matching bodies based on query rules.",
+      "short_description": "Find all matching bodies based on query rules.",
+      "line": 548,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "find",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.find",
+      "outFile": "world.html#Physics.world.prototype.find"
+    },
+    "Physics.world#iterate": {
+      "id": "Physics.world#iterate",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "dt",
+              "types": [
+                "Number"
+              ],
+              "description": " The timestep\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "dt",
+          "types": [
+            "Number"
+          ],
+          "description": " The timestep\n\n     "
+        }
+      ],
+      "internal": true,
+      "description": "Do a single iteration.",
+      "short_description": "Do a single iteration.",
+      "line": 563,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "iterate",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.iterate",
+      "outFile": "world.html#Physics.world.prototype.iterate"
+    },
+    "Physics.world#step": {
+      "id": "Physics.world#step",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "now",
+              "types": [
+                "Number"
+              ],
+              "description": " now Current unix timestamp\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "now",
+          "types": [
+            "Number"
+          ],
+          "description": " now Current unix timestamp\n\n     "
+        }
+      ],
+      "chainable": true,
+      "description": "Do a single step.",
+      "short_description": "Do a single step.",
+      "line": 574,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "step",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.step",
+      "outFile": "world.html#Physics.world.prototype.step"
+    },
+    "Physics.world#render": {
+      "id": "Physics.world#render",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "chainable": true,
+      "description": "Render current world state using the renderer",
+      "short_description": "Render current world state using the renderer",
+      "line": 617,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "render",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.render",
+      "outFile": "world.html#Physics.world.prototype.render"
+    },
+    "Physics.world#pause": {
+      "id": "Physics.world#pause",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "chainable": true,
+      "description": "Pause the world (step calls do nothing).",
+      "short_description": "Pause the world (step calls do nothing).",
+      "line": 637,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "pause",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.pause",
+      "outFile": "world.html#Physics.world.prototype.pause"
+    },
+    "Physics.world#unpause": {
+      "id": "Physics.world#unpause",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "chainable": true,
+      "description": "Unpause the world (step calls continue as usual).",
+      "short_description": "Unpause the world (step calls continue as usual).",
+      "line": 649,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "unpause",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.unpause",
+      "outFile": "world.html#Physics.world.prototype.unpause"
+    },
+    "Physics.world#isPaused": {
+      "id": "Physics.world#isPaused",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Boolean"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Boolean",
+          "description": " Returns `true` if world is paused, `false` otherwise.\n\n     "
+        }
+      ],
+      "description": "Determine if world is paused.",
+      "short_description": "Determine if world is paused.",
+      "line": 662,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "isPaused",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.isPaused",
+      "outFile": "world.html#Physics.world.prototype.isPaused"
+    },
+    "Physics.world#destroy": {
+      "id": "Physics.world#destroy",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": []
+        }
+      ],
+      "description": "Destroy the world.\n(Bwahahahahaha!)",
+      "short_description": "Destroy the world.\n(Bwahahahahaha!)",
+      "line": 673,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "destroy",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.destroy",
+      "outFile": "world.html#Physics.world.prototype.destroy"
+    }
+  },
+  "tree": {
+    "children": [
+      {
+        "id": "Physics.world",
+        "type": "class",
+        "description": "The world class and factory function.\n\nExample:\n\n```javascript\nPhysics( cfg, function( world ) {\n    // use world\n\n}); // returns world\n```",
+        "short_description": "The world class and factory function.\n",
+        "line": 15,
+        "aliases": [],
+        "children": [
+          {
+            "id": "Physics.world#add",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "things",
+                    "types": [
+                      "Object",
+                      "Array"
+                    ],
+                    "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "things",
+                "types": [
+                  "Object",
+                  "Array"
+                ],
+                "description": " The thing, or array of things (body, behavior, integrator, or renderer) to add.\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+            "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
+            "line": 142,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "add",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.add",
+            "outFile": "world.html#Physics.world.prototype.add"
+          },
+          {
+            "id": "Physics.world#addBehavior",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "behavior",
+                    "types": [
+                      "Behavior"
+                    ],
+                    "description": " The behavior to add\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "behavior",
+                "types": [
+                  "Behavior"
+                ],
+                "description": " The behavior to add\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Add a behavior to the world",
+            "short_description": "Add a behavior to the world",
+            "line": 389,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "addBehavior",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.addBehavior",
+            "outFile": "world.html#Physics.world.prototype.addBehavior"
+          },
+          {
+            "id": "Physics.world#addBody",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "body",
+                    "types": [
+                      "Body"
+                    ],
+                    "description": " The behavior to add\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "body",
+                "types": [
+                  "Body"
+                ],
+                "description": " The behavior to add\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Add a body to the world",
+            "short_description": "Add a body to the world",
+            "line": 457,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "addBody",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.addBody",
+            "outFile": "world.html#Physics.world.prototype.addBody"
+          },
+          {
+            "id": "Physics.world#destroy",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": []
+              }
+            ],
+            "description": "Destroy the world.\n(Bwahahahahaha!)",
+            "short_description": "Destroy the world.\n(Bwahahahahaha!)",
+            "line": 673,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "destroy",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.destroy",
+            "outFile": "world.html#Physics.world.prototype.destroy"
+          },
+          {
+            "id": "Physics.world#find",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "rules",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " Query rules\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Array",
+                    "description": " Returns an array of matches\n\n     "
+                  }
+                ]
+              },
+              {
+                "arguments": [
+                  {
+                    "name": "filter",
+                    "arguments": [
+                      {
+                        "name": "body"
+                      }
+                    ],
+                    "callback": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " Query rules\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Array",
+                    "description": " Returns an array of matches\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "rules",
+                "types": [
+                  "Object"
+                ],
+                "description": " Query rules\n\n     "
+              },
+              {
+                "name": "filter",
+                "types": [
+                  "Function"
+                ],
+                "description": " Filter function called to check bodies\n\n     "
+              },
+              {
+                "name": "body",
+                "types": [
+                  "Body"
+                ],
+                "description": " Each body in the world\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Array",
+                "description": " Returns an array of matches\n\n     "
+              }
+            ],
+            "related_to": "Physics.query",
+            "description": "Find all matching bodies based on query rules.",
+            "short_description": "Find all matching bodies based on query rules.",
+            "line": 548,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "find",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.find",
+            "outFile": "world.html#Physics.world.prototype.find"
+          },
+          {
+            "id": "Physics.world#findOne",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "rules",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " Query rules\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Body",
+                    "description": " Returns the first matched body, or false\n\n     "
+                  }
+                ]
+              },
+              {
+                "arguments": [
+                  {
+                    "name": "filter",
+                    "arguments": [
+                      {
+                        "name": "body"
+                      }
+                    ],
+                    "callback": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " Query rules\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Body",
+                    "description": " Returns the first matched body, or false\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "rules",
+                "types": [
+                  "Object"
+                ],
+                "description": " Query rules\n\n     "
+              },
+              {
+                "name": "filter",
+                "types": [
+                  "Function"
+                ],
+                "description": " Filter function called to check bodies\n\n     "
+              },
+              {
+                "name": "body",
+                "types": [
+                  "Body"
+                ],
+                "description": " Each body in the world\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Body",
+                "description": " Returns the first matched body, or false\n\n     "
+              }
+            ],
+            "related_to": "Physics.query",
+            "description": "Find first matching body based on query rules.",
+            "short_description": "Find first matching body based on query rules.",
+            "line": 529,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "findOne",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.findOne",
+            "outFile": "world.html#Physics.world.prototype.findOne"
+          },
+          {
+            "id": "Physics.world#getBehaviors",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "Array"
+                  }
+                ]
+              }
+            ],
+            "returns": [
+              {
+                "type": "Array",
+                "description": " Array of behaviors\n\n     "
+              }
+            ],
+            "description": "Get copied list of behaviors in the world",
+            "short_description": "Get copied list of behaviors in the world",
+            "line": 414,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "getBehaviors",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.getBehaviors",
+            "outFile": "world.html#Physics.world.prototype.getBehaviors"
+          },
+          {
+            "id": "Physics.world#getBodies",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "Array"
+                  }
+                ]
+              }
+            ],
+            "returns": [
+              {
+                "type": "Array",
+                "description": " Array of bodies\n\n     "
+              }
+            ],
+            "description": "Get copied list of bodies in the world",
+            "short_description": "Get copied list of bodies in the world",
+            "line": 482,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "getBodies",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.getBodies",
+            "outFile": "world.html#Physics.world.prototype.getBodies"
+          },
+          {
+            "id": "Physics.world#has",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "thing",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The thing to test\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Boolean",
+                    "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "thing",
+                "types": [
+                  "Object"
+                ],
+                "description": " The thing to test\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Boolean",
+                "description": " `true` if thing is in the world, `false` otherwise.\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Determine if a thing has been added to world.",
+            "short_description": "Determine if a thing has been added to world.",
+            "line": 243,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "has",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.has",
+            "outFile": "world.html#Physics.world.prototype.has"
+          },
+          {
+            "id": "Physics.world#init",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "options",
+                    "optional": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " configuration options (see constructor)\n\n     "
+                  },
+                  {
+                    "name": "fn",
+                    "arguments": [
+                      {
+                        "name": "world"
+                      },
+                      {
+                        "name": "Physics"
+                      }
+                    ],
+                    "callback": true,
+                    "optional": true,
+                    "types": [
+                      "Function",
+                      "Array"
+                    ],
+                    "description": " Callback function or array of callbacks called with this === world\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "options",
+                "types": [
+                  "Object"
+                ],
+                "description": " configuration options (see constructor)\n\n     "
+              },
+              {
+                "name": "fn",
+                "types": [
+                  "Function",
+                  "Array"
+                ],
+                "description": " Callback function or array of callbacks called with this === world\n\n     "
+              }
+            ],
+            "internal": true,
+            "related_to": "new Physics.world",
+            "description": "Initialization",
+            "short_description": "Initialization",
+            "line": 83,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "init",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.init",
+            "outFile": "world.html#Physics.world.prototype.init"
+          },
+          {
+            "id": "Physics.world#integrator",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "integrator",
+                    "optional": true,
+                    "types": [
+                      "Integrator"
+                    ],
+                    "description": " The integrator to set on the world\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Integrator",
+                    "description": " The currently set integrator if `integrator` not specified\n\n     "
+                  },
+                  {
+                    "type": "this",
+                    "description": " for chaining if `integrator` specified\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "integrator",
+                "types": [
+                  "Integrator"
+                ],
+                "description": " The integrator to set on the world\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Integrator",
+                "description": " The currently set integrator if `integrator` not specified\n\n     "
+              },
+              {
+                "type": "this",
+                "description": " for chaining if `integrator` specified\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Get or Set the integrator",
+            "short_description": "Get or Set the integrator",
+            "line": 289,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "integrator",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.integrator",
+            "outFile": "world.html#Physics.world.prototype.integrator"
+          },
+          {
+            "id": "Physics.world#isPaused",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "Boolean"
+                  }
+                ]
+              }
+            ],
+            "returns": [
+              {
+                "type": "Boolean",
+                "description": " Returns `true` if world is paused, `false` otherwise.\n\n     "
+              }
+            ],
+            "description": "Determine if world is paused.",
+            "short_description": "Determine if world is paused.",
+            "line": 662,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "isPaused",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.isPaused",
+            "outFile": "world.html#Physics.world.prototype.isPaused"
+          },
+          {
+            "id": "Physics.world#iterate",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "dt",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The timestep\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "dt",
+                "types": [
+                  "Number"
+                ],
+                "description": " The timestep\n\n     "
+              }
+            ],
+            "internal": true,
+            "description": "Do a single iteration.",
+            "short_description": "Do a single iteration.",
+            "line": 563,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "iterate",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.iterate",
+            "outFile": "world.html#Physics.world.prototype.iterate"
+          },
+          {
+            "id": "Physics.world#options",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "cfg",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " configuration options (see constructor)\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object",
+                    "description": " Options container\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "options",
+                "types": [
+                  "Object"
+                ],
+                "description": " configuration options (see constructor)\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Object",
+                "description": " Options container\n\n     "
+              }
+            ],
+            "description": "Set config options. Also access options by `.options.<option>`.",
+            "short_description": "Set config options. Also access options by `.options.<option>`.",
+            "line": 134,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "options",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.options",
+            "outFile": "world.html#Physics.world.prototype.options"
+          },
+          {
+            "id": "Physics.world#pause",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "chainable": true,
+            "description": "Pause the world (step calls do nothing).",
+            "short_description": "Pause the world (step calls do nothing).",
+            "line": 637,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "pause",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.pause",
+            "outFile": "world.html#Physics.world.prototype.pause"
+          },
+          {
+            "id": "Physics.world#remove",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "things",
+                    "types": [
+                      "Object",
+                      "Array"
+                    ],
+                    "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "things",
+                "types": [
+                  "Object",
+                  "Array"
+                ],
+                "description": " The thing, or array of things (body, behavior, integrator, or renderer) to remove.\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+            "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
+            "line": 190,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "remove",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.remove",
+            "outFile": "world.html#Physics.world.prototype.remove"
+          },
+          {
+            "id": "Physics.world#removeBehavior",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "behavior",
+                    "types": [
+                      "Behavior"
+                    ],
+                    "description": " The behavior to remove\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "behavior",
+                "types": [
+                  "Behavior"
+                ],
+                "description": " The behavior to remove\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Remove a behavior from the world",
+            "short_description": "Remove a behavior from the world",
+            "line": 426,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "removeBehavior",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.removeBehavior",
+            "outFile": "world.html#Physics.world.prototype.removeBehavior"
+          },
+          {
+            "id": "Physics.world#removeBody",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "body",
+                    "types": [
+                      "Body"
+                    ],
+                    "description": " The body to remove\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "body",
+                "types": [
+                  "Body"
+                ],
+                "description": " The body to remove\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Remove a body from the world",
+            "short_description": "Remove a body from the world",
+            "line": 494,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "removeBody",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.removeBody",
+            "outFile": "world.html#Physics.world.prototype.removeBody"
+          },
+          {
+            "id": "Physics.world#render",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "chainable": true,
+            "description": "Render current world state using the renderer",
+            "short_description": "Render current world state using the renderer",
+            "line": 617,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "render",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.render",
+            "outFile": "world.html#Physics.world.prototype.render"
+          },
+          {
+            "id": "Physics.world#renderer",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "renderer",
+                    "optional": true,
+                    "types": [
+                      "Renderer"
+                    ],
+                    "description": " The renderer to set on the world\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Renderer",
+                    "description": " The currently set renderer if `renderer` not specified\n\n     "
+                  },
+                  {
+                    "type": "this",
+                    "description": " for chaining if `renderer` specified\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "renderer",
+                "types": [
+                  "Renderer"
+                ],
+                "description": " The renderer to set on the world\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Renderer",
+                "description": " The currently set renderer if `renderer` not specified\n\n     "
+              },
+              {
+                "type": "this",
+                "description": " for chaining if `renderer` specified\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Get or Set the renderer",
+            "short_description": "Get or Set the renderer",
+            "line": 329,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "renderer",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.renderer",
+            "outFile": "world.html#Physics.world.prototype.renderer"
+          },
+          {
+            "id": "Physics.world#step",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "now",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " now Current unix timestamp\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "now",
+                "types": [
+                  "Number"
+                ],
+                "description": " now Current unix timestamp\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Do a single step.",
+            "short_description": "Do a single step.",
+            "line": 574,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "step",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.step",
+            "outFile": "world.html#Physics.world.prototype.step"
+          },
+          {
+            "id": "Physics.world#timeStep",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "dt",
+                    "optional": true,
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The time step for the world\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Number",
+                    "description": " The currently set time step if `dt` not specified\n\n     "
+                  },
+                  {
+                    "type": "this",
+                    "description": " for chaining if `dt` specified\n\n     "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "dt",
+                "types": [
+                  "Number"
+                ],
+                "description": " The time step for the world\n\n     "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Number",
+                "description": " The currently set time step if `dt` not specified\n\n     "
+              },
+              {
+                "type": "this",
+                "description": " for chaining if `dt` specified\n\n     "
+              }
+            ],
+            "chainable": true,
+            "description": "Get or Set the time step",
+            "short_description": "Get or Set the time step",
+            "line": 369,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "timeStep",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.timeStep",
+            "outFile": "world.html#Physics.world.prototype.timeStep"
+          },
+          {
+            "id": "Physics.world#unpause",
+            "type": "instance method",
+            "signatures": [
+              {
+                "arguments": [],
+                "returns": [
+                  {
+                    "type": "this"
+                  }
+                ]
+              }
+            ],
+            "chainable": true,
+            "description": "Unpause the world (step calls continue as usual).",
+            "short_description": "Unpause the world (step calls continue as usual).",
+            "line": 649,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "unpause",
+            "name_prefix": "Physics.world#",
+            "path": "Physics.world.prototype.unpause",
+            "outFile": "world.html#Physics.world.prototype.unpause"
+          },
+          {
+            "id": "new Physics.world",
+            "type": "constructor",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "options",
+                    "optional": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+                  },
+                  {
+                    "name": "fn",
+                    "arguments": [
+                      {
+                        "name": "world"
+                      },
+                      {
+                        "name": "Physics"
+                      }
+                    ],
+                    "callback": true,
+                    "optional": true,
+                    "types": [
+                      "Function",
+                      "Array"
+                    ],
+                    "description": " Callback function or array of callbacks called with this === world\n\n "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "options",
+                "types": [
+                  "Object"
+                ],
+                "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+              },
+              {
+                "name": "fn",
+                "types": [
+                  "Function",
+                  "Array"
+                ],
+                "description": " Callback function or array of callbacks called with this === world\n\n "
+              }
+            ],
+            "alias_of": "Physics",
+            "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
+            "short_description": "World Constructor.\n",
+            "line": 63,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/world.js",
+            "name": "new",
+            "name_prefix": "Physics.world.",
+            "path": "Physics.world.new",
+            "outFile": "world.html#Physics.world.new"
+          }
+        ],
+        "file": "src/core/world.js",
+        "subclasses": [],
+        "name": "world",
+        "name_prefix": "Physics.",
+        "path": "Physics.world",
+        "outFile": "world.html"
+      }
+    ]
+  }
+}
