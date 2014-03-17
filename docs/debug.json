@@ -149,7 +149,7 @@
           ],
           "description": "Destroy the world.\n(Bwahahahahaha!)",
           "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-          "line": 673,
+          "line": 671,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -174,8 +174,7 @@
               ],
               "returns": [
                 {
-                  "type": "Array",
-                  "description": " Returns an array of matches\n\n     "
+                  "type": "Array"
                 }
               ]
             },
@@ -185,20 +184,23 @@
                   "name": "filter",
                   "arguments": [
                     {
-                      "name": "body"
+                      "name": "body",
+                      "description": " Each body in the world\n\n     ",
+                      "types": [
+                        "Body"
+                      ]
                     }
                   ],
                   "callback": true,
                   "types": [
-                    "Object"
+                    "Function"
                   ],
-                  "description": " Query rules\n\n     "
+                  "description": " Filter function called to check bodies\n\n     "
                 }
               ],
               "returns": [
                 {
-                  "type": "Array",
-                  "description": " Returns an array of matches\n\n     "
+                  "type": "Array"
                 }
               ]
             }
@@ -226,16 +228,10 @@
               "description": " Each body in the world\n\n     "
             }
           ],
-          "returns": [
-            {
-              "type": "Array",
-              "description": " Returns an array of matches\n\n     "
-            }
-          ],
           "related_to": "Physics.query",
           "description": "Find all matching bodies based on query rules.",
           "short_description": "Find all matching bodies based on query rules.",
-          "line": 548,
+          "line": 546,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -255,13 +251,15 @@
                   "types": [
                     "Object"
                   ],
-                  "description": " Query rules\n\n     "
+                  "description": " Query rules.\n\n     "
                 }
               ],
               "returns": [
                 {
-                  "type": "Body",
-                  "description": " Returns the first matched body, or false\n\n     "
+                  "type": "Body"
+                },
+                {
+                  "type": false
                 }
               ]
             },
@@ -271,20 +269,26 @@
                   "name": "filter",
                   "arguments": [
                     {
-                      "name": "body"
+                      "name": "body",
+                      "description": " Each body in the world\n\n     ",
+                      "types": [
+                        "Body"
+                      ]
                     }
                   ],
                   "callback": true,
                   "types": [
-                    "Object"
+                    "Function"
                   ],
-                  "description": " Query rules\n\n     "
+                  "description": " Filter function called to check bodies\n\n     "
                 }
               ],
               "returns": [
                 {
-                  "type": "Body",
-                  "description": " Returns the first matched body, or false\n\n     "
+                  "type": "Body"
+                },
+                {
+                  "type": false
                 }
               ]
             }
@@ -295,7 +299,7 @@
               "types": [
                 "Object"
               ],
-              "description": " Query rules\n\n     "
+              "description": " Query rules.\n\n     "
             },
             {
               "name": "filter",
@@ -312,16 +316,10 @@
               "description": " Each body in the world\n\n     "
             }
           ],
-          "returns": [
-            {
-              "type": "Body",
-              "description": " Returns the first matched body, or false\n\n     "
-            }
-          ],
           "related_to": "Physics.query",
           "description": "Find first matching body based on query rules.",
           "short_description": "Find first matching body based on query rules.",
-          "line": 529,
+          "line": 528,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -583,7 +581,7 @@
           ],
           "description": "Determine if world is paused.",
           "short_description": "Determine if world is paused.",
-          "line": 662,
+          "line": 660,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -620,7 +618,7 @@
           "internal": true,
           "description": "Do a single iteration.",
           "short_description": "Do a single iteration.",
-          "line": 563,
+          "line": 561,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -693,7 +691,7 @@
           "chainable": true,
           "description": "Pause the world (step calls do nothing).",
           "short_description": "Pause the world (step calls do nothing).",
-          "line": 637,
+          "line": 635,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -846,7 +844,7 @@
           "chainable": true,
           "description": "Render current world state using the renderer",
           "short_description": "Render current world state using the renderer",
-          "line": 617,
+          "line": 615,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -946,7 +944,7 @@
           "chainable": true,
           "description": "Do a single step.",
           "short_description": "Do a single step.",
-          "line": 574,
+          "line": 572,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1029,7 +1027,7 @@
           "chainable": true,
           "description": "Unpause the world (step calls continue as usual).",
           "short_description": "Unpause the world (step calls continue as usual).",
-          "line": 649,
+          "line": 647,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1050,7 +1048,7 @@
                   "types": [
                     "Object"
                   ],
-                  "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+                  "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
                 },
                 {
                   "name": "fn",
@@ -1079,7 +1077,7 @@
               "types": [
                 "Object"
               ],
-              "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+              "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
             },
             {
               "name": "fn",
@@ -1122,7 +1120,7 @@
               "types": [
                 "Object"
               ],
-              "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+              "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
             },
             {
               "name": "fn",
@@ -1151,7 +1149,7 @@
           "types": [
             "Object"
           ],
-          "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+          "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
         },
         {
           "name": "fn",
@@ -1837,13 +1835,15 @@
               "types": [
                 "Object"
               ],
-              "description": " Query rules\n\n     "
+              "description": " Query rules.\n\n     "
             }
           ],
           "returns": [
             {
-              "type": "Body",
-              "description": " Returns the first matched body, or false\n\n     "
+              "type": "Body"
+            },
+            {
+              "type": false
             }
           ]
         },
@@ -1853,20 +1853,26 @@
               "name": "filter",
               "arguments": [
                 {
-                  "name": "body"
+                  "name": "body",
+                  "description": " Each body in the world\n\n     ",
+                  "types": [
+                    "Body"
+                  ]
                 }
               ],
               "callback": true,
               "types": [
-                "Object"
+                "Function"
               ],
-              "description": " Query rules\n\n     "
+              "description": " Filter function called to check bodies\n\n     "
             }
           ],
           "returns": [
             {
-              "type": "Body",
-              "description": " Returns the first matched body, or false\n\n     "
+              "type": "Body"
+            },
+            {
+              "type": false
             }
           ]
         }
@@ -1877,7 +1883,7 @@
           "types": [
             "Object"
           ],
-          "description": " Query rules\n\n     "
+          "description": " Query rules.\n\n     "
         },
         {
           "name": "filter",
@@ -1894,16 +1900,10 @@
           "description": " Each body in the world\n\n     "
         }
       ],
-      "returns": [
-        {
-          "type": "Body",
-          "description": " Returns the first matched body, or false\n\n     "
-        }
-      ],
       "related_to": "Physics.query",
       "description": "Find first matching body based on query rules.",
       "short_description": "Find first matching body based on query rules.",
-      "line": 529,
+      "line": 528,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1928,8 +1928,7 @@
           ],
           "returns": [
             {
-              "type": "Array",
-              "description": " Returns an array of matches\n\n     "
+              "type": "Array"
             }
           ]
         },
@@ -1939,20 +1938,23 @@
               "name": "filter",
               "arguments": [
                 {
-                  "name": "body"
+                  "name": "body",
+                  "description": " Each body in the world\n\n     ",
+                  "types": [
+                    "Body"
+                  ]
                 }
               ],
               "callback": true,
               "types": [
-                "Object"
+                "Function"
               ],
-              "description": " Query rules\n\n     "
+              "description": " Filter function called to check bodies\n\n     "
             }
           ],
           "returns": [
             {
-              "type": "Array",
-              "description": " Returns an array of matches\n\n     "
+              "type": "Array"
             }
           ]
         }
@@ -1980,16 +1982,10 @@
           "description": " Each body in the world\n\n     "
         }
       ],
-      "returns": [
-        {
-          "type": "Array",
-          "description": " Returns an array of matches\n\n     "
-        }
-      ],
       "related_to": "Physics.query",
       "description": "Find all matching bodies based on query rules.",
       "short_description": "Find all matching bodies based on query rules.",
-      "line": 548,
+      "line": 546,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2026,7 +2022,7 @@
       "internal": true,
       "description": "Do a single iteration.",
       "short_description": "Do a single iteration.",
-      "line": 563,
+      "line": 561,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2068,7 +2064,7 @@
       "chainable": true,
       "description": "Do a single step.",
       "short_description": "Do a single step.",
-      "line": 574,
+      "line": 572,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2093,7 +2089,7 @@
       "chainable": true,
       "description": "Render current world state using the renderer",
       "short_description": "Render current world state using the renderer",
-      "line": 617,
+      "line": 615,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2118,7 +2114,7 @@
       "chainable": true,
       "description": "Pause the world (step calls do nothing).",
       "short_description": "Pause the world (step calls do nothing).",
-      "line": 637,
+      "line": 635,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2143,7 +2139,7 @@
       "chainable": true,
       "description": "Unpause the world (step calls continue as usual).",
       "short_description": "Unpause the world (step calls continue as usual).",
-      "line": 649,
+      "line": 647,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2173,7 +2169,7 @@
       ],
       "description": "Determine if world is paused.",
       "short_description": "Determine if world is paused.",
-      "line": 662,
+      "line": 660,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2192,7 +2188,7 @@
       ],
       "description": "Destroy the world.\n(Bwahahahahaha!)",
       "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-      "line": 673,
+      "line": 671,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2350,7 +2346,7 @@
             ],
             "description": "Destroy the world.\n(Bwahahahahaha!)",
             "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-            "line": 673,
+            "line": 671,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -2375,8 +2371,7 @@
                 ],
                 "returns": [
                   {
-                    "type": "Array",
-                    "description": " Returns an array of matches\n\n     "
+                    "type": "Array"
                   }
                 ]
               },
@@ -2386,20 +2381,23 @@
                     "name": "filter",
                     "arguments": [
                       {
-                        "name": "body"
+                        "name": "body",
+                        "description": " Each body in the world\n\n     ",
+                        "types": [
+                          "Body"
+                        ]
                       }
                     ],
                     "callback": true,
                     "types": [
-                      "Object"
+                      "Function"
                     ],
-                    "description": " Query rules\n\n     "
+                    "description": " Filter function called to check bodies\n\n     "
                   }
                 ],
                 "returns": [
                   {
-                    "type": "Array",
-                    "description": " Returns an array of matches\n\n     "
+                    "type": "Array"
                   }
                 ]
               }
@@ -2427,16 +2425,10 @@
                 "description": " Each body in the world\n\n     "
               }
             ],
-            "returns": [
-              {
-                "type": "Array",
-                "description": " Returns an array of matches\n\n     "
-              }
-            ],
             "related_to": "Physics.query",
             "description": "Find all matching bodies based on query rules.",
             "short_description": "Find all matching bodies based on query rules.",
-            "line": 548,
+            "line": 546,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -2456,13 +2448,15 @@
                     "types": [
                       "Object"
                     ],
-                    "description": " Query rules\n\n     "
+                    "description": " Query rules.\n\n     "
                   }
                 ],
                 "returns": [
                   {
-                    "type": "Body",
-                    "description": " Returns the first matched body, or false\n\n     "
+                    "type": "Body"
+                  },
+                  {
+                    "type": false
                   }
                 ]
               },
@@ -2472,20 +2466,26 @@
                     "name": "filter",
                     "arguments": [
                       {
-                        "name": "body"
+                        "name": "body",
+                        "description": " Each body in the world\n\n     ",
+                        "types": [
+                          "Body"
+                        ]
                       }
                     ],
                     "callback": true,
                     "types": [
-                      "Object"
+                      "Function"
                     ],
-                    "description": " Query rules\n\n     "
+                    "description": " Filter function called to check bodies\n\n     "
                   }
                 ],
                 "returns": [
                   {
-                    "type": "Body",
-                    "description": " Returns the first matched body, or false\n\n     "
+                    "type": "Body"
+                  },
+                  {
+                    "type": false
                   }
                 ]
               }
@@ -2496,7 +2496,7 @@
                 "types": [
                   "Object"
                 ],
-                "description": " Query rules\n\n     "
+                "description": " Query rules.\n\n     "
               },
               {
                 "name": "filter",
@@ -2513,16 +2513,10 @@
                 "description": " Each body in the world\n\n     "
               }
             ],
-            "returns": [
-              {
-                "type": "Body",
-                "description": " Returns the first matched body, or false\n\n     "
-              }
-            ],
             "related_to": "Physics.query",
             "description": "Find first matching body based on query rules.",
             "short_description": "Find first matching body based on query rules.",
-            "line": 529,
+            "line": 528,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -2784,7 +2778,7 @@
             ],
             "description": "Determine if world is paused.",
             "short_description": "Determine if world is paused.",
-            "line": 662,
+            "line": 660,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -2821,7 +2815,7 @@
             "internal": true,
             "description": "Do a single iteration.",
             "short_description": "Do a single iteration.",
-            "line": 563,
+            "line": 561,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -2894,7 +2888,7 @@
             "chainable": true,
             "description": "Pause the world (step calls do nothing).",
             "short_description": "Pause the world (step calls do nothing).",
-            "line": 637,
+            "line": 635,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -3047,7 +3041,7 @@
             "chainable": true,
             "description": "Render current world state using the renderer",
             "short_description": "Render current world state using the renderer",
-            "line": 617,
+            "line": 615,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -3147,7 +3141,7 @@
             "chainable": true,
             "description": "Do a single step.",
             "short_description": "Do a single step.",
-            "line": 574,
+            "line": 572,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -3230,7 +3224,7 @@
             "chainable": true,
             "description": "Unpause the world (step calls continue as usual).",
             "short_description": "Unpause the world (step calls continue as usual).",
-            "line": 649,
+            "line": 647,
             "aliases": [],
             "children": [],
             "file": "src/core/world.js",
@@ -3251,7 +3245,7 @@
                     "types": [
                       "Object"
                     ],
-                    "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+                    "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
                   },
                   {
                     "name": "fn",
@@ -3280,7 +3274,7 @@
                 "types": [
                   "Object"
                 ],
-                "description": " configuration options\n\n    - options.timestep (Number = 1000.0/160): default timestep\n\n    ...\n\n "
+                "description": " configuration options\n\n   - options.timestep (Number = 1000.0/160): default timestep\n\n   ...\n\n "
               },
               {
                 "name": "fn",

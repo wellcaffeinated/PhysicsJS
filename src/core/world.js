@@ -50,8 +50,8 @@
     /** alias of: Physics
      * new Physics.world([options, fn(world, Physics)])
      * - options (Object): configuration options
-        - options.timestep (Number = 1000.0/160): default timestep
-        ...
+       - options.timestep (Number = 1000.0/160): default timestep
+       ...
      * - fn (Function|Array): Callback function or array of callbacks called with this === world
      *
      * World Constructor.
@@ -517,12 +517,11 @@
         },
 
         /** see: Physics.query
-         * Physics.world#findOne( rules ) -> Body | Boolean
-         * Physics.world#findOne( filter(body) ) -> Body | Boolean
-         * - rules (Object): Query rules
+         * Physics.world#findOne( rules ) -> Body | false
+         * Physics.world#findOne( filter(body) ) -> Body | false
+         * - rules (Object): Query rules.
          * - filter (Function): Filter function called to check bodies
          * - body (Body): Each body in the world
-         * + (Body|Boolean): Returns the first matched body, or false
          * 
          * Find first matching body based on query rules.
          **/
@@ -541,7 +540,6 @@
          * - rules (Object): Query rules
          * - filter (Function): Filter function called to check bodies
          * - body (Body): Each body in the world
-         * + (Array): Returns an array of matches
          * 
          * Find all matching bodies based on query rules.
          **/
