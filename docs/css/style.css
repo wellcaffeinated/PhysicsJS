@@ -171,7 +171,7 @@ pre {
   /*border-left: 4px solid #171717;*/
   /*padding-left: 2em;
   margin-left: 0.2em;*/
-  border: 1px solid #ddd;
+  border: 1px solid #aaa;
   background: #fafafa;
   padding: 2em;
   -webkit-border-radius: 5px;
@@ -206,11 +206,11 @@ pre {
 }
 
 #main .doc .signatures > li {
-  border-left: 1em solid #171717;
+  /*border-left: 1em solid #171717;*/
 }
 
 #main .doc .signatures .declaration {
-  padding: 1em 0;
+  padding: 1em;
   background: #171717;
   color: #93a1a1;
   font-size: 0.875em;
@@ -220,7 +220,7 @@ pre {
 #main .doc .signatures .arguments-desc {
   overflow: hidden;
   padding: 1em;
-
+  border-top: 1px dotted #888;
   color: #C1C5C5;
   background: #25221F; /*rgba(10,10,0,0.03);*/
 }

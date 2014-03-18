@@ -90,7 +90,7 @@ mixin doc( item, level )
     if item.short_description
       .desc
         !=md(item.short_description)
-        
+
     +signatures(item)
 
     if item.description
@@ -99,7 +99,8 @@ mixin doc( item, level )
     
     if item.children && item.children.length
       .children
-        for ch in item.children
+        //- sort so that constructors are first
+        for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a - b; })
           +doc(ch, level+1)
 
 doctype html
