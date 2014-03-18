@@ -82,7 +82,6 @@
             this._integrator = null;
             this._renderer = null;
             this._paused = false;
-            this._opts = {};
 
             // set options
             this.options = Physics.util.options( defaults );
@@ -340,7 +339,7 @@
 
                 this._dt = dt;
                 // calculate the maximum jump in time over which to do iterations
-                this._maxJump = dt * this._opts.maxIPF;
+                this._maxJump = dt * this.options.maxIPF;
 
                 return this;
             }
