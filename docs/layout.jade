@@ -1,3 +1,13 @@
+mixin toc( item )
+  if item.children && item.children.length
+    ul
+      each ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
+        li
+          if ch.path
+            a(href='#'+ch.path)
+              +title(ch)
+          +toc( ch )
+
 mixin title( item, nosuff )
   if item.type === 'constructor'
     span.constructor=item.id
@@ -34,25 +44,39 @@ mixin args( sig )
 
 mixin argdesc( sig )
   if sig.arguments && sig.arguments.length
-    dl.arguments-desc
-      each arg in sig.arguments
-        dt(class=[arg.types])
-          =arg.name
-          if arg.callback
-            +args( arg )
-          
-        dd
-          if arg.types
-            span.types=' ('+arg.types.join(' | ')+')'
-          if arg.optional
-            span.optional optional
+    .arguments-desc
+      h4.title accepts
+      dl
+        each arg in sig.arguments
+          dt(class=[arg.types])
+            =arg.name
+            if arg.callback
+              +args( arg )
+            
+          dd
+            if arg.types
+              span.types=' ('+arg.types.join(' | ')+')'
+            if arg.optional
+              span.optional optional
 
-          if arg.description
-            !=md(arg.description)
-          if arg.callback
-            p Accepts:
-            +argdesc( arg )
-        
+            if arg.description
+              !=md(linkify(arg.description))
+            if arg.callback
+              p Accepts:
+              +argdesc( arg )
+
+mixin returns( sig )
+  if sig.returns && sig.returns.length
+    .returns-desc
+      h4.title returns
+      dl
+        each ret in sig.returns
+          dt(class=ret.type)
+            =ret.type
+
+          if ret.description
+            dd
+              !=md(linkify(ret.description))
 
 mixin signatures( item )
   if item.signatures
@@ -74,8 +98,7 @@ mixin signatures( item )
                   span.void void
 
           +argdesc( sig )
-
-
+          +returns( sig )
 
 
 mixin doc( item, level )
@@ -85,22 +108,29 @@ mixin doc( item, level )
       !='<h'+level+' class="title">'
       a(id=item.path, href='#'+item.path)
         +title( item )
+      if item.alias_of
+        small.aliases
+          | alias of: 
+          span.alias=item.alias_of
       !='</h'+level+'>'
     
     if item.short_description
       .desc
-        !=md(item.short_description)
+        !=md(linkify(item.short_description))
 
     +signatures(item)
 
     if item.description
       .desc.long
-        !=md(item.description.replace(item.short_description, ''))
+        !=md(linkify(item.description.replace(item.short_description, '')))
     
+    p.file='source: '
+      a(href=fileRoot+item.file+'#L'+item.line)=item.file+' : '+item.line
+
     if item.children && item.children.length
       .children
         //- sort so that constructors are first
-        for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a - b; })
+        for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
           +doc(ch, level+1)
 
 doctype html
@@ -126,8 +156,11 @@ html
 
   body
     
+    nav.toc
+      +toc(tree)
+
     section#main
-      for mainItem in tree.children
+      each mainItem in tree.children
         +doc(mainItem)
 
     // Foundation JS

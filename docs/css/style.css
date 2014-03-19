@@ -49,6 +49,7 @@ a {
   color:#C30000;
   font-weight:200;
   text-decoration:none;
+  outline: none;
 }
 
 a:hover {
@@ -186,6 +187,10 @@ pre {
   border-bottom: 1px solid #aaa;
 }
 
+#main .doc .title .aliases {
+  float: right;
+}
+
 #main .doc .doc .title a {
   /*color: #fafafa;*/
 }
@@ -217,12 +222,26 @@ pre {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
 
-#main .doc .signatures .arguments-desc {
-  overflow: hidden;
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
   padding: 1em;
   border-top: 1px dotted #888;
   color: #C1C5C5;
   background: #25221F; /*rgba(10,10,0,0.03);*/
+}
+
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
+  overflow: hidden;
+}
+
+#main .doc .signatures .arguments-desc code,
+#main .doc .signatures .returns-desc code {
+  color: #b58900;
+}
+
+#main .doc .signatures .returns-desc {
+  border: none;
 }
 
   /* callback functions... */
@@ -230,12 +249,14 @@ pre {
     background: #000;
   }
 
-#main .doc .signatures .arguments-desc p {
+#main .doc .signatures .arguments-desc p,
+#main .doc .signatures .returns-desc p {
   padding: 0;
   font-style: normal;
 }
 
-#main .doc .signatures .arguments-desc dt {
+#main .doc .signatures .arguments-desc dt,
+#main .doc .signatures .returns-desc dt {
   width: 160px;
   float: left;
   clear: both;
@@ -244,18 +265,27 @@ pre {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
 
-#main .doc .signatures .arguments-desc dd {
+#main .doc .signatures .arguments-desc dd,
+#main .doc .signatures .returns-desc dd {
   float: left;
   padding: 0;
   margin-left: 2em;
   font-style: normal;
 }
 
+#main .doc .signatures .arguments-desc .title,
+#main .doc .signatures .returns-desc .title,
 #main .doc .signatures .arguments-desc dd > .types,
 #main .doc .signatures .arguments-desc dd > .optional {
   font-size: 0.875em;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color: #888;
+  border: none;
+}
+
+#main .doc .signatures .arguments-desc .title:before,
+#main .doc .signatures .returns-desc .title:before {
+  content: '// ';
 }
 
 #main .doc .signatures .arguments {
@@ -273,7 +303,8 @@ pre {
 /* type colors */
 .arguments span,
 .returns span,
-.arguments-desc dt {
+.arguments-desc dt,
+.returns-desc dt {
   color: #b58900;
 }
 
@@ -282,7 +313,8 @@ pre {
 }
 
 .signatures .this,
-.signatures .Object {
+.signatures .Object,
+.signatures .Array {
   color: #cb4b16;
 }
 

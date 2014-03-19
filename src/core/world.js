@@ -3,6 +3,8 @@
  *
  * The world class and factory function.
  *
+ * Here is a test link [[ new Physics.world ]]
+ *
  * Example:
  *
  * ```javascript

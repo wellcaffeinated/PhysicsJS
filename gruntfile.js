@@ -351,7 +351,8 @@ module.exports = function(grunt) {
                 src: 'src/core/world.js',
                 options: {
                     template: 'docs/layout.jade',
-                    debugFile: 'docs/debug.json'
+                    debugFile: 'docs/debug.json',
+                    fileRoot: 'https://github.com/wellcaffeinated/PhysicsJS/tree/master/'
                 }
             }
         }
