@@ -33,7 +33,7 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( !body.fixed ){
+                if ( body.treatment !== 'static' ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
@@ -108,7 +108,7 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( !body.fixed ){
+                if ( body.treatment !== 'static' ){
 
 
                     // Store previous location.

@@ -211,17 +211,17 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                 corr *= -coef * con.stiffness;
 
-                if ( !con.bodyA.fixed && !con.bodyB.fixed && !con.bodyC.fixed ){
+                if ( con.bodyA.treatment === 'dynamic' && con.bodyB.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
                     invMassSum = 1 / (con.bodyA.mass + con.bodyB.mass + con.bodyC.mass);
                 }
 
-                if ( !con.bodyA.fixed ){
+                if ( con.bodyA.treatment === 'dynamic' ){
 
-                    if ( !con.bodyB.fixed && !con.bodyC.fixed ){
+                    if ( con.bodyB.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
                         
                         ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
 
-                    } else if ( con.bodyB.fixed ){
+                    } else if ( con.bodyB.treatment !== 'dynamic' ){
 
                         ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyA.mass );
 
@@ -238,13 +238,13 @@ Physics.behavior('verlet-constraints', function( parent ){
                     con.bodyA.state.pos.translate( trans );
                 }
 
-                if ( !con.bodyC.fixed ){
+                if ( con.bodyC.treatment === 'dynamic' ){
 
-                    if ( !con.bodyA.fixed && !con.bodyB.fixed ){
+                    if ( con.bodyA.treatment === 'dynamic' && con.bodyB.treatment === 'dynamic' ){
                         
                         ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
 
-                    } else if ( con.bodyB.fixed ){
+                    } else if ( con.bodyB.treatment !== 'dynamic' ){
 
                         ang = -corr * con.bodyA.mass / ( con.bodyC.mass + con.bodyA.mass );
                         
@@ -261,13 +261,13 @@ Physics.behavior('verlet-constraints', function( parent ){
                     con.bodyC.state.pos.translate( trans );
                 }
 
-                if ( !con.bodyB.fixed ){
+                if ( con.bodyB.treatment === 'dynamic' ){
 
-                    if ( !con.bodyA.fixed && !con.bodyC.fixed ){
+                    if ( con.bodyA.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
                         
                         ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
 
-                    } else if ( con.bodyA.fixed ){
+                    } else if ( con.bodyA.treatment !== 'dynamic' ){
 
                         ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyB.mass );
                         
@@ -315,24 +315,24 @@ Physics.behavior('verlet-constraints', function( parent ){
                 corr = coef * con.stiffness * ( len - con.targetLengthSq ) / len;
                 
                 BA.mult( corr );
-                proportion = (con.bodyA.fixed || con.bodyB.fixed) ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
+                proportion = (con.bodyA.treatment !== 'dynamic' || con.bodyB.treatment !== 'dynamic') ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
 
-                if ( !con.bodyA.fixed ){
+                if ( con.bodyA.treatment === 'dynamic' ){
 
-                    if ( !con.bodyB.fixed ){
+                    if ( con.bodyB.treatment === 'dynamic' ){
                         BA.mult( proportion );
                     }
 
                     con.bodyA.state.pos.vadd( BA );
 
-                    if ( !con.bodyB.fixed ){
+                    if ( con.bodyB.treatment === 'dynamic' ){
                         BA.mult( 1 / proportion );
                     }
                 }
 
-                if ( !con.bodyB.fixed ){
+                if ( con.bodyB.treatment === 'dynamic' ){
 
-                    if ( !con.bodyA.fixed ){
+                    if ( con.bodyA.treatment === 'dynamic' ){
                         BA.mult( 1 - proportion );
                     }
 

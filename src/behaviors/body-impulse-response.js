@@ -53,8 +53,8 @@ Physics.behavior('body-impulse-response', function( parent ){
          */
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
-            var fixedA = bodyA.fixed
-                ,fixedB = bodyB.fixed
+            var fixedA = bodyA.treatment === 'static' || bodyA.treatment === 'kinematic'
+                ,fixedB = bodyB.treatment === 'static' || bodyB.treatment === 'kinematic'
                 ,scratch = Physics.scratchpad()
                 // minimum transit vector for each body
                 ,mtv = scratch.vector().clone( mtrans )

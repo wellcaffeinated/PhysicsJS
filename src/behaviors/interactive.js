@@ -9,9 +9,9 @@ Physics.behavior('interactive', function( parent ){
             // the element to monitor
             el: null,
             // minimum velocity clamp
-            minVel: { x: -1, y: -1 },
+            minVel: { x: -5, y: -5 },
             // maximum velocity clamp
-            maxVel: { x: 1, y: 1 }
+            maxVel: { x: 5, y: 5 }
         }
         ,getElementOffset = function( el ){
             var curleft = 0
@@ -48,7 +48,11 @@ Physics.behavior('interactive', function( parent ){
          */
         init: function( options ){
             
-            var self = this;
+            var self = this
+                ,prevTreatment
+                ,moveThrottle = 1000 / 100 // 100 fps
+                ,time
+                ;
 
             // call parent init method
             parent.init.call( this );
@@ -67,7 +71,7 @@ Physics.behavior('interactive', function( parent ){
             }
 
             // init events
-            function grab( e ){
+            var grab = function grab( e ){
                 var pos = getCoords( e )
                     ,body
                     ;
@@ -79,11 +83,15 @@ Physics.behavior('interactive', function( parent ){
                         // we're trying to grab a body
 
                         // fix the body in place
-                        body.fixed = true;
+                        prevTreatment = body.treatment;
+                        body.treatment = 'kinematic';
+                        body.state.vel.zero();
+                        body.state.angular.vel = 0;
                         // remember the currently grabbed body
                         self.body = body;
                         // remember the mouse offset
-                        self.offset.clone( self.mousePos ).vsub( body.state.pos );
+                        self.mousePos.clone( pos );
+                        self.offset.clone( pos ).vsub( body.state.pos );
 
                         pos.body = body;
                         self._world.emit('interact:grab', pos);
@@ -93,33 +101,49 @@ Physics.behavior('interactive', function( parent ){
                         self._world.emit('interact:poke', pos);
                     }
                 }
-            }
+            };
 
-            function move( e ){
-                var pos = getCoords( e )
+            var move = Physics.util.throttle(function move( e ){
+                var pos
+                    ,state
                     ;
 
-                self.mousePosOld.clone( self.mousePos );
-                // get new mouse position
-                self.mousePos.set(pos.x, pos.y);
-            }
+                if ( self.body ){
+                    time = Date.now();
+                    pos = getCoords( e );
 
-            function release( e ){
+                    self.mousePosOld.clone( self.mousePos );
+                    // get new mouse position
+                    self.mousePos.set(pos.x, pos.y);
+
+                    // state = self.body.state;
+                    // state.pos.clone( self.mousePos ).vsub( self.offset );
+                    
+                }
+            }, moveThrottle);
+
+            var release = function release( e ){
                 var pos = getCoords( e )
                     ,body
+                    ,dt = Math.max(Date.now() - time, moveThrottle)
                     ;
+
+                // get new mouse position
+                self.mousePos.set(pos.x, pos.y);
+
+                // release the body
+                if (self.body){
+                    self.body.treatment = prevTreatment;
+                    self.body.state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
+                    self.body.state.vel.clamp( self.options.minVel, self.options.maxVel );
+                    self.body = false;
+                }
 
                 if ( self._world ){
 
-                    // release the body
-                    if (self.body){
-                        self.body.fixed = false;
-                        self.body = false;
-                    }
-
                     self._world.emit('interact:release', pos);
                 }
-            }
+            };
 
             this.el.addEventListener('mousedown', grab);
             this.el.addEventListener('touchstart', grab);
@@ -153,21 +177,19 @@ Physics.behavior('interactive', function( parent ){
             world.off('integrate:positions', this.behave);
         },
 
-        behave: function(){
+        behave: function( data ){
 
             var self = this
                 ,state
+                ,dt = data.dt
                 ;
 
             if ( self.body ){
 
                 // if we have a body, we need to move it the the new mouse position.
-                // we'll also track the velocity of the mouse movement so that when it's released
-                // the body can be "thrown"
+                // we'll do this by adjusting the velocity so it gets there at the next step
                 state = self.body.state;
-                state.pos.clone( self.mousePos ).vsub( self.offset );
-                state.vel.clone( self.body.state.pos ).vsub( self.mousePosOld ).vadd( self.offset ).mult( 1 / 30 );
-                state.vel.clamp( self.options.minVel, self.options.maxVel );
+                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };

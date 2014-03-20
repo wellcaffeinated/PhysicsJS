@@ -2,6 +2,7 @@
  * Edge collision detection.
  * Used to detect collisions with the boundaries of an AABB
  * @module behaviors/edge-collision-detection
+ * @requires body/point
  */
 Physics.behavior('edge-collision-detection', function( parent ){
 
@@ -164,8 +165,8 @@ Physics.behavior('edge-collision-detection', function( parent ){
             this.setAABB( this.options.aabb );
             this.restitution = this.options.restitution;
             
-            this._dummy = Physics.body('_dummy', function(){}, { 
-                fixed: true,
+            this.body = Physics.body('point', { 
+                treatment: 'static',
                 restitution: this.options.restitution,
                 cof: this.options.cof
             });
@@ -229,15 +230,15 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 ,collisions = []
                 ,ret
                 ,bounds = this._edges
-                ,dummy = this._dummy
+                ,dummy = this.body
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; i++ ){
 
                 body = bodies[ i ];
 
-                // don't detect fixed bodies
-                if ( !body.fixed ){
+                // only detect dynamic bodies
+                if ( body.treatment === 'dynamic' ){
                     
                     ret = checkEdgeCollide( body, bounds, dummy );
 
