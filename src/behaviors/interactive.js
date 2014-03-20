@@ -8,6 +8,8 @@ Physics.behavior('interactive', function( parent ){
     var defaults = {
             // the element to monitor
             el: null,
+            // time between move events
+            moveThrottle: 1000 / 100 | 0,
             // minimum velocity clamp
             minVel: { x: -5, y: -5 },
             // maximum velocity clamp
@@ -50,7 +52,6 @@ Physics.behavior('interactive', function( parent ){
             
             var self = this
                 ,prevTreatment
-                ,moveThrottle = 1000 / 100 // 100 fps
                 ,time
                 ;
 
@@ -109,23 +110,19 @@ Physics.behavior('interactive', function( parent ){
                     ;
 
                 if ( self.body ){
-                    time = Date.now();
                     pos = getCoords( e );
+                    time = Date.now();
 
                     self.mousePosOld.clone( self.mousePos );
                     // get new mouse position
                     self.mousePos.set(pos.x, pos.y);
-
-                    // state = self.body.state;
-                    // state.pos.clone( self.mousePos ).vsub( self.offset );
-                    
                 }
-            }, moveThrottle);
+            }, self.options.moveThrottle);
 
             var release = function release( e ){
                 var pos = getCoords( e )
                     ,body
-                    ,dt = Math.max(Date.now() - time, moveThrottle)
+                    ,dt = Math.max(Date.now() - time, self.options.moveThrottle)
                     ;
 
                 // get new mouse position
@@ -134,7 +131,9 @@ Physics.behavior('interactive', function( parent ){
                 // release the body
                 if (self.body){
                     self.body.treatment = prevTreatment;
+                    // calculate the release velocity
                     self.body.state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
+                    // make sure it's not too big
                     self.body.state.vel.clamp( self.options.minVel, self.options.maxVel );
                     self.body = false;
                 }
@@ -181,7 +180,6 @@ Physics.behavior('interactive', function( parent ){
 
             var self = this
                 ,state
-                ,dt = data.dt
                 ;
 
             if ( self.body ){
@@ -189,7 +187,7 @@ Physics.behavior('interactive', function( parent ){
                 // if we have a body, we need to move it the the new mouse position.
                 // we'll do this by adjusting the velocity so it gets there at the next step
                 state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
+                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / self.options.moveThrottle );
             }
         }
     };
