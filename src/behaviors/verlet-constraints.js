@@ -102,11 +102,6 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /**
          * Constrain three bodies to a target relative angle
-         * @param  {Object} bodyA        First body
-         * @param  {Object} bodyB        Second body
-         * @param  {Object} bodyC        Third body
-         * @param  {Number} targetLength (optional) Target length. defaults to target length specified in configuration options
-         * @return {object}              The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length
          */
         angleConstraint: function( bodyA, bodyB, bodyC, stiffness, targetAngle ){
 

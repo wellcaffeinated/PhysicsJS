@@ -85,7 +85,7 @@
             for ( var i = 0, l = bodies.length; i < l; ++i ){
                 
                 body = bodies[ i ];
-                view = body.view || ( body.view = this.createView(body.geometry) );
+                view = body.view || ( body.view = this.createView(body.geometry, body.styles) );
 
                 if ( !body.hidden ){
                     this.drawBody( body, view );
