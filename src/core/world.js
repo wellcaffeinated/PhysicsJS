@@ -1,4 +1,4 @@
-/**
+/** related to: new Physics.world
  * class Physics.world
  *
  * The world class and factory function.

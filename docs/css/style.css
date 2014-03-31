@@ -326,7 +326,10 @@ pre {
   color: #2aa198;
 }
 
-.signatures .false {
+.signatures .false,
+.signatures .true,
+.signatures .void,
+.signatures .Boolean {
   color: #859900 !important
 }
 

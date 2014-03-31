@@ -1,16 +1,25 @@
-/**
- * Facilitates creation of decorator service functions
- *
- * @example
+/** related to: factory
+ * Physics.util.decorator( type [, protoDef ] ) -> Function
+ * - type (String): The name of the factory you are creating
+ * - protoDef (Object): The top-level prototype
+ * + (Function): The factory function
  * 
- * var service = Decorator('service', {
+ * Facilitates creation of decorator factory functions.
+ *
+ * See the [[factory]] definition for the factory signatures.
+ * [For full documentation and examples, please visit the wiki](https://github.com/wellcaffeinated/PhysicsJS/wiki/Fundamentals#the-factory-pattern).
+ * 
+ * Example:
+ * 
+ * ```javascript
+ * var factory = Physics.util.decorator('factory', {
  *      // prototype methods...
  *      method: function( args ){
  *      }
  * });
  *
  * // define
- * service( 'name', (optional)'parent-name', function decorator( parent ){
+ * factory( 'name', 'parent-name', function( parent ){
  *
  *      // extend further...
  *      return {
@@ -23,8 +32,9 @@
  * 
  * // instantiate
  * var options = { key: 'val' };
- * var instance = service( 'name', options );
- */
+ * var instance = factory( 'name', options );
+ * ```
+ **/
 var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
     var registry = {}
@@ -77,11 +87,14 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         };
     }
 
-    /**
-     * Apply mixin methods to decorator base
-     * @param  {String|Object} key The method name. OR object with many key: fn pairs.
-     * @param  {Function} val The function to assign
-     * @return {void}
+    /*
+     * mixin( key, val )
+     * mixin( obj )
+     * - key (String): The method name
+     * - val (Function): The function to assign
+     * - obj (Object): object with many `key: fn` pairs
+     * 
+     * Apply mixin methods to decorator base.
      */
     var mixin = function mixin( key, val ){
 
@@ -100,15 +113,19 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     // transparent and readable in debug consoles...
     mixin( baseProto );
 
-    /**
+    /** related to: Physics.util.decorator
+     * factory( name[, parentName], decorator[, cfg] )
+     * factory( name, cfg ) -> Object
+     * -  name       (String):  The class name
+     * -  parentName (String): The name of parent class to extend
+     * -  decorator  (Function): The decorator function that should define and return methods to extend (decorate) the base class
+     * -  cfg        (Object): The configuration to pass to the class initializer
+     * 
      * Factory function for definition and instantiation of subclasses.
-     * If class with "name" is not defined, the "decorator" parameter is required to define it first.
-     * @param  {String} name       The class name
-     * @param  {String} parentName (optional) The name of parent class to extend
-     * @param  {Function} decorator (optional) The decorator function that should define and return methods to extend (decorate) the base class
-     * @param  {Object} cfg        (optional) The configuration to pass to the class initializer
-     * @return {void|Object}       If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned
-     */
+     * 
+     * Use the first signature (once) to define it first.
+     * If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned.
+     **/
     var factory = function factory( name, parentName, decorator, cfg ){
 
         var instance

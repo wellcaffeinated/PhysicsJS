@@ -1,9 +1,11 @@
-/*!
- * Fast indexOf
- * @param  {Array} arr   The array to search
- * @param  {Mixed} value The value to find
- * @return {Number}       The index OR -1
- */
+/**
+ * Physics.util.indexOf( arr, value ) -> Number
+ * - arr (Array): The array to search
+ * - value (Mixed): The value to find
+ * + (Number): The index of `value` in the array OR `-1` if not found
+ * 
+ * Fast indexOf implementation.
+ **/
 Physics.util.indexOf = function indexOf(arr, value) {
     var fr = 0, bk = arr.length;
     while (fr < bk) {
@@ -20,12 +22,33 @@ Physics.util.indexOf = function indexOf(arr, value) {
 };
 
 /**
- * Options helper to keep track of options
- * @param  {Object} def Default options to set
- * @param  {Object} target   (optional) Where to copy the options to. Defaults to the returned function.
- * @return {function}        The options function
- */
-Physics.util.options = function( def, target, callback ){
+ * Physics.util.options( def[, target] ) -> Function
+ * - def (Object): Default options to set
+ * - target (Object): Where to copy the options to. Defaults to the returned function.
+ * + (Function): The options function
+ * 
+ * Options helper to keep track of options. Call it with a config object. Access options directly on the function.
+ *
+ * Example:
+ *
+ * ```javascript
+ * this.options = Physics.util.options({ foo: 'bar', opt: 'def' });
+ * this.options({ opt: 'myVal' });
+ *
+ * this.options.foo; // === 'bar'
+ * this.options.def; // === 'myVal'
+ *
+ * // can also change defaults later
+ * this.options.defaults({ foo: 'baz' });
+ *
+ * // can add a change callback
+ * this.options.onChange(function( opts ){
+ *     // some option changed
+ *     // opts is the target
+ * });
+ * ```
+ **/
+Physics.util.options = function( def, target ){
 
     var _def = {}
         ,fn

@@ -101,7 +101,7 @@ mixin signatures( item )
           +returns( sig )
 
 
-mixin doc( item, level )
+mixin doc( item, level, recurse )
   -var level = level || 1
   article.doc
     header
@@ -124,10 +124,15 @@ mixin doc( item, level )
       .desc.long
         !=md(linkify(item.description.replace(item.short_description, '')))
     
+    if item.related_to
+      | Related to: 
+      a.related(href='#'+getPath(item.related_to))
+        !=item.related_to
+
     p.file='source: '
       a(href=fileRoot+item.file+'#L'+item.line)=item.file+' : '+item.line
 
-    if item.children && item.children.length
+    if recurse !== false && item.children && item.children.length
       .children
         //- sort so that constructors are first
         for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
@@ -160,10 +165,20 @@ html
       +toc(tree)
 
     section#main
-      each mainItem in tree.children
+      //- first one is PhysicsJS namespace
+      +doc(tree.children[0], 1, false)
+
+      each mainItem in tree.children[0].children
         +doc(mainItem)
 
-    // Foundation JS
+      section
+        h1 Special types
+        p Special types returned by various PhysicsJS methods.
+      each others,i in tree.children
+        if i !== 0
+          +doc(others, 2)      
+
+    //- Foundation JS
     //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')
     script(type='text/javascript').
       document.write('<script src=' +
