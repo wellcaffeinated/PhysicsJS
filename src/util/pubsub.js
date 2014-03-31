@@ -1,8 +1,12 @@
 (function(){
 
     /**
-     * PubSub implementation (fast)
-     */
+     * class Physics.util.pubsub
+     * 
+     * Fast pubsub implementation.
+     *
+     * Can be mixed into other classes easily.
+     **/
     var PubSub = function PubSub(){
 
         if (!(this instanceof PubSub)){
@@ -13,14 +17,18 @@
     PubSub.prototype = {
 
         /**
-         * Subscribe callback(s) to a topic(s).
+         * Physics.util.pubsub#on( topic, fn( data, event )[, scope, priority] ) -> this
+         * Physics.util.pubsub#on( topicConfig[, scope, priority] ) -> this
+         * - topic (String): The topic name
+         * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+         * - fn (Function): The callback function (if not using Object as previous argument)
+         * - data (Mixed): The data sent from the call to `.emit()`
+         * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
+         * - scope (Object): The scope to bind callback to
+         * - priority (Number): The priority of the callback (higher is earlier)
          * 
-         * @param  {String|Object}   topic The topic name, or a config with key/value pairs of { topic: callbackFn, ... }
-         * @param  {Function} fn The callback function (if not using Object as previous argument)
-         * @param  {Object}   scope (optional) The scope to bind callback to
-         * @param  {Number}   priority (optional) The priority of the callback (higher = earlier)
-         * @return {this}
-         */
+         * Subscribe callback(s) to a topic(s).
+         **/
         on: function( topic, fn, scope, priority ){
 
             var listeners
@@ -66,12 +74,14 @@
         },
 
         /**
-         * Unsubscribe callback(s) from topic(s).
+         * Physics.util.pubsub#off( topic, fn ) -> this
+         * Physics.util.pubsub#off( topicCfg ) -> this
+         * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
+         * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+         * - fn (Function): fn The original callback function. Specify `true` to remove all listeners for specified topic
          * 
-         * @param  {String|Object|Boolean}   topic The topic name, or a config with key/value pairs of { topic: callbackFn, ... }, or true to remove all listeners for all topics 
-         * @param  {Function} fn The original callback function OR true to remove all listeners for specified topic
-         * @return {this}
-         */
+         * Unsubscribe callback(s) from topic(s).
+         **/
         off: function( topic, fn ){
 
             var listeners
@@ -127,11 +137,12 @@
         },
 
         /**
-         * Publish data to a topic
-         * @param  {String} topic The topic name
-         * @param  {Object|String} data The data to send
-         * @return {this}
-         */
+         * Physics.util.pubsub#emit( topic[, data] ) -> this
+         * - topic (String): The topic name
+         * - data (Mixed): The data to send
+         * 
+         * Publish data to a topic.
+         **/
         emit: function( topic, data ){
 
             if ( !this._topics ){
@@ -142,21 +153,24 @@
             var listeners = this._topics[ topic ]
                 ,l = listeners && listeners.length
                 ,handler
+                ,e
                 ;
 
             if ( !l ){
                 return this;
             }
 
+            e = {
+                // event data
+                topic: topic,
+                handler: handler
+            };
+
             // reverse iterate so priorities work out correctly
             while ( l-- ){
                 
                 handler = listeners[ l ];
-                handler( data, {
-                    // event data
-                    topic: topic,
-                    handler: handler
-                });
+                handler( data, e );
 
                 // if _one_ flag is set, the unsubscribe
                 if ( handler._one_ ){
@@ -167,6 +181,19 @@
             return this;
         },
 
+        /**
+         * Physics.util.pubsub#one( topic, fn( data, event )[, scope, priority] ) -> this
+         * Physics.util.pubsub#one( topicConfig[, scope, priority] ) -> this
+         * - topic (String): The topic name
+         * - topicConfig (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
+         * - fn (Function): The callback function (if not using Object as previous argument)
+         * - data (Mixed): The data sent from the call to `.emit()`
+         * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
+         * - scope (Object): The scope to bind callback to
+         * - priority (Number): The priority of the callback (higher is earlier)
+         * 
+         * Subscribe callback(s) to a topic(s), but only ONCE.
+         **/
         one: function( topic, fn, scope ){
 
             // check if we're subscribing to multiple topics

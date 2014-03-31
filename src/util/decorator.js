@@ -113,7 +113,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     // transparent and readable in debug consoles...
     mixin( baseProto );
 
-    /** related to: Physics.util.decorator
+    /**  belongs to: Special
      * factory( name[, parentName], decorator[, cfg] )
      * factory( name, cfg ) -> Object
      * -  name       (String):  The class name

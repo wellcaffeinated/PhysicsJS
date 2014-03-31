@@ -1,12 +1,521 @@
 {
   "files": [
+    "src/core/behavior.js",
     "src/core/world.js",
     "src/intro.js",
     "src/util/decorator.js",
     "src/util/helpers.js",
-    "src/util/noconflict.js"
+    "src/util/noconflict.js",
+    "src/util/pubsub.js",
+    "src/util/scratchpad.js",
+    "src/util/ticker.js"
   ],
   "list": {
+    "Physics.behavior": {
+      "id": "Physics.behavior",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "name",
+              "types": [
+                "String"
+              ],
+              "description": " The name of the behavior to create\n\n "
+            },
+            {
+              "name": "options",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration for that behavior ( depends on behavior )\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Behavior"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "name",
+          "types": [
+            "String"
+          ],
+          "description": " The name of the behavior to create\n\n "
+        },
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " The configuration for that behavior ( depends on behavior )\n\n "
+        }
+      ],
+      "related_to": "Physics.util.decorator",
+      "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
+      "short_description": "Factory function for creating Behaviors.\n",
+      "line": 17,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "behavior",
+      "name_prefix": "Physics.",
+      "path": "Physics.behavior",
+      "outFile": "behavior.html#Physics.behavior"
+    },
+    "Behavior": {
+      "id": "Behavior",
+      "type": "class",
+      "belongs_to": "Classes",
+      "description": "The base class for behaviors created by [[Physics.behavior]].",
+      "short_description": "The base class for behaviors created by [[Physics.behavior]].",
+      "line": 24,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Behavior#behave",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "data",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The pubsub `integrate:positions` event data\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "data",
+              "types": [
+                "Object"
+              ],
+              "description": " The pubsub `integrate:positions` event data\n\n     "
+            }
+          ],
+          "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+          "short_description": "Default method run on every world integration.\n",
+          "line": 128,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "behave",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.behave",
+          "outFile": "behavior.html#Behavior.prototype.behave"
+        },
+        {
+          "id": "Behavior#connect",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Physics.world"
+                  ],
+                  "description": " The world to connect to\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to connect to\n\n     "
+            }
+          ],
+          "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+          "short_description": "Connect to a world.\n",
+          "line": 96,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "connect",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.connect",
+          "outFile": "behavior.html#Behavior.prototype.connect"
+        },
+        {
+          "id": "Behavior#disconnect",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Physics.world"
+                  ],
+                  "description": " The world to disconnect from\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to disconnect from\n\n     "
+            }
+          ],
+          "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+          "short_description": "Disconnect from a world.\n",
+          "line": 112,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "disconnect",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.disconnect",
+          "outFile": "behavior.html#Behavior.prototype.disconnect"
+        },
+        {
+          "id": "Behavior#getTargets",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "Array"
+                }
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "type": "Array",
+              "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+            }
+          ],
+          "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+          "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+          "line": 59,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "getTargets",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.getTargets",
+          "outFile": "behavior.html#Behavior.prototype.getTargets"
+        },
+        {
+          "id": "Behavior#init",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "options",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The configuration options passed by the factory\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration options passed by the factory\n\n     "
+            }
+          ],
+          "internal": true,
+          "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+          "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+          "line": 43,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "init",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.init",
+          "outFile": "behavior.html#Behavior.prototype.init"
+        },
+        {
+          "id": "Behavior#setWorld",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The world (or null)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Object"
+              ],
+              "description": " The world (or null)\n\n     "
+            }
+          ],
+          "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+          "short_description": "Set which world to apply to.\n",
+          "line": 72,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "setWorld",
+          "name_prefix": "Behavior#",
+          "path": "Behavior.prototype.setWorld",
+          "outFile": "behavior.html#Behavior.prototype.setWorld"
+        }
+      ],
+      "file": "src/core/behavior.js",
+      "subclasses": [],
+      "name": "Behavior",
+      "path": "Behavior",
+      "outFile": "behavior.html"
+    },
+    "Behavior#init": {
+      "id": "Behavior#init",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration options passed by the factory\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " The configuration options passed by the factory\n\n     "
+        }
+      ],
+      "internal": true,
+      "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+      "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+      "line": 43,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "init",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.init",
+      "outFile": "behavior.html#Behavior.prototype.init"
+    },
+    "Behavior#getTargets": {
+      "id": "Behavior#getTargets",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Array"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Array",
+          "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+        }
+      ],
+      "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+      "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+      "line": 59,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "getTargets",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.getTargets",
+      "outFile": "behavior.html#Behavior.prototype.getTargets"
+    },
+    "Behavior#setWorld": {
+      "id": "Behavior#setWorld",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Object"
+              ],
+              "description": " The world (or null)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Object"
+          ],
+          "description": " The world (or null)\n\n     "
+        }
+      ],
+      "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+      "short_description": "Set which world to apply to.\n",
+      "line": 72,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "setWorld",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.setWorld",
+      "outFile": "behavior.html#Behavior.prototype.setWorld"
+    },
+    "Behavior#connect": {
+      "id": "Behavior#connect",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to connect to\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Physics.world"
+          ],
+          "description": " The world to connect to\n\n     "
+        }
+      ],
+      "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+      "short_description": "Connect to a world.\n",
+      "line": 96,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "connect",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.connect",
+      "outFile": "behavior.html#Behavior.prototype.connect"
+    },
+    "Behavior#disconnect": {
+      "id": "Behavior#disconnect",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to disconnect from\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Physics.world"
+          ],
+          "description": " The world to disconnect from\n\n     "
+        }
+      ],
+      "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+      "short_description": "Disconnect from a world.\n",
+      "line": 112,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "disconnect",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.disconnect",
+      "outFile": "behavior.html#Behavior.prototype.disconnect"
+    },
+    "Behavior#behave": {
+      "id": "Behavior#behave",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "data",
+              "types": [
+                "Object"
+              ],
+              "description": " The pubsub `integrate:positions` event data\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "data",
+          "types": [
+            "Object"
+          ],
+          "description": " The pubsub `integrate:positions` event data\n\n     "
+        }
+      ],
+      "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+      "short_description": "Default method run on every world integration.\n",
+      "line": 128,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "behave",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.behave",
+      "outFile": "behavior.html#Behavior.prototype.behave"
+    },
     "Physics.world": {
       "id": "Physics.world",
       "type": "class",
@@ -2214,6 +2723,63 @@
       ],
       "children": [
         {
+          "id": "Physics.behavior",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "name",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The name of the behavior to create\n\n "
+                },
+                {
+                  "name": "options",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The configuration for that behavior ( depends on behavior )\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Behavior"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "name",
+              "types": [
+                "String"
+              ],
+              "description": " The name of the behavior to create\n\n "
+            },
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration for that behavior ( depends on behavior )\n\n "
+            }
+          ],
+          "related_to": "Physics.util.decorator",
+          "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
+          "short_description": "Factory function for creating Behaviors.\n",
+          "line": 17,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/behavior.js",
+          "name": "behavior",
+          "name_prefix": "Physics.",
+          "path": "Physics.behavior",
+          "outFile": "behavior.html#Physics.behavior"
+        },
+        {
           "id": "Physics.noConflict",
           "type": "class method",
           "signatures": [
@@ -2226,9 +2792,9 @@
               ]
             }
           ],
-          "description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-          "short_description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-          "line": 11,
+          "description": "Restore the original reference to the global window.Physics variable.\n\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
+          "short_description": "Restore the original reference to the global window.Physics variable.\n",
+          "line": 12,
           "aliases": [],
           "children": [],
           "file": "src/util/noconflict.js",
@@ -2433,6 +2999,643 @@
               "name_prefix": "Physics.util.",
               "path": "Physics.util.options",
               "outFile": "helpers.html#Physics.util.options"
+            },
+            {
+              "id": "Physics.util.pubsub",
+              "type": "class",
+              "description": "Fast pubsub implementation.\n\nCan be mixed into other classes easily.",
+              "short_description": "Fast pubsub implementation.\n",
+              "line": 10,
+              "aliases": [],
+              "children": [
+                {
+                  "id": "Physics.util.pubsub#emit",
+                  "type": "instance method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "topic",
+                          "types": [
+                            "String"
+                          ],
+                          "description": " The topic name\n\n     "
+                        },
+                        {
+                          "name": "data",
+                          "optional": true,
+                          "types": [
+                            "Mixed"
+                          ],
+                          "description": " The data to send\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "data",
+                      "types": [
+                        "Mixed"
+                      ],
+                      "description": " The data to send\n\n     "
+                    }
+                  ],
+                  "description": "Publish data to a topic.",
+                  "short_description": "Publish data to a topic.",
+                  "line": 146,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/pubsub.js",
+                  "name": "emit",
+                  "name_prefix": "Physics.util.pubsub#",
+                  "path": "Physics.util.pubsub.prototype.emit",
+                  "outFile": "pubsub.html#Physics.util.pubsub.prototype.emit"
+                },
+                {
+                  "id": "Physics.util.pubsub#off",
+                  "type": "instance method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "topic",
+                          "types": [
+                            "String"
+                          ],
+                          "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                        },
+                        {
+                          "name": "fn",
+                          "types": [
+                            "Function"
+                          ],
+                          "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    },
+                    {
+                      "arguments": [
+                        {
+                          "name": "topicCfg",
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                    },
+                    {
+                      "name": "topicCfg",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                    }
+                  ],
+                  "description": "Unsubscribe callback(s) from topic(s).",
+                  "short_description": "Unsubscribe callback(s) from topic(s).",
+                  "line": 85,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/pubsub.js",
+                  "name": "off",
+                  "name_prefix": "Physics.util.pubsub#",
+                  "path": "Physics.util.pubsub.prototype.off",
+                  "outFile": "pubsub.html#Physics.util.pubsub.prototype.off"
+                },
+                {
+                  "id": "Physics.util.pubsub#on",
+                  "type": "instance method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "topic",
+                          "types": [
+                            "String"
+                          ],
+                          "description": " The topic name\n\n     "
+                        },
+                        {
+                          "name": "fn",
+                          "arguments": [
+                            {
+                              "name": "data"
+                            },
+                            {
+                              "name": "event"
+                            }
+                          ],
+                          "callback": true,
+                          "types": [
+                            "Function"
+                          ],
+                          "description": " The callback function (if not using Object as previous argument)\n\n     "
+                        },
+                        {
+                          "name": "scope",
+                          "optional": true,
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " The scope to bind callback to\n\n     "
+                        },
+                        {
+                          "name": "priority",
+                          "optional": true,
+                          "types": [
+                            "Number"
+                          ],
+                          "description": " The priority of the callback (higher is earlier)\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    },
+                    {
+                      "arguments": [
+                        {
+                          "name": "topicConfig",
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                        },
+                        {
+                          "name": "scope",
+                          "optional": true,
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " The scope to bind callback to\n\n     "
+                        },
+                        {
+                          "name": "priority",
+                          "optional": true,
+                          "types": [
+                            "Number"
+                          ],
+                          "description": " The priority of the callback (higher is earlier)\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "topicConfig",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function (if not using Object as previous argument)\n\n     "
+                    },
+                    {
+                      "name": "data",
+                      "types": [
+                        "Mixed"
+                      ],
+                      "description": " The data sent from the call to `.emit()`\n\n     "
+                    },
+                    {
+                      "name": "event",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "description": "Subscribe callback(s) to a topic(s).",
+                  "short_description": "Subscribe callback(s) to a topic(s).",
+                  "line": 32,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/pubsub.js",
+                  "name": "on",
+                  "name_prefix": "Physics.util.pubsub#",
+                  "path": "Physics.util.pubsub.prototype.on",
+                  "outFile": "pubsub.html#Physics.util.pubsub.prototype.on"
+                },
+                {
+                  "id": "Physics.util.pubsub#one",
+                  "type": "instance method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "topic",
+                          "types": [
+                            "String"
+                          ],
+                          "description": " The topic name\n\n     "
+                        },
+                        {
+                          "name": "fn",
+                          "arguments": [
+                            {
+                              "name": "data"
+                            },
+                            {
+                              "name": "event"
+                            }
+                          ],
+                          "callback": true,
+                          "types": [
+                            "Function"
+                          ],
+                          "description": " The callback function (if not using Object as previous argument)\n\n     "
+                        },
+                        {
+                          "name": "scope",
+                          "optional": true,
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " The scope to bind callback to\n\n     "
+                        },
+                        {
+                          "name": "priority",
+                          "optional": true,
+                          "types": [
+                            "Number"
+                          ],
+                          "description": " The priority of the callback (higher is earlier)\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    },
+                    {
+                      "arguments": [
+                        {
+                          "name": "topicConfig",
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                        },
+                        {
+                          "name": "scope",
+                          "optional": true,
+                          "types": [
+                            "Object"
+                          ],
+                          "description": " The scope to bind callback to\n\n     "
+                        },
+                        {
+                          "name": "priority",
+                          "optional": true,
+                          "types": [
+                            "Number"
+                          ],
+                          "description": " The priority of the callback (higher is earlier)\n\n     "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "topicConfig",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function (if not using Object as previous argument)\n\n     "
+                    },
+                    {
+                      "name": "data",
+                      "types": [
+                        "Mixed"
+                      ],
+                      "description": " The data sent from the call to `.emit()`\n\n     "
+                    },
+                    {
+                      "name": "event",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+                  "short_description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+                  "line": 197,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/pubsub.js",
+                  "name": "one",
+                  "name_prefix": "Physics.util.pubsub#",
+                  "path": "Physics.util.pubsub.prototype.one",
+                  "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
+                }
+              ],
+              "file": "src/util/pubsub.js",
+              "subclasses": [],
+              "name": "pubsub",
+              "name_prefix": "Physics.util.",
+              "path": "Physics.util.pubsub",
+              "outFile": "pubsub.html"
+            },
+            {
+              "id": "Physics.util.ticker",
+              "type": "class",
+              "description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n\nRequires window.requestAnimationFrame... so polyfill it if you need to.",
+              "short_description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n",
+              "line": 8,
+              "aliases": [],
+              "children": [
+                {
+                  "id": "Physics.util.ticker.isActive",
+                  "type": "class method",
+                  "signatures": [
+                    {
+                      "arguments": [],
+                      "returns": [
+                        {
+                          "type": "Boolean"
+                        }
+                      ]
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "Boolean",
+                      "description": " `true` if running, `false` otherwise.\n\n "
+                    }
+                  ],
+                  "description": "Determine if ticker is currently running.",
+                  "short_description": "Determine if ticker is currently running.",
+                  "line": 92,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/ticker.js",
+                  "name": "isActive",
+                  "name_prefix": "Physics.util.ticker.",
+                  "path": "Physics.util.ticker.isActive",
+                  "outFile": "ticker.html#Physics.util.ticker.isActive"
+                },
+                {
+                  "id": "Physics.util.ticker.off",
+                  "type": "class method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "listener",
+                          "types": [
+                            "Function"
+                          ],
+                          "description": " The callback function previously bound\n\n "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "listener",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function previously bound\n\n "
+                    }
+                  ],
+                  "description": "Unsubscribe a callback from the ticker.",
+                  "short_description": "Unsubscribe a callback from the ticker.",
+                  "line": 80,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/ticker.js",
+                  "name": "off",
+                  "name_prefix": "Physics.util.ticker.",
+                  "path": "Physics.util.ticker.off",
+                  "outFile": "ticker.html#Physics.util.ticker.off"
+                },
+                {
+                  "id": "Physics.util.ticker.on",
+                  "type": "class method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "listener",
+                          "arguments": [
+                            {
+                              "name": "time",
+                              "description": " The current timestamp\n\n ",
+                              "types": [
+                                "Number"
+                              ]
+                            }
+                          ],
+                          "callback": true,
+                          "types": [
+                            "Function"
+                          ],
+                          "description": " The callback function\n\n "
+                        }
+                      ],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "listener",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function\n\n "
+                    },
+                    {
+                      "name": "time",
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The current timestamp\n\n "
+                    }
+                  ],
+                  "description": "Subscribe a callback to the ticker.",
+                  "short_description": "Subscribe a callback to the ticker.",
+                  "line": 68,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/ticker.js",
+                  "name": "on",
+                  "name_prefix": "Physics.util.ticker.",
+                  "path": "Physics.util.ticker.on",
+                  "outFile": "ticker.html#Physics.util.ticker.on"
+                },
+                {
+                  "id": "Physics.util.ticker.start",
+                  "type": "class method",
+                  "signatures": [
+                    {
+                      "arguments": [],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "description": "Start the ticker",
+                  "short_description": "Start the ticker",
+                  "line": 43,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/ticker.js",
+                  "name": "start",
+                  "name_prefix": "Physics.util.ticker.",
+                  "path": "Physics.util.ticker.start",
+                  "outFile": "ticker.html#Physics.util.ticker.start"
+                },
+                {
+                  "id": "Physics.util.ticker.stop",
+                  "type": "class method",
+                  "signatures": [
+                    {
+                      "arguments": [],
+                      "returns": [
+                        {
+                          "type": "this"
+                        }
+                      ]
+                    }
+                  ],
+                  "description": "Stop the ticker",
+                  "short_description": "Stop the ticker",
+                  "line": 55,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/util/ticker.js",
+                  "name": "stop",
+                  "name_prefix": "Physics.util.ticker.",
+                  "path": "Physics.util.ticker.stop",
+                  "outFile": "ticker.html#Physics.util.ticker.stop"
+                }
+              ],
+              "file": "src/util/ticker.js",
+              "subclasses": [],
+              "name": "ticker",
+              "name_prefix": "Physics.util.",
+              "path": "Physics.util.ticker",
+              "outFile": "ticker.html"
             }
           ],
           "file": "src/intro.js",
@@ -3749,6 +4952,643 @@
           "name_prefix": "Physics.util.",
           "path": "Physics.util.options",
           "outFile": "helpers.html#Physics.util.options"
+        },
+        {
+          "id": "Physics.util.pubsub",
+          "type": "class",
+          "description": "Fast pubsub implementation.\n\nCan be mixed into other classes easily.",
+          "short_description": "Fast pubsub implementation.\n",
+          "line": 10,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Physics.util.pubsub#emit",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "data",
+                      "optional": true,
+                      "types": [
+                        "Mixed"
+                      ],
+                      "description": " The data to send\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "data",
+                  "types": [
+                    "Mixed"
+                  ],
+                  "description": " The data to send\n\n     "
+                }
+              ],
+              "description": "Publish data to a topic.",
+              "short_description": "Publish data to a topic.",
+              "line": 146,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/pubsub.js",
+              "name": "emit",
+              "name_prefix": "Physics.util.pubsub#",
+              "path": "Physics.util.pubsub.prototype.emit",
+              "outFile": "pubsub.html#Physics.util.pubsub.prototype.emit"
+            },
+            {
+              "id": "Physics.util.pubsub#off",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                },
+                {
+                  "arguments": [
+                    {
+                      "name": "topicCfg",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                },
+                {
+                  "name": "topicCfg",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                }
+              ],
+              "description": "Unsubscribe callback(s) from topic(s).",
+              "short_description": "Unsubscribe callback(s) from topic(s).",
+              "line": 85,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/pubsub.js",
+              "name": "off",
+              "name_prefix": "Physics.util.pubsub#",
+              "path": "Physics.util.pubsub.prototype.off",
+              "outFile": "pubsub.html#Physics.util.pubsub.prototype.off"
+            },
+            {
+              "id": "Physics.util.pubsub#on",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "arguments": [
+                        {
+                          "name": "data"
+                        },
+                        {
+                          "name": "event"
+                        }
+                      ],
+                      "callback": true,
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function (if not using Object as previous argument)\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "optional": true,
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                },
+                {
+                  "arguments": [
+                    {
+                      "name": "topicConfig",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "optional": true,
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "topicConfig",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function (if not using Object as previous argument)\n\n     "
+                },
+                {
+                  "name": "data",
+                  "types": [
+                    "Mixed"
+                  ],
+                  "description": " The data sent from the call to `.emit()`\n\n     "
+                },
+                {
+                  "name": "event",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "description": "Subscribe callback(s) to a topic(s).",
+              "short_description": "Subscribe callback(s) to a topic(s).",
+              "line": 32,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/pubsub.js",
+              "name": "on",
+              "name_prefix": "Physics.util.pubsub#",
+              "path": "Physics.util.pubsub.prototype.on",
+              "outFile": "pubsub.html#Physics.util.pubsub.prototype.on"
+            },
+            {
+              "id": "Physics.util.pubsub#one",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "topic",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " The topic name\n\n     "
+                    },
+                    {
+                      "name": "fn",
+                      "arguments": [
+                        {
+                          "name": "data"
+                        },
+                        {
+                          "name": "event"
+                        }
+                      ],
+                      "callback": true,
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function (if not using Object as previous argument)\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "optional": true,
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                },
+                {
+                  "arguments": [
+                    {
+                      "name": "topicConfig",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                    },
+                    {
+                      "name": "scope",
+                      "optional": true,
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The scope to bind callback to\n\n     "
+                    },
+                    {
+                      "name": "priority",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The priority of the callback (higher is earlier)\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "topicConfig",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function (if not using Object as previous argument)\n\n     "
+                },
+                {
+                  "name": "data",
+                  "types": [
+                    "Mixed"
+                  ],
+                  "description": " The data sent from the call to `.emit()`\n\n     "
+                },
+                {
+                  "name": "event",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+              "short_description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+              "line": 197,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/pubsub.js",
+              "name": "one",
+              "name_prefix": "Physics.util.pubsub#",
+              "path": "Physics.util.pubsub.prototype.one",
+              "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
+            }
+          ],
+          "file": "src/util/pubsub.js",
+          "subclasses": [],
+          "name": "pubsub",
+          "name_prefix": "Physics.util.",
+          "path": "Physics.util.pubsub",
+          "outFile": "pubsub.html"
+        },
+        {
+          "id": "Physics.util.ticker",
+          "type": "class",
+          "description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n\nRequires window.requestAnimationFrame... so polyfill it if you need to.",
+          "short_description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n",
+          "line": 8,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Physics.util.ticker.isActive",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [],
+                  "returns": [
+                    {
+                      "type": "Boolean"
+                    }
+                  ]
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if running, `false` otherwise.\n\n "
+                }
+              ],
+              "description": "Determine if ticker is currently running.",
+              "short_description": "Determine if ticker is currently running.",
+              "line": 92,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/ticker.js",
+              "name": "isActive",
+              "name_prefix": "Physics.util.ticker.",
+              "path": "Physics.util.ticker.isActive",
+              "outFile": "ticker.html#Physics.util.ticker.isActive"
+            },
+            {
+              "id": "Physics.util.ticker.off",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "listener",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function previously bound\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "listener",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function previously bound\n\n "
+                }
+              ],
+              "description": "Unsubscribe a callback from the ticker.",
+              "short_description": "Unsubscribe a callback from the ticker.",
+              "line": 80,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/ticker.js",
+              "name": "off",
+              "name_prefix": "Physics.util.ticker.",
+              "path": "Physics.util.ticker.off",
+              "outFile": "ticker.html#Physics.util.ticker.off"
+            },
+            {
+              "id": "Physics.util.ticker.on",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "listener",
+                      "arguments": [
+                        {
+                          "name": "time",
+                          "description": " The current timestamp\n\n ",
+                          "types": [
+                            "Number"
+                          ]
+                        }
+                      ],
+                      "callback": true,
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The callback function\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "listener",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function\n\n "
+                },
+                {
+                  "name": "time",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The current timestamp\n\n "
+                }
+              ],
+              "description": "Subscribe a callback to the ticker.",
+              "short_description": "Subscribe a callback to the ticker.",
+              "line": 68,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/ticker.js",
+              "name": "on",
+              "name_prefix": "Physics.util.ticker.",
+              "path": "Physics.util.ticker.on",
+              "outFile": "ticker.html#Physics.util.ticker.on"
+            },
+            {
+              "id": "Physics.util.ticker.start",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "description": "Start the ticker",
+              "short_description": "Start the ticker",
+              "line": 43,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/ticker.js",
+              "name": "start",
+              "name_prefix": "Physics.util.ticker.",
+              "path": "Physics.util.ticker.start",
+              "outFile": "ticker.html#Physics.util.ticker.start"
+            },
+            {
+              "id": "Physics.util.ticker.stop",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "description": "Stop the ticker",
+              "short_description": "Stop the ticker",
+              "line": 55,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/ticker.js",
+              "name": "stop",
+              "name_prefix": "Physics.util.ticker.",
+              "path": "Physics.util.ticker.stop",
+              "outFile": "ticker.html#Physics.util.ticker.stop"
+            }
+          ],
+          "file": "src/util/ticker.js",
+          "subclasses": [],
+          "name": "ticker",
+          "name_prefix": "Physics.util.",
+          "path": "Physics.util.ticker",
+          "outFile": "ticker.html"
         }
       ],
       "file": "src/intro.js",
@@ -3756,6 +5596,369 @@
       "name_prefix": "Physics.",
       "path": "Physics.util",
       "outFile": "intro.html#Physics.util"
+    },
+    "Classes": {
+      "id": "Classes",
+      "type": "namespace",
+      "description": "",
+      "short_description": "",
+      "line": 51,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Behavior",
+          "type": "class",
+          "belongs_to": "Classes",
+          "description": "The base class for behaviors created by [[Physics.behavior]].",
+          "short_description": "The base class for behaviors created by [[Physics.behavior]].",
+          "line": 24,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Behavior#behave",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "data",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The pubsub `integrate:positions` event data\n\n     "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "data",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The pubsub `integrate:positions` event data\n\n     "
+                }
+              ],
+              "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+              "short_description": "Default method run on every world integration.\n",
+              "line": 128,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "behave",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.behave",
+              "outFile": "behavior.html#Behavior.prototype.behave"
+            },
+            {
+              "id": "Behavior#connect",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "world",
+                      "types": [
+                        "Physics.world"
+                      ],
+                      "description": " The world to connect to\n\n     "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Physics.world"
+                  ],
+                  "description": " The world to connect to\n\n     "
+                }
+              ],
+              "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+              "short_description": "Connect to a world.\n",
+              "line": 96,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "connect",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.connect",
+              "outFile": "behavior.html#Behavior.prototype.connect"
+            },
+            {
+              "id": "Behavior#disconnect",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "world",
+                      "types": [
+                        "Physics.world"
+                      ],
+                      "description": " The world to disconnect from\n\n     "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Physics.world"
+                  ],
+                  "description": " The world to disconnect from\n\n     "
+                }
+              ],
+              "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+              "short_description": "Disconnect from a world.\n",
+              "line": 112,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "disconnect",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.disconnect",
+              "outFile": "behavior.html#Behavior.prototype.disconnect"
+            },
+            {
+              "id": "Behavior#getTargets",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [],
+                  "returns": [
+                    {
+                      "type": "Array"
+                    }
+                  ]
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Array",
+                  "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+                }
+              ],
+              "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+              "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+              "line": 59,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "getTargets",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.getTargets",
+              "outFile": "behavior.html#Behavior.prototype.getTargets"
+            },
+            {
+              "id": "Behavior#init",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "options",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The configuration options passed by the factory\n\n     "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "options",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The configuration options passed by the factory\n\n     "
+                }
+              ],
+              "internal": true,
+              "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+              "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+              "line": 43,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "init",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.init",
+              "outFile": "behavior.html#Behavior.prototype.init"
+            },
+            {
+              "id": "Behavior#setWorld",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "world",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The world (or null)\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "world",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The world (or null)\n\n     "
+                }
+              ],
+              "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+              "short_description": "Set which world to apply to.\n",
+              "line": 72,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/behavior.js",
+              "name": "setWorld",
+              "name_prefix": "Behavior#",
+              "path": "Behavior.prototype.setWorld",
+              "outFile": "behavior.html#Behavior.prototype.setWorld"
+            }
+          ],
+          "file": "src/core/behavior.js",
+          "subclasses": [],
+          "name": "Behavior",
+          "path": "Behavior",
+          "outFile": "behavior.html"
+        }
+      ],
+      "file": "src/intro.js",
+      "name": "Classes",
+      "path": "Classes",
+      "outFile": "intro.html#Classes"
+    },
+    "Special": {
+      "id": "Special",
+      "type": "namespace",
+      "description": "",
+      "short_description": "",
+      "line": 55,
+      "aliases": [],
+      "children": [
+        {
+          "id": "factory",
+          "type": "method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "name",
+                  "types": [
+                    "String"
+                  ],
+                  "description": "  The class name\n\n "
+                },
+                {
+                  "name": "parentName",
+                  "optional": true,
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The name of parent class to extend\n\n "
+                },
+                {
+                  "name": "decorator",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
+                },
+                {
+                  "name": "cfg",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The configuration to pass to the class initializer\n\n "
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "name",
+                  "types": [
+                    "String"
+                  ],
+                  "description": "  The class name\n\n "
+                },
+                {
+                  "name": "cfg",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The configuration to pass to the class initializer\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "name",
+              "types": [
+                "String"
+              ],
+              "description": "  The class name\n\n "
+            },
+            {
+              "name": "parentName",
+              "types": [
+                "String"
+              ],
+              "description": " The name of parent class to extend\n\n "
+            },
+            {
+              "name": "decorator",
+              "types": [
+                "Function"
+              ],
+              "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
+            },
+            {
+              "name": "cfg",
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration to pass to the class initializer\n\n "
+            }
+          ],
+          "belongs_to": "Special",
+          "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
+          "short_description": "Factory function for definition and instantiation of subclasses.\n",
+          "line": 129,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/decorator.js",
+          "name": "factory",
+          "path": "factory",
+          "outFile": "decorator.html#factory"
+        }
+      ],
+      "file": "src/intro.js",
+      "name": "Special",
+      "path": "Special",
+      "outFile": "intro.html#Special"
     },
     "Physics.util.decorator": {
       "id": "Physics.util.decorator",
@@ -3913,7 +6116,7 @@
           "description": " The configuration to pass to the class initializer\n\n "
         }
       ],
-      "related_to": "Physics.util.decorator",
+      "belongs_to": "Special",
       "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
       "short_description": "Factory function for definition and instantiation of subclasses.\n",
       "line": 129,
@@ -4062,9 +6265,9 @@
           ]
         }
       ],
-      "description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-      "short_description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-      "line": 11,
+      "description": "Restore the original reference to the global window.Physics variable.\n\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
+      "short_description": "Restore the original reference to the global window.Physics variable.\n",
+      "line": 12,
       "aliases": [],
       "children": [],
       "file": "src/util/noconflict.js",
@@ -4072,112 +6275,1497 @@
       "name_prefix": "Physics.",
       "path": "Physics.noConflict",
       "outFile": "noconflict.html#Physics.noConflict"
+    },
+    "Physics.util.pubsub": {
+      "id": "Physics.util.pubsub",
+      "type": "class",
+      "description": "Fast pubsub implementation.\n\nCan be mixed into other classes easily.",
+      "short_description": "Fast pubsub implementation.\n",
+      "line": 10,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.util.pubsub#emit",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "data",
+                  "optional": true,
+                  "types": [
+                    "Mixed"
+                  ],
+                  "description": " The data to send\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "data",
+              "types": [
+                "Mixed"
+              ],
+              "description": " The data to send\n\n     "
+            }
+          ],
+          "description": "Publish data to a topic.",
+          "short_description": "Publish data to a topic.",
+          "line": 146,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/pubsub.js",
+          "name": "emit",
+          "name_prefix": "Physics.util.pubsub#",
+          "path": "Physics.util.pubsub.prototype.emit",
+          "outFile": "pubsub.html#Physics.util.pubsub.prototype.emit"
+        },
+        {
+          "id": "Physics.util.pubsub#off",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "topicCfg",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+            },
+            {
+              "name": "topicCfg",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+            }
+          ],
+          "description": "Unsubscribe callback(s) from topic(s).",
+          "short_description": "Unsubscribe callback(s) from topic(s).",
+          "line": 85,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/pubsub.js",
+          "name": "off",
+          "name_prefix": "Physics.util.pubsub#",
+          "path": "Physics.util.pubsub.prototype.off",
+          "outFile": "pubsub.html#Physics.util.pubsub.prototype.off"
+        },
+        {
+          "id": "Physics.util.pubsub#on",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "arguments": [
+                    {
+                      "name": "data"
+                    },
+                    {
+                      "name": "event"
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function (if not using Object as previous argument)\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "topicConfig",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "topicConfig",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function (if not using Object as previous argument)\n\n     "
+            },
+            {
+              "name": "data",
+              "types": [
+                "Mixed"
+              ],
+              "description": " The data sent from the call to `.emit()`\n\n     "
+            },
+            {
+              "name": "event",
+              "types": [
+                "Object"
+              ],
+              "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+            },
+            {
+              "name": "scope",
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "description": "Subscribe callback(s) to a topic(s).",
+          "short_description": "Subscribe callback(s) to a topic(s).",
+          "line": 32,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/pubsub.js",
+          "name": "on",
+          "name_prefix": "Physics.util.pubsub#",
+          "path": "Physics.util.pubsub.prototype.on",
+          "outFile": "pubsub.html#Physics.util.pubsub.prototype.on"
+        },
+        {
+          "id": "Physics.util.pubsub#one",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "topic",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " The topic name\n\n     "
+                },
+                {
+                  "name": "fn",
+                  "arguments": [
+                    {
+                      "name": "data"
+                    },
+                    {
+                      "name": "event"
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function (if not using Object as previous argument)\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "topicConfig",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                },
+                {
+                  "name": "scope",
+                  "optional": true,
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The scope to bind callback to\n\n     "
+                },
+                {
+                  "name": "priority",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The priority of the callback (higher is earlier)\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "topicConfig",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function (if not using Object as previous argument)\n\n     "
+            },
+            {
+              "name": "data",
+              "types": [
+                "Mixed"
+              ],
+              "description": " The data sent from the call to `.emit()`\n\n     "
+            },
+            {
+              "name": "event",
+              "types": [
+                "Object"
+              ],
+              "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+            },
+            {
+              "name": "scope",
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+          "short_description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+          "line": 197,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/pubsub.js",
+          "name": "one",
+          "name_prefix": "Physics.util.pubsub#",
+          "path": "Physics.util.pubsub.prototype.one",
+          "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
+        }
+      ],
+      "file": "src/util/pubsub.js",
+      "subclasses": [],
+      "name": "pubsub",
+      "name_prefix": "Physics.util.",
+      "path": "Physics.util.pubsub",
+      "outFile": "pubsub.html"
+    },
+    "Physics.util.pubsub#on": {
+      "id": "Physics.util.pubsub#on",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "fn",
+              "arguments": [
+                {
+                  "name": "data"
+                },
+                {
+                  "name": "event"
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function (if not using Object as previous argument)\n\n     "
+            },
+            {
+              "name": "scope",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "topicConfig",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            },
+            {
+              "name": "scope",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "topic",
+          "types": [
+            "String"
+          ],
+          "description": " The topic name\n\n     "
+        },
+        {
+          "name": "topicConfig",
+          "types": [
+            "Object"
+          ],
+          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+        },
+        {
+          "name": "fn",
+          "types": [
+            "Function"
+          ],
+          "description": " The callback function (if not using Object as previous argument)\n\n     "
+        },
+        {
+          "name": "data",
+          "types": [
+            "Mixed"
+          ],
+          "description": " The data sent from the call to `.emit()`\n\n     "
+        },
+        {
+          "name": "event",
+          "types": [
+            "Object"
+          ],
+          "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+        },
+        {
+          "name": "scope",
+          "types": [
+            "Object"
+          ],
+          "description": " The scope to bind callback to\n\n     "
+        },
+        {
+          "name": "priority",
+          "types": [
+            "Number"
+          ],
+          "description": " The priority of the callback (higher is earlier)\n\n     "
+        }
+      ],
+      "description": "Subscribe callback(s) to a topic(s).",
+      "short_description": "Subscribe callback(s) to a topic(s).",
+      "line": 32,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/pubsub.js",
+      "name": "on",
+      "name_prefix": "Physics.util.pubsub#",
+      "path": "Physics.util.pubsub.prototype.on",
+      "outFile": "pubsub.html#Physics.util.pubsub.prototype.on"
+    },
+    "Physics.util.pubsub#off": {
+      "id": "Physics.util.pubsub#off",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+            },
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "topicCfg",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "topic",
+          "types": [
+            "String"
+          ],
+          "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+        },
+        {
+          "name": "topicCfg",
+          "types": [
+            "Object"
+          ],
+          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+        },
+        {
+          "name": "fn",
+          "types": [
+            "Function"
+          ],
+          "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+        }
+      ],
+      "description": "Unsubscribe callback(s) from topic(s).",
+      "short_description": "Unsubscribe callback(s) from topic(s).",
+      "line": 85,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/pubsub.js",
+      "name": "off",
+      "name_prefix": "Physics.util.pubsub#",
+      "path": "Physics.util.pubsub.prototype.off",
+      "outFile": "pubsub.html#Physics.util.pubsub.prototype.off"
+    },
+    "Physics.util.pubsub#emit": {
+      "id": "Physics.util.pubsub#emit",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "data",
+              "optional": true,
+              "types": [
+                "Mixed"
+              ],
+              "description": " The data to send\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "topic",
+          "types": [
+            "String"
+          ],
+          "description": " The topic name\n\n     "
+        },
+        {
+          "name": "data",
+          "types": [
+            "Mixed"
+          ],
+          "description": " The data to send\n\n     "
+        }
+      ],
+      "description": "Publish data to a topic.",
+      "short_description": "Publish data to a topic.",
+      "line": 146,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/pubsub.js",
+      "name": "emit",
+      "name_prefix": "Physics.util.pubsub#",
+      "path": "Physics.util.pubsub.prototype.emit",
+      "outFile": "pubsub.html#Physics.util.pubsub.prototype.emit"
+    },
+    "Physics.util.pubsub#one": {
+      "id": "Physics.util.pubsub#one",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "topic",
+              "types": [
+                "String"
+              ],
+              "description": " The topic name\n\n     "
+            },
+            {
+              "name": "fn",
+              "arguments": [
+                {
+                  "name": "data"
+                },
+                {
+                  "name": "event"
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function (if not using Object as previous argument)\n\n     "
+            },
+            {
+              "name": "scope",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "topicConfig",
+              "types": [
+                "Object"
+              ],
+              "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+            },
+            {
+              "name": "scope",
+              "optional": true,
+              "types": [
+                "Object"
+              ],
+              "description": " The scope to bind callback to\n\n     "
+            },
+            {
+              "name": "priority",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The priority of the callback (higher is earlier)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "topic",
+          "types": [
+            "String"
+          ],
+          "description": " The topic name\n\n     "
+        },
+        {
+          "name": "topicConfig",
+          "types": [
+            "Object"
+          ],
+          "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+        },
+        {
+          "name": "fn",
+          "types": [
+            "Function"
+          ],
+          "description": " The callback function (if not using Object as previous argument)\n\n     "
+        },
+        {
+          "name": "data",
+          "types": [
+            "Mixed"
+          ],
+          "description": " The data sent from the call to `.emit()`\n\n     "
+        },
+        {
+          "name": "event",
+          "types": [
+            "Object"
+          ],
+          "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+        },
+        {
+          "name": "scope",
+          "types": [
+            "Object"
+          ],
+          "description": " The scope to bind callback to\n\n     "
+        },
+        {
+          "name": "priority",
+          "types": [
+            "Number"
+          ],
+          "description": " The priority of the callback (higher is earlier)\n\n     "
+        }
+      ],
+      "description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+      "short_description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+      "line": 197,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/pubsub.js",
+      "name": "one",
+      "name_prefix": "Physics.util.pubsub#",
+      "path": "Physics.util.pubsub.prototype.one",
+      "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
+    },
+    "Physics.util.ticker": {
+      "id": "Physics.util.ticker",
+      "type": "class",
+      "description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n\nRequires window.requestAnimationFrame... so polyfill it if you need to.",
+      "short_description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n",
+      "line": 8,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.util.ticker.isActive",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "Boolean"
+                }
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if running, `false` otherwise.\n\n "
+            }
+          ],
+          "description": "Determine if ticker is currently running.",
+          "short_description": "Determine if ticker is currently running.",
+          "line": 92,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/ticker.js",
+          "name": "isActive",
+          "name_prefix": "Physics.util.ticker.",
+          "path": "Physics.util.ticker.isActive",
+          "outFile": "ticker.html#Physics.util.ticker.isActive"
+        },
+        {
+          "id": "Physics.util.ticker.off",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "listener",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function previously bound\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "listener",
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function previously bound\n\n "
+            }
+          ],
+          "description": "Unsubscribe a callback from the ticker.",
+          "short_description": "Unsubscribe a callback from the ticker.",
+          "line": 80,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/ticker.js",
+          "name": "off",
+          "name_prefix": "Physics.util.ticker.",
+          "path": "Physics.util.ticker.off",
+          "outFile": "ticker.html#Physics.util.ticker.off"
+        },
+        {
+          "id": "Physics.util.ticker.on",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "listener",
+                  "arguments": [
+                    {
+                      "name": "time",
+                      "description": " The current timestamp\n\n ",
+                      "types": [
+                        "Number"
+                      ]
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The callback function\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "listener",
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function\n\n "
+            },
+            {
+              "name": "time",
+              "types": [
+                "Number"
+              ],
+              "description": " The current timestamp\n\n "
+            }
+          ],
+          "description": "Subscribe a callback to the ticker.",
+          "short_description": "Subscribe a callback to the ticker.",
+          "line": 68,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/ticker.js",
+          "name": "on",
+          "name_prefix": "Physics.util.ticker.",
+          "path": "Physics.util.ticker.on",
+          "outFile": "ticker.html#Physics.util.ticker.on"
+        },
+        {
+          "id": "Physics.util.ticker.start",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "description": "Start the ticker",
+          "short_description": "Start the ticker",
+          "line": 43,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/ticker.js",
+          "name": "start",
+          "name_prefix": "Physics.util.ticker.",
+          "path": "Physics.util.ticker.start",
+          "outFile": "ticker.html#Physics.util.ticker.start"
+        },
+        {
+          "id": "Physics.util.ticker.stop",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "description": "Stop the ticker",
+          "short_description": "Stop the ticker",
+          "line": 55,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/ticker.js",
+          "name": "stop",
+          "name_prefix": "Physics.util.ticker.",
+          "path": "Physics.util.ticker.stop",
+          "outFile": "ticker.html#Physics.util.ticker.stop"
+        }
+      ],
+      "file": "src/util/ticker.js",
+      "subclasses": [],
+      "name": "ticker",
+      "name_prefix": "Physics.util.",
+      "path": "Physics.util.ticker",
+      "outFile": "ticker.html"
+    },
+    "Physics.util.ticker.start": {
+      "id": "Physics.util.ticker.start",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "description": "Start the ticker",
+      "short_description": "Start the ticker",
+      "line": 43,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/ticker.js",
+      "name": "start",
+      "name_prefix": "Physics.util.ticker.",
+      "path": "Physics.util.ticker.start",
+      "outFile": "ticker.html#Physics.util.ticker.start"
+    },
+    "Physics.util.ticker.stop": {
+      "id": "Physics.util.ticker.stop",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "description": "Stop the ticker",
+      "short_description": "Stop the ticker",
+      "line": 55,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/ticker.js",
+      "name": "stop",
+      "name_prefix": "Physics.util.ticker.",
+      "path": "Physics.util.ticker.stop",
+      "outFile": "ticker.html#Physics.util.ticker.stop"
+    },
+    "Physics.util.ticker.on": {
+      "id": "Physics.util.ticker.on",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "listener",
+              "arguments": [
+                {
+                  "name": "time",
+                  "description": " The current timestamp\n\n ",
+                  "types": [
+                    "Number"
+                  ]
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "listener",
+          "types": [
+            "Function"
+          ],
+          "description": " The callback function\n\n "
+        },
+        {
+          "name": "time",
+          "types": [
+            "Number"
+          ],
+          "description": " The current timestamp\n\n "
+        }
+      ],
+      "description": "Subscribe a callback to the ticker.",
+      "short_description": "Subscribe a callback to the ticker.",
+      "line": 68,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/ticker.js",
+      "name": "on",
+      "name_prefix": "Physics.util.ticker.",
+      "path": "Physics.util.ticker.on",
+      "outFile": "ticker.html#Physics.util.ticker.on"
+    },
+    "Physics.util.ticker.off": {
+      "id": "Physics.util.ticker.off",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "listener",
+              "types": [
+                "Function"
+              ],
+              "description": " The callback function previously bound\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "listener",
+          "types": [
+            "Function"
+          ],
+          "description": " The callback function previously bound\n\n "
+        }
+      ],
+      "description": "Unsubscribe a callback from the ticker.",
+      "short_description": "Unsubscribe a callback from the ticker.",
+      "line": 80,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/ticker.js",
+      "name": "off",
+      "name_prefix": "Physics.util.ticker.",
+      "path": "Physics.util.ticker.off",
+      "outFile": "ticker.html#Physics.util.ticker.off"
+    },
+    "Physics.util.ticker.isActive": {
+      "id": "Physics.util.ticker.isActive",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Boolean"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Boolean",
+          "description": " `true` if running, `false` otherwise.\n\n "
+        }
+      ],
+      "description": "Determine if ticker is currently running.",
+      "short_description": "Determine if ticker is currently running.",
+      "line": 92,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/ticker.js",
+      "name": "isActive",
+      "name_prefix": "Physics.util.ticker.",
+      "path": "Physics.util.ticker.isActive",
+      "outFile": "ticker.html#Physics.util.ticker.isActive"
     }
   },
   "tree": {
     "children": [
       {
-        "id": "factory",
-        "type": "method",
-        "signatures": [
-          {
-            "arguments": [
-              {
-                "name": "name",
-                "types": [
-                  "String"
-                ],
-                "description": "  The class name\n\n "
-              },
-              {
-                "name": "parentName",
-                "optional": true,
-                "types": [
-                  "String"
-                ],
-                "description": " The name of parent class to extend\n\n "
-              },
-              {
-                "name": "decorator",
-                "types": [
-                  "Function"
-                ],
-                "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
-              },
-              {
-                "name": "cfg",
-                "optional": true,
-                "types": [
-                  "Object"
-                ],
-                "description": " The configuration to pass to the class initializer\n\n "
-              }
-            ]
-          },
-          {
-            "arguments": [
-              {
-                "name": "name",
-                "types": [
-                  "String"
-                ],
-                "description": "  The class name\n\n "
-              },
-              {
-                "name": "cfg",
-                "types": [
-                  "Object"
-                ],
-                "description": " The configuration to pass to the class initializer\n\n "
-              }
-            ],
-            "returns": [
-              {
-                "type": "Object"
-              }
-            ]
-          }
-        ],
-        "arguments": [
-          {
-            "name": "name",
-            "types": [
-              "String"
-            ],
-            "description": "  The class name\n\n "
-          },
-          {
-            "name": "parentName",
-            "types": [
-              "String"
-            ],
-            "description": " The name of parent class to extend\n\n "
-          },
-          {
-            "name": "decorator",
-            "types": [
-              "Function"
-            ],
-            "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
-          },
-          {
-            "name": "cfg",
-            "types": [
-              "Object"
-            ],
-            "description": " The configuration to pass to the class initializer\n\n "
-          }
-        ],
-        "related_to": "Physics.util.decorator",
-        "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
-        "short_description": "Factory function for definition and instantiation of subclasses.\n",
-        "line": 129,
+        "id": "Classes",
+        "type": "namespace",
+        "description": "",
+        "short_description": "",
+        "line": 51,
         "aliases": [],
-        "children": [],
-        "file": "src/util/decorator.js",
-        "name": "factory",
-        "path": "factory",
-        "outFile": "decorator.html#factory"
+        "children": [
+          {
+            "id": "Behavior",
+            "type": "class",
+            "belongs_to": "Classes",
+            "description": "The base class for behaviors created by [[Physics.behavior]].",
+            "short_description": "The base class for behaviors created by [[Physics.behavior]].",
+            "line": 24,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Behavior#behave",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "data",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The pubsub `integrate:positions` event data\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "data",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The pubsub `integrate:positions` event data\n\n     "
+                  }
+                ],
+                "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+                "short_description": "Default method run on every world integration.\n",
+                "line": 128,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "behave",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.behave",
+                "outFile": "behavior.html#Behavior.prototype.behave"
+              },
+              {
+                "id": "Behavior#connect",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Physics.world"
+                        ],
+                        "description": " The world to connect to\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Physics.world"
+                    ],
+                    "description": " The world to connect to\n\n     "
+                  }
+                ],
+                "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+                "short_description": "Connect to a world.\n",
+                "line": 96,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "connect",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.connect",
+                "outFile": "behavior.html#Behavior.prototype.connect"
+              },
+              {
+                "id": "Behavior#disconnect",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Physics.world"
+                        ],
+                        "description": " The world to disconnect from\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Physics.world"
+                    ],
+                    "description": " The world to disconnect from\n\n     "
+                  }
+                ],
+                "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+                "short_description": "Disconnect from a world.\n",
+                "line": 112,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "disconnect",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.disconnect",
+                "outFile": "behavior.html#Behavior.prototype.disconnect"
+              },
+              {
+                "id": "Behavior#getTargets",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [],
+                    "returns": [
+                      {
+                        "type": "Array"
+                      }
+                    ]
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Array",
+                    "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+                  }
+                ],
+                "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+                "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+                "line": 59,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "getTargets",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.getTargets",
+                "outFile": "behavior.html#Behavior.prototype.getTargets"
+              },
+              {
+                "id": "Behavior#init",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "options",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The configuration options passed by the factory\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "options",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The configuration options passed by the factory\n\n     "
+                  }
+                ],
+                "internal": true,
+                "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+                "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+                "line": 43,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "init",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.init",
+                "outFile": "behavior.html#Behavior.prototype.init"
+              },
+              {
+                "id": "Behavior#setWorld",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The world (or null)\n\n     "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this"
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The world (or null)\n\n     "
+                  }
+                ],
+                "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+                "short_description": "Set which world to apply to.\n",
+                "line": 72,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "setWorld",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.setWorld",
+                "outFile": "behavior.html#Behavior.prototype.setWorld"
+              }
+            ],
+            "file": "src/core/behavior.js",
+            "subclasses": [],
+            "name": "Behavior",
+            "path": "Behavior",
+            "outFile": "behavior.html"
+          }
+        ],
+        "file": "src/intro.js",
+        "name": "Classes",
+        "path": "Classes",
+        "outFile": "intro.html#Classes"
       },
       {
         "id": "Physics",
@@ -4191,6 +7779,63 @@
         ],
         "children": [
           {
+            "id": "Physics.behavior",
+            "type": "class method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "name",
+                    "types": [
+                      "String"
+                    ],
+                    "description": " The name of the behavior to create\n\n "
+                  },
+                  {
+                    "name": "options",
+                    "optional": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The configuration for that behavior ( depends on behavior )\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Behavior"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "name",
+                "types": [
+                  "String"
+                ],
+                "description": " The name of the behavior to create\n\n "
+              },
+              {
+                "name": "options",
+                "types": [
+                  "Object"
+                ],
+                "description": " The configuration for that behavior ( depends on behavior )\n\n "
+              }
+            ],
+            "related_to": "Physics.util.decorator",
+            "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
+            "short_description": "Factory function for creating Behaviors.\n",
+            "line": 17,
+            "aliases": [],
+            "children": [],
+            "file": "src/core/behavior.js",
+            "name": "behavior",
+            "name_prefix": "Physics.",
+            "path": "Physics.behavior",
+            "outFile": "behavior.html#Physics.behavior"
+          },
+          {
             "id": "Physics.noConflict",
             "type": "class method",
             "signatures": [
@@ -4203,9 +7848,9 @@
                 ]
               }
             ],
-            "description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-            "short_description": "Restore the original reference to the global window.Physics variable.\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
-            "line": 11,
+            "description": "Restore the original reference to the global window.Physics variable.\n\nDoes nothing if PhysicsJS doesn't have a reference in global scope",
+            "short_description": "Restore the original reference to the global window.Physics variable.\n",
+            "line": 12,
             "aliases": [],
             "children": [],
             "file": "src/util/noconflict.js",
@@ -4410,6 +8055,643 @@
                 "name_prefix": "Physics.util.",
                 "path": "Physics.util.options",
                 "outFile": "helpers.html#Physics.util.options"
+              },
+              {
+                "id": "Physics.util.pubsub",
+                "type": "class",
+                "description": "Fast pubsub implementation.\n\nCan be mixed into other classes easily.",
+                "short_description": "Fast pubsub implementation.\n",
+                "line": 10,
+                "aliases": [],
+                "children": [
+                  {
+                    "id": "Physics.util.pubsub#emit",
+                    "type": "instance method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "topic",
+                            "types": [
+                              "String"
+                            ],
+                            "description": " The topic name\n\n     "
+                          },
+                          {
+                            "name": "data",
+                            "optional": true,
+                            "types": [
+                              "Mixed"
+                            ],
+                            "description": " The data to send\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "topic",
+                        "types": [
+                          "String"
+                        ],
+                        "description": " The topic name\n\n     "
+                      },
+                      {
+                        "name": "data",
+                        "types": [
+                          "Mixed"
+                        ],
+                        "description": " The data to send\n\n     "
+                      }
+                    ],
+                    "description": "Publish data to a topic.",
+                    "short_description": "Publish data to a topic.",
+                    "line": 146,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/pubsub.js",
+                    "name": "emit",
+                    "name_prefix": "Physics.util.pubsub#",
+                    "path": "Physics.util.pubsub.prototype.emit",
+                    "outFile": "pubsub.html#Physics.util.pubsub.prototype.emit"
+                  },
+                  {
+                    "id": "Physics.util.pubsub#off",
+                    "type": "instance method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "topic",
+                            "types": [
+                              "String"
+                            ],
+                            "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                          },
+                          {
+                            "name": "fn",
+                            "types": [
+                              "Function"
+                            ],
+                            "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      },
+                      {
+                        "arguments": [
+                          {
+                            "name": "topicCfg",
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "topic",
+                        "types": [
+                          "String"
+                        ],
+                        "description": " topic The topic name. Specify `true` to remove all listeners for all topics\n\n     "
+                      },
+                      {
+                        "name": "topicCfg",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                      },
+                      {
+                        "name": "fn",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                      }
+                    ],
+                    "description": "Unsubscribe callback(s) from topic(s).",
+                    "short_description": "Unsubscribe callback(s) from topic(s).",
+                    "line": 85,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/pubsub.js",
+                    "name": "off",
+                    "name_prefix": "Physics.util.pubsub#",
+                    "path": "Physics.util.pubsub.prototype.off",
+                    "outFile": "pubsub.html#Physics.util.pubsub.prototype.off"
+                  },
+                  {
+                    "id": "Physics.util.pubsub#on",
+                    "type": "instance method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "topic",
+                            "types": [
+                              "String"
+                            ],
+                            "description": " The topic name\n\n     "
+                          },
+                          {
+                            "name": "fn",
+                            "arguments": [
+                              {
+                                "name": "data"
+                              },
+                              {
+                                "name": "event"
+                              }
+                            ],
+                            "callback": true,
+                            "types": [
+                              "Function"
+                            ],
+                            "description": " The callback function (if not using Object as previous argument)\n\n     "
+                          },
+                          {
+                            "name": "scope",
+                            "optional": true,
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " The scope to bind callback to\n\n     "
+                          },
+                          {
+                            "name": "priority",
+                            "optional": true,
+                            "types": [
+                              "Number"
+                            ],
+                            "description": " The priority of the callback (higher is earlier)\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      },
+                      {
+                        "arguments": [
+                          {
+                            "name": "topicConfig",
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                          },
+                          {
+                            "name": "scope",
+                            "optional": true,
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " The scope to bind callback to\n\n     "
+                          },
+                          {
+                            "name": "priority",
+                            "optional": true,
+                            "types": [
+                              "Number"
+                            ],
+                            "description": " The priority of the callback (higher is earlier)\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "topic",
+                        "types": [
+                          "String"
+                        ],
+                        "description": " The topic name\n\n     "
+                      },
+                      {
+                        "name": "topicConfig",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                      },
+                      {
+                        "name": "fn",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " The callback function (if not using Object as previous argument)\n\n     "
+                      },
+                      {
+                        "name": "data",
+                        "types": [
+                          "Mixed"
+                        ],
+                        "description": " The data sent from the call to `.emit()`\n\n     "
+                      },
+                      {
+                        "name": "event",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                      },
+                      {
+                        "name": "scope",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The scope to bind callback to\n\n     "
+                      },
+                      {
+                        "name": "priority",
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " The priority of the callback (higher is earlier)\n\n     "
+                      }
+                    ],
+                    "description": "Subscribe callback(s) to a topic(s).",
+                    "short_description": "Subscribe callback(s) to a topic(s).",
+                    "line": 32,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/pubsub.js",
+                    "name": "on",
+                    "name_prefix": "Physics.util.pubsub#",
+                    "path": "Physics.util.pubsub.prototype.on",
+                    "outFile": "pubsub.html#Physics.util.pubsub.prototype.on"
+                  },
+                  {
+                    "id": "Physics.util.pubsub#one",
+                    "type": "instance method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "topic",
+                            "types": [
+                              "String"
+                            ],
+                            "description": " The topic name\n\n     "
+                          },
+                          {
+                            "name": "fn",
+                            "arguments": [
+                              {
+                                "name": "data"
+                              },
+                              {
+                                "name": "event"
+                              }
+                            ],
+                            "callback": true,
+                            "types": [
+                              "Function"
+                            ],
+                            "description": " The callback function (if not using Object as previous argument)\n\n     "
+                          },
+                          {
+                            "name": "scope",
+                            "optional": true,
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " The scope to bind callback to\n\n     "
+                          },
+                          {
+                            "name": "priority",
+                            "optional": true,
+                            "types": [
+                              "Number"
+                            ],
+                            "description": " The priority of the callback (higher is earlier)\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      },
+                      {
+                        "arguments": [
+                          {
+                            "name": "topicConfig",
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                          },
+                          {
+                            "name": "scope",
+                            "optional": true,
+                            "types": [
+                              "Object"
+                            ],
+                            "description": " The scope to bind callback to\n\n     "
+                          },
+                          {
+                            "name": "priority",
+                            "optional": true,
+                            "types": [
+                              "Number"
+                            ],
+                            "description": " The priority of the callback (higher is earlier)\n\n     "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "topic",
+                        "types": [
+                          "String"
+                        ],
+                        "description": " The topic name\n\n     "
+                      },
+                      {
+                        "name": "topicConfig",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " A config with key/value pairs of `{ topic: callbackFn, ... }`\n\n     "
+                      },
+                      {
+                        "name": "fn",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " The callback function (if not using Object as previous argument)\n\n     "
+                      },
+                      {
+                        "name": "data",
+                        "types": [
+                          "Mixed"
+                        ],
+                        "description": " The data sent from the call to `.emit()`\n\n     "
+                      },
+                      {
+                        "name": "event",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.\n\n     "
+                      },
+                      {
+                        "name": "scope",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The scope to bind callback to\n\n     "
+                      },
+                      {
+                        "name": "priority",
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " The priority of the callback (higher is earlier)\n\n     "
+                      }
+                    ],
+                    "description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+                    "short_description": "Subscribe callback(s) to a topic(s), but only ONCE.",
+                    "line": 197,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/pubsub.js",
+                    "name": "one",
+                    "name_prefix": "Physics.util.pubsub#",
+                    "path": "Physics.util.pubsub.prototype.one",
+                    "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
+                  }
+                ],
+                "file": "src/util/pubsub.js",
+                "subclasses": [],
+                "name": "pubsub",
+                "name_prefix": "Physics.util.",
+                "path": "Physics.util.pubsub",
+                "outFile": "pubsub.html"
+              },
+              {
+                "id": "Physics.util.ticker",
+                "type": "class",
+                "description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n\nRequires window.requestAnimationFrame... so polyfill it if you need to.",
+                "short_description": "The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).\n",
+                "line": 8,
+                "aliases": [],
+                "children": [
+                  {
+                    "id": "Physics.util.ticker.isActive",
+                    "type": "class method",
+                    "signatures": [
+                      {
+                        "arguments": [],
+                        "returns": [
+                          {
+                            "type": "Boolean"
+                          }
+                        ]
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Boolean",
+                        "description": " `true` if running, `false` otherwise.\n\n "
+                      }
+                    ],
+                    "description": "Determine if ticker is currently running.",
+                    "short_description": "Determine if ticker is currently running.",
+                    "line": 92,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/ticker.js",
+                    "name": "isActive",
+                    "name_prefix": "Physics.util.ticker.",
+                    "path": "Physics.util.ticker.isActive",
+                    "outFile": "ticker.html#Physics.util.ticker.isActive"
+                  },
+                  {
+                    "id": "Physics.util.ticker.off",
+                    "type": "class method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "listener",
+                            "types": [
+                              "Function"
+                            ],
+                            "description": " The callback function previously bound\n\n "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "listener",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " The callback function previously bound\n\n "
+                      }
+                    ],
+                    "description": "Unsubscribe a callback from the ticker.",
+                    "short_description": "Unsubscribe a callback from the ticker.",
+                    "line": 80,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/ticker.js",
+                    "name": "off",
+                    "name_prefix": "Physics.util.ticker.",
+                    "path": "Physics.util.ticker.off",
+                    "outFile": "ticker.html#Physics.util.ticker.off"
+                  },
+                  {
+                    "id": "Physics.util.ticker.on",
+                    "type": "class method",
+                    "signatures": [
+                      {
+                        "arguments": [
+                          {
+                            "name": "listener",
+                            "arguments": [
+                              {
+                                "name": "time",
+                                "description": " The current timestamp\n\n ",
+                                "types": [
+                                  "Number"
+                                ]
+                              }
+                            ],
+                            "callback": true,
+                            "types": [
+                              "Function"
+                            ],
+                            "description": " The callback function\n\n "
+                          }
+                        ],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "arguments": [
+                      {
+                        "name": "listener",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " The callback function\n\n "
+                      },
+                      {
+                        "name": "time",
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " The current timestamp\n\n "
+                      }
+                    ],
+                    "description": "Subscribe a callback to the ticker.",
+                    "short_description": "Subscribe a callback to the ticker.",
+                    "line": 68,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/ticker.js",
+                    "name": "on",
+                    "name_prefix": "Physics.util.ticker.",
+                    "path": "Physics.util.ticker.on",
+                    "outFile": "ticker.html#Physics.util.ticker.on"
+                  },
+                  {
+                    "id": "Physics.util.ticker.start",
+                    "type": "class method",
+                    "signatures": [
+                      {
+                        "arguments": [],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "description": "Start the ticker",
+                    "short_description": "Start the ticker",
+                    "line": 43,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/ticker.js",
+                    "name": "start",
+                    "name_prefix": "Physics.util.ticker.",
+                    "path": "Physics.util.ticker.start",
+                    "outFile": "ticker.html#Physics.util.ticker.start"
+                  },
+                  {
+                    "id": "Physics.util.ticker.stop",
+                    "type": "class method",
+                    "signatures": [
+                      {
+                        "arguments": [],
+                        "returns": [
+                          {
+                            "type": "this"
+                          }
+                        ]
+                      }
+                    ],
+                    "description": "Stop the ticker",
+                    "short_description": "Stop the ticker",
+                    "line": 55,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/util/ticker.js",
+                    "name": "stop",
+                    "name_prefix": "Physics.util.ticker.",
+                    "path": "Physics.util.ticker.stop",
+                    "outFile": "ticker.html#Physics.util.ticker.stop"
+                  }
+                ],
+                "file": "src/util/ticker.js",
+                "subclasses": [],
+                "name": "ticker",
+                "name_prefix": "Physics.util.",
+                "path": "Physics.util.ticker",
+                "outFile": "ticker.html"
               }
             ],
             "file": "src/intro.js",
@@ -5529,6 +9811,123 @@
         "name": "Physics",
         "path": "Physics",
         "outFile": "intro.html#Physics"
+      },
+      {
+        "id": "Special",
+        "type": "namespace",
+        "description": "",
+        "short_description": "",
+        "line": 55,
+        "aliases": [],
+        "children": [
+          {
+            "id": "factory",
+            "type": "method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "name",
+                    "types": [
+                      "String"
+                    ],
+                    "description": "  The class name\n\n "
+                  },
+                  {
+                    "name": "parentName",
+                    "optional": true,
+                    "types": [
+                      "String"
+                    ],
+                    "description": " The name of parent class to extend\n\n "
+                  },
+                  {
+                    "name": "decorator",
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
+                  },
+                  {
+                    "name": "cfg",
+                    "optional": true,
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The configuration to pass to the class initializer\n\n "
+                  }
+                ]
+              },
+              {
+                "arguments": [
+                  {
+                    "name": "name",
+                    "types": [
+                      "String"
+                    ],
+                    "description": "  The class name\n\n "
+                  },
+                  {
+                    "name": "cfg",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The configuration to pass to the class initializer\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "name",
+                "types": [
+                  "String"
+                ],
+                "description": "  The class name\n\n "
+              },
+              {
+                "name": "parentName",
+                "types": [
+                  "String"
+                ],
+                "description": " The name of parent class to extend\n\n "
+              },
+              {
+                "name": "decorator",
+                "types": [
+                  "Function"
+                ],
+                "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
+              },
+              {
+                "name": "cfg",
+                "types": [
+                  "Object"
+                ],
+                "description": " The configuration to pass to the class initializer\n\n "
+              }
+            ],
+            "belongs_to": "Special",
+            "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
+            "short_description": "Factory function for definition and instantiation of subclasses.\n",
+            "line": 129,
+            "aliases": [],
+            "children": [],
+            "file": "src/util/decorator.js",
+            "name": "factory",
+            "path": "factory",
+            "outFile": "decorator.html#factory"
+          }
+        ],
+        "file": "src/intro.js",
+        "name": "Special",
+        "path": "Special",
+        "outFile": "intro.html#Special"
       }
     ]
   }

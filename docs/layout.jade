@@ -1,7 +1,7 @@
 mixin toc( item )
   if item.children && item.children.length
     ul
-      each ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
+      each ch in item.children.sort(function( a, b ){ return a.id === 'Physics' ? -1 : b.id === 'Physics' ? 1 : a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
         li
           if ch.path
             a(href='#'+ch.path)
@@ -165,18 +165,14 @@ html
       +toc(tree)
 
     section#main
-      //- first one is PhysicsJS namespace
-      +doc(tree.children[0], 1, false)
-
-      each mainItem in tree.children[0].children
-        +doc(mainItem)
-
-      section
-        h1 Special types
-        p Special types returned by various PhysicsJS methods.
-      each others,i in tree.children
-        if i !== 0
-          +doc(others, 2)      
+      //- get PhysicsJS namespace first
+      - var physicsjs = tree.children.filter(function( a ){ return a.id === 'Physics'; })[0]
+      +doc(physicsjs)
+      
+      //- others
+      - var others = tree.children.filter(function( a ){ return a.id !== 'Physics'; });
+      each mainItem in others
+        +doc(mainItem) 
 
     //- Foundation JS
     //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')

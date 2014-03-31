@@ -10,7 +10,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color:#232323;
-  margin:36px 0 10px;
+  margin:0.5em 0;
 }
 
 p, ul, ol, table, dl {
@@ -271,6 +271,10 @@ pre {
   padding: 0;
   margin-left: 2em;
   font-style: normal;
+}
+
+#main .doc .signatures .arguments-desc dd .arguments-desc {
+  margin-bottom: 2em;
 }
 
 #main .doc .signatures .arguments-desc .title,

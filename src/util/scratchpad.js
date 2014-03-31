@@ -1,4 +1,4 @@
-/**
+/*
  * scratchpad
  * thread-safe management of temporary (voletile)
  * objects for use in calculations
@@ -37,7 +37,7 @@
 
     ScratchCls.prototype = {
 
-        /**
+        /*
          * Declare that your work is finished. Release temp objects for use elsewhere. Must be called when immediate work is done.
          */
         done: function(){
@@ -48,7 +48,7 @@
             scratches.push(this);
         },
 
-        /**
+        /*
          * Get a temporary object (dirty)
          * @return {Object} The temporary (dirty) object
          */
@@ -67,7 +67,7 @@
             return stack[ this.objIndex++ ] || stack[ stack.push({}) - 1 ];
         },
 
-        /**
+        /*
          * Get a temporary array.
          * @return {Array} Temporary (dirty) array
          */
@@ -86,7 +86,7 @@
             return stack[ this.arrIndex++ ] || stack[ stack.push([]) - 1 ];
         },
 
-        /**
+        /*
          * Get a temporary Vector
          * @return {Vector} The temporary (dirty) vector.
          */
@@ -105,7 +105,7 @@
             return stack[ this.vectorIndex++ ] || stack[ stack.push(Physics.vector()) - 1 ];
         },
 
-        /**
+        /*
          * Get a temporary AABB
          * @return {AABB} The temporary (dirty) AABB
          */
@@ -124,7 +124,7 @@
             return stack[ this.aabbIndex++ ] || stack[ stack.push(Physics.aabb()) - 1 ];
         },
 
-        /**
+        /*
          * Get a temporary Transform
          * @return {Transform} The temporary (dirty) transform
          */
@@ -144,7 +144,7 @@
         }
     };
     
-    /**
+    /*
      * Get a new scratchpad to work from. Call .done() when finished.
      * @return {ScratchCls} The scratchpad
      */

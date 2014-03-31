@@ -4,13 +4,29 @@
         priority: 0
     };
 
-    // Service
+    /** related to: Physics.util.decorator
+     * Physics.behavior( name[, options] ) -> Behavior
+     * - name (String): The name of the behavior to create
+     * - options (Object): The configuration for that behavior ( depends on behavior )
+     *
+     * Factory function for creating Behaviors.
+     *
+     * Visit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)
+     * for usage documentation.
+     **/
     Physics.behavior = Decorator('behavior', {
 
-        /**
-         * Initialization
-         * @param  {Object} options Config options passed by initializer
-         * @return {void}
+        /** belongs to: Classes
+         * class Behavior
+         *
+         * The base class for behaviors created by [[Physics.behavior]].
+         **/
+
+        /** internal
+         * Behavior#init( options )
+         * - options (Object): The configuration options passed by the factory
+         * 
+         * Initialization. Internal use.
          */
         init: function( options ){
             
@@ -19,10 +35,11 @@
         },
 
         /**
-         * Apply the behavior to a group of bodies
-         * @param  {Array} arr Array of bodies to apply to OR set to true to apply to all bodies in world
-         * @return {self}
-         */
+         * Behavior#applyTo( arr ) -> this
+         * - arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.
+         * 
+         * Apply the behavior to a group of bodies.
+         **/
         applyTo: function( arr ){
 
             if ( arr === true ){
@@ -34,19 +51,24 @@
         },
 
         /**
+         * Behavior#getTargets() -> Array
+         * + (Array): The array of bodies (by reference!) this behavior is applied to.
+         * 
          * Get the array of bodies (by reference!) this behavior is applied to.
-         * @return {Array} Array of bodies the behavior applies to
-         */
+         **/
         getTargets: function(){
             
             return this._targets || ( this._world ? this._world._bodies : [] );
         },
 
         /**
-         * Set which world to apply to
-         * @param {Object} world The world (or null)
-         * @return {self}
-         */
+         * Behavior#setWorld( world ) -> this
+         * - world (Object): The world (or null)
+         *
+         * Set which world to apply to.
+         *
+         * Usually this is called internally. Shouldn't be a need to call this yourself usually.
+         **/
         setWorld: function( world ){
 
             if ( this.disconnect && this._world ){
@@ -63,10 +85,14 @@
         },
 
         /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+         * Behavior#connect( world )
+         * - world (Physics.world): The world to connect to
+         * 
+         * Connect to a world.
+         *
+         * Extend this when creating behaviors if you need to specify pubsub management.
+         * Automatically called when added to world by the [[Behavior#setWorld]] method.
+         **/
         connect: function( world ){
 
             if (this.behave){
@@ -75,10 +101,14 @@
         },
 
         /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+         * Behavior#disconnect( world )
+         * - world (Physics.world): The world to disconnect from
+         * 
+         * Disconnect from a world.
+         *
+         * Extend this when creating behaviors if you need to specify pubsub management.
+         * Automatically called when added to world by the [[Behavior#setWorld]] method.
+         **/
         disconnect: function( world ){
 
             if (this.behave){
@@ -87,11 +117,14 @@
         },
 
         /**
-         * Default method run on every world integration
-         * @abstract
-         * @param  {Object} data Object containing event data, including: data.bodies = Array of world bodies to act on, data.dt = the timestep size
-         * @return {void}
-         */
+         * Behavior#behave( data )
+         * - data (Object): The pubsub `integrate:positions` event data
+         * 
+         * Default method run on every world integration.
+         *
+         * You _must_ extend this when creating a behavior,
+         * unless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.
+         **/
         behave: null
     });
 
