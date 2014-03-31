@@ -171,8 +171,11 @@ Physics.behavior('body-collision-detection', function( parent ){
      */
     var checkPair = function checkPair( bodyA, bodyB ){
 
-        // don't detect two fixed bodies
-        if ( bodyA.fixed && bodyB.fixed ){
+        // filter out bodies that don't collide with each other
+        if ( 
+            ( bodyA.treatment === 'static' || bodyA.treatment === 'kinematic' ) &&
+            ( bodyB.treatment === 'static' || bodyB.treatment === 'kinematic' )
+        ){
             return false;
         }
 

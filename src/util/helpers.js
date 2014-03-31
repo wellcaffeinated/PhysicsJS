@@ -27,7 +27,7 @@ Physics.util.indexOf = function indexOf(arr, value) {
  */
 Physics.util.options = function( def, target, callback ){
 
-    var _def = Physics.util.extend( {}, def )
+    var _def = {}
         ,fn
         ,callbacks = []
         ;
@@ -35,7 +35,7 @@ Physics.util.options = function( def, target, callback ){
     // set options
     fn = function fn( options ){
 
-        Physics.util.extend(target, _def, options);
+        Physics.util.extend(target, options, null);
         for ( var i = 0, l = callbacks.length; i < l; ++i ){
             callbacks[ i ]( target );
         }
@@ -44,7 +44,9 @@ Physics.util.options = function( def, target, callback ){
 
     // add defaults
     fn.defaults = function defaults( def ){
-        return Physics.util.extend( _def, def );
+        Physics.util.extend( _def, def );
+        Physics.util.defaults( target, _def );
+        return _def;
     };
 
     fn.onChange = function( cb ){
@@ -52,6 +54,8 @@ Physics.util.options = function( def, target, callback ){
     };
 
     target = target || fn;
+
+    fn.defaults( def );
 
     return fn;
 };

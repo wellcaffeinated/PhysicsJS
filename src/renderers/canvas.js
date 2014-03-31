@@ -266,7 +266,7 @@ Physics.renderer('canvas', function( proto ){
          */
         createView: function( geometry, styles ){
 
-            var view = new Image()
+            var view
                 ,aabb = geometry.aabb()
                 ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
                 ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
@@ -278,6 +278,19 @@ Physics.renderer('canvas', function( proto ){
                 ;
 
             styles = styles || this.options.styles[ name ];
+
+            // must want an image
+            if ( styles.src ){
+                view = new Image();
+                view.src = styles.src;
+                if ( styles.width ){
+                    view.width = styles.width;
+                }
+                if ( styles.height ){
+                    view.height = styles.height;
+                }
+                return view;
+            }
 
             x += styles.lineWidth | 0;
             y += styles.lineWidth | 0;
@@ -310,9 +323,8 @@ Physics.renderer('canvas', function( proto ){
 
             hiddenCtx.restore();
 
-            view.src = hiddenCanvas.toDataURL("image/png");
-            view.width = hiddenCanvas.width;
-            view.height = hiddenCanvas.height;
+            view = new Image( hiddenCanvas.width, hiddenCanvas.height );
+            view.src = hiddenCanvas.toDataURL('image/png');
             return view;
         },
 
@@ -344,13 +356,14 @@ Physics.renderer('canvas', function( proto ){
          * @param  {Image} view The view for that body
          * @return {void}
          */
-        drawBody: function( body, view ){
+        drawBody: function( body, view, ctx, offset ){
 
-            var ctx = this.ctx
-                ,pos = body.state.pos
-                ,offset = this.options.offset
+            var pos = body.state.pos
                 ,aabb = body.aabb()
                 ;
+
+            offset = offset || this.options.offset;
+            ctx = ctx || this.ctx;
 
             ctx.save();
             ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
@@ -360,10 +373,10 @@ Physics.renderer('canvas', function( proto ){
 
             if ( this.options.debug ){
                 // draw bounding boxes
-                this.drawRect( aabb.pos.x, aabb.pos.y, 2 * aabb.x, 2 * aabb.y, 'rgba(100, 255, 100, 0.3)' );
+                this.drawRect( aabb.pos.x, aabb.pos.y, 2 * aabb.x, 2 * aabb.y, 'rgba(0, 0, 255, 0.3)' );
                 
                 // draw also paths
-                body._debugView = body._debugView || this.createView(body.geometry, 'rgba(0, 255, 0, 0.5)');
+                body._debugView = body._debugView || this.createView(body.geometry, 'rgba(255, 0, 0, 0.5)');
                 ctx.save();
                 ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
                 ctx.rotate(body.state.angular.pos);

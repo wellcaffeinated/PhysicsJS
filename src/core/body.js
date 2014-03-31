@@ -4,8 +4,9 @@
 
         // is the body hidden (not to be rendered)?
         hidden: false,
-        // is the body fixed and imovable?
-        fixed: false,
+        // is the body `dynamic`, `kinematic` or `static`?
+        // http://www.box2d.org/manual.html#_Toc258082973
+        treatment: 'dynamic',
         // body mass
         mass: 1.0,
         // body restitution. How "bouncy" is it?
@@ -96,7 +97,10 @@
          */
         accelerate: function( acc ){
 
-            this.state.acc.vadd( acc );
+            if ( this.treatment === 'dynamic' ){
+                this.state.acc.vadd( acc );
+            }
+            
             return this;
         },
 
@@ -107,6 +111,10 @@
          * @return {this}
          */
         applyForce: function( force, p ){
+
+            if ( this.treatment !== 'dynamic' ){
+                return this;
+            }
 
             var scratch = Physics.scratchpad()
                 ,r = scratch.vector()
