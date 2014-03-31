@@ -281,8 +281,14 @@ Physics.renderer('canvas', function( proto ){
 
             // must want an image
             if ( styles.src ){
-                view = new Image( styles.width, styles.height );
+                view = new Image();
                 view.src = styles.src;
+                if ( styles.width ){
+                    view.width = styles.width;
+                }
+                if ( styles.height ){
+                    view.height = styles.height;
+                }
                 return view;
             }
 
