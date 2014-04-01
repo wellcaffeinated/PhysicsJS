@@ -2,9 +2,9 @@ mixin toc( item )
   if item.children && item.children.length
     ul
       each ch in item.children.sort(function( a, b ){ return a.id === 'Physics' ? -1 : b.id === 'Physics' ? 1 : a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
-        li
+        li(class=ch.type.replace(' ', '-'))
           if ch.path
-            a(href='#'+ch.path)
+            a.item(href='#'+attrClean(ch.path))
               +title(ch)
           +toc( ch )
 
@@ -103,10 +103,10 @@ mixin signatures( item )
 
 mixin doc( item, level, recurse )
   -var level = level || 1
-  article.doc
+  article.doc(class=item.type.replace(' ', '-'))
     header
       !='<h'+level+' class="title">'
-      a(id=item.path, href='#'+item.path)
+      a(id=attrClean(item.path), href='#'+attrClean(item.path))
         +title( item )
       if item.alias_of
         small.aliases
@@ -126,7 +126,7 @@ mixin doc( item, level, recurse )
     
     if item.related_to
       | Related to: 
-      a.related(href='#'+getPath(item.related_to))
+      a.related(href='#'+attrClean(getPath(item.related_to)))
         !=item.related_to
 
     p.file='source: '
@@ -161,10 +161,12 @@ html
 
   body
     
-    nav.toc
-      +toc(tree)
-
     section#main
+
+      nav.toc
+        h1 Contents
+        +toc(tree)
+
       //- get PhysicsJS namespace first
       - var physicsjs = tree.children.filter(function( a ){ return a.id === 'Physics'; })[0]
       +doc(physicsjs)
@@ -176,10 +178,7 @@ html
 
     //- Foundation JS
     //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')
-    script(type='text/javascript').
-      document.write('<script src=' +
-      ('__proto__' in {} ? 'http://cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min' : 'http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min') +
-      '.js><\/script>')
+    script(type='text/javascript', src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js')
 
     //script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation/foundation.reveal.min.js')
 

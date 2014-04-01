@@ -46,9 +46,9 @@ var Physics = function Physics(){
 Physics.util = {};
 
 /**
- * Classes
+ * == Classes ==
  **/
 
 /**
- * Special
+ * == Special ==
  **/

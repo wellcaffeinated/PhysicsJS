@@ -16,7 +16,7 @@
      **/
     Physics.behavior = Decorator('behavior', {
 
-        /** belongs to: Classes
+        /** section: Classes
          * class Behavior
          *
          * The base class for behaviors created by [[Physics.behavior]].

@@ -71,7 +71,6 @@
     "Behavior": {
       "id": "Behavior",
       "type": "class",
-      "belongs_to": "Classes",
       "description": "The base class for behaviors created by [[Physics.behavior]].",
       "short_description": "The base class for behaviors created by [[Physics.behavior]].",
       "line": 24,
@@ -299,222 +298,6 @@
       "name": "Behavior",
       "path": "Behavior",
       "outFile": "behavior.html"
-    },
-    "Behavior#init": {
-      "id": "Behavior#init",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [
-            {
-              "name": "options",
-              "types": [
-                "Object"
-              ],
-              "description": " The configuration options passed by the factory\n\n     "
-            }
-          ]
-        }
-      ],
-      "arguments": [
-        {
-          "name": "options",
-          "types": [
-            "Object"
-          ],
-          "description": " The configuration options passed by the factory\n\n     "
-        }
-      ],
-      "internal": true,
-      "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
-      "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-      "line": 43,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "init",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.init",
-      "outFile": "behavior.html#Behavior.prototype.init"
-    },
-    "Behavior#getTargets": {
-      "id": "Behavior#getTargets",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [],
-          "returns": [
-            {
-              "type": "Array"
-            }
-          ]
-        }
-      ],
-      "returns": [
-        {
-          "type": "Array",
-          "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
-        }
-      ],
-      "description": "Get the array of bodies (by reference!) this behavior is applied to.",
-      "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-      "line": 59,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "getTargets",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.getTargets",
-      "outFile": "behavior.html#Behavior.prototype.getTargets"
-    },
-    "Behavior#setWorld": {
-      "id": "Behavior#setWorld",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [
-            {
-              "name": "world",
-              "types": [
-                "Object"
-              ],
-              "description": " The world (or null)\n\n     "
-            }
-          ],
-          "returns": [
-            {
-              "type": "this"
-            }
-          ]
-        }
-      ],
-      "arguments": [
-        {
-          "name": "world",
-          "types": [
-            "Object"
-          ],
-          "description": " The world (or null)\n\n     "
-        }
-      ],
-      "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
-      "short_description": "Set which world to apply to.\n",
-      "line": 72,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "setWorld",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.setWorld",
-      "outFile": "behavior.html#Behavior.prototype.setWorld"
-    },
-    "Behavior#connect": {
-      "id": "Behavior#connect",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [
-            {
-              "name": "world",
-              "types": [
-                "Physics.world"
-              ],
-              "description": " The world to connect to\n\n     "
-            }
-          ]
-        }
-      ],
-      "arguments": [
-        {
-          "name": "world",
-          "types": [
-            "Physics.world"
-          ],
-          "description": " The world to connect to\n\n     "
-        }
-      ],
-      "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-      "short_description": "Connect to a world.\n",
-      "line": 96,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "connect",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.connect",
-      "outFile": "behavior.html#Behavior.prototype.connect"
-    },
-    "Behavior#disconnect": {
-      "id": "Behavior#disconnect",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [
-            {
-              "name": "world",
-              "types": [
-                "Physics.world"
-              ],
-              "description": " The world to disconnect from\n\n     "
-            }
-          ]
-        }
-      ],
-      "arguments": [
-        {
-          "name": "world",
-          "types": [
-            "Physics.world"
-          ],
-          "description": " The world to disconnect from\n\n     "
-        }
-      ],
-      "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-      "short_description": "Disconnect from a world.\n",
-      "line": 112,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "disconnect",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.disconnect",
-      "outFile": "behavior.html#Behavior.prototype.disconnect"
-    },
-    "Behavior#behave": {
-      "id": "Behavior#behave",
-      "type": "instance method",
-      "signatures": [
-        {
-          "arguments": [
-            {
-              "name": "data",
-              "types": [
-                "Object"
-              ],
-              "description": " The pubsub `integrate:positions` event data\n\n     "
-            }
-          ]
-        }
-      ],
-      "arguments": [
-        {
-          "name": "data",
-          "types": [
-            "Object"
-          ],
-          "description": " The pubsub `integrate:positions` event data\n\n     "
-        }
-      ],
-      "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
-      "short_description": "Default method run on every world integration.\n",
-      "line": 128,
-      "aliases": [],
-      "children": [],
-      "file": "src/core/behavior.js",
-      "name": "behave",
-      "name_prefix": "Behavior#",
-      "path": "Behavior.prototype.behave",
-      "outFile": "behavior.html#Behavior.prototype.behave"
     },
     "Physics.world": {
       "id": "Physics.world",
@@ -5597,369 +5380,6 @@
       "path": "Physics.util",
       "outFile": "intro.html#Physics.util"
     },
-    "Classes": {
-      "id": "Classes",
-      "type": "namespace",
-      "description": "",
-      "short_description": "",
-      "line": 51,
-      "aliases": [],
-      "children": [
-        {
-          "id": "Behavior",
-          "type": "class",
-          "belongs_to": "Classes",
-          "description": "The base class for behaviors created by [[Physics.behavior]].",
-          "short_description": "The base class for behaviors created by [[Physics.behavior]].",
-          "line": 24,
-          "aliases": [],
-          "children": [
-            {
-              "id": "Behavior#behave",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [
-                    {
-                      "name": "data",
-                      "types": [
-                        "Object"
-                      ],
-                      "description": " The pubsub `integrate:positions` event data\n\n     "
-                    }
-                  ]
-                }
-              ],
-              "arguments": [
-                {
-                  "name": "data",
-                  "types": [
-                    "Object"
-                  ],
-                  "description": " The pubsub `integrate:positions` event data\n\n     "
-                }
-              ],
-              "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
-              "short_description": "Default method run on every world integration.\n",
-              "line": 128,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "behave",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.behave",
-              "outFile": "behavior.html#Behavior.prototype.behave"
-            },
-            {
-              "id": "Behavior#connect",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [
-                    {
-                      "name": "world",
-                      "types": [
-                        "Physics.world"
-                      ],
-                      "description": " The world to connect to\n\n     "
-                    }
-                  ]
-                }
-              ],
-              "arguments": [
-                {
-                  "name": "world",
-                  "types": [
-                    "Physics.world"
-                  ],
-                  "description": " The world to connect to\n\n     "
-                }
-              ],
-              "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-              "short_description": "Connect to a world.\n",
-              "line": 96,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "connect",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.connect",
-              "outFile": "behavior.html#Behavior.prototype.connect"
-            },
-            {
-              "id": "Behavior#disconnect",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [
-                    {
-                      "name": "world",
-                      "types": [
-                        "Physics.world"
-                      ],
-                      "description": " The world to disconnect from\n\n     "
-                    }
-                  ]
-                }
-              ],
-              "arguments": [
-                {
-                  "name": "world",
-                  "types": [
-                    "Physics.world"
-                  ],
-                  "description": " The world to disconnect from\n\n     "
-                }
-              ],
-              "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-              "short_description": "Disconnect from a world.\n",
-              "line": 112,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "disconnect",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.disconnect",
-              "outFile": "behavior.html#Behavior.prototype.disconnect"
-            },
-            {
-              "id": "Behavior#getTargets",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [],
-                  "returns": [
-                    {
-                      "type": "Array"
-                    }
-                  ]
-                }
-              ],
-              "returns": [
-                {
-                  "type": "Array",
-                  "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
-                }
-              ],
-              "description": "Get the array of bodies (by reference!) this behavior is applied to.",
-              "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-              "line": 59,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "getTargets",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.getTargets",
-              "outFile": "behavior.html#Behavior.prototype.getTargets"
-            },
-            {
-              "id": "Behavior#init",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [
-                    {
-                      "name": "options",
-                      "types": [
-                        "Object"
-                      ],
-                      "description": " The configuration options passed by the factory\n\n     "
-                    }
-                  ]
-                }
-              ],
-              "arguments": [
-                {
-                  "name": "options",
-                  "types": [
-                    "Object"
-                  ],
-                  "description": " The configuration options passed by the factory\n\n     "
-                }
-              ],
-              "internal": true,
-              "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
-              "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-              "line": 43,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "init",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.init",
-              "outFile": "behavior.html#Behavior.prototype.init"
-            },
-            {
-              "id": "Behavior#setWorld",
-              "type": "instance method",
-              "signatures": [
-                {
-                  "arguments": [
-                    {
-                      "name": "world",
-                      "types": [
-                        "Object"
-                      ],
-                      "description": " The world (or null)\n\n     "
-                    }
-                  ],
-                  "returns": [
-                    {
-                      "type": "this"
-                    }
-                  ]
-                }
-              ],
-              "arguments": [
-                {
-                  "name": "world",
-                  "types": [
-                    "Object"
-                  ],
-                  "description": " The world (or null)\n\n     "
-                }
-              ],
-              "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
-              "short_description": "Set which world to apply to.\n",
-              "line": 72,
-              "aliases": [],
-              "children": [],
-              "file": "src/core/behavior.js",
-              "name": "setWorld",
-              "name_prefix": "Behavior#",
-              "path": "Behavior.prototype.setWorld",
-              "outFile": "behavior.html#Behavior.prototype.setWorld"
-            }
-          ],
-          "file": "src/core/behavior.js",
-          "subclasses": [],
-          "name": "Behavior",
-          "path": "Behavior",
-          "outFile": "behavior.html"
-        }
-      ],
-      "file": "src/intro.js",
-      "name": "Classes",
-      "path": "Classes",
-      "outFile": "intro.html#Classes"
-    },
-    "Special": {
-      "id": "Special",
-      "type": "namespace",
-      "description": "",
-      "short_description": "",
-      "line": 55,
-      "aliases": [],
-      "children": [
-        {
-          "id": "factory",
-          "type": "method",
-          "signatures": [
-            {
-              "arguments": [
-                {
-                  "name": "name",
-                  "types": [
-                    "String"
-                  ],
-                  "description": "  The class name\n\n "
-                },
-                {
-                  "name": "parentName",
-                  "optional": true,
-                  "types": [
-                    "String"
-                  ],
-                  "description": " The name of parent class to extend\n\n "
-                },
-                {
-                  "name": "decorator",
-                  "types": [
-                    "Function"
-                  ],
-                  "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
-                },
-                {
-                  "name": "cfg",
-                  "optional": true,
-                  "types": [
-                    "Object"
-                  ],
-                  "description": " The configuration to pass to the class initializer\n\n "
-                }
-              ]
-            },
-            {
-              "arguments": [
-                {
-                  "name": "name",
-                  "types": [
-                    "String"
-                  ],
-                  "description": "  The class name\n\n "
-                },
-                {
-                  "name": "cfg",
-                  "types": [
-                    "Object"
-                  ],
-                  "description": " The configuration to pass to the class initializer\n\n "
-                }
-              ],
-              "returns": [
-                {
-                  "type": "Object"
-                }
-              ]
-            }
-          ],
-          "arguments": [
-            {
-              "name": "name",
-              "types": [
-                "String"
-              ],
-              "description": "  The class name\n\n "
-            },
-            {
-              "name": "parentName",
-              "types": [
-                "String"
-              ],
-              "description": " The name of parent class to extend\n\n "
-            },
-            {
-              "name": "decorator",
-              "types": [
-                "Function"
-              ],
-              "description": " The decorator function that should define and return methods to extend (decorate) the base class\n\n "
-            },
-            {
-              "name": "cfg",
-              "types": [
-                "Object"
-              ],
-              "description": " The configuration to pass to the class initializer\n\n "
-            }
-          ],
-          "belongs_to": "Special",
-          "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
-          "short_description": "Factory function for definition and instantiation of subclasses.\n",
-          "line": 129,
-          "aliases": [],
-          "children": [],
-          "file": "src/util/decorator.js",
-          "name": "factory",
-          "path": "factory",
-          "outFile": "decorator.html#factory"
-        }
-      ],
-      "file": "src/intro.js",
-      "name": "Special",
-      "path": "Special",
-      "outFile": "intro.html#Special"
-    },
     "Physics.util.decorator": {
       "id": "Physics.util.decorator",
       "type": "class method",
@@ -6116,7 +5536,6 @@
           "description": " The configuration to pass to the class initializer\n\n "
         }
       ],
-      "belongs_to": "Special",
       "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
       "short_description": "Factory function for definition and instantiation of subclasses.\n",
       "line": 129,
@@ -7517,256 +6936,226 @@
       "name_prefix": "Physics.util.ticker.",
       "path": "Physics.util.ticker.isActive",
       "outFile": "ticker.html#Physics.util.ticker.isActive"
+    },
+    "Behavior#behave": {
+      "id": "Behavior#behave",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "data",
+              "types": [
+                "Object"
+              ],
+              "description": " The pubsub `integrate:positions` event data\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "data",
+          "types": [
+            "Object"
+          ],
+          "description": " The pubsub `integrate:positions` event data\n\n     "
+        }
+      ],
+      "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+      "short_description": "Default method run on every world integration.\n",
+      "line": 128,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "behave",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.behave",
+      "outFile": "behavior.html#Behavior.prototype.behave"
+    },
+    "Behavior#connect": {
+      "id": "Behavior#connect",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to connect to\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Physics.world"
+          ],
+          "description": " The world to connect to\n\n     "
+        }
+      ],
+      "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+      "short_description": "Connect to a world.\n",
+      "line": 96,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "connect",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.connect",
+      "outFile": "behavior.html#Behavior.prototype.connect"
+    },
+    "Behavior#disconnect": {
+      "id": "Behavior#disconnect",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The world to disconnect from\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Physics.world"
+          ],
+          "description": " The world to disconnect from\n\n     "
+        }
+      ],
+      "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+      "short_description": "Disconnect from a world.\n",
+      "line": 112,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "disconnect",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.disconnect",
+      "outFile": "behavior.html#Behavior.prototype.disconnect"
+    },
+    "Behavior#getTargets": {
+      "id": "Behavior#getTargets",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [],
+          "returns": [
+            {
+              "type": "Array"
+            }
+          ]
+        }
+      ],
+      "returns": [
+        {
+          "type": "Array",
+          "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+        }
+      ],
+      "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+      "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+      "line": 59,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "getTargets",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.getTargets",
+      "outFile": "behavior.html#Behavior.prototype.getTargets"
+    },
+    "Behavior#init": {
+      "id": "Behavior#init",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "options",
+              "types": [
+                "Object"
+              ],
+              "description": " The configuration options passed by the factory\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "options",
+          "types": [
+            "Object"
+          ],
+          "description": " The configuration options passed by the factory\n\n     "
+        }
+      ],
+      "internal": true,
+      "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+      "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+      "line": 43,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "init",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.init",
+      "outFile": "behavior.html#Behavior.prototype.init"
+    },
+    "Behavior#setWorld": {
+      "id": "Behavior#setWorld",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "world",
+              "types": [
+                "Object"
+              ],
+              "description": " The world (or null)\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "world",
+          "types": [
+            "Object"
+          ],
+          "description": " The world (or null)\n\n     "
+        }
+      ],
+      "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+      "short_description": "Set which world to apply to.\n",
+      "line": 72,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/behavior.js",
+      "name": "setWorld",
+      "name_prefix": "Behavior#",
+      "path": "Behavior.prototype.setWorld",
+      "outFile": "behavior.html#Behavior.prototype.setWorld"
     }
   },
   "tree": {
     "children": [
-      {
-        "id": "Classes",
-        "type": "namespace",
-        "description": "",
-        "short_description": "",
-        "line": 51,
-        "aliases": [],
-        "children": [
-          {
-            "id": "Behavior",
-            "type": "class",
-            "belongs_to": "Classes",
-            "description": "The base class for behaviors created by [[Physics.behavior]].",
-            "short_description": "The base class for behaviors created by [[Physics.behavior]].",
-            "line": 24,
-            "aliases": [],
-            "children": [
-              {
-                "id": "Behavior#behave",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [
-                      {
-                        "name": "data",
-                        "types": [
-                          "Object"
-                        ],
-                        "description": " The pubsub `integrate:positions` event data\n\n     "
-                      }
-                    ]
-                  }
-                ],
-                "arguments": [
-                  {
-                    "name": "data",
-                    "types": [
-                      "Object"
-                    ],
-                    "description": " The pubsub `integrate:positions` event data\n\n     "
-                  }
-                ],
-                "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
-                "short_description": "Default method run on every world integration.\n",
-                "line": 128,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "behave",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.behave",
-                "outFile": "behavior.html#Behavior.prototype.behave"
-              },
-              {
-                "id": "Behavior#connect",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [
-                      {
-                        "name": "world",
-                        "types": [
-                          "Physics.world"
-                        ],
-                        "description": " The world to connect to\n\n     "
-                      }
-                    ]
-                  }
-                ],
-                "arguments": [
-                  {
-                    "name": "world",
-                    "types": [
-                      "Physics.world"
-                    ],
-                    "description": " The world to connect to\n\n     "
-                  }
-                ],
-                "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-                "short_description": "Connect to a world.\n",
-                "line": 96,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "connect",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.connect",
-                "outFile": "behavior.html#Behavior.prototype.connect"
-              },
-              {
-                "id": "Behavior#disconnect",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [
-                      {
-                        "name": "world",
-                        "types": [
-                          "Physics.world"
-                        ],
-                        "description": " The world to disconnect from\n\n     "
-                      }
-                    ]
-                  }
-                ],
-                "arguments": [
-                  {
-                    "name": "world",
-                    "types": [
-                      "Physics.world"
-                    ],
-                    "description": " The world to disconnect from\n\n     "
-                  }
-                ],
-                "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
-                "short_description": "Disconnect from a world.\n",
-                "line": 112,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "disconnect",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.disconnect",
-                "outFile": "behavior.html#Behavior.prototype.disconnect"
-              },
-              {
-                "id": "Behavior#getTargets",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [],
-                    "returns": [
-                      {
-                        "type": "Array"
-                      }
-                    ]
-                  }
-                ],
-                "returns": [
-                  {
-                    "type": "Array",
-                    "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
-                  }
-                ],
-                "description": "Get the array of bodies (by reference!) this behavior is applied to.",
-                "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-                "line": 59,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "getTargets",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.getTargets",
-                "outFile": "behavior.html#Behavior.prototype.getTargets"
-              },
-              {
-                "id": "Behavior#init",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [
-                      {
-                        "name": "options",
-                        "types": [
-                          "Object"
-                        ],
-                        "description": " The configuration options passed by the factory\n\n     "
-                      }
-                    ]
-                  }
-                ],
-                "arguments": [
-                  {
-                    "name": "options",
-                    "types": [
-                      "Object"
-                    ],
-                    "description": " The configuration options passed by the factory\n\n     "
-                  }
-                ],
-                "internal": true,
-                "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
-                "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-                "line": 43,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "init",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.init",
-                "outFile": "behavior.html#Behavior.prototype.init"
-              },
-              {
-                "id": "Behavior#setWorld",
-                "type": "instance method",
-                "signatures": [
-                  {
-                    "arguments": [
-                      {
-                        "name": "world",
-                        "types": [
-                          "Object"
-                        ],
-                        "description": " The world (or null)\n\n     "
-                      }
-                    ],
-                    "returns": [
-                      {
-                        "type": "this"
-                      }
-                    ]
-                  }
-                ],
-                "arguments": [
-                  {
-                    "name": "world",
-                    "types": [
-                      "Object"
-                    ],
-                    "description": " The world (or null)\n\n     "
-                  }
-                ],
-                "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
-                "short_description": "Set which world to apply to.\n",
-                "line": 72,
-                "aliases": [],
-                "children": [],
-                "file": "src/core/behavior.js",
-                "name": "setWorld",
-                "name_prefix": "Behavior#",
-                "path": "Behavior.prototype.setWorld",
-                "outFile": "behavior.html#Behavior.prototype.setWorld"
-              }
-            ],
-            "file": "src/core/behavior.js",
-            "subclasses": [],
-            "name": "Behavior",
-            "path": "Behavior",
-            "outFile": "behavior.html"
-          }
-        ],
-        "file": "src/intro.js",
-        "name": "Classes",
-        "path": "Classes",
-        "outFile": "intro.html#Classes"
-      },
       {
         "id": "Physics",
         "type": "namespace",
@@ -9813,8 +9202,252 @@
         "outFile": "intro.html#Physics"
       },
       {
-        "id": "Special",
-        "type": "namespace",
+        "id": "classes",
+        "type": "section",
+        "description": "",
+        "short_description": "",
+        "line": 51,
+        "aliases": [],
+        "children": [
+          {
+            "id": "Behavior",
+            "type": "class",
+            "description": "The base class for behaviors created by [[Physics.behavior]].",
+            "short_description": "The base class for behaviors created by [[Physics.behavior]].",
+            "line": 24,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Behavior#behave",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "data",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The pubsub `integrate:positions` event data\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "data",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The pubsub `integrate:positions` event data\n\n     "
+                  }
+                ],
+                "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
+                "short_description": "Default method run on every world integration.\n",
+                "line": 128,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "behave",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.behave",
+                "outFile": "behavior.html#Behavior.prototype.behave"
+              },
+              {
+                "id": "Behavior#connect",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Physics.world"
+                        ],
+                        "description": " The world to connect to\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Physics.world"
+                    ],
+                    "description": " The world to connect to\n\n     "
+                  }
+                ],
+                "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+                "short_description": "Connect to a world.\n",
+                "line": 96,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "connect",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.connect",
+                "outFile": "behavior.html#Behavior.prototype.connect"
+              },
+              {
+                "id": "Behavior#disconnect",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Physics.world"
+                        ],
+                        "description": " The world to disconnect from\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Physics.world"
+                    ],
+                    "description": " The world to disconnect from\n\n     "
+                  }
+                ],
+                "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
+                "short_description": "Disconnect from a world.\n",
+                "line": 112,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "disconnect",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.disconnect",
+                "outFile": "behavior.html#Behavior.prototype.disconnect"
+              },
+              {
+                "id": "Behavior#getTargets",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [],
+                    "returns": [
+                      {
+                        "type": "Array"
+                      }
+                    ]
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Array",
+                    "description": " The array of bodies (by reference!) this behavior is applied to.\n\n     "
+                  }
+                ],
+                "description": "Get the array of bodies (by reference!) this behavior is applied to.",
+                "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
+                "line": 59,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "getTargets",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.getTargets",
+                "outFile": "behavior.html#Behavior.prototype.getTargets"
+              },
+              {
+                "id": "Behavior#init",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "options",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The configuration options passed by the factory\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "options",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The configuration options passed by the factory\n\n     "
+                  }
+                ],
+                "internal": true,
+                "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
+                "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
+                "line": 43,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "init",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.init",
+                "outFile": "behavior.html#Behavior.prototype.init"
+              },
+              {
+                "id": "Behavior#setWorld",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "world",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The world (or null)\n\n     "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this"
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "world",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The world (or null)\n\n     "
+                  }
+                ],
+                "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
+                "short_description": "Set which world to apply to.\n",
+                "line": 72,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/behavior.js",
+                "name": "setWorld",
+                "name_prefix": "Behavior#",
+                "path": "Behavior.prototype.setWorld",
+                "outFile": "behavior.html#Behavior.prototype.setWorld"
+              }
+            ],
+            "file": "src/core/behavior.js",
+            "subclasses": [],
+            "name": "Behavior",
+            "path": "Behavior",
+            "outFile": "behavior.html"
+          }
+        ],
+        "file": "src/intro.js",
+        "name": "Classes",
+        "path": "classes"
+      },
+      {
+        "id": "special",
+        "type": "section",
         "description": "",
         "short_description": "",
         "line": 55,
@@ -9912,7 +9545,6 @@
                 "description": " The configuration to pass to the class initializer\n\n "
               }
             ],
-            "belongs_to": "Special",
             "description": "Factory function for definition and instantiation of subclasses.\n\nUse the first signature (once) to define it first.\nIf defining without the \"cfg\" parameter, void will be returned. Otherwise the class instance will be returned.",
             "short_description": "Factory function for definition and instantiation of subclasses.\n",
             "line": 129,
@@ -9926,8 +9558,7 @@
         ],
         "file": "src/intro.js",
         "name": "Special",
-        "path": "Special",
-        "outFile": "intro.html#Special"
+        "path": "special"
       }
     ]
   }
