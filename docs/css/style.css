@@ -179,7 +179,7 @@ nav.toc {
   color: #C1C5C5;
   background: #171717;
 
-  width: 20%;
+  width: 300px;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
       -ms-box-sizing: border-box;
@@ -248,7 +248,7 @@ nav.toc li .ctrl-expand:hover {
 #main {
   width: 100%;
   padding: 4em 0;
-  padding-left: 20%;
+  padding-left: 300px;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
       -ms-box-sizing: border-box;

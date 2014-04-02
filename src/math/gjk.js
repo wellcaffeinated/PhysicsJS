@@ -1,9 +1,3 @@
-/**
- * Gilbert–Johnson–Keerthi object collison algorithm
- * For general information about GJK see: 
- *  - http://www.codezealot.org/archives/88
- *  - http://mollyrocket.com/849
- */
 (function(){
 
     // the algorithm doesn't always converge for curved shapes.
@@ -39,12 +33,13 @@
         }
     };
 
-    /**
+    /** hide
+     * getClosestPoints( simplex ) -> Object
+     * - simplex (Array): The simplex
+     * 
      * Figure out the closest points on the original objects
      * from the last two entries of the simplex
-     * @param  {Array} simplex
-     * @return {Object}
-     */
+     **/
     var getClosestPoints = function getClosestPoints( simplex ){
 
         // see http://www.codezealot.org/archives/153
@@ -110,15 +105,36 @@
     };
 
     /**
+     * Physics.gjk( support(axis)[, seed, checkOverlapOnly, debugFn] ) -> Object
+     * - support (Function): The support function. Must return an object containing 
+       the witness points (`.a`, `.b`) and the support point (`.pt`).
+       Recommended to use simple objects. 
+       Eg: 
+       ```javascript
+       return {
+            a: { x: 1, y:2 }, 
+            b: { x: 3, y: 4 }, 
+            pt: { x: 2, y: 2 }
+       };
+       ```
+     * - axis (Physics.vector): The axis to use
+     * - seed (Physics.vector): The starting direction for the simplex (defaults to x-axis)
+     * - debugFn (Function): For debugging. Called at every iteration with the current simplex.
+     * + (Object): The algorithm information containing properties:
+       ```javascript
+       {
+            overlap: Boolean,
+            simplex: [] // array containing simplex points as simple x/y objects
+       }
+       ```
+     *
      * Implementation agnostic GJK function.
-     * @param  {Function} support The support function. Must return an object containing 
-     *                            the witness points (.a, .b) and the support point (.pt).
-     *                            Recommended to use simple objects. Eg: return { a: {x: 1, y:2}, b: {x: 3, y: 4}, pt: {x: 2, y: 2} }
-     *                            Signature: function(<Physics.vector> axis).
-     *                            axis: The axis to use
-     * @param {Physics.vector} seed The starting direction for the simplex
-     * @return {Object} The algorithm information containing properties: .overlap (bool), and .simplex (Array)
-     */
+     *
+     * Gilbert–Johnson–Keerthi object collison algorithm
+     * For general information about GJK see: 
+     * - [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)
+     * - [mollyrocket.com/849](http://mollyrocket.com/849)
+     **/
     var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
 
         var overlap = false
