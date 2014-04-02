@@ -7,7 +7,14 @@
     /** related to: Physics.util.decorator
      * Physics.behavior( name[, options] ) -> Behavior
      * - name (String): The name of the behavior to create
-     * - options (Object): The configuration for that behavior ( depends on behavior )
+     * - options (Object): The configuration for that behavior ( depends on behavior ).
+       Available options and defaults:
+       
+       ```javascript
+        {
+           priority: 0 // the priority of this body
+        }
+       ```
      *
      * Factory function for creating Behaviors.
      *
@@ -19,7 +26,7 @@
         /** section: Classes
          * class Behavior
          *
-         * The base class for behaviors created by [[Physics.behavior]].
+         * The base class for behaviors created by [[Physics.behavior]] factory function.
          **/
 
         /** internal

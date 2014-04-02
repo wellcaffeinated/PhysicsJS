@@ -30,7 +30,7 @@
               "types": [
                 "Object"
               ],
-              "description": " The configuration for that behavior ( depends on behavior )\n\n "
+              "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
             }
           ],
           "returns": [
@@ -53,13 +53,13 @@
           "types": [
             "Object"
           ],
-          "description": " The configuration for that behavior ( depends on behavior )\n\n "
+          "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
         }
       ],
       "related_to": "Physics.util.decorator",
       "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
       "short_description": "Factory function for creating Behaviors.\n",
-      "line": 17,
+      "line": 24,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -71,9 +71,9 @@
     "Behavior": {
       "id": "Behavior",
       "type": "class",
-      "description": "The base class for behaviors created by [[Physics.behavior]].",
-      "short_description": "The base class for behaviors created by [[Physics.behavior]].",
-      "line": 24,
+      "description": "The base class for behaviors created by [[Physics.behavior]] factory function.",
+      "short_description": "The base class for behaviors created by [[Physics.behavior]] factory function.",
+      "line": 31,
       "aliases": [],
       "children": [
         {
@@ -103,7 +103,7 @@
           ],
           "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
           "short_description": "Default method run on every world integration.\n",
-          "line": 128,
+          "line": 135,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -139,7 +139,7 @@
           ],
           "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
           "short_description": "Connect to a world.\n",
-          "line": 96,
+          "line": 103,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -175,7 +175,7 @@
           ],
           "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
           "short_description": "Disconnect from a world.\n",
-          "line": 112,
+          "line": 119,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -205,7 +205,7 @@
           ],
           "description": "Get the array of bodies (by reference!) this behavior is applied to.",
           "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-          "line": 59,
+          "line": 66,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -242,7 +242,7 @@
           "internal": true,
           "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
           "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-          "line": 43,
+          "line": 50,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -283,7 +283,7 @@
           ],
           "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
           "short_description": "Set which world to apply to.\n",
-          "line": 72,
+          "line": 79,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -343,7 +343,7 @@
           "chainable": true,
           "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
           "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-          "line": 143,
+          "line": 145,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -385,7 +385,7 @@
           "chainable": true,
           "description": "Add a behavior to the world",
           "short_description": "Add a behavior to the world",
-          "line": 390,
+          "line": 392,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -427,7 +427,7 @@
           "chainable": true,
           "description": "Add a body to the world",
           "short_description": "Add a body to the world",
-          "line": 458,
+          "line": 460,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -446,7 +446,7 @@
           ],
           "description": "Destroy the world.\n(Bwahahahahaha!)",
           "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-          "line": 672,
+          "line": 674,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -528,7 +528,7 @@
           "related_to": "Physics.query",
           "description": "Find all matching bodies based on query rules.",
           "short_description": "Find all matching bodies based on query rules.",
-          "line": 547,
+          "line": 549,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -616,7 +616,7 @@
           "related_to": "Physics.query",
           "description": "Find first matching body based on query rules.",
           "short_description": "Find first matching body based on query rules.",
-          "line": 529,
+          "line": 531,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -646,7 +646,7 @@
           ],
           "description": "Get copied list of behaviors in the world",
           "short_description": "Get copied list of behaviors in the world",
-          "line": 415,
+          "line": 417,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -676,7 +676,7 @@
           ],
           "description": "Get copied list of bodies in the world",
           "short_description": "Get copied list of bodies in the world",
-          "line": 483,
+          "line": 485,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -725,7 +725,7 @@
           "chainable": true,
           "description": "Determine if a thing has been added to world.",
           "short_description": "Determine if a thing has been added to world.",
-          "line": 244,
+          "line": 246,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -790,7 +790,7 @@
           "related_to": "new Physics.world",
           "description": "Initialization",
           "short_description": "Initialization",
-          "line": 85,
+          "line": 87,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -848,7 +848,7 @@
           "chainable": true,
           "description": "Get or Set the integrator",
           "short_description": "Get or Set the integrator",
-          "line": 290,
+          "line": 292,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -878,7 +878,7 @@
           ],
           "description": "Determine if world is paused.",
           "short_description": "Determine if world is paused.",
-          "line": 661,
+          "line": 663,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -915,7 +915,7 @@
           "internal": true,
           "description": "Do a single iteration.",
           "short_description": "Do a single iteration.",
-          "line": 562,
+          "line": 564,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -963,7 +963,7 @@
           ],
           "description": "Set config options. Also access options by `.options.<option>`.",
           "short_description": "Set config options. Also access options by `.options.<option>`.",
-          "line": 135,
+          "line": 137,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -988,7 +988,7 @@
           "chainable": true,
           "description": "Pause the world (step calls do nothing).",
           "short_description": "Pause the world (step calls do nothing).",
-          "line": 636,
+          "line": 638,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1032,7 +1032,7 @@
           "chainable": true,
           "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
           "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-          "line": 191,
+          "line": 193,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1074,7 +1074,7 @@
           "chainable": true,
           "description": "Remove a behavior from the world",
           "short_description": "Remove a behavior from the world",
-          "line": 427,
+          "line": 429,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1116,7 +1116,7 @@
           "chainable": true,
           "description": "Remove a body from the world",
           "short_description": "Remove a body from the world",
-          "line": 495,
+          "line": 497,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1141,7 +1141,7 @@
           "chainable": true,
           "description": "Render current world state using the renderer",
           "short_description": "Render current world state using the renderer",
-          "line": 616,
+          "line": 618,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1199,7 +1199,7 @@
           "chainable": true,
           "description": "Get or Set the renderer",
           "short_description": "Get or Set the renderer",
-          "line": 330,
+          "line": 332,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1241,7 +1241,7 @@
           "chainable": true,
           "description": "Do a single step.",
           "short_description": "Do a single step.",
-          "line": 573,
+          "line": 575,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1299,7 +1299,7 @@
           "chainable": true,
           "description": "Get or Set the time step",
           "short_description": "Get or Set the time step",
-          "line": 370,
+          "line": 372,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1324,7 +1324,7 @@
           "chainable": true,
           "description": "Unpause the world (step calls continue as usual).",
           "short_description": "Unpause the world (step calls continue as usual).",
-          "line": 648,
+          "line": 650,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1351,10 +1351,18 @@
                   "name": "fn",
                   "arguments": [
                     {
-                      "name": "world"
+                      "name": "world",
+                      "description": " The current world created\n\n ",
+                      "types": [
+                        "Physics.world"
+                      ]
                     },
                     {
-                      "name": "Physics"
+                      "name": "Physics",
+                      "description": " The Physics namespace\n\n ",
+                      "types": [
+                        "Physics"
+                      ]
                     }
                   ],
                   "callback": true,
@@ -1383,12 +1391,26 @@
                 "Array"
               ],
               "description": " Callback function or array of callbacks called with this === world\n\n "
+            },
+            {
+              "name": "world",
+              "types": [
+                "Physics.world"
+              ],
+              "description": " The current world created\n\n "
+            },
+            {
+              "name": "Physics",
+              "types": [
+                "Physics"
+              ],
+              "description": " The Physics namespace\n\n "
             }
           ],
           "alias_of": "Physics",
           "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
           "short_description": "World Constructor.\n",
-          "line": 65,
+          "line": 67,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -1423,10 +1445,18 @@
               "name": "fn",
               "arguments": [
                 {
-                  "name": "world"
+                  "name": "world",
+                  "description": " The current world created\n\n ",
+                  "types": [
+                    "Physics.world"
+                  ]
                 },
                 {
-                  "name": "Physics"
+                  "name": "Physics",
+                  "description": " The Physics namespace\n\n ",
+                  "types": [
+                    "Physics"
+                  ]
                 }
               ],
               "callback": true,
@@ -1455,12 +1485,26 @@
             "Array"
           ],
           "description": " Callback function or array of callbacks called with this === world\n\n "
+        },
+        {
+          "name": "world",
+          "types": [
+            "Physics.world"
+          ],
+          "description": " The current world created\n\n "
+        },
+        {
+          "name": "Physics",
+          "types": [
+            "Physics"
+          ],
+          "description": " The Physics namespace\n\n "
         }
       ],
       "alias_of": "Physics",
       "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
       "short_description": "World Constructor.\n",
-      "line": 65,
+      "line": 67,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1525,7 +1569,7 @@
       "related_to": "new Physics.world",
       "description": "Initialization",
       "short_description": "Initialization",
-      "line": 85,
+      "line": 87,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1573,7 +1617,7 @@
       ],
       "description": "Set config options. Also access options by `.options.<option>`.",
       "short_description": "Set config options. Also access options by `.options.<option>`.",
-      "line": 135,
+      "line": 137,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1617,7 +1661,7 @@
       "chainable": true,
       "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
       "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-      "line": 143,
+      "line": 145,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1661,7 +1705,7 @@
       "chainable": true,
       "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
       "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-      "line": 191,
+      "line": 193,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1710,7 +1754,7 @@
       "chainable": true,
       "description": "Determine if a thing has been added to world.",
       "short_description": "Determine if a thing has been added to world.",
-      "line": 244,
+      "line": 246,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1768,7 +1812,7 @@
       "chainable": true,
       "description": "Get or Set the integrator",
       "short_description": "Get or Set the integrator",
-      "line": 290,
+      "line": 292,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1826,7 +1870,7 @@
       "chainable": true,
       "description": "Get or Set the renderer",
       "short_description": "Get or Set the renderer",
-      "line": 330,
+      "line": 332,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1884,7 +1928,7 @@
       "chainable": true,
       "description": "Get or Set the time step",
       "short_description": "Get or Set the time step",
-      "line": 370,
+      "line": 372,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1926,7 +1970,7 @@
       "chainable": true,
       "description": "Add a behavior to the world",
       "short_description": "Add a behavior to the world",
-      "line": 390,
+      "line": 392,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1956,7 +2000,7 @@
       ],
       "description": "Get copied list of behaviors in the world",
       "short_description": "Get copied list of behaviors in the world",
-      "line": 415,
+      "line": 417,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -1998,7 +2042,7 @@
       "chainable": true,
       "description": "Remove a behavior from the world",
       "short_description": "Remove a behavior from the world",
-      "line": 427,
+      "line": 429,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2040,7 +2084,7 @@
       "chainable": true,
       "description": "Add a body to the world",
       "short_description": "Add a body to the world",
-      "line": 458,
+      "line": 460,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2070,7 +2114,7 @@
       ],
       "description": "Get copied list of bodies in the world",
       "short_description": "Get copied list of bodies in the world",
-      "line": 483,
+      "line": 485,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2112,7 +2156,7 @@
       "chainable": true,
       "description": "Remove a body from the world",
       "short_description": "Remove a body from the world",
-      "line": 495,
+      "line": 497,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2200,7 +2244,7 @@
       "related_to": "Physics.query",
       "description": "Find first matching body based on query rules.",
       "short_description": "Find first matching body based on query rules.",
-      "line": 529,
+      "line": 531,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2282,7 +2326,7 @@
       "related_to": "Physics.query",
       "description": "Find all matching bodies based on query rules.",
       "short_description": "Find all matching bodies based on query rules.",
-      "line": 547,
+      "line": 549,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2319,7 +2363,7 @@
       "internal": true,
       "description": "Do a single iteration.",
       "short_description": "Do a single iteration.",
-      "line": 562,
+      "line": 564,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2361,7 +2405,7 @@
       "chainable": true,
       "description": "Do a single step.",
       "short_description": "Do a single step.",
-      "line": 573,
+      "line": 575,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2386,7 +2430,7 @@
       "chainable": true,
       "description": "Render current world state using the renderer",
       "short_description": "Render current world state using the renderer",
-      "line": 616,
+      "line": 618,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2411,7 +2455,7 @@
       "chainable": true,
       "description": "Pause the world (step calls do nothing).",
       "short_description": "Pause the world (step calls do nothing).",
-      "line": 636,
+      "line": 638,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2436,7 +2480,7 @@
       "chainable": true,
       "description": "Unpause the world (step calls continue as usual).",
       "short_description": "Unpause the world (step calls continue as usual).",
-      "line": 648,
+      "line": 650,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2466,7 +2510,7 @@
       ],
       "description": "Determine if world is paused.",
       "short_description": "Determine if world is paused.",
-      "line": 661,
+      "line": 663,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2485,7 +2529,7 @@
       ],
       "description": "Destroy the world.\n(Bwahahahahaha!)",
       "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-      "line": 672,
+      "line": 674,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -2524,7 +2568,7 @@
                   "types": [
                     "Object"
                   ],
-                  "description": " The configuration for that behavior ( depends on behavior )\n\n "
+                  "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
                 }
               ],
               "returns": [
@@ -2547,13 +2591,13 @@
               "types": [
                 "Object"
               ],
-              "description": " The configuration for that behavior ( depends on behavior )\n\n "
+              "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
             }
           ],
           "related_to": "Physics.util.decorator",
           "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
           "short_description": "Factory function for creating Behaviors.\n",
-          "line": 17,
+          "line": 24,
           "aliases": [],
           "children": [],
           "file": "src/core/behavior.js",
@@ -3471,7 +3515,7 @@
               "chainable": true,
               "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
               "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-              "line": 143,
+              "line": 145,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3513,7 +3557,7 @@
               "chainable": true,
               "description": "Add a behavior to the world",
               "short_description": "Add a behavior to the world",
-              "line": 390,
+              "line": 392,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3555,7 +3599,7 @@
               "chainable": true,
               "description": "Add a body to the world",
               "short_description": "Add a body to the world",
-              "line": 458,
+              "line": 460,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3574,7 +3618,7 @@
               ],
               "description": "Destroy the world.\n(Bwahahahahaha!)",
               "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-              "line": 672,
+              "line": 674,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3656,7 +3700,7 @@
               "related_to": "Physics.query",
               "description": "Find all matching bodies based on query rules.",
               "short_description": "Find all matching bodies based on query rules.",
-              "line": 547,
+              "line": 549,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3744,7 +3788,7 @@
               "related_to": "Physics.query",
               "description": "Find first matching body based on query rules.",
               "short_description": "Find first matching body based on query rules.",
-              "line": 529,
+              "line": 531,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3774,7 +3818,7 @@
               ],
               "description": "Get copied list of behaviors in the world",
               "short_description": "Get copied list of behaviors in the world",
-              "line": 415,
+              "line": 417,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3804,7 +3848,7 @@
               ],
               "description": "Get copied list of bodies in the world",
               "short_description": "Get copied list of bodies in the world",
-              "line": 483,
+              "line": 485,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3853,7 +3897,7 @@
               "chainable": true,
               "description": "Determine if a thing has been added to world.",
               "short_description": "Determine if a thing has been added to world.",
-              "line": 244,
+              "line": 246,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3918,7 +3962,7 @@
               "related_to": "new Physics.world",
               "description": "Initialization",
               "short_description": "Initialization",
-              "line": 85,
+              "line": 87,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -3976,7 +4020,7 @@
               "chainable": true,
               "description": "Get or Set the integrator",
               "short_description": "Get or Set the integrator",
-              "line": 290,
+              "line": 292,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4006,7 +4050,7 @@
               ],
               "description": "Determine if world is paused.",
               "short_description": "Determine if world is paused.",
-              "line": 661,
+              "line": 663,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4043,7 +4087,7 @@
               "internal": true,
               "description": "Do a single iteration.",
               "short_description": "Do a single iteration.",
-              "line": 562,
+              "line": 564,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4091,7 +4135,7 @@
               ],
               "description": "Set config options. Also access options by `.options.<option>`.",
               "short_description": "Set config options. Also access options by `.options.<option>`.",
-              "line": 135,
+              "line": 137,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4116,7 +4160,7 @@
               "chainable": true,
               "description": "Pause the world (step calls do nothing).",
               "short_description": "Pause the world (step calls do nothing).",
-              "line": 636,
+              "line": 638,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4160,7 +4204,7 @@
               "chainable": true,
               "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
               "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-              "line": 191,
+              "line": 193,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4202,7 +4246,7 @@
               "chainable": true,
               "description": "Remove a behavior from the world",
               "short_description": "Remove a behavior from the world",
-              "line": 427,
+              "line": 429,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4244,7 +4288,7 @@
               "chainable": true,
               "description": "Remove a body from the world",
               "short_description": "Remove a body from the world",
-              "line": 495,
+              "line": 497,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4269,7 +4313,7 @@
               "chainable": true,
               "description": "Render current world state using the renderer",
               "short_description": "Render current world state using the renderer",
-              "line": 616,
+              "line": 618,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4327,7 +4371,7 @@
               "chainable": true,
               "description": "Get or Set the renderer",
               "short_description": "Get or Set the renderer",
-              "line": 330,
+              "line": 332,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4369,7 +4413,7 @@
               "chainable": true,
               "description": "Do a single step.",
               "short_description": "Do a single step.",
-              "line": 573,
+              "line": 575,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4427,7 +4471,7 @@
               "chainable": true,
               "description": "Get or Set the time step",
               "short_description": "Get or Set the time step",
-              "line": 370,
+              "line": 372,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4452,7 +4496,7 @@
               "chainable": true,
               "description": "Unpause the world (step calls continue as usual).",
               "short_description": "Unpause the world (step calls continue as usual).",
-              "line": 648,
+              "line": 650,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -4479,10 +4523,18 @@
                       "name": "fn",
                       "arguments": [
                         {
-                          "name": "world"
+                          "name": "world",
+                          "description": " The current world created\n\n ",
+                          "types": [
+                            "Physics.world"
+                          ]
                         },
                         {
-                          "name": "Physics"
+                          "name": "Physics",
+                          "description": " The Physics namespace\n\n ",
+                          "types": [
+                            "Physics"
+                          ]
                         }
                       ],
                       "callback": true,
@@ -4511,12 +4563,26 @@
                     "Array"
                   ],
                   "description": " Callback function or array of callbacks called with this === world\n\n "
+                },
+                {
+                  "name": "world",
+                  "types": [
+                    "Physics.world"
+                  ],
+                  "description": " The current world created\n\n "
+                },
+                {
+                  "name": "Physics",
+                  "types": [
+                    "Physics"
+                  ],
+                  "description": " The Physics namespace\n\n "
                 }
               ],
               "alias_of": "Physics",
               "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
               "short_description": "World Constructor.\n",
-              "line": 65,
+              "line": 67,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -6964,7 +7030,7 @@
       ],
       "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
       "short_description": "Default method run on every world integration.\n",
-      "line": 128,
+      "line": 135,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7000,7 +7066,7 @@
       ],
       "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
       "short_description": "Connect to a world.\n",
-      "line": 96,
+      "line": 103,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7036,7 +7102,7 @@
       ],
       "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
       "short_description": "Disconnect from a world.\n",
-      "line": 112,
+      "line": 119,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7066,7 +7132,7 @@
       ],
       "description": "Get the array of bodies (by reference!) this behavior is applied to.",
       "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-      "line": 59,
+      "line": 66,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7103,7 +7169,7 @@
       "internal": true,
       "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
       "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-      "line": 43,
+      "line": 50,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7144,7 +7210,7 @@
       ],
       "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
       "short_description": "Set which world to apply to.\n",
-      "line": 72,
+      "line": 79,
       "aliases": [],
       "children": [],
       "file": "src/core/behavior.js",
@@ -7186,7 +7252,7 @@
                     "types": [
                       "Object"
                     ],
-                    "description": " The configuration for that behavior ( depends on behavior )\n\n "
+                    "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
                   }
                 ],
                 "returns": [
@@ -7209,13 +7275,13 @@
                 "types": [
                   "Object"
                 ],
-                "description": " The configuration for that behavior ( depends on behavior )\n\n "
+                "description": " The configuration for that behavior ( depends on behavior ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n       priority: 0 // the priority of this body\n\n    }\n\n   ```\n\n "
               }
             ],
             "related_to": "Physics.util.decorator",
             "description": "Factory function for creating Behaviors.\n\nVisit [the PhysicsJS wiki on Behaviors](https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors)\nfor usage documentation.",
             "short_description": "Factory function for creating Behaviors.\n",
-            "line": 17,
+            "line": 24,
             "aliases": [],
             "children": [],
             "file": "src/core/behavior.js",
@@ -8133,7 +8199,7 @@
                 "chainable": true,
                 "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
                 "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-                "line": 143,
+                "line": 145,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8175,7 +8241,7 @@
                 "chainable": true,
                 "description": "Add a behavior to the world",
                 "short_description": "Add a behavior to the world",
-                "line": 390,
+                "line": 392,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8217,7 +8283,7 @@
                 "chainable": true,
                 "description": "Add a body to the world",
                 "short_description": "Add a body to the world",
-                "line": 458,
+                "line": 460,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8236,7 +8302,7 @@
                 ],
                 "description": "Destroy the world.\n(Bwahahahahaha!)",
                 "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-                "line": 672,
+                "line": 674,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8318,7 +8384,7 @@
                 "related_to": "Physics.query",
                 "description": "Find all matching bodies based on query rules.",
                 "short_description": "Find all matching bodies based on query rules.",
-                "line": 547,
+                "line": 549,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8406,7 +8472,7 @@
                 "related_to": "Physics.query",
                 "description": "Find first matching body based on query rules.",
                 "short_description": "Find first matching body based on query rules.",
-                "line": 529,
+                "line": 531,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8436,7 +8502,7 @@
                 ],
                 "description": "Get copied list of behaviors in the world",
                 "short_description": "Get copied list of behaviors in the world",
-                "line": 415,
+                "line": 417,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8466,7 +8532,7 @@
                 ],
                 "description": "Get copied list of bodies in the world",
                 "short_description": "Get copied list of bodies in the world",
-                "line": 483,
+                "line": 485,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8515,7 +8581,7 @@
                 "chainable": true,
                 "description": "Determine if a thing has been added to world.",
                 "short_description": "Determine if a thing has been added to world.",
-                "line": 244,
+                "line": 246,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8580,7 +8646,7 @@
                 "related_to": "new Physics.world",
                 "description": "Initialization",
                 "short_description": "Initialization",
-                "line": 85,
+                "line": 87,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8638,7 +8704,7 @@
                 "chainable": true,
                 "description": "Get or Set the integrator",
                 "short_description": "Get or Set the integrator",
-                "line": 290,
+                "line": 292,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8668,7 +8734,7 @@
                 ],
                 "description": "Determine if world is paused.",
                 "short_description": "Determine if world is paused.",
-                "line": 661,
+                "line": 663,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8705,7 +8771,7 @@
                 "internal": true,
                 "description": "Do a single iteration.",
                 "short_description": "Do a single iteration.",
-                "line": 562,
+                "line": 564,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8753,7 +8819,7 @@
                 ],
                 "description": "Set config options. Also access options by `.options.<option>`.",
                 "short_description": "Set config options. Also access options by `.options.<option>`.",
-                "line": 135,
+                "line": 137,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8778,7 +8844,7 @@
                 "chainable": true,
                 "description": "Pause the world (step calls do nothing).",
                 "short_description": "Pause the world (step calls do nothing).",
-                "line": 636,
+                "line": 638,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8822,7 +8888,7 @@
                 "chainable": true,
                 "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
                 "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-                "line": 191,
+                "line": 193,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8864,7 +8930,7 @@
                 "chainable": true,
                 "description": "Remove a behavior from the world",
                 "short_description": "Remove a behavior from the world",
-                "line": 427,
+                "line": 429,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8906,7 +8972,7 @@
                 "chainable": true,
                 "description": "Remove a body from the world",
                 "short_description": "Remove a body from the world",
-                "line": 495,
+                "line": 497,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8931,7 +8997,7 @@
                 "chainable": true,
                 "description": "Render current world state using the renderer",
                 "short_description": "Render current world state using the renderer",
-                "line": 616,
+                "line": 618,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -8989,7 +9055,7 @@
                 "chainable": true,
                 "description": "Get or Set the renderer",
                 "short_description": "Get or Set the renderer",
-                "line": 330,
+                "line": 332,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -9031,7 +9097,7 @@
                 "chainable": true,
                 "description": "Do a single step.",
                 "short_description": "Do a single step.",
-                "line": 573,
+                "line": 575,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -9089,7 +9155,7 @@
                 "chainable": true,
                 "description": "Get or Set the time step",
                 "short_description": "Get or Set the time step",
-                "line": 370,
+                "line": 372,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -9114,7 +9180,7 @@
                 "chainable": true,
                 "description": "Unpause the world (step calls continue as usual).",
                 "short_description": "Unpause the world (step calls continue as usual).",
-                "line": 648,
+                "line": 650,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -9141,10 +9207,18 @@
                         "name": "fn",
                         "arguments": [
                           {
-                            "name": "world"
+                            "name": "world",
+                            "description": " The current world created\n\n ",
+                            "types": [
+                              "Physics.world"
+                            ]
                           },
                           {
-                            "name": "Physics"
+                            "name": "Physics",
+                            "description": " The Physics namespace\n\n ",
+                            "types": [
+                              "Physics"
+                            ]
                           }
                         ],
                         "callback": true,
@@ -9173,12 +9247,26 @@
                       "Array"
                     ],
                     "description": " Callback function or array of callbacks called with this === world\n\n "
+                  },
+                  {
+                    "name": "world",
+                    "types": [
+                      "Physics.world"
+                    ],
+                    "description": " The current world created\n\n "
+                  },
+                  {
+                    "name": "Physics",
+                    "types": [
+                      "Physics"
+                    ],
+                    "description": " The Physics namespace\n\n "
                   }
                 ],
                 "alias_of": "Physics",
                 "description": "World Constructor.\n\nIf called with an array of functions, and any functions\nreturn a promise-like object, the remaining callbacks will\nbe called only when that promise is resolved.",
                 "short_description": "World Constructor.\n",
-                "line": 65,
+                "line": 67,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -9212,9 +9300,9 @@
           {
             "id": "Behavior",
             "type": "class",
-            "description": "The base class for behaviors created by [[Physics.behavior]].",
-            "short_description": "The base class for behaviors created by [[Physics.behavior]].",
-            "line": 24,
+            "description": "The base class for behaviors created by [[Physics.behavior]] factory function.",
+            "short_description": "The base class for behaviors created by [[Physics.behavior]] factory function.",
+            "line": 31,
             "aliases": [],
             "children": [
               {
@@ -9244,7 +9332,7 @@
                 ],
                 "description": "Default method run on every world integration.\n\nYou _must_ extend this when creating a behavior,\nunless you extend the [[Behavior#connect]] and [[Behavior#disconnect]] methods.",
                 "short_description": "Default method run on every world integration.\n",
-                "line": 128,
+                "line": 135,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",
@@ -9280,7 +9368,7 @@
                 ],
                 "description": "Connect to a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
                 "short_description": "Connect to a world.\n",
-                "line": 96,
+                "line": 103,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",
@@ -9316,7 +9404,7 @@
                 ],
                 "description": "Disconnect from a world.\n\nExtend this when creating behaviors if you need to specify pubsub management.\nAutomatically called when added to world by the [[Behavior#setWorld]] method.",
                 "short_description": "Disconnect from a world.\n",
-                "line": 112,
+                "line": 119,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",
@@ -9346,7 +9434,7 @@
                 ],
                 "description": "Get the array of bodies (by reference!) this behavior is applied to.",
                 "short_description": "Get the array of bodies (by reference!) this behavior is applied to.",
-                "line": 59,
+                "line": 66,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",
@@ -9383,7 +9471,7 @@
                 "internal": true,
                 "description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n\n       /**\nBehavior#applyTo( arr ) -> this\n- arr (Array): Array of bodies to apply this behavior to. Specify `true` for all objects in world.\n\nApply the behavior to a group of bodies.",
                 "short_description": "Initialization. Internal use.\n/\n       init: function( options ){\n           \n           this.options = Physics.util.options( defaults );\n           this.options( options );\n       },\n",
-                "line": 43,
+                "line": 50,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",
@@ -9424,7 +9512,7 @@
                 ],
                 "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
                 "short_description": "Set which world to apply to.\n",
-                "line": 72,
+                "line": 79,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/behavior.js",

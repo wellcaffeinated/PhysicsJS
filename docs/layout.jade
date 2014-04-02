@@ -42,7 +42,7 @@ mixin args( sig )
         !='</small>'
   | )
 
-mixin argdesc( sig )
+mixin argdesc( sig, item )
   if sig.arguments && sig.arguments.length
     .arguments-desc
       h4.title accepts
@@ -55,7 +55,13 @@ mixin argdesc( sig )
             
           dd
             if arg.types
-              span.types=' ('+arg.types.join(' | ')+')'
+              span.types
+                | (
+                each type,i in arg.types
+                  if i !== 0
+                    ='|'
+                  a(href=getLinkPath(type, item),class=type)=type
+                |)
             if arg.optional
               span.optional optional
 
@@ -63,16 +69,16 @@ mixin argdesc( sig )
               !=md(linkify(arg.description))
             if arg.callback
               p Accepts:
-              +argdesc( arg )
+              +argdesc( arg, item )
 
-mixin returns( sig )
+mixin returns( sig, item )
   if sig.returns && sig.returns.length
     .returns-desc
       h4.title returns
       dl
         each ret in sig.returns
           dt(class=ret.type)
-            =ret.type
+            a(href=getLinkPath(ret.type, item))=ret.type
 
           if ret.description
             dd
@@ -92,13 +98,13 @@ mixin signatures( item )
               span.returns
                 if sig.returns
                   each ret, i in sig.returns
-                    =(i === 0 ? '':'|')
-                    span(class=ret.type)=ret.type
+                    =(i === 0 ? ' ':' | ')
+                    a(href=getLinkPath(ret.type, item),class=ret.type)=ret.type
                 else
                   span.void void
 
-          +argdesc( sig )
-          +returns( sig )
+          +argdesc( sig, item )
+          +returns( sig, item )
 
 
 mixin doc( item, level, recurse )

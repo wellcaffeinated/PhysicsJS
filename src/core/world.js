@@ -55,6 +55,8 @@
        - options.timestep (Number = 1000.0/160): default timestep
        ...
      * - fn (Function|Array): Callback function or array of callbacks called with this === world
+     * - world (Physics.world): The current world created
+     * - Physics (Physics): The Physics namespace
      *
      * World Constructor.
      * 
