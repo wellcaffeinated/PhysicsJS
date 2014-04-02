@@ -34,9 +34,25 @@
          * - options (Object): The configuration options passed by the factory
          * 
          * Initialization. Internal use.
-         */
+         **/
         init: function( options ){
             
+            /** related to: Physics.util.options
+             * Behavior#options( options ) -> Object
+             * - options (Object): The options to set as an object
+             * + (Object): The options
+             * 
+             * Set options on this instance. 
+             * 
+             * Access options directly from the options object.
+             * 
+             * Example:
+             *
+             * ```javascript
+             * this.options.someOption;
+             * ```
+             * 
+             **/
             this.options = Physics.util.options( defaults );
             this.options( options );
         },

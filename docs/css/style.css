@@ -68,7 +68,7 @@ strong {
 
 ul,
 ol {
-  margin-left: 24px;
+  margin-left: 0px;
 }
 
 ul li {
@@ -114,7 +114,7 @@ hr {
 }
 
 p {
-  margin-bottom: 0.5em;
+  margin-bottom: 1em;
 }
 
 /* Images */

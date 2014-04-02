@@ -1,30 +1,33 @@
 (function (window) {
 
-    /**
+    /*
      * Group helpers
      */
     var fnTrue = function(){ return !0; }; // return true
     
     var indexOf = Physics.util.indexOf;
 
-    /*!
-     * Get test function to test on sub property
-     * @param  {Function} fn   The test function
-     * @param  {String}   prop The property name to test
-     * @return {Function}        The wrapped function
-     */
+    /** hide
+     * wrapRule( fn( propVal ), prop ) -> Function
+     * - fn (Function): The test function
+     * - prop (String): The property name to test
+     * - propVal (Mixed): The property value
+     * 
+     * Get test function to test on sub property.
+     **/
     var wrapRule = function wrapRule( fn, prop ){
         return function( thing ){
             return fn( thing[ prop ] );
         };
     };
 
-    /*!
-     * Get an equality test function
-     * @param  {Mixed} toMatch The value to match
-     * @param  {String} prop    (optional) The property name to test
-     * @return {Function}         The test function
-     */
+    /** hide
+     * $eq( toMatch[, prop] ) -> Function
+     * - toMatch (Mixed): The value to match
+     * - prop (String): The property name to test
+     * 
+     * Get an equality test function.
+     **/
     var $eq = function $eq( toMatch, prop ){
         return function( thing ){
             
@@ -69,12 +72,13 @@
         };
     };
 
-    /*!
-     * Get a NOT equality test function
-     * @param  {Mixed} toMatch The value to match
-     * @param  {String} prop    (optional) The property name to test
-     * @return {Function}         The test function
-     */
+    /** hide
+     * $ne( toMatch[, prop] ) -> Function
+     * - toMatch (Mixed): The value to match
+     * - prop (String): The property name to test
+     * 
+     * Get a NOT equality test function.
+     **/
     var $ne = function $ne( toMatch, prop ){
         var fn = $eq( toMatch, prop );
         return function( thing ){
@@ -82,12 +86,13 @@
         };
     };
 
-    /*!
+    /** hide
+     * $in( toMatch[, prop] ) -> Function
+     * - toMatch (Array): The array to match
+     * - prop (String): The property name to test
+     * 
      * Get a test function for matching ANY in array
-     * @param  {Mixed} toMatch The value array to match
-     * @param  {String} prop    (optional) The property name to test
-     * @return {Function}         The test function
-     */
+     **/
     var $in = function $in( toMatch, prop ){
         return function( thing ){
 
@@ -120,12 +125,13 @@
         };
     };
 
-    /*!
+    /** hide
+     * $nin( toMatch[, prop] ) -> Function
+     * - toMatch (Array): The array to match
+     * - prop (String): The property name to test
+     * 
      * Get a test function for matching NOT ANY in array
-     * @param  {Mixed} toMatch The value array to match
-     * @param  {String} prop    (optional) The property name to test
-     * @return {Function}         The test function
-     */
+     **/
     var $nin = function $nin( toMatch, prop ){
         var fn = $in( toMatch, prop );
         return function( thing ){
@@ -133,11 +139,12 @@
         };
     };
 
-    /*!
+    /** hide
+     * $at( point ) -> Function
+     * - point (Vectorish): The point to check
+     * 
      * Get a test function to match any body who's aabb intersects point
-     * @param  {Vectorish} point The point to check
-     * @return {Function}       The test function
-     */
+     **/
     var $at = function $at( point ){
         point = Physics.vector( point );
         return function( body ){
@@ -146,11 +153,12 @@
         };
     };
 
-    /*!
-     * Get an AND test function
-     * @param  {Function} first First function node
-     * @return {Function}       Test function
-     */
+    /** hide
+     * $and( first ) -> Function
+     * - first (Function): First function node. `first.next` should have the next function, and so on.
+     * 
+     * Get an AND test function.
+     **/
     var $and = function $and( first ){
         return first.next ? function( thing ){
             var fn = first;
@@ -165,11 +173,12 @@
         } : first;
     };
 
-    /*!
-     * Get an OR test function
-     * @param  {Function} first First function node
-     * @return {function}       Test function
-     */
+    /** hide
+     * $or( first ) -> Function
+     * - first (Function): First function node. `first.next` should have the next function, and so on.
+     * 
+     * Get an OR test function.
+     **/
     var $or = function $or( first ){
         return first.next ? function( thing ){
             var fn = first;
@@ -194,12 +203,62 @@
         ,$at: $at
     };
 
-    /**
-     * Query factory.
-     * Creates a function that can be used to perform searches on collections of objects
-     * @param {Object} rules The mongodb-like search rules
-     * @return {Function} The query function
-     */
+    /** related to: Physics.world#find
+     * Physics.query( rules ) -> Function
+     * - rules (Object): The mongodb-like search rules. (See description).
+     * + (Function): The test function
+     * 
+     * Creates a function that can be used to perform tests on objects.
+     *
+     * The test function will return a [[Boolean]]; `true` if the object matches the tests.
+     *
+     * Query rules are mongodb-like. You can specify a hash of values to match like this:
+     *
+     * ```javascript
+     * {
+     *     foo: 'bar',
+     *     baz: 2,
+     *     some: {
+     *         nested: 'value'
+     *     }
+     * }
+     * ```
+     *
+     * And they will all need to match (it's an AND rule).
+     *
+     * You can also use operators for more versatility. The operators you can use include:
+     *
+     * - $eq: Test if some property is equal to a value (this is done by default, and is thus redundant)
+     * - $ne: Test if some property is _NOT_ equal to a value
+     * - $in: Test if some value (or array of values) is one of the specified array of values
+     * - $nin: Test if some value (or array of values) is _NOT_ one of the specified array of values
+     * - $at: Test if a body's [[Physics.aabb]] includes specified point. It's a primative hit-test.
+     * 
+     * Example:
+     *
+     * ```javascript
+     * var wheelsArray = [];
+     * 
+     * var queryFn = Physics.query({
+     *     name: 'circle', // only circles
+     *     $nin: wheelsArray, // not in the wheelsArray
+     *     labels: { $in: [ 'player', 'monster' ] } // that have player OR monster labels
+     * });
+     *
+     * var obj = {
+     *     name: 'circle',
+     *     labels: [ 'player' ]
+     * };
+     *
+     * queryFn( obj ); // -> false
+     * // give it a player tag
+     * obj.labels.push('player');
+     * queryFn( obj ); // -> true
+     * // put it inside the wheelsArray
+     * wheelsArray.push( obj );
+     * queryFn( obj ); // -> false
+     * ```
+     **/
     var Query = function Query( rules, /* internal use */ $op ){
 
         var op

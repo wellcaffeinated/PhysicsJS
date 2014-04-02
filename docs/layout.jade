@@ -2,17 +2,18 @@ mixin toc( item )
   if item.children && item.children.length
     ul
       each ch in item.children.sort(function( a, b ){ return a.id === 'Physics' ? -1 : b.id === 'Physics' ? 1 : a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
-        li(class=ch.type.replace(' ', '-'))
-          if ch.path
-            a.item(href='#'+attrClean(ch.path))
-              +title(ch)
-          +toc( ch )
+        unless ch.hide
+          li(class=ch.type.replace(' ', '-'))
+            if ch.path
+              a.item(href='#'+attrClean(ch.path))
+                +title(ch)
+            +toc( ch )
 
 mixin title( item, nosuff )
   if item.type === 'constructor'
     span.constructor=item.id
   else 
-    span.pfx= item.type === 'instance method' ? 'this.' : item.name_prefix
+    span.pfx= item.name_prefix && item.name_prefix.match(/.#/) ? 'this.' : item.name_prefix
     span.name= item.name
 
   unless nosuff
@@ -91,9 +92,10 @@ mixin signatures( item )
         li
           div.declaration
             +title( item, true )
-            +args( sig )
+            if item.type !== 'constant'
+              +args( sig )
 
-            if item.type !== 'constructor'
+            if item.type !== 'constructor' && item.type !== 'constant'
               |; // ->
               span.returns
                 - var rets = sig.returns || [{ type: 'void' }]
@@ -101,46 +103,51 @@ mixin signatures( item )
                   =(i === 0 ? ' ':' | ')
                   a(href=getLinkPath(ret.type, item),class=ret.type)=ret.type
 
-          +argdesc( sig, item )
-          +returns( sig, item )
+            if item.type === 'constant'
+              =' = '+sig.returns[0].type+';'
+
+          unless item.type === 'constant'
+            +argdesc( sig, item )
+            +returns( sig, item )
 
 
 mixin doc( item, level, recurse )
-  -var level = level || 1
-  article.doc(class=item.type.replace(' ', '-'))
-    header
-      !='<h'+level+' class="title">'
-      a(id=attrClean(item.path), href='#'+attrClean(item.path))
-        +title( item )
-      if item.alias_of
-        small.aliases
-          | alias of: 
-          span.alias=item.alias_of
-      !='</h'+level+'>'
-    
-    if item.short_description
-      .desc
-        !=md(linkify(item.short_description))
+  unless item.hide
+    -var level = level || 1
+    article.doc(class=item.type.replace(' ', '-'))
+      header
+        !='<h'+level+' class="title">'
+        a(id=attrClean(item.path), href='#'+attrClean(item.path))
+          +title( item )
+        if item.alias_of
+          small.aliases
+            | alias of: 
+            span.alias=item.alias_of
+        !='</h'+level+'>'
+      
+      if item.short_description
+        .desc
+          !=md(linkify(item.short_description))
 
-    +signatures(item)
+      +signatures(item)
 
-    if item.description
-      .desc.long
-        !=md(linkify(item.description.replace(item.short_description, '')))
-    
-    if item.related_to
-      | Related to: 
-      a.related(href='#'+attrClean(getPath(item.related_to)))
-        !=item.related_to
+      if item.description
+        .desc.long
+          !=md(linkify(item.description.replace(item.short_description, '')))
+      
+      if item.related_to
+        | Related to: 
+        a.related(href='#'+attrClean(getPath(item.related_to)))
+          !=item.related_to
 
-    p.file='source: '
-      a(href=fileRoot+item.file+'#L'+item.line)=item.file+' : '+item.line
+      p.file='source: '
+        a(href=fileRoot+item.file+'#L'+item.line)=item.file+' : '+item.line
 
-    if recurse !== false && item.children && item.children.length
-      .children
-        //- sort so that constructors are first
-        for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
-          +doc(ch, level+1)
+      if recurse !== false && item.children && item.children.length
+        .children
+          //- sort so that constructors are first
+          for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
+            +doc(ch, level+1)
 
 doctype html
 html

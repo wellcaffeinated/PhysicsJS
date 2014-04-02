@@ -47,8 +47,15 @@ Physics.util = {};
 
 /**
  * == Classes ==
+ *
+ * This section contains classes that are used in PhysicsJS
+ * but aren't available through the main namespace directly.
+ * Usually this means they were created by a factory function
+ * using a [[Physics.util.decorator]].
  **/
 
 /**
  * == Special ==
+ *
+ * This section contains miscellaneous functionality. 
  **/

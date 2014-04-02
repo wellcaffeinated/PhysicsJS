@@ -125,6 +125,8 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      * 
      * Use the first signature (once) to define it first.
      * If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned.
+     *
+     * See [[Physics.util.decorator]] for more information.
      **/
     var factory = function factory( name, parentName, decorator, cfg ){
 
