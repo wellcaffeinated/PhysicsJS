@@ -3,7 +3,7 @@ the <code>Physics</code> namespace.</p>
 </div><div class="desc long"><p>It may be invoked as a function to create a world instance.</p>
 <p>example:</p>
 <pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">Physics</span><span class="p">(</span> <span class="nx">cfg</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">world</span> <span class="p">)</span> <span class="p">{</span>
-<span class="c1">// use world</span>
+    <span class="c1">// use world</span>
 <span class="p">});</span> <span class="c1">// returns world</span>
 </pre></div>
 
@@ -32,20 +32,23 @@ the <a href="http://lodash.com/docs">lodash API</a>.</p>
 <a href="https://github.com/wellcaffeinated/PhysicsJS/wiki/Fundamentals#the-factory-pattern">For full documentation and examples, please visit the wiki</a>.</p>
 <p>Example:</p>
 <pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">factory</span> <span class="o">=</span> <span class="nx">Physics</span><span class="p">.</span><span class="nx">util</span><span class="p">.</span><span class="nx">decorator</span><span class="p">(</span><span class="s1">&#39;factory&#39;</span><span class="p">,</span> <span class="p">{</span>
-<span class="c1">// prototype methods...</span>
-<span class="nx">method</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">args</span> <span class="p">){</span>
-<span class="p">}</span>
+     <span class="c1">// prototype methods...</span>
+     <span class="nx">method</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">args</span> <span class="p">){</span>
+     <span class="p">}</span>
 <span class="p">});</span>
+
 <span class="c1">// define</span>
 <span class="nx">factory</span><span class="p">(</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;parent-name&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">parent</span> <span class="p">){</span>
-<span class="c1">// extend further...</span>
-<span class="k">return</span> <span class="p">{</span>
-    <span class="c1">// overrides</span>
-    <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">cfg</span> <span class="p">){</span>
-        <span class="nx">parent</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">cfg</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">};</span>
+
+     <span class="c1">// extend further...</span>
+     <span class="k">return</span> <span class="p">{</span>
+         <span class="c1">// overrides</span>
+         <span class="nx">init</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">cfg</span> <span class="p">){</span>
+             <span class="nx">parent</span><span class="p">.</span><span class="nx">init</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">cfg</span><span class="p">);</span>
+         <span class="p">}</span>
+     <span class="p">};</span>
 <span class="p">});</span>
+
 <span class="c1">// instantiate</span>
 <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;val&#39;</span> <span class="p">};</span>
 <span class="kd">var</span> <span class="nx">instance</span> <span class="o">=</span> <span class="nx">factory</span><span class="p">(</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nx">options</span> <span class="p">);</span>
@@ -63,10 +66,13 @@ the <a href="http://lodash.com/docs">lodash API</a>.</p>
 </dd></dl></div></li></ul><div class="desc long"><p>Example:</p>
 <pre><code class="lang-javascript"><div class="highlight"><pre><span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">Physics</span><span class="p">.</span><span class="nx">util</span><span class="p">.</span><span class="nx">options</span><span class="p">({</span> <span class="nx">foo</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">opt</span><span class="o">:</span> <span class="s1">&#39;def&#39;</span> <span class="p">});</span>
 <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">({</span> <span class="nx">opt</span><span class="o">:</span> <span class="s1">&#39;myVal&#39;</span> <span class="p">});</span>
+
 <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">foo</span><span class="p">;</span> <span class="c1">// === &#39;bar&#39;</span>
 <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">def</span><span class="p">;</span> <span class="c1">// === &#39;myVal&#39;</span>
+
 <span class="c1">// can also change defaults later</span>
 <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">defaults</span><span class="p">({</span> <span class="nx">foo</span><span class="o">:</span> <span class="s1">&#39;baz&#39;</span> <span class="p">});</span>
+
 <span class="c1">// can add a change callback</span>
 <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">.</span><span class="nx">onChange</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span> <span class="nx">opts</span> <span class="p">){</span>
     <span class="c1">// some option changed</span>
@@ -114,7 +120,8 @@ the <a href="http://lodash.com/docs">lodash API</a>.</p>
 </div><div class="desc long"><p>Here is a test link <a href="#Physics-world-new">new Physics.world</a></p>
 <p>Example:</p>
 <pre><code class="lang-javascript"><div class="highlight"><pre><span class="nx">Physics</span><span class="p">(</span> <span class="nx">cfg</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">world</span> <span class="p">)</span> <span class="p">{</span>
-<span class="c1">// use world</span>
+    <span class="c1">// use world</span>
+
 <span class="p">});</span> <span class="c1">// returns world</span>
 </pre></div>
 
@@ -203,7 +210,7 @@ Automatically called when added to world by the <a href="#Behavior-prototype-set
 /
        init: function( options ){</p>
 <pre><code><div class="highlight"><pre>       <span class="k">this</span><span class="p">.</span><span class="nx">options</span> <span class="o">=</span> <span class="nx">Physics</span><span class="p">.</span><span class="nx">util</span><span class="p">.</span><span class="nx">options</span><span class="p">(</span> <span class="nx">defaults</span> <span class="p">);</span>
-<span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">(</span> <span class="nx">options</span> <span class="p">);</span>
+       <span class="k">this</span><span class="p">.</span><span class="nx">options</span><span class="p">(</span> <span class="nx">options</span> <span class="p">);</span>
    <span class="p">},</span>
 </pre></div>
 
