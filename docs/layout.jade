@@ -96,12 +96,10 @@ mixin signatures( item )
             if item.type !== 'constructor'
               |; // ->
               span.returns
-                if sig.returns
-                  each ret, i in sig.returns
-                    =(i === 0 ? ' ':' | ')
-                    a(href=getLinkPath(ret.type, item),class=ret.type)=ret.type
-                else
-                  span.void void
+                - var rets = sig.returns || [{ type: 'void' }]
+                each ret, i in rets
+                  =(i === 0 ? ' ':' | ')
+                  a(href=getLinkPath(ret.type, item),class=ret.type)=ret.type
 
           +argdesc( sig, item )
           +returns( sig, item )
