@@ -90,14 +90,14 @@
      */
     AABB.prototype.contains = function contains( pt ){
 
-        var x = pt.x !== undefined ? pt.x : pt.get(0)
-            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+        var x = pt.x
+            ,y = pt.y
             ;
 
-        return  (x > (this._pos.get(0) - this._hw)) && 
-                (x < (this._pos.get(0) + this._hw)) &&
-                (y > (this._pos.get(1) - this._hh)) &&
-                (y < (this._pos.get(1) + this._hh));
+        return  (x > (this._pos.x - this._hw)) && 
+                (x < (this._pos.x + this._hw)) &&
+                (y > (this._pos.y - this._hh)) &&
+                (y < (this._pos.y + this._hh));
     };
 
     /**
@@ -124,8 +124,8 @@
 
         // we need to keep the box oriented with the axis, but expand it to
         // accomodate the rotation
-        this._hw = Math.max( Math.abs(bottomRight.get(0)), Math.abs(topRight.get(0)) );
-        this._hh = Math.max( Math.abs(bottomRight.get(1)), Math.abs(topRight.get(1)) );
+        this._hw = Math.max( Math.abs(bottomRight.x), Math.abs(topRight.x) );
+        this._hh = Math.max( Math.abs(bottomRight.y), Math.abs(topRight.y) );
 
         scratch.done();
         return this;
@@ -140,8 +140,8 @@
      */
     AABB.contains = function( aabb, pt ){
 
-        var x = pt.x !== undefined ? pt.x : pt.get(0)
-            ,y = pt.y !== undefined ? pt.y : pt.get(1)
+        var x = pt.x
+            ,y = pt.y
             ;
 
         aabb = aabb.get ? aabb.get() : aabb;
