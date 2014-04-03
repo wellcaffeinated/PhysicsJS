@@ -311,17 +311,13 @@
          **/
         aabb: function(){
 
-            var scratch = Physics.scratchpad()
-                ,trans = scratch.transform()
-                ,angle = this.state.angular.pos
-                ,aabb = scratch.aabb().set( this.geometry.aabb( angle ) )
+            var angle = this.state.angular.pos
+                ,aabb = this.geometry.aabb( angle )
                 ;
 
-            trans.setRotation( 0 ).setTranslation(this.state.pos);
-            aabb.transform( trans );
+            aabb.x += this.state.pos.x;
+            aabb.y += this.state.pos.y;
 
-            aabb = aabb.get();
-            scratch.done();
             return aabb;
         },
 

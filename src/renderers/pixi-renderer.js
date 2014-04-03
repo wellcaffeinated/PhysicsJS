@@ -233,8 +233,8 @@ Physics.renderer('pixi', function( proto ){
 
 			var view = null
 				,aabb = geometry.aabb()
-				,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
-				,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
+				,hw = aabb.hw + Math.abs(aabb.x)
+				,hh = aabb.hh + Math.abs(aabb.y)
 				,x = hw + 1
 				,y = hh + 1
 				,name = geometry.name

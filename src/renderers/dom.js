@@ -122,10 +122,10 @@ Physics.renderer('dom', function( proto ){
 
             var aabb = geometry.aabb();
 
-            el.style.width = (aabb.halfWidth * 2) + px;
-            el.style.height = (aabb.halfHeight * 2) + px;
-            el.style.marginLeft = (-aabb.halfWidth) + px;
-            el.style.marginTop = (-aabb.halfHeight) + px;
+            el.style.width = (aabb.hw * 2) + px;
+            el.style.height = (aabb.hh * 2) + px;
+            el.style.marginLeft = (-aabb.hw) + px;
+            el.style.marginTop = (-aabb.hh) + px;
         },
 
         /**

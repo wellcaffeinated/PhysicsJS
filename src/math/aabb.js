@@ -1,156 +1,131 @@
 (function(){
 
     /**
-     * Axis Aligned Bounding Box implementation
+     * Physics.aabb( minX, minY, maxX, maxY ) -> Object
+     * Physics.aabb( pt1, pt2 ) -> Object
+     * Physics.aabb( width, height[, pt] ) -> Object
+     * - minX (Number): The x coord of the "top left" point
+     * - minY (Number): The y coord of the "top left" point
+     * - maxX (Number): The x coord of the "bottom right" point
+     * - maxY (Number): The y coord of the "bottom right" point
+     * - pt1 (Vectorish): The first corner
+     * - pt2 (Vectorish): The opposite corner
+     * - width (Number): The width of the bounding box
+     * - height (Number): The height of the bounding box
+     * - pt (Vectorish): The center point of the bounding box
+     * + (Object): The bounding box. It's a simple object that has the following signature:
+       ```javascript
+       {
+            x: Number, // the x coord of the center point
+            y: Number, // the y coord of the center point
+            hw: Number, // the half-width
+            hh: Number, // the half-height
+       }
+       ```
+     * 
+     * Create an Axis Aligned Bounding Box.
+     * 
      * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
      * @param {Number} minY Minimum y value
      * @param {Number} maxX Maximum x value
      * @param {Number} maxY Maximum y value
-     */
-    var AABB = function AABB( minX, minY, maxX, maxY ){
+     **/
+    Physics.aabb = function( minX, minY, maxX, maxY ){
 
-        // enforce instantiation
-        if ( !(this instanceof AABB) ){
+        var aabb = {};
 
-            return new AABB( minX, minY, maxX, maxY );
+        if ( minX && minX.x !== undefined ){
+            // we have a point specified as first arg
+            maxX = minY.x;
+            maxY = minY.y;
+            minY = minX.y;
+            minX = minX.x;
         }
 
-        this._pos = Physics.vector();
-        
-        this.set( minX, minY, maxX, maxY );
+        if ( maxX && maxX.x !== undefined ){
+            // we have a point specified as the third arg
+            // so we assume it's the center point
+            aabb.x = maxX.x;
+            aabb.y = maxX.y;
+            aabb.hw = minX * 0.5;
+            aabb.hh = minY * 0.5;
+
+            // done
+            return aabb;
+        }
+
+        // here, we should have all the arguments as numbers
+        aabb.hw = Math.abs(maxX - minX) * 0.5;
+        aabb.hh = Math.abs(maxY - minY) * 0.5;
+        aabb.x = (maxX + minX) * 0.5;
+        aabb.y = (maxY + minY) * 0.5;
+
+        return aabb;
     };
 
     /**
-     * Set the aabb values
-     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
-     * @param {Number} minY Minimum y value
-     * @param {Number} maxX Maximum x value
-     * @param {Number} maxY Maximum y value
-     * @return {this}
-     */
-    AABB.prototype.set = function set( minX, minY, maxX, maxY ){
+     * Physics.aabb.contains( aabb, pt ) -> Boolean
+     * - aabb (Object): The aabb
+     * - pt (Vectorish): The point
+     * + (Boolean): `true` if `pt` is inside `aabb`, `false` otherwise
+     * 
+     * Check if a point is inside an aabb.
+     **/
+    Physics.aabb.contains = function contains( aabb, pt ){
 
-        if ( Physics.util.isObject(minX) ){
-
-            this._pos.clone( minX.pos );
-            this._hw = minX.halfWidth;
-            this._hh = minX.halfHeight;
-            
-            return this;
-        }
-
-        this._pos.set( 0.5 * (maxX + minX), 0.5 * (maxY + minY) );
-        this._hw = 0.5 * (maxX - minX);
-        this._hh = 0.5 * (maxY - minY);
-        return this;
+        return  (pt.x > (aabb.x - aabb.hw)) && 
+                (pt.x < (aabb.x + aabb.hw)) &&
+                (pt.y > (aabb.y - aabb.hh)) &&
+                (pt.y < (aabb.y + aabb.hh));
     };
 
-    /**
-     * Get the aabb values as a plain object
-     * @return {Object} The aabb values
-     */
-    AABB.prototype.get = function get(){
-
-        var hw = this.halfWidth()
-            ,hh = this.halfHeight()
-            ;
-
+    /** 
+     * Physics.aabb.clone( aabb ) -> Object
+     * - aabb (Object): The aabb to clone
+     * + (Object): The clone
+     *
+     * Clone an aabb.
+     **/
+    Physics.aabb.clone = function( aabb ){
         return {
-            pos: this._pos.values(),
-            halfWidth: hw,
-            halfHeight: hh,
-            // useful for vector operations
-            x: hw,
-            y: hh
+            x: aabb.x,
+            y: aabb.y,
+            hw: aabb.hw,
+            hh: aabb.hh
         };
     };
 
-    /**
-     * Get the half-width measurement of the aabb
-     * @return {Number} The half-width
-     */
-    AABB.prototype.halfWidth = function halfWidth(){
+    /** 
+     * Physics.aabb.overlap( aabb1, aabb2 ) -> Boolean
+     * - aabb1 (Object): The first aabb
+     * - aabb2 (Object): The second aabb
+     * + (Boolean): `true` if they overlap, `false` otherwise
+     *
+     * Check if two AABBs overlap.
+     **/
+    Physics.aabb.overlap = function( aabb1, aabb2 ){
 
-        return this._hw;
-    };
-
-    /**
-     * Get the half-height measurement of the aabb
-     * @return {Number} The half-height
-     */
-    AABB.prototype.halfHeight = function halfHeight(){
-
-        return this._hh;
-    };
-
-    /**
-     * Check if point is inside bounds
-     * @param  {Vectorish} pt The point to check
-     * @return {Boolean}    True if point is inside aabb
-     */
-    AABB.prototype.contains = function contains( pt ){
-
-        var x = pt.x
-            ,y = pt.y
+        var min1 = aabb1.x - aabb1.hw
+            ,min2 = aabb2.x - aabb2.hw
+            ,max1 = aabb1.x + aabb1.hw
+            ,max2 = aabb2.x + aabb2.hw
             ;
 
-        return  (x > (this._pos.x - this._hw)) && 
-                (x < (this._pos.x + this._hw)) &&
-                (y > (this._pos.y - this._hh)) &&
-                (y < (this._pos.y + this._hh));
+        // first check x-axis
+        
+        if ( (min2 <= max1 && max1 <= max2) || (min1 <= max2 && max2 <= max1) ){
+            // overlap in x-axis
+            // check y...
+            min1 = aabb1.y - aabb1.hh;
+            min2 = aabb2.y - aabb2.hh;
+            max1 = aabb1.y + aabb1.hh;
+            max2 = aabb2.y + aabb2.hh;
+
+            return (min2 <= max1 && max1 <= max2) || (min1 <= max2 && max2 <= max1);
+        }
+
+        // they don't overlap
+        return false;
     };
 
-    /**
-     * Apply a transformation to the aabb.
-     * Rotation origin is relative to the aabb's center.
-     * @param  {Transform} trans The transformation
-     * @return {this}
-     */
-    AABB.prototype.transform = function transform( trans ){
-
-        var hw = this._hw
-            ,hh = this._hh
-            ,scratch = Physics.scratchpad()
-            ,bottomRight = scratch.vector().set( hw, hh )
-            ,topRight = scratch.vector().set( hw, -hh )
-            ;
-
-        // translate the center
-        this._pos.translate( trans );
-
-        // rotate the corners
-        bottomRight.rotate( trans );
-        topRight.rotate( trans );
-
-        // we need to keep the box oriented with the axis, but expand it to
-        // accomodate the rotation
-        this._hw = Math.max( Math.abs(bottomRight.x), Math.abs(topRight.x) );
-        this._hh = Math.max( Math.abs(bottomRight.y), Math.abs(topRight.y) );
-
-        scratch.done();
-        return this;
-    };
-
-    // Static methods
-    /**
-     * Check if a point is inside an aabb
-     * @param  {AABB|Object} aabb The aabb instance or aabb values
-     * @param  {Vectorish} pt   The point to check
-     * @return {Boolean}      True if point is inside aabb
-     */
-    AABB.contains = function( aabb, pt ){
-
-        var x = pt.x
-            ,y = pt.y
-            ;
-
-        aabb = aabb.get ? aabb.get() : aabb;
-
-        return  (x > (aabb.pos.x - aabb.halfWidth)) && 
-                (x < (aabb.pos.x + aabb.halfWidth)) &&
-                (y > (aabb.pos.y - aabb.halfHeight)) &&
-                (y < (aabb.pos.y + aabb.halfHeight));
-    };
-
-    Physics.aabb = AABB;
 }());

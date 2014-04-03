@@ -190,8 +190,8 @@ Physics.renderer('canvas', function( proto ){
             for ( var i = 1; i < l; ++i ){
                 
                 vert = verts[ i ];
-                x = vert.x
-                y = vert.y
+                x = vert.x;
+                y = vert.y;
                 ctx.lineTo(x, y);
             }
 
@@ -268,8 +268,8 @@ Physics.renderer('canvas', function( proto ){
 
             var view
                 ,aabb = geometry.aabb()
-                ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
-                ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
+                ,hw = aabb.hw + Math.abs(aabb.x)
+                ,hh = aabb.hh + Math.abs(aabb.y)
                 ,x = hw + 1
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx
@@ -373,7 +373,7 @@ Physics.renderer('canvas', function( proto ){
 
             if ( this.options.debug ){
                 // draw bounding boxes
-                this.drawRect( aabb.pos.x, aabb.pos.y, 2 * aabb.x, 2 * aabb.y, 'rgba(0, 0, 255, 0.3)' );
+                this.drawRect( aabb.x, aabb.y, 2 * aabb.hw, 2 * aabb.hh, 'rgba(0, 0, 255, 0.3)' );
                 
                 // draw also paths
                 body._debugView = body._debugView || this.createView(body.geometry, 'rgba(255, 0, 0, 0.5)');

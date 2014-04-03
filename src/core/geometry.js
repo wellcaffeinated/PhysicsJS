@@ -56,7 +56,7 @@
          **/
         aabb: function( angle ){
 
-            return this._aabb.get();
+            return Physics.aabb.clone(this._aabb);
         },
 
         /**

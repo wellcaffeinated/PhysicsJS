@@ -55,7 +55,7 @@
                 return +this._[0];
             },
             set: function( x ){
-                x = +x;
+                x = +x || 0;
                 this.recalc = ( x === this._[0] );
                 this._[0] = x;
             }
@@ -65,7 +65,7 @@
                 return +this._[1];
             },
             set: function( y ){
-                y = +y;
+                y = +y || 0;
                 this.recalc = ( y === this._[1] );
                 this._[1] = y;
             }
@@ -83,8 +83,8 @@
 
         this.recalc = true;
 
-        this._[0] = x || 0;
-        this._[1] = y || 0;
+        this._[0] = +x || 0;
+        this._[1] = +y || 0;
         return this;
     };
 
