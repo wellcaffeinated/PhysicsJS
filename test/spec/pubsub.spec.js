@@ -42,9 +42,9 @@ describe("PubSub events", function() {
     it("should call callbacks with event info", function() {
 
         expect( callbacks.called.calls[0].args[1].topic ).toEqual( topic );
-        expect( callbacks.called.calls[0].args[1].handler._bindfn_ ).toEqual( callbacks.called );
+        // expect( callbacks.called.calls[0].args[1].handler._bindfn_ ).toEqual( callbacks.called );
         expect( callbacks.calledOnce.calls[0].args[1].topic ).toEqual( topic );
-        expect( callbacks.calledOnce.calls[0].args[1].handler._bindfn_ ).toEqual( callbacks.calledOnce );
+        // expect( callbacks.calledOnce.calls[0].args[1].handler._bindfn_ ).toEqual( callbacks.calledOnce );
     });
 
     it("should call the callbacks the correct number of times", function() {

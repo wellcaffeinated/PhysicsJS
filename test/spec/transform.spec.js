@@ -32,19 +32,20 @@ describe("Transformations", function() {
         expect( v.get(1) ).toBeCloseTo( 3, 6 );
     });
 
-    it("should transform aabb correctly", function() {
+    // removed functionality
+    // it("should transform aabb correctly", function() {
 
-        T.setRotation( Math.PI/2 );
+    //     T.setRotation( Math.PI/2 );
 
-        aabb.transform( T );
+    //     aabb.transform( T );
 
-        var vals = aabb.get();
+    //     var vals = aabb.get();
         
-        expect( vals.halfWidth ).toBeCloseTo( 15, 6 );
-        expect( vals.halfHeight ).toBeCloseTo( 25, 6 );
-        expect( vals.pos.x ).toBeCloseTo( 95, 6 );
-        expect( vals.pos.y ).toBeCloseTo( 85, 6 );
-    });
+    //     expect( vals.halfWidth ).toBeCloseTo( 15, 6 );
+    //     expect( vals.halfHeight ).toBeCloseTo( 25, 6 );
+    //     expect( vals.pos.x ).toBeCloseTo( 95, 6 );
+    //     expect( vals.pos.y ).toBeCloseTo( 85, 6 );
+    // });
 
     it("should clone correctly", function(){
 

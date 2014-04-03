@@ -38,8 +38,8 @@ module.exports = function(grunt) {
         sources : [
             'src/intro.js',
             'lib/lodash.js',
-            'src/util/*.js',
             'src/math/*.js',
+            'src/util/*.js',
 
             'src/core/query.js',
             'src/core/behavior.js',

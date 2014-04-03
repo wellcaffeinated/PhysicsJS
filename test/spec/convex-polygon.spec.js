@@ -103,8 +103,8 @@ describe("Polygon geometry", function() {
         
         var aabb = poly.aabb();
 
-        expect( aabb.halfWidth ).toEqual( 1 );
-        expect( aabb.halfHeight ).toEqual( 1.5 / 2 );
+        expect( aabb.hw ).toEqual( 1 );
+        expect( aabb.hh ).toEqual( 1.5 / 2 );
     });
 
     it("should return correct vertices for getFarthestHullPoint", function(){

@@ -144,12 +144,14 @@ Physics.scratchpad = (function(){
         }
 
         args = 'a' + args.join(',a');
+        /* jshint -W054 */
         var handle = new Function('fn, scratches, Scratch', 'return function('+args+'){ '+
                'var scratch = scratches.pop() || new Scratch( scratches );'+
                'scratch._active = true;'+
                'return scratch.done( fn(scratch, '+args+') );'+
            '};'
         );
+        /* jshint +W054 */
 
         return handle(fn, scratches, Scratch);
     };
