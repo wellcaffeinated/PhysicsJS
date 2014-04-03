@@ -9,6 +9,9 @@
     "src/core/renderer.js",
     "src/core/world.js",
     "src/intro.js",
+    "src/math/aabb.js",
+    "src/math/gjk.js",
+    "src/math/transform.js",
     "src/util/decorator.js",
     "src/util/helpers.js",
     "src/util/noconflict.js",
@@ -414,7 +417,7 @@
               "types": [
                 "Object"
               ],
-              "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+              "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
             }
           ],
           "returns": [
@@ -437,13 +440,13 @@
           "types": [
             "Object"
           ],
-          "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+          "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
         }
       ],
       "related_to": "Physics.util.decorator",
       "description": "Factory function for creating Bodies.\n\nVisit [the PhysicsJS wiki on Bodies](https://github.com/wellcaffeinated/PhysicsJS/wiki/Bodies)\nfor usage documentation.",
       "short_description": "Factory function for creating Bodies.\n",
-      "line": 49,
+      "line": 48,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -457,7 +460,7 @@
       "type": "class",
       "description": "The base class for behaviors created by [[Physics.body]] factory function.",
       "short_description": "The base class for behaviors created by [[Physics.body]] factory function.",
-      "line": 56,
+      "line": 55,
       "aliases": [],
       "children": [
         {
@@ -481,7 +484,7 @@
           ],
           "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
           "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-          "line": 313,
+          "line": 312,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -522,7 +525,7 @@
           ],
           "description": "Accelerate the body by adding supplied vector to its current acceleration",
           "short_description": "Accelerate the body by adding supplied vector to its current acceleration",
-          "line": 258,
+          "line": 257,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -578,7 +581,7 @@
           ],
           "description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
           "short_description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
-          "line": 274,
+          "line": 273,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -601,7 +604,7 @@
           ],
           "description": "The coefficient of friction of the body.\n\nIt's how much \"slide\" it has during collisions.\n\nA `cof` of `0` will really slidy.\n\nA `cof` of `1` has no slide.\n\nThis is a very simplistic implementation at the moment.\nWhat would be better is to have both static and kinetic\nfriction. But that's not done yet.",
           "short_description": "The coefficient of friction of the body.\n",
-          "line": 185,
+          "line": 184,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -616,7 +619,7 @@
           "related_to": "Physics.geometry",
           "description": "The geometry for this body.\n\nBy default it is a `point` geometry which gets overridden.",
           "short_description": "The geometry for this body.\n",
-          "line": 144,
+          "line": 143,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -639,7 +642,7 @@
           ],
           "description": "Determines whether the body should be hidden by the renderer.",
           "short_description": "Determines whether the body should be hidden by the renderer.",
-          "line": 204,
+          "line": 203,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -676,7 +679,7 @@
           "internal": true,
           "description": "Initialization. Internal use.",
           "short_description": "Initialization. Internal use.",
-          "line": 63,
+          "line": 62,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -699,7 +702,7 @@
           ],
           "description": "The mass.",
           "short_description": "The mass.",
-          "line": 151,
+          "line": 150,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -748,7 +751,7 @@
           "related_to": "Physics.util.options",
           "description": "Set options on this instance.\n\nAccess options directly from the options object.\n\nExample:\n\n```javascript\nthis.options.someOption;\n```",
           "short_description": "Set options on this instance.\n",
-          "line": 83,
+          "line": 82,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -772,7 +775,7 @@
           ],
           "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
           "short_description": "Recalculate properties.\n",
-          "line": 336,
+          "line": 331,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -795,7 +798,7 @@
           ],
           "description": "The restitution.\n\nThis is the \"bounciness\" of the body.\nIt's a number between `0` and `1`.\n\nA restitution of 1 is the bounciest.\n\nA restitution of 0 is not bouncy.\n\nWhen colliding the restitutions of bodies are\nmultiplied together to get the restitution between two\nbodies.",
           "short_description": "The restitution.\n",
-          "line": 169,
+          "line": 168,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -836,7 +839,7 @@
           ],
           "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
           "short_description": "Set which world to apply to.\n",
-          "line": 237,
+          "line": 236,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -850,7 +853,7 @@
           "type": "namespace",
           "description": "The physical state container.\n\n- ``this.state.pos`` ([[Physics.vector]]) The position vector.\n- ``this.state.vel`` ([[Physics.vector]]) The velocity vector.\n- ``this.state.acc`` ([[Physics.vector]]) The acceleration vector.\n- ``this.state.angular.pos`` ([[Number]]) The angular position (in radians, positive is clockwise starting along the x axis)\n- ``this.state.angular.vel`` ([[Number]]) The angular velocity\n- ``this.state.angular.acc`` ([[Number]]) The angular acceleration\n\nProperties from the previous timestep are stored in:\n```javascript\nthis.state.old; // .pos, .vel, ...\n```",
           "short_description": "The physical state container.\n",
-          "line": 104,
+          "line": 103,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -865,7 +868,7 @@
           "related_to": "Physics.renderer",
           "description": "The styles the renderer should use for creating the view.\n\nThe styles depend on the renderer. See [[Renderer#createView]] for style options.",
           "short_description": "The styles the renderer should use for creating the view.\n",
-          "line": 227,
+          "line": 226,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -888,7 +891,7 @@
           ],
           "description": "How the body is treated by the simulation.\n\nThe body can be `dynamic`, `kinematic` or `static` as\ndescribed by the [analogous box2d docs](http://www.box2d.org/manual.html#_Toc258082973).\n\n* _dynamic_ bodies are treated \"normally\". They are integrated, and collide, and all that.\n* _kinematic_ bodies are bodies that move at a specified velocity. Other bodies collide with them, but they don't bounce off of other bodies.\n* _static_ bodies just stand still. They are like obstacles.",
           "short_description": "How the body is treated by the simulation.\n",
-          "line": 198,
+          "line": 197,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -912,7 +915,7 @@
           "related_to": "Physics.renderer",
           "description": "Storage for use by the renderer.\n\nThe type of renderer will put different things in the view property.\nBasically, this is how the body \"looks\". It could be a HTMLElement, or\nan Image, etc...\n\nIf your body changes appearance (shape), you should modify this somehow\notherwise the renderer will keep using this same view. If you're letting\nthe renderer create the view for you, just set this to `undefined` if the\nbody gets modified in shape during the simulation.",
           "short_description": "Storage for use by the renderer.\n",
-          "line": 219,
+          "line": 218,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -5418,6 +5421,351 @@
       ],
       "children": [
         {
+          "id": "Physics.aabb",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "minX",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The x coord of the \"top left\" point\n\n "
+                },
+                {
+                  "name": "minY",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The y coord of the \"top left\" point\n\n "
+                },
+                {
+                  "name": "maxX",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The x coord of the \"bottom right\" point\n\n "
+                },
+                {
+                  "name": "maxY",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The y coord of the \"bottom right\" point\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object"
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "pt1",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The first corner\n\n "
+                },
+                {
+                  "name": "pt2",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The opposite corner\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object"
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "width",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The width of the bounding box\n\n "
+                },
+                {
+                  "name": "height",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The height of the bounding box\n\n "
+                },
+                {
+                  "name": "pt",
+                  "optional": true,
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The center point of the bounding box\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "minX",
+              "types": [
+                "Number"
+              ],
+              "description": " The x coord of the \"top left\" point\n\n "
+            },
+            {
+              "name": "minY",
+              "types": [
+                "Number"
+              ],
+              "description": " The y coord of the \"top left\" point\n\n "
+            },
+            {
+              "name": "maxX",
+              "types": [
+                "Number"
+              ],
+              "description": " The x coord of the \"bottom right\" point\n\n "
+            },
+            {
+              "name": "maxY",
+              "types": [
+                "Number"
+              ],
+              "description": " The y coord of the \"bottom right\" point\n\n "
+            },
+            {
+              "name": "pt1",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The first corner\n\n "
+            },
+            {
+              "name": "pt2",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The opposite corner\n\n "
+            },
+            {
+              "name": "width",
+              "types": [
+                "Number"
+              ],
+              "description": " The width of the bounding box\n\n "
+            },
+            {
+              "name": "height",
+              "types": [
+                "Number"
+              ],
+              "description": " The height of the bounding box\n\n "
+            },
+            {
+              "name": "pt",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The center point of the bounding box\n\n "
+            }
+          ],
+          "description": "Create an Axis Aligned Bounding Box.\n\nSignature:\n\n```javascript\n{\n    x: Number, // the x coord of the center point\n    y: Number, // the y coord of the center point\n    hw: Number, // the half-width\n    hh: Number, // the half-height\n}\n```",
+          "short_description": "Create an Axis Aligned Bounding Box.\n",
+          "line": 30,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Physics.aabb.clone",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "aabb",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The aabb to clone\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "Object",
+                      "description": " The clone\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "aabb",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The aabb to clone\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object",
+                  "description": " The clone\n\n "
+                }
+              ],
+              "description": "Clone an aabb.",
+              "short_description": "Clone an aabb.",
+              "line": 86,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/aabb.js",
+              "name": "clone",
+              "name_prefix": "Physics.aabb.",
+              "path": "Physics.aabb.clone",
+              "outFile": "aabb.html#Physics.aabb.clone"
+            },
+            {
+              "id": "Physics.aabb.contains",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "aabb",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The aabb\n\n "
+                    },
+                    {
+                      "name": "pt",
+                      "types": [
+                        "Vectorish"
+                      ],
+                      "description": " The point\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "Boolean",
+                      "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "aabb",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The aabb\n\n "
+                },
+                {
+                  "name": "pt",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The point\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+                }
+              ],
+              "description": "Check if a point is inside an aabb.",
+              "short_description": "Check if a point is inside an aabb.",
+              "line": 71,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/aabb.js",
+              "name": "contains",
+              "name_prefix": "Physics.aabb.",
+              "path": "Physics.aabb.contains",
+              "outFile": "aabb.html#Physics.aabb.contains"
+            },
+            {
+              "id": "Physics.aabb.overlap",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "aabb1",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The first aabb\n\n "
+                    },
+                    {
+                      "name": "aabb2",
+                      "types": [
+                        "Object"
+                      ],
+                      "description": " The second aabb\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "Boolean",
+                      "description": " `true` if they overlap, `false` otherwise\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "aabb1",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The first aabb\n\n "
+                },
+                {
+                  "name": "aabb2",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The second aabb\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if they overlap, `false` otherwise\n\n "
+                }
+              ],
+              "description": "Check if two AABBs overlap.",
+              "short_description": "Check if two AABBs overlap.",
+              "line": 103,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/aabb.js",
+              "name": "overlap",
+              "name_prefix": "Physics.aabb.",
+              "path": "Physics.aabb.overlap",
+              "outFile": "aabb.html#Physics.aabb.overlap"
+            }
+          ],
+          "file": "src/math/aabb.js",
+          "name": "aabb",
+          "name_prefix": "Physics.",
+          "path": "Physics.aabb",
+          "outFile": "aabb.html#Physics.aabb"
+        },
+        {
           "id": "Physics.behavior",
           "type": "class method",
           "signatures": [
@@ -5493,7 +5841,7 @@
                   "types": [
                     "Object"
                   ],
-                  "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+                  "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
                 }
               ],
               "returns": [
@@ -5516,13 +5864,13 @@
               "types": [
                 "Object"
               ],
-              "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+              "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
             }
           ],
           "related_to": "Physics.util.decorator",
           "description": "Factory function for creating Bodies.\n\nVisit [the PhysicsJS wiki on Bodies](https://github.com/wellcaffeinated/PhysicsJS/wiki/Bodies)\nfor usage documentation.",
           "short_description": "Factory function for creating Bodies.\n",
-          "line": 49,
+          "line": 48,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -5920,6 +6268,105 @@
           "outFile": "geometry.html#Physics.geometry"
         },
         {
+          "id": "Physics.gjk",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "support",
+                  "arguments": [
+                    {
+                      "name": "axis"
+                    }
+                  ],
+                  "callback": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+                },
+                {
+                  "name": "seed",
+                  "optional": true,
+                  "types": [
+                    "Physics.vector"
+                  ],
+                  "description": " The axis to use\n\n "
+                },
+                {
+                  "name": "checkOverlapOnly",
+                  "optional": true,
+                  "types": [
+                    "Physics.vector"
+                  ],
+                  "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+                },
+                {
+                  "name": "debugFn",
+                  "optional": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object",
+                  "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "support",
+              "types": [
+                "Function"
+              ],
+              "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+            },
+            {
+              "name": "axis",
+              "types": [
+                "Physics.vector"
+              ],
+              "description": " The axis to use\n\n "
+            },
+            {
+              "name": "seed",
+              "types": [
+                "Physics.vector"
+              ],
+              "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+            },
+            {
+              "name": "debugFn",
+              "types": [
+                "Function"
+              ],
+              "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+            }
+          ],
+          "description": "Implementation agnostic GJK function.\n\nGilbert–Johnson–Keerthi object collison algorithm\nFor general information about GJK see:\n- [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)\n- [mollyrocket.com/849](http://mollyrocket.com/849)",
+          "short_description": "Implementation agnostic GJK function.\n",
+          "line": 138,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/gjk.js",
+          "name": "gjk",
+          "name_prefix": "Physics.",
+          "path": "Physics.gjk",
+          "outFile": "gjk.html#Physics.gjk"
+        },
+        {
           "id": "Physics.integrator",
           "type": "class method",
           "signatures": [
@@ -6105,6 +6552,417 @@
           "name_prefix": "Physics.",
           "path": "Physics.renderer",
           "outFile": "renderer.html#Physics.renderer"
+        },
+        {
+          "id": "Physics.scratchpad",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "fn",
+                  "optional": true,
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Function",
+                  "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+                },
+                {
+                  "type": "Scratch",
+                  "description": " The scratch session.\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Function",
+              "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+            },
+            {
+              "type": "Scratch",
+              "description": " The scratch session.\n\n "
+            }
+          ],
+          "description": "Get a new scratch session to work from or wrap a function in a scratch session.\n\nCall `.done()` on it when finished.\n\nExample:\n\n```javascript\n// get a scratch session manually\nvar myAlg = function( scratch, arg1, arg2, ... ){\n    var scratch = Physics.scratchpad()\n    ,vec = scratch.vector().set( 0, 0 ) // need to reinitialize... it's recycled!\n    ;\n    // ...\n    return scratch.done( result );\n};\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```\n\nExample:\n\n```javascript\n// wrap a function in a scratch session\nvar myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){\n    var vec = scratch.vector().set( 0, 0 ); // need to reinitialize... it's recycled!\n    //...\n    return result;\n});\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```",
+          "short_description": "Get a new scratch session to work from or wrap a function in a scratch session.\n",
+          "line": 115,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Physics.scratchpad.fn",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "fn",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "Function",
+                      "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Function",
+                  "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+                }
+              ],
+              "description": "Wrap a function in a scratch session.\n\nSame as calling `Physics.scratchpad( fn )` with a function specified.",
+              "short_description": "Wrap a function in a scratch session.\n",
+              "line": 139,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/scratchpad.js",
+              "name": "fn",
+              "name_prefix": "Physics.scratchpad.",
+              "path": "Physics.scratchpad.fn",
+              "outFile": "scratchpad.html#Physics.scratchpad.fn"
+            },
+            {
+              "id": "Physics.scratchpad.register",
+              "type": "class method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "name",
+                      "types": [
+                        "String"
+                      ],
+                      "description": " Name of the object class\n\n "
+                    },
+                    {
+                      "name": "constructor",
+                      "types": [
+                        "Function"
+                      ],
+                      "description": " The object constructor\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "name",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " Name of the object class\n\n "
+                },
+                {
+                  "name": "constructor",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The object constructor\n\n "
+                }
+              ],
+              "description": "Register a new object to be included in scratchpads.\n\nExample:\n\n```javascript\n// register a hypothetical vector class...\nPhysics.scratchpad.register('vector', Vector);\n```",
+              "short_description": "Register a new object to be included in scratchpads.\n",
+              "line": 171,
+              "aliases": [],
+              "children": [],
+              "file": "src/util/scratchpad.js",
+              "name": "register",
+              "name_prefix": "Physics.scratchpad.",
+              "path": "Physics.scratchpad.register",
+              "outFile": "scratchpad.html#Physics.scratchpad.register"
+            }
+          ],
+          "file": "src/util/scratchpad.js",
+          "name": "scratchpad",
+          "name_prefix": "Physics.",
+          "path": "Physics.scratchpad",
+          "outFile": "scratchpad.html#Physics.scratchpad"
+        },
+        {
+          "id": "Physics.transform",
+          "type": "class",
+          "description": "Vector Transformations class for rotating and translating vectors",
+          "short_description": "Vector Transformations class for rotating and translating vectors",
+          "line": 8,
+          "aliases": [],
+          "children": [
+            {
+              "id": "Physics.transform#clone",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "transform",
+                      "optional": true,
+                      "types": [
+                        "Physics.transform"
+                      ],
+                      "description": " Transform to copy\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this",
+                      "description": " For chaining\n\n "
+                    },
+                    {
+                      "type": "Physics.transform",
+                      "description": " New copy of `this` if none is specified as an argument\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "transform",
+                  "types": [
+                    "Physics.transform"
+                  ],
+                  "description": " Transform to copy\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this",
+                  "description": " For chaining\n\n "
+                },
+                {
+                  "type": "Physics.transform",
+                  "description": " New copy of `this` if none is specified as an argument\n\n "
+                }
+              ],
+              "description": "Clone another transform. Or clone self into new transform.",
+              "short_description": "Clone another transform. Or clone self into new transform.",
+              "line": 82,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/transform.js",
+              "name": "clone",
+              "name_prefix": "Physics.transform#",
+              "path": "Physics.transform.prototype.clone",
+              "outFile": "transform.html#Physics.transform.prototype.clone"
+            },
+            {
+              "id": "Physics.transform#setRotation",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "angle",
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " Angle (radians) to use for rotation\n\n "
+                    },
+                    {
+                      "name": "origin",
+                      "optional": true,
+                      "types": [
+                        "Vectorish"
+                      ],
+                      "description": " Origin of the rotation\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "angle",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " Angle (radians) to use for rotation\n\n "
+                },
+                {
+                  "name": "origin",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Origin of the rotation\n\n "
+                }
+              ],
+              "description": "Set the rotation portion of the transform",
+              "short_description": "Set the rotation portion of the transform",
+              "line": 60,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/transform.js",
+              "name": "setRotation",
+              "name_prefix": "Physics.transform#",
+              "path": "Physics.transform.prototype.setRotation",
+              "outFile": "transform.html#Physics.transform.prototype.setRotation"
+            },
+            {
+              "id": "Physics.transform#setTranslation",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "vect",
+                      "types": [
+                        "Vectorish"
+                      ],
+                      "description": " The translation vector\n\n "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "vect",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The translation vector\n\n "
+                }
+              ],
+              "description": "Set the translation portion of the transform.",
+              "short_description": "Set the translation portion of the transform.",
+              "line": 47,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/transform.js",
+              "name": "setTranslation",
+              "name_prefix": "Physics.transform#",
+              "path": "Physics.transform.prototype.setTranslation",
+              "outFile": "transform.html#Physics.transform.prototype.setTranslation"
+            },
+            {
+              "id": "new Physics.transform",
+              "type": "constructor",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "vect",
+                      "optional": true,
+                      "types": [
+                        "Vectorish"
+                      ],
+                      "description": " Translation vector\n\n "
+                    },
+                    {
+                      "name": "angle",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " Angle (radians) to use for rotation\n\n "
+                    },
+                    {
+                      "name": "origin",
+                      "optional": true,
+                      "types": [
+                        "Vectorish"
+                      ],
+                      "description": " Origin of the rotation\n\n "
+                    }
+                  ]
+                },
+                {
+                  "arguments": [
+                    {
+                      "name": "transform",
+                      "types": [
+                        "Physics.transform"
+                      ],
+                      "description": " Transform to copy\n\n "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "vect",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Translation vector\n\n "
+                },
+                {
+                  "name": "transform",
+                  "types": [
+                    "Physics.transform"
+                  ],
+                  "description": " Transform to copy\n\n "
+                },
+                {
+                  "name": "angle",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " Angle (radians) to use for rotation\n\n "
+                },
+                {
+                  "name": "origin",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Origin of the rotation\n\n "
+                }
+              ],
+              "description": "Transform Constructor / Factory",
+              "short_description": "Transform Constructor / Factory",
+              "line": 19,
+              "aliases": [],
+              "children": [],
+              "file": "src/math/transform.js",
+              "name": "new",
+              "name_prefix": "Physics.transform.",
+              "path": "Physics.transform.new",
+              "outFile": "transform.html#Physics.transform.new"
+            }
+          ],
+          "file": "src/math/transform.js",
+          "subclasses": [],
+          "name": "transform",
+          "name_prefix": "Physics.",
+          "path": "Physics.transform",
+          "outFile": "transform.html"
         },
         {
           "id": "Physics.util",
@@ -8922,6 +9780,1157 @@
       "path": "Physics.util",
       "outFile": "intro.html#Physics.util"
     },
+    "Physics.aabb": {
+      "id": "Physics.aabb",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "minX",
+              "types": [
+                "Number"
+              ],
+              "description": " The x coord of the \"top left\" point\n\n "
+            },
+            {
+              "name": "minY",
+              "types": [
+                "Number"
+              ],
+              "description": " The y coord of the \"top left\" point\n\n "
+            },
+            {
+              "name": "maxX",
+              "types": [
+                "Number"
+              ],
+              "description": " The x coord of the \"bottom right\" point\n\n "
+            },
+            {
+              "name": "maxY",
+              "types": [
+                "Number"
+              ],
+              "description": " The y coord of the \"bottom right\" point\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object"
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "pt1",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The first corner\n\n "
+            },
+            {
+              "name": "pt2",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The opposite corner\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object"
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "width",
+              "types": [
+                "Number"
+              ],
+              "description": " The width of the bounding box\n\n "
+            },
+            {
+              "name": "height",
+              "types": [
+                "Number"
+              ],
+              "description": " The height of the bounding box\n\n "
+            },
+            {
+              "name": "pt",
+              "optional": true,
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The center point of the bounding box\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "minX",
+          "types": [
+            "Number"
+          ],
+          "description": " The x coord of the \"top left\" point\n\n "
+        },
+        {
+          "name": "minY",
+          "types": [
+            "Number"
+          ],
+          "description": " The y coord of the \"top left\" point\n\n "
+        },
+        {
+          "name": "maxX",
+          "types": [
+            "Number"
+          ],
+          "description": " The x coord of the \"bottom right\" point\n\n "
+        },
+        {
+          "name": "maxY",
+          "types": [
+            "Number"
+          ],
+          "description": " The y coord of the \"bottom right\" point\n\n "
+        },
+        {
+          "name": "pt1",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " The first corner\n\n "
+        },
+        {
+          "name": "pt2",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " The opposite corner\n\n "
+        },
+        {
+          "name": "width",
+          "types": [
+            "Number"
+          ],
+          "description": " The width of the bounding box\n\n "
+        },
+        {
+          "name": "height",
+          "types": [
+            "Number"
+          ],
+          "description": " The height of the bounding box\n\n "
+        },
+        {
+          "name": "pt",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " The center point of the bounding box\n\n "
+        }
+      ],
+      "description": "Create an Axis Aligned Bounding Box.\n\nSignature:\n\n```javascript\n{\n    x: Number, // the x coord of the center point\n    y: Number, // the y coord of the center point\n    hw: Number, // the half-width\n    hh: Number, // the half-height\n}\n```",
+      "short_description": "Create an Axis Aligned Bounding Box.\n",
+      "line": 30,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.aabb.clone",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "aabb",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The aabb to clone\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Object",
+                  "description": " The clone\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "aabb",
+              "types": [
+                "Object"
+              ],
+              "description": " The aabb to clone\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " The clone\n\n "
+            }
+          ],
+          "description": "Clone an aabb.",
+          "short_description": "Clone an aabb.",
+          "line": 86,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/aabb.js",
+          "name": "clone",
+          "name_prefix": "Physics.aabb.",
+          "path": "Physics.aabb.clone",
+          "outFile": "aabb.html#Physics.aabb.clone"
+        },
+        {
+          "id": "Physics.aabb.contains",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "aabb",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The aabb\n\n "
+                },
+                {
+                  "name": "pt",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The point\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "aabb",
+              "types": [
+                "Object"
+              ],
+              "description": " The aabb\n\n "
+            },
+            {
+              "name": "pt",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The point\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+            }
+          ],
+          "description": "Check if a point is inside an aabb.",
+          "short_description": "Check if a point is inside an aabb.",
+          "line": 71,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/aabb.js",
+          "name": "contains",
+          "name_prefix": "Physics.aabb.",
+          "path": "Physics.aabb.contains",
+          "outFile": "aabb.html#Physics.aabb.contains"
+        },
+        {
+          "id": "Physics.aabb.overlap",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "aabb1",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The first aabb\n\n "
+                },
+                {
+                  "name": "aabb2",
+                  "types": [
+                    "Object"
+                  ],
+                  "description": " The second aabb\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Boolean",
+                  "description": " `true` if they overlap, `false` otherwise\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "aabb1",
+              "types": [
+                "Object"
+              ],
+              "description": " The first aabb\n\n "
+            },
+            {
+              "name": "aabb2",
+              "types": [
+                "Object"
+              ],
+              "description": " The second aabb\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if they overlap, `false` otherwise\n\n "
+            }
+          ],
+          "description": "Check if two AABBs overlap.",
+          "short_description": "Check if two AABBs overlap.",
+          "line": 103,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/aabb.js",
+          "name": "overlap",
+          "name_prefix": "Physics.aabb.",
+          "path": "Physics.aabb.overlap",
+          "outFile": "aabb.html#Physics.aabb.overlap"
+        }
+      ],
+      "file": "src/math/aabb.js",
+      "name": "aabb",
+      "name_prefix": "Physics.",
+      "path": "Physics.aabb",
+      "outFile": "aabb.html#Physics.aabb"
+    },
+    "Physics.aabb.contains": {
+      "id": "Physics.aabb.contains",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "aabb",
+              "types": [
+                "Object"
+              ],
+              "description": " The aabb\n\n "
+            },
+            {
+              "name": "pt",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The point\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "aabb",
+          "types": [
+            "Object"
+          ],
+          "description": " The aabb\n\n "
+        },
+        {
+          "name": "pt",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " The point\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Boolean",
+          "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+        }
+      ],
+      "description": "Check if a point is inside an aabb.",
+      "short_description": "Check if a point is inside an aabb.",
+      "line": 71,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/aabb.js",
+      "name": "contains",
+      "name_prefix": "Physics.aabb.",
+      "path": "Physics.aabb.contains",
+      "outFile": "aabb.html#Physics.aabb.contains"
+    },
+    "Physics.aabb.clone": {
+      "id": "Physics.aabb.clone",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "aabb",
+              "types": [
+                "Object"
+              ],
+              "description": " The aabb to clone\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " The clone\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "aabb",
+          "types": [
+            "Object"
+          ],
+          "description": " The aabb to clone\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Object",
+          "description": " The clone\n\n "
+        }
+      ],
+      "description": "Clone an aabb.",
+      "short_description": "Clone an aabb.",
+      "line": 86,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/aabb.js",
+      "name": "clone",
+      "name_prefix": "Physics.aabb.",
+      "path": "Physics.aabb.clone",
+      "outFile": "aabb.html#Physics.aabb.clone"
+    },
+    "Physics.aabb.overlap": {
+      "id": "Physics.aabb.overlap",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "aabb1",
+              "types": [
+                "Object"
+              ],
+              "description": " The first aabb\n\n "
+            },
+            {
+              "name": "aabb2",
+              "types": [
+                "Object"
+              ],
+              "description": " The second aabb\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Boolean",
+              "description": " `true` if they overlap, `false` otherwise\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "aabb1",
+          "types": [
+            "Object"
+          ],
+          "description": " The first aabb\n\n "
+        },
+        {
+          "name": "aabb2",
+          "types": [
+            "Object"
+          ],
+          "description": " The second aabb\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Boolean",
+          "description": " `true` if they overlap, `false` otherwise\n\n "
+        }
+      ],
+      "description": "Check if two AABBs overlap.",
+      "short_description": "Check if two AABBs overlap.",
+      "line": 103,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/aabb.js",
+      "name": "overlap",
+      "name_prefix": "Physics.aabb.",
+      "path": "Physics.aabb.overlap",
+      "outFile": "aabb.html#Physics.aabb.overlap"
+    },
+    "getClosestPoints": {
+      "id": "getClosestPoints",
+      "type": "method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "simplex",
+              "types": [
+                "Array"
+              ],
+              "description": " The simplex\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "simplex",
+          "types": [
+            "Array"
+          ],
+          "description": " The simplex\n\n "
+        }
+      ],
+      "hide": true,
+      "description": "Figure out the closest points on the original objects\nfrom the last two entries of the simplex",
+      "short_description": "Figure out the closest points on the original objects\nfrom the last two entries of the simplex",
+      "line": 43,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/gjk.js",
+      "name": "getClosestPoints",
+      "path": "getClosestPoints",
+      "outFile": "gjk.html#getClosestPoints"
+    },
+    "Physics.gjk": {
+      "id": "Physics.gjk",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "support",
+              "arguments": [
+                {
+                  "name": "axis"
+                }
+              ],
+              "callback": true,
+              "types": [
+                "Function"
+              ],
+              "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+            },
+            {
+              "name": "seed",
+              "optional": true,
+              "types": [
+                "Physics.vector"
+              ],
+              "description": " The axis to use\n\n "
+            },
+            {
+              "name": "checkOverlapOnly",
+              "optional": true,
+              "types": [
+                "Physics.vector"
+              ],
+              "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+            },
+            {
+              "name": "debugFn",
+              "optional": true,
+              "types": [
+                "Function"
+              ],
+              "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Object",
+              "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "support",
+          "types": [
+            "Function"
+          ],
+          "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+        },
+        {
+          "name": "axis",
+          "types": [
+            "Physics.vector"
+          ],
+          "description": " The axis to use\n\n "
+        },
+        {
+          "name": "seed",
+          "types": [
+            "Physics.vector"
+          ],
+          "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+        },
+        {
+          "name": "debugFn",
+          "types": [
+            "Function"
+          ],
+          "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Object",
+          "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+        }
+      ],
+      "description": "Implementation agnostic GJK function.\n\nGilbert–Johnson–Keerthi object collison algorithm\nFor general information about GJK see:\n- [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)\n- [mollyrocket.com/849](http://mollyrocket.com/849)",
+      "short_description": "Implementation agnostic GJK function.\n",
+      "line": 138,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/gjk.js",
+      "name": "gjk",
+      "name_prefix": "Physics.",
+      "path": "Physics.gjk",
+      "outFile": "gjk.html#Physics.gjk"
+    },
+    "Physics.transform": {
+      "id": "Physics.transform",
+      "type": "class",
+      "description": "Vector Transformations class for rotating and translating vectors",
+      "short_description": "Vector Transformations class for rotating and translating vectors",
+      "line": 8,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.transform#clone",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "transform",
+                  "optional": true,
+                  "types": [
+                    "Physics.transform"
+                  ],
+                  "description": " Transform to copy\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this",
+                  "description": " For chaining\n\n "
+                },
+                {
+                  "type": "Physics.transform",
+                  "description": " New copy of `this` if none is specified as an argument\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "transform",
+              "types": [
+                "Physics.transform"
+              ],
+              "description": " Transform to copy\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this",
+              "description": " For chaining\n\n "
+            },
+            {
+              "type": "Physics.transform",
+              "description": " New copy of `this` if none is specified as an argument\n\n "
+            }
+          ],
+          "description": "Clone another transform. Or clone self into new transform.",
+          "short_description": "Clone another transform. Or clone self into new transform.",
+          "line": 82,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/transform.js",
+          "name": "clone",
+          "name_prefix": "Physics.transform#",
+          "path": "Physics.transform.prototype.clone",
+          "outFile": "transform.html#Physics.transform.prototype.clone"
+        },
+        {
+          "id": "Physics.transform#setRotation",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "angle",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " Angle (radians) to use for rotation\n\n "
+                },
+                {
+                  "name": "origin",
+                  "optional": true,
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Origin of the rotation\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "angle",
+              "types": [
+                "Number"
+              ],
+              "description": " Angle (radians) to use for rotation\n\n "
+            },
+            {
+              "name": "origin",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Origin of the rotation\n\n "
+            }
+          ],
+          "description": "Set the rotation portion of the transform",
+          "short_description": "Set the rotation portion of the transform",
+          "line": 60,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/transform.js",
+          "name": "setRotation",
+          "name_prefix": "Physics.transform#",
+          "path": "Physics.transform.prototype.setRotation",
+          "outFile": "transform.html#Physics.transform.prototype.setRotation"
+        },
+        {
+          "id": "Physics.transform#setTranslation",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "vect",
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " The translation vector\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "vect",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The translation vector\n\n "
+            }
+          ],
+          "description": "Set the translation portion of the transform.",
+          "short_description": "Set the translation portion of the transform.",
+          "line": 47,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/transform.js",
+          "name": "setTranslation",
+          "name_prefix": "Physics.transform#",
+          "path": "Physics.transform.prototype.setTranslation",
+          "outFile": "transform.html#Physics.transform.prototype.setTranslation"
+        },
+        {
+          "id": "new Physics.transform",
+          "type": "constructor",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "vect",
+                  "optional": true,
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Translation vector\n\n "
+                },
+                {
+                  "name": "angle",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " Angle (radians) to use for rotation\n\n "
+                },
+                {
+                  "name": "origin",
+                  "optional": true,
+                  "types": [
+                    "Vectorish"
+                  ],
+                  "description": " Origin of the rotation\n\n "
+                }
+              ]
+            },
+            {
+              "arguments": [
+                {
+                  "name": "transform",
+                  "types": [
+                    "Physics.transform"
+                  ],
+                  "description": " Transform to copy\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "vect",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Translation vector\n\n "
+            },
+            {
+              "name": "transform",
+              "types": [
+                "Physics.transform"
+              ],
+              "description": " Transform to copy\n\n "
+            },
+            {
+              "name": "angle",
+              "types": [
+                "Number"
+              ],
+              "description": " Angle (radians) to use for rotation\n\n "
+            },
+            {
+              "name": "origin",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Origin of the rotation\n\n "
+            }
+          ],
+          "description": "Transform Constructor / Factory",
+          "short_description": "Transform Constructor / Factory",
+          "line": 19,
+          "aliases": [],
+          "children": [],
+          "file": "src/math/transform.js",
+          "name": "new",
+          "name_prefix": "Physics.transform.",
+          "path": "Physics.transform.new",
+          "outFile": "transform.html#Physics.transform.new"
+        }
+      ],
+      "file": "src/math/transform.js",
+      "subclasses": [],
+      "name": "transform",
+      "name_prefix": "Physics.",
+      "path": "Physics.transform",
+      "outFile": "transform.html"
+    },
+    "Physics.transform.new": {
+      "id": "new Physics.transform",
+      "type": "constructor",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "vect",
+              "optional": true,
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Translation vector\n\n "
+            },
+            {
+              "name": "angle",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " Angle (radians) to use for rotation\n\n "
+            },
+            {
+              "name": "origin",
+              "optional": true,
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Origin of the rotation\n\n "
+            }
+          ]
+        },
+        {
+          "arguments": [
+            {
+              "name": "transform",
+              "types": [
+                "Physics.transform"
+              ],
+              "description": " Transform to copy\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "vect",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " Translation vector\n\n "
+        },
+        {
+          "name": "transform",
+          "types": [
+            "Physics.transform"
+          ],
+          "description": " Transform to copy\n\n "
+        },
+        {
+          "name": "angle",
+          "types": [
+            "Number"
+          ],
+          "description": " Angle (radians) to use for rotation\n\n "
+        },
+        {
+          "name": "origin",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " Origin of the rotation\n\n "
+        }
+      ],
+      "description": "Transform Constructor / Factory",
+      "short_description": "Transform Constructor / Factory",
+      "line": 19,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/transform.js",
+      "name": "new",
+      "name_prefix": "Physics.transform.",
+      "path": "Physics.transform.new",
+      "outFile": "transform.html#Physics.transform.new"
+    },
+    "Physics.transform#setTranslation": {
+      "id": "Physics.transform#setTranslation",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "vect",
+              "types": [
+                "Vectorish"
+              ],
+              "description": " The translation vector\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "vect",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " The translation vector\n\n "
+        }
+      ],
+      "description": "Set the translation portion of the transform.",
+      "short_description": "Set the translation portion of the transform.",
+      "line": 47,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/transform.js",
+      "name": "setTranslation",
+      "name_prefix": "Physics.transform#",
+      "path": "Physics.transform.prototype.setTranslation",
+      "outFile": "transform.html#Physics.transform.prototype.setTranslation"
+    },
+    "Physics.transform#setRotation": {
+      "id": "Physics.transform#setRotation",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "angle",
+              "types": [
+                "Number"
+              ],
+              "description": " Angle (radians) to use for rotation\n\n "
+            },
+            {
+              "name": "origin",
+              "optional": true,
+              "types": [
+                "Vectorish"
+              ],
+              "description": " Origin of the rotation\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "angle",
+          "types": [
+            "Number"
+          ],
+          "description": " Angle (radians) to use for rotation\n\n "
+        },
+        {
+          "name": "origin",
+          "types": [
+            "Vectorish"
+          ],
+          "description": " Origin of the rotation\n\n "
+        }
+      ],
+      "description": "Set the rotation portion of the transform",
+      "short_description": "Set the rotation portion of the transform",
+      "line": 60,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/transform.js",
+      "name": "setRotation",
+      "name_prefix": "Physics.transform#",
+      "path": "Physics.transform.prototype.setRotation",
+      "outFile": "transform.html#Physics.transform.prototype.setRotation"
+    },
+    "Physics.transform#clone": {
+      "id": "Physics.transform#clone",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "transform",
+              "optional": true,
+              "types": [
+                "Physics.transform"
+              ],
+              "description": " Transform to copy\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this",
+              "description": " For chaining\n\n "
+            },
+            {
+              "type": "Physics.transform",
+              "description": " New copy of `this` if none is specified as an argument\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "transform",
+          "types": [
+            "Physics.transform"
+          ],
+          "description": " Transform to copy\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "this",
+          "description": " For chaining\n\n "
+        },
+        {
+          "type": "Physics.transform",
+          "description": " New copy of `this` if none is specified as an argument\n\n "
+        }
+      ],
+      "description": "Clone another transform. Or clone self into new transform.",
+      "short_description": "Clone another transform. Or clone self into new transform.",
+      "line": 82,
+      "aliases": [],
+      "children": [],
+      "file": "src/math/transform.js",
+      "name": "clone",
+      "name_prefix": "Physics.transform#",
+      "path": "Physics.transform.prototype.clone",
+      "outFile": "transform.html#Physics.transform.prototype.clone"
+    },
     "Physics.util.decorator": {
       "id": "Physics.util.decorator",
       "type": "class method",
@@ -10109,6 +12118,324 @@
       "path": "Physics.util.pubsub.prototype.one",
       "outFile": "pubsub.html#Physics.util.pubsub.prototype.one"
     },
+    "Scratch": {
+      "id": "Scratch",
+      "type": "class",
+      "description": "A scratchpad session.\n\nThis class keeps track of temporary objects used\nin this session and releases them when finished (call to `.done()`).\n\nUse this to retrieve temporary objects:\n- `.vector()`: retrieve a temporary [[Physics.vector]]\n- `.transform()`: retrieve a temporary [[Physics.transform]]\n\nSee [[Physics.scratchpad]] for more info.",
+      "short_description": "A scratchpad session.\n",
+      "line": 37,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Scratch#done",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "val",
+                  "optional": true,
+                  "types": [
+                    "Mixed"
+                  ],
+                  "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Mixed",
+                  "description": " Whatever you specified as `val`\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "val",
+              "types": [
+                "Mixed"
+              ],
+              "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Mixed",
+              "description": " Whatever you specified as `val`\n\n     "
+            }
+          ],
+          "description": "Declare that your work is finished.\n\nRelease temp objects for use elsewhere. Must be called when immediate work is done.",
+          "short_description": "Declare that your work is finished.\n",
+          "line": 60,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/scratchpad.js",
+          "name": "done",
+          "name_prefix": "Scratch#",
+          "path": "Scratch.prototype.done",
+          "outFile": "scratchpad.html#Scratch.prototype.done"
+        }
+      ],
+      "file": "src/util/scratchpad.js",
+      "subclasses": [],
+      "name": "Scratch",
+      "path": "Scratch",
+      "outFile": "scratchpad.html"
+    },
+    "Physics.scratchpad": {
+      "id": "Physics.scratchpad",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "fn",
+              "optional": true,
+              "types": [
+                "Function"
+              ],
+              "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Function",
+              "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+            },
+            {
+              "type": "Scratch",
+              "description": " The scratch session.\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "fn",
+          "types": [
+            "Function"
+          ],
+          "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Function",
+          "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+        },
+        {
+          "type": "Scratch",
+          "description": " The scratch session.\n\n "
+        }
+      ],
+      "description": "Get a new scratch session to work from or wrap a function in a scratch session.\n\nCall `.done()` on it when finished.\n\nExample:\n\n```javascript\n// get a scratch session manually\nvar myAlg = function( scratch, arg1, arg2, ... ){\n    var scratch = Physics.scratchpad()\n    ,vec = scratch.vector().set( 0, 0 ) // need to reinitialize... it's recycled!\n    ;\n    // ...\n    return scratch.done( result );\n};\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```\n\nExample:\n\n```javascript\n// wrap a function in a scratch session\nvar myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){\n    var vec = scratch.vector().set( 0, 0 ); // need to reinitialize... it's recycled!\n    //...\n    return result;\n});\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```",
+      "short_description": "Get a new scratch session to work from or wrap a function in a scratch session.\n",
+      "line": 115,
+      "aliases": [],
+      "children": [
+        {
+          "id": "Physics.scratchpad.fn",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "fn",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "Function",
+                  "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Function",
+              "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+            }
+          ],
+          "description": "Wrap a function in a scratch session.\n\nSame as calling `Physics.scratchpad( fn )` with a function specified.",
+          "short_description": "Wrap a function in a scratch session.\n",
+          "line": 139,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/scratchpad.js",
+          "name": "fn",
+          "name_prefix": "Physics.scratchpad.",
+          "path": "Physics.scratchpad.fn",
+          "outFile": "scratchpad.html#Physics.scratchpad.fn"
+        },
+        {
+          "id": "Physics.scratchpad.register",
+          "type": "class method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "name",
+                  "types": [
+                    "String"
+                  ],
+                  "description": " Name of the object class\n\n "
+                },
+                {
+                  "name": "constructor",
+                  "types": [
+                    "Function"
+                  ],
+                  "description": " The object constructor\n\n "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "name",
+              "types": [
+                "String"
+              ],
+              "description": " Name of the object class\n\n "
+            },
+            {
+              "name": "constructor",
+              "types": [
+                "Function"
+              ],
+              "description": " The object constructor\n\n "
+            }
+          ],
+          "description": "Register a new object to be included in scratchpads.\n\nExample:\n\n```javascript\n// register a hypothetical vector class...\nPhysics.scratchpad.register('vector', Vector);\n```",
+          "short_description": "Register a new object to be included in scratchpads.\n",
+          "line": 171,
+          "aliases": [],
+          "children": [],
+          "file": "src/util/scratchpad.js",
+          "name": "register",
+          "name_prefix": "Physics.scratchpad.",
+          "path": "Physics.scratchpad.register",
+          "outFile": "scratchpad.html#Physics.scratchpad.register"
+        }
+      ],
+      "file": "src/util/scratchpad.js",
+      "name": "scratchpad",
+      "name_prefix": "Physics.",
+      "path": "Physics.scratchpad",
+      "outFile": "scratchpad.html#Physics.scratchpad"
+    },
+    "Physics.scratchpad.fn": {
+      "id": "Physics.scratchpad.fn",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "fn",
+              "types": [
+                "Function"
+              ],
+              "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Function",
+              "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "fn",
+          "types": [
+            "Function"
+          ],
+          "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Function",
+          "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+        }
+      ],
+      "description": "Wrap a function in a scratch session.\n\nSame as calling `Physics.scratchpad( fn )` with a function specified.",
+      "short_description": "Wrap a function in a scratch session.\n",
+      "line": 139,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/scratchpad.js",
+      "name": "fn",
+      "name_prefix": "Physics.scratchpad.",
+      "path": "Physics.scratchpad.fn",
+      "outFile": "scratchpad.html#Physics.scratchpad.fn"
+    },
+    "Physics.scratchpad.register": {
+      "id": "Physics.scratchpad.register",
+      "type": "class method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "name",
+              "types": [
+                "String"
+              ],
+              "description": " Name of the object class\n\n "
+            },
+            {
+              "name": "constructor",
+              "types": [
+                "Function"
+              ],
+              "description": " The object constructor\n\n "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "name",
+          "types": [
+            "String"
+          ],
+          "description": " Name of the object class\n\n "
+        },
+        {
+          "name": "constructor",
+          "types": [
+            "Function"
+          ],
+          "description": " The object constructor\n\n "
+        }
+      ],
+      "description": "Register a new object to be included in scratchpads.\n\nExample:\n\n```javascript\n// register a hypothetical vector class...\nPhysics.scratchpad.register('vector', Vector);\n```",
+      "short_description": "Register a new object to be included in scratchpads.\n",
+      "line": 171,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/scratchpad.js",
+      "name": "register",
+      "name_prefix": "Physics.scratchpad.",
+      "path": "Physics.scratchpad.register",
+      "outFile": "scratchpad.html#Physics.scratchpad.register"
+    },
     "Physics.util.ticker": {
       "id": "Physics.util.ticker",
       "type": "class",
@@ -10806,7 +13133,7 @@
       ],
       "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
       "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-      "line": 313,
+      "line": 312,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -10847,7 +13174,7 @@
       ],
       "description": "Accelerate the body by adding supplied vector to its current acceleration",
       "short_description": "Accelerate the body by adding supplied vector to its current acceleration",
-      "line": 258,
+      "line": 257,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -10903,7 +13230,7 @@
       ],
       "description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
       "short_description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
-      "line": 274,
+      "line": 273,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -10926,7 +13253,7 @@
       ],
       "description": "The coefficient of friction of the body.\n\nIt's how much \"slide\" it has during collisions.\n\nA `cof` of `0` will really slidy.\n\nA `cof` of `1` has no slide.\n\nThis is a very simplistic implementation at the moment.\nWhat would be better is to have both static and kinetic\nfriction. But that's not done yet.",
       "short_description": "The coefficient of friction of the body.\n",
-      "line": 185,
+      "line": 184,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -10941,7 +13268,7 @@
       "related_to": "Physics.geometry",
       "description": "The geometry for this body.\n\nBy default it is a `point` geometry which gets overridden.",
       "short_description": "The geometry for this body.\n",
-      "line": 144,
+      "line": 143,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -10964,7 +13291,7 @@
       ],
       "description": "Determines whether the body should be hidden by the renderer.",
       "short_description": "Determines whether the body should be hidden by the renderer.",
-      "line": 204,
+      "line": 203,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11001,7 +13328,7 @@
       "internal": true,
       "description": "Initialization. Internal use.",
       "short_description": "Initialization. Internal use.",
-      "line": 63,
+      "line": 62,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11024,7 +13351,7 @@
       ],
       "description": "The mass.",
       "short_description": "The mass.",
-      "line": 151,
+      "line": 150,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11073,7 +13400,7 @@
       "related_to": "Physics.util.options",
       "description": "Set options on this instance.\n\nAccess options directly from the options object.\n\nExample:\n\n```javascript\nthis.options.someOption;\n```",
       "short_description": "Set options on this instance.\n",
-      "line": 83,
+      "line": 82,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11097,7 +13424,7 @@
       ],
       "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
       "short_description": "Recalculate properties.\n",
-      "line": 336,
+      "line": 331,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11120,7 +13447,7 @@
       ],
       "description": "The restitution.\n\nThis is the \"bounciness\" of the body.\nIt's a number between `0` and `1`.\n\nA restitution of 1 is the bounciest.\n\nA restitution of 0 is not bouncy.\n\nWhen colliding the restitutions of bodies are\nmultiplied together to get the restitution between two\nbodies.",
       "short_description": "The restitution.\n",
-      "line": 169,
+      "line": 168,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11161,7 +13488,7 @@
       ],
       "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
       "short_description": "Set which world to apply to.\n",
-      "line": 237,
+      "line": 236,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11175,7 +13502,7 @@
       "type": "namespace",
       "description": "The physical state container.\n\n- ``this.state.pos`` ([[Physics.vector]]) The position vector.\n- ``this.state.vel`` ([[Physics.vector]]) The velocity vector.\n- ``this.state.acc`` ([[Physics.vector]]) The acceleration vector.\n- ``this.state.angular.pos`` ([[Number]]) The angular position (in radians, positive is clockwise starting along the x axis)\n- ``this.state.angular.vel`` ([[Number]]) The angular velocity\n- ``this.state.angular.acc`` ([[Number]]) The angular acceleration\n\nProperties from the previous timestep are stored in:\n```javascript\nthis.state.old; // .pos, .vel, ...\n```",
       "short_description": "The physical state container.\n",
-      "line": 104,
+      "line": 103,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11190,7 +13517,7 @@
       "related_to": "Physics.renderer",
       "description": "The styles the renderer should use for creating the view.\n\nThe styles depend on the renderer. See [[Renderer#createView]] for style options.",
       "short_description": "The styles the renderer should use for creating the view.\n",
-      "line": 227,
+      "line": 226,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11213,7 +13540,7 @@
       ],
       "description": "How the body is treated by the simulation.\n\nThe body can be `dynamic`, `kinematic` or `static` as\ndescribed by the [analogous box2d docs](http://www.box2d.org/manual.html#_Toc258082973).\n\n* _dynamic_ bodies are treated \"normally\". They are integrated, and collide, and all that.\n* _kinematic_ bodies are bodies that move at a specified velocity. Other bodies collide with them, but they don't bounce off of other bodies.\n* _static_ bodies just stand still. They are like obstacles.",
       "short_description": "How the body is treated by the simulation.\n",
-      "line": 198,
+      "line": 197,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11237,7 +13564,7 @@
       "related_to": "Physics.renderer",
       "description": "Storage for use by the renderer.\n\nThe type of renderer will put different things in the view property.\nBasically, this is how the body \"looks\". It could be a HTMLElement, or\nan Image, etc...\n\nIf your body changes appearance (shape), you should modify this somehow\notherwise the renderer will keep using this same view. If you're letting\nthe renderer create the view for you, just set this to `undefined` if the\nbody gets modified in shape during the simulation.",
       "short_description": "Storage for use by the renderer.\n",
-      "line": 219,
+      "line": 218,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -12143,6 +14470,55 @@
       "name_prefix": "Renderer#",
       "path": "Renderer.prototype.setWorld",
       "outFile": "renderer.html#Renderer.prototype.setWorld"
+    },
+    "Scratch#done": {
+      "id": "Scratch#done",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "val",
+              "optional": true,
+              "types": [
+                "Mixed"
+              ],
+              "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "Mixed",
+              "description": " Whatever you specified as `val`\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "val",
+          "types": [
+            "Mixed"
+          ],
+          "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+        }
+      ],
+      "returns": [
+        {
+          "type": "Mixed",
+          "description": " Whatever you specified as `val`\n\n     "
+        }
+      ],
+      "description": "Declare that your work is finished.\n\nRelease temp objects for use elsewhere. Must be called when immediate work is done.",
+      "short_description": "Declare that your work is finished.\n",
+      "line": 60,
+      "aliases": [],
+      "children": [],
+      "file": "src/util/scratchpad.js",
+      "name": "done",
+      "name_prefix": "Scratch#",
+      "path": "Scratch.prototype.done",
+      "outFile": "scratchpad.html#Scratch.prototype.done"
     }
   },
   "tree": {
@@ -12495,6 +14871,47 @@
         "outFile": "query.html#$or"
       },
       {
+        "id": "getClosestPoints",
+        "type": "method",
+        "signatures": [
+          {
+            "arguments": [
+              {
+                "name": "simplex",
+                "types": [
+                  "Array"
+                ],
+                "description": " The simplex\n\n "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Object"
+              }
+            ]
+          }
+        ],
+        "arguments": [
+          {
+            "name": "simplex",
+            "types": [
+              "Array"
+            ],
+            "description": " The simplex\n\n "
+          }
+        ],
+        "hide": true,
+        "description": "Figure out the closest points on the original objects\nfrom the last two entries of the simplex",
+        "short_description": "Figure out the closest points on the original objects\nfrom the last two entries of the simplex",
+        "line": 43,
+        "aliases": [],
+        "children": [],
+        "file": "src/math/gjk.js",
+        "name": "getClosestPoints",
+        "path": "getClosestPoints",
+        "outFile": "gjk.html#getClosestPoints"
+      },
+      {
         "id": "Physics",
         "type": "namespace",
         "related_to": "Physics.world",
@@ -12505,6 +14922,351 @@
           "Physics.world.new"
         ],
         "children": [
+          {
+            "id": "Physics.aabb",
+            "type": "class method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "minX",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The x coord of the \"top left\" point\n\n "
+                  },
+                  {
+                    "name": "minY",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The y coord of the \"top left\" point\n\n "
+                  },
+                  {
+                    "name": "maxX",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The x coord of the \"bottom right\" point\n\n "
+                  },
+                  {
+                    "name": "maxY",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The y coord of the \"bottom right\" point\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object"
+                  }
+                ]
+              },
+              {
+                "arguments": [
+                  {
+                    "name": "pt1",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " The first corner\n\n "
+                  },
+                  {
+                    "name": "pt2",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " The opposite corner\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object"
+                  }
+                ]
+              },
+              {
+                "arguments": [
+                  {
+                    "name": "width",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The width of the bounding box\n\n "
+                  },
+                  {
+                    "name": "height",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The height of the bounding box\n\n "
+                  },
+                  {
+                    "name": "pt",
+                    "optional": true,
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " The center point of the bounding box\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object"
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "minX",
+                "types": [
+                  "Number"
+                ],
+                "description": " The x coord of the \"top left\" point\n\n "
+              },
+              {
+                "name": "minY",
+                "types": [
+                  "Number"
+                ],
+                "description": " The y coord of the \"top left\" point\n\n "
+              },
+              {
+                "name": "maxX",
+                "types": [
+                  "Number"
+                ],
+                "description": " The x coord of the \"bottom right\" point\n\n "
+              },
+              {
+                "name": "maxY",
+                "types": [
+                  "Number"
+                ],
+                "description": " The y coord of the \"bottom right\" point\n\n "
+              },
+              {
+                "name": "pt1",
+                "types": [
+                  "Vectorish"
+                ],
+                "description": " The first corner\n\n "
+              },
+              {
+                "name": "pt2",
+                "types": [
+                  "Vectorish"
+                ],
+                "description": " The opposite corner\n\n "
+              },
+              {
+                "name": "width",
+                "types": [
+                  "Number"
+                ],
+                "description": " The width of the bounding box\n\n "
+              },
+              {
+                "name": "height",
+                "types": [
+                  "Number"
+                ],
+                "description": " The height of the bounding box\n\n "
+              },
+              {
+                "name": "pt",
+                "types": [
+                  "Vectorish"
+                ],
+                "description": " The center point of the bounding box\n\n "
+              }
+            ],
+            "description": "Create an Axis Aligned Bounding Box.\n\nSignature:\n\n```javascript\n{\n    x: Number, // the x coord of the center point\n    y: Number, // the y coord of the center point\n    hw: Number, // the half-width\n    hh: Number, // the half-height\n}\n```",
+            "short_description": "Create an Axis Aligned Bounding Box.\n",
+            "line": 30,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Physics.aabb.clone",
+                "type": "class method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "aabb",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The aabb to clone\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Object",
+                        "description": " The clone\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "aabb",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The aabb to clone\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object",
+                    "description": " The clone\n\n "
+                  }
+                ],
+                "description": "Clone an aabb.",
+                "short_description": "Clone an aabb.",
+                "line": 86,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/aabb.js",
+                "name": "clone",
+                "name_prefix": "Physics.aabb.",
+                "path": "Physics.aabb.clone",
+                "outFile": "aabb.html#Physics.aabb.clone"
+              },
+              {
+                "id": "Physics.aabb.contains",
+                "type": "class method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "aabb",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The aabb\n\n "
+                      },
+                      {
+                        "name": "pt",
+                        "types": [
+                          "Vectorish"
+                        ],
+                        "description": " The point\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Boolean",
+                        "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "aabb",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The aabb\n\n "
+                  },
+                  {
+                    "name": "pt",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " The point\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Boolean",
+                    "description": " `true` if `pt` is inside `aabb`, `false` otherwise\n\n "
+                  }
+                ],
+                "description": "Check if a point is inside an aabb.",
+                "short_description": "Check if a point is inside an aabb.",
+                "line": 71,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/aabb.js",
+                "name": "contains",
+                "name_prefix": "Physics.aabb.",
+                "path": "Physics.aabb.contains",
+                "outFile": "aabb.html#Physics.aabb.contains"
+              },
+              {
+                "id": "Physics.aabb.overlap",
+                "type": "class method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "aabb1",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The first aabb\n\n "
+                      },
+                      {
+                        "name": "aabb2",
+                        "types": [
+                          "Object"
+                        ],
+                        "description": " The second aabb\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Boolean",
+                        "description": " `true` if they overlap, `false` otherwise\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "aabb1",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The first aabb\n\n "
+                  },
+                  {
+                    "name": "aabb2",
+                    "types": [
+                      "Object"
+                    ],
+                    "description": " The second aabb\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Boolean",
+                    "description": " `true` if they overlap, `false` otherwise\n\n "
+                  }
+                ],
+                "description": "Check if two AABBs overlap.",
+                "short_description": "Check if two AABBs overlap.",
+                "line": 103,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/aabb.js",
+                "name": "overlap",
+                "name_prefix": "Physics.aabb.",
+                "path": "Physics.aabb.overlap",
+                "outFile": "aabb.html#Physics.aabb.overlap"
+              }
+            ],
+            "file": "src/math/aabb.js",
+            "name": "aabb",
+            "name_prefix": "Physics.",
+            "path": "Physics.aabb",
+            "outFile": "aabb.html#Physics.aabb"
+          },
           {
             "id": "Physics.behavior",
             "type": "class method",
@@ -12581,7 +15343,7 @@
                     "types": [
                       "Object"
                     ],
-                    "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+                    "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
                   }
                 ],
                 "returns": [
@@ -12604,13 +15366,13 @@
                 "types": [
                   "Object"
                 ],
-                "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n   - options.hidden (Boolean): stuff\n\n "
+                "description": " The configuration for that body ( depends on body ).\n\n   Available options and defaults:\n\n   \n\n   ```javascript\n\n    {\n\n        // is the body hidden (not to be rendered)?\n\n        hidden: false,\n\n        // is the body `dynamic`, `kinematic` or `static`?\n\n        // http://www.box2d.org/manual.html#_Toc258082973\n\n        treatment: 'dynamic',\n\n        // body mass\n\n        mass: 1.0,\n\n        // body restitution. How \"bouncy\" is it?\n\n        restitution: 1.0,\n\n        // what is its coefficient of friction with another surface with COF = 1?\n\n        cof: 0.8,\n\n        // what is the view object (mixed) that should be used when rendering?\n\n        view: null\n\n    }\n\n   ```\n\n "
               }
             ],
             "related_to": "Physics.util.decorator",
             "description": "Factory function for creating Bodies.\n\nVisit [the PhysicsJS wiki on Bodies](https://github.com/wellcaffeinated/PhysicsJS/wiki/Bodies)\nfor usage documentation.",
             "short_description": "Factory function for creating Bodies.\n",
-            "line": 49,
+            "line": 48,
             "aliases": [],
             "children": [],
             "file": "src/core/body.js",
@@ -13008,6 +15770,105 @@
             "outFile": "geometry.html#Physics.geometry"
           },
           {
+            "id": "Physics.gjk",
+            "type": "class method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "support",
+                    "arguments": [
+                      {
+                        "name": "axis"
+                      }
+                    ],
+                    "callback": true,
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+                  },
+                  {
+                    "name": "seed",
+                    "optional": true,
+                    "types": [
+                      "Physics.vector"
+                    ],
+                    "description": " The axis to use\n\n "
+                  },
+                  {
+                    "name": "checkOverlapOnly",
+                    "optional": true,
+                    "types": [
+                      "Physics.vector"
+                    ],
+                    "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+                  },
+                  {
+                    "name": "debugFn",
+                    "optional": true,
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Object",
+                    "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "support",
+                "types": [
+                  "Function"
+                ],
+                "description": " The support function. Must return an object containing \n\n   the witness points (`.a`, `.b`) and the support point (`.pt`).\n\n   Recommended to use simple objects. \n\n   Eg: \n\n   ```javascript\n\n   return {\n\n        a: { x: 1, y:2 }, \n\n        b: { x: 3, y: 4 }, \n\n        pt: { x: 2, y: 2 }\n\n   };\n\n   ```\n\n "
+              },
+              {
+                "name": "axis",
+                "types": [
+                  "Physics.vector"
+                ],
+                "description": " The axis to use\n\n "
+              },
+              {
+                "name": "seed",
+                "types": [
+                  "Physics.vector"
+                ],
+                "description": " The starting direction for the simplex (defaults to x-axis)\n\n "
+              },
+              {
+                "name": "debugFn",
+                "types": [
+                  "Function"
+                ],
+                "description": " For debugging. Called at every iteration with the current simplex.\n\n "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Object",
+                "description": " The algorithm information containing properties:\n\n   ```javascript\n\n   {\n\n        overlap: Boolean,\n\n        simplex: [] // array containing simplex points as simple x/y objects\n\n   }\n\n   ```\n\n "
+              }
+            ],
+            "description": "Implementation agnostic GJK function.\n\nGilbert–Johnson–Keerthi object collison algorithm\nFor general information about GJK see:\n- [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)\n- [mollyrocket.com/849](http://mollyrocket.com/849)",
+            "short_description": "Implementation agnostic GJK function.\n",
+            "line": 138,
+            "aliases": [],
+            "children": [],
+            "file": "src/math/gjk.js",
+            "name": "gjk",
+            "name_prefix": "Physics.",
+            "path": "Physics.gjk",
+            "outFile": "gjk.html#Physics.gjk"
+          },
+          {
             "id": "Physics.integrator",
             "type": "class method",
             "signatures": [
@@ -13193,6 +16054,417 @@
             "name_prefix": "Physics.",
             "path": "Physics.renderer",
             "outFile": "renderer.html#Physics.renderer"
+          },
+          {
+            "id": "Physics.scratchpad",
+            "type": "class method",
+            "signatures": [
+              {
+                "arguments": [
+                  {
+                    "name": "fn",
+                    "optional": true,
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Function",
+                    "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+                  },
+                  {
+                    "type": "Scratch",
+                    "description": " The scratch session.\n\n "
+                  }
+                ]
+              }
+            ],
+            "arguments": [
+              {
+                "name": "fn",
+                "types": [
+                  "Function"
+                ],
+                "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance.\n\n "
+              }
+            ],
+            "returns": [
+              {
+                "type": "Function",
+                "description": " The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.\n\n "
+              },
+              {
+                "type": "Scratch",
+                "description": " The scratch session.\n\n "
+              }
+            ],
+            "description": "Get a new scratch session to work from or wrap a function in a scratch session.\n\nCall `.done()` on it when finished.\n\nExample:\n\n```javascript\n// get a scratch session manually\nvar myAlg = function( scratch, arg1, arg2, ... ){\n    var scratch = Physics.scratchpad()\n    ,vec = scratch.vector().set( 0, 0 ) // need to reinitialize... it's recycled!\n    ;\n    // ...\n    return scratch.done( result );\n};\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```\n\nExample:\n\n```javascript\n// wrap a function in a scratch session\nvar myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){\n    var vec = scratch.vector().set( 0, 0 ); // need to reinitialize... it's recycled!\n    //...\n    return result;\n});\n// later...\nwhile( awesome ){\n    myAlg( arg1, arg2, ... );\n}\n```",
+            "short_description": "Get a new scratch session to work from or wrap a function in a scratch session.\n",
+            "line": 115,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Physics.scratchpad.fn",
+                "type": "class method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "fn",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Function",
+                        "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "fn",
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Function",
+                    "description": " The wrapped function that can be reused like the original minus the first (scratch) parameter.\n\n "
+                  }
+                ],
+                "description": "Wrap a function in a scratch session.\n\nSame as calling `Physics.scratchpad( fn )` with a function specified.",
+                "short_description": "Wrap a function in a scratch session.\n",
+                "line": 139,
+                "aliases": [],
+                "children": [],
+                "file": "src/util/scratchpad.js",
+                "name": "fn",
+                "name_prefix": "Physics.scratchpad.",
+                "path": "Physics.scratchpad.fn",
+                "outFile": "scratchpad.html#Physics.scratchpad.fn"
+              },
+              {
+                "id": "Physics.scratchpad.register",
+                "type": "class method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "name",
+                        "types": [
+                          "String"
+                        ],
+                        "description": " Name of the object class\n\n "
+                      },
+                      {
+                        "name": "constructor",
+                        "types": [
+                          "Function"
+                        ],
+                        "description": " The object constructor\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "name",
+                    "types": [
+                      "String"
+                    ],
+                    "description": " Name of the object class\n\n "
+                  },
+                  {
+                    "name": "constructor",
+                    "types": [
+                      "Function"
+                    ],
+                    "description": " The object constructor\n\n "
+                  }
+                ],
+                "description": "Register a new object to be included in scratchpads.\n\nExample:\n\n```javascript\n// register a hypothetical vector class...\nPhysics.scratchpad.register('vector', Vector);\n```",
+                "short_description": "Register a new object to be included in scratchpads.\n",
+                "line": 171,
+                "aliases": [],
+                "children": [],
+                "file": "src/util/scratchpad.js",
+                "name": "register",
+                "name_prefix": "Physics.scratchpad.",
+                "path": "Physics.scratchpad.register",
+                "outFile": "scratchpad.html#Physics.scratchpad.register"
+              }
+            ],
+            "file": "src/util/scratchpad.js",
+            "name": "scratchpad",
+            "name_prefix": "Physics.",
+            "path": "Physics.scratchpad",
+            "outFile": "scratchpad.html#Physics.scratchpad"
+          },
+          {
+            "id": "Physics.transform",
+            "type": "class",
+            "description": "Vector Transformations class for rotating and translating vectors",
+            "short_description": "Vector Transformations class for rotating and translating vectors",
+            "line": 8,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Physics.transform#clone",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "transform",
+                        "optional": true,
+                        "types": [
+                          "Physics.transform"
+                        ],
+                        "description": " Transform to copy\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this",
+                        "description": " For chaining\n\n "
+                      },
+                      {
+                        "type": "Physics.transform",
+                        "description": " New copy of `this` if none is specified as an argument\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "transform",
+                    "types": [
+                      "Physics.transform"
+                    ],
+                    "description": " Transform to copy\n\n "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "this",
+                    "description": " For chaining\n\n "
+                  },
+                  {
+                    "type": "Physics.transform",
+                    "description": " New copy of `this` if none is specified as an argument\n\n "
+                  }
+                ],
+                "description": "Clone another transform. Or clone self into new transform.",
+                "short_description": "Clone another transform. Or clone self into new transform.",
+                "line": 82,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/transform.js",
+                "name": "clone",
+                "name_prefix": "Physics.transform#",
+                "path": "Physics.transform.prototype.clone",
+                "outFile": "transform.html#Physics.transform.prototype.clone"
+              },
+              {
+                "id": "Physics.transform#setRotation",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "angle",
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " Angle (radians) to use for rotation\n\n "
+                      },
+                      {
+                        "name": "origin",
+                        "optional": true,
+                        "types": [
+                          "Vectorish"
+                        ],
+                        "description": " Origin of the rotation\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this"
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "angle",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " Angle (radians) to use for rotation\n\n "
+                  },
+                  {
+                    "name": "origin",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " Origin of the rotation\n\n "
+                  }
+                ],
+                "description": "Set the rotation portion of the transform",
+                "short_description": "Set the rotation portion of the transform",
+                "line": 60,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/transform.js",
+                "name": "setRotation",
+                "name_prefix": "Physics.transform#",
+                "path": "Physics.transform.prototype.setRotation",
+                "outFile": "transform.html#Physics.transform.prototype.setRotation"
+              },
+              {
+                "id": "Physics.transform#setTranslation",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "vect",
+                        "types": [
+                          "Vectorish"
+                        ],
+                        "description": " The translation vector\n\n "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this"
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "vect",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " The translation vector\n\n "
+                  }
+                ],
+                "description": "Set the translation portion of the transform.",
+                "short_description": "Set the translation portion of the transform.",
+                "line": 47,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/transform.js",
+                "name": "setTranslation",
+                "name_prefix": "Physics.transform#",
+                "path": "Physics.transform.prototype.setTranslation",
+                "outFile": "transform.html#Physics.transform.prototype.setTranslation"
+              },
+              {
+                "id": "new Physics.transform",
+                "type": "constructor",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "vect",
+                        "optional": true,
+                        "types": [
+                          "Vectorish"
+                        ],
+                        "description": " Translation vector\n\n "
+                      },
+                      {
+                        "name": "angle",
+                        "optional": true,
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " Angle (radians) to use for rotation\n\n "
+                      },
+                      {
+                        "name": "origin",
+                        "optional": true,
+                        "types": [
+                          "Vectorish"
+                        ],
+                        "description": " Origin of the rotation\n\n "
+                      }
+                    ]
+                  },
+                  {
+                    "arguments": [
+                      {
+                        "name": "transform",
+                        "types": [
+                          "Physics.transform"
+                        ],
+                        "description": " Transform to copy\n\n "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "vect",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " Translation vector\n\n "
+                  },
+                  {
+                    "name": "transform",
+                    "types": [
+                      "Physics.transform"
+                    ],
+                    "description": " Transform to copy\n\n "
+                  },
+                  {
+                    "name": "angle",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " Angle (radians) to use for rotation\n\n "
+                  },
+                  {
+                    "name": "origin",
+                    "types": [
+                      "Vectorish"
+                    ],
+                    "description": " Origin of the rotation\n\n "
+                  }
+                ],
+                "description": "Transform Constructor / Factory",
+                "short_description": "Transform Constructor / Factory",
+                "line": 19,
+                "aliases": [],
+                "children": [],
+                "file": "src/math/transform.js",
+                "name": "new",
+                "name_prefix": "Physics.transform.",
+                "path": "Physics.transform.new",
+                "outFile": "transform.html#Physics.transform.new"
+              }
+            ],
+            "file": "src/math/transform.js",
+            "subclasses": [],
+            "name": "transform",
+            "name_prefix": "Physics.",
+            "path": "Physics.transform",
+            "outFile": "transform.html"
           },
           {
             "id": "Physics.util",
@@ -15571,7 +18843,7 @@
             "type": "class",
             "description": "The base class for behaviors created by [[Physics.body]] factory function.",
             "short_description": "The base class for behaviors created by [[Physics.body]] factory function.",
-            "line": 56,
+            "line": 55,
             "aliases": [],
             "children": [
               {
@@ -15595,7 +18867,7 @@
                 ],
                 "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
                 "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-                "line": 313,
+                "line": 312,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15636,7 +18908,7 @@
                 ],
                 "description": "Accelerate the body by adding supplied vector to its current acceleration",
                 "short_description": "Accelerate the body by adding supplied vector to its current acceleration",
-                "line": 258,
+                "line": 257,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15692,7 +18964,7 @@
                 ],
                 "description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
                 "short_description": "Apply a force at center of mass, or at point `p` relative to the center of mass",
-                "line": 274,
+                "line": 273,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15715,7 +18987,7 @@
                 ],
                 "description": "The coefficient of friction of the body.\n\nIt's how much \"slide\" it has during collisions.\n\nA `cof` of `0` will really slidy.\n\nA `cof` of `1` has no slide.\n\nThis is a very simplistic implementation at the moment.\nWhat would be better is to have both static and kinetic\nfriction. But that's not done yet.",
                 "short_description": "The coefficient of friction of the body.\n",
-                "line": 185,
+                "line": 184,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15730,7 +19002,7 @@
                 "related_to": "Physics.geometry",
                 "description": "The geometry for this body.\n\nBy default it is a `point` geometry which gets overridden.",
                 "short_description": "The geometry for this body.\n",
-                "line": 144,
+                "line": 143,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15753,7 +19025,7 @@
                 ],
                 "description": "Determines whether the body should be hidden by the renderer.",
                 "short_description": "Determines whether the body should be hidden by the renderer.",
-                "line": 204,
+                "line": 203,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15790,7 +19062,7 @@
                 "internal": true,
                 "description": "Initialization. Internal use.",
                 "short_description": "Initialization. Internal use.",
-                "line": 63,
+                "line": 62,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15813,7 +19085,7 @@
                 ],
                 "description": "The mass.",
                 "short_description": "The mass.",
-                "line": 151,
+                "line": 150,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15862,7 +19134,7 @@
                 "related_to": "Physics.util.options",
                 "description": "Set options on this instance.\n\nAccess options directly from the options object.\n\nExample:\n\n```javascript\nthis.options.someOption;\n```",
                 "short_description": "Set options on this instance.\n",
-                "line": 83,
+                "line": 82,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15886,7 +19158,7 @@
                 ],
                 "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
                 "short_description": "Recalculate properties.\n",
-                "line": 336,
+                "line": 331,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15909,7 +19181,7 @@
                 ],
                 "description": "The restitution.\n\nThis is the \"bounciness\" of the body.\nIt's a number between `0` and `1`.\n\nA restitution of 1 is the bounciest.\n\nA restitution of 0 is not bouncy.\n\nWhen colliding the restitutions of bodies are\nmultiplied together to get the restitution between two\nbodies.",
                 "short_description": "The restitution.\n",
-                "line": 169,
+                "line": 168,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15950,7 +19222,7 @@
                 ],
                 "description": "Set which world to apply to.\n\nUsually this is called internally. Shouldn't be a need to call this yourself usually.",
                 "short_description": "Set which world to apply to.\n",
-                "line": 237,
+                "line": 236,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15964,7 +19236,7 @@
                 "type": "namespace",
                 "description": "The physical state container.\n\n- ``this.state.pos`` ([[Physics.vector]]) The position vector.\n- ``this.state.vel`` ([[Physics.vector]]) The velocity vector.\n- ``this.state.acc`` ([[Physics.vector]]) The acceleration vector.\n- ``this.state.angular.pos`` ([[Number]]) The angular position (in radians, positive is clockwise starting along the x axis)\n- ``this.state.angular.vel`` ([[Number]]) The angular velocity\n- ``this.state.angular.acc`` ([[Number]]) The angular acceleration\n\nProperties from the previous timestep are stored in:\n```javascript\nthis.state.old; // .pos, .vel, ...\n```",
                 "short_description": "The physical state container.\n",
-                "line": 104,
+                "line": 103,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -15979,7 +19251,7 @@
                 "related_to": "Physics.renderer",
                 "description": "The styles the renderer should use for creating the view.\n\nThe styles depend on the renderer. See [[Renderer#createView]] for style options.",
                 "short_description": "The styles the renderer should use for creating the view.\n",
-                "line": 227,
+                "line": 226,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -16002,7 +19274,7 @@
                 ],
                 "description": "How the body is treated by the simulation.\n\nThe body can be `dynamic`, `kinematic` or `static` as\ndescribed by the [analogous box2d docs](http://www.box2d.org/manual.html#_Toc258082973).\n\n* _dynamic_ bodies are treated \"normally\". They are integrated, and collide, and all that.\n* _kinematic_ bodies are bodies that move at a specified velocity. Other bodies collide with them, but they don't bounce off of other bodies.\n* _static_ bodies just stand still. They are like obstacles.",
                 "short_description": "How the body is treated by the simulation.\n",
-                "line": 198,
+                "line": 197,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -16026,7 +19298,7 @@
                 "related_to": "Physics.renderer",
                 "description": "Storage for use by the renderer.\n\nThe type of renderer will put different things in the view property.\nBasically, this is how the body \"looks\". It could be a HTMLElement, or\nan Image, etc...\n\nIf your body changes appearance (shape), you should modify this somehow\notherwise the renderer will keep using this same view. If you're letting\nthe renderer create the view for you, just set this to `undefined` if the\nbody gets modified in shape during the simulation.",
                 "short_description": "Storage for use by the renderer.\n",
-                "line": 219,
+                "line": 218,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/body.js",
@@ -16984,6 +20256,70 @@
             "name": "Renderer",
             "path": "Renderer",
             "outFile": "renderer.html"
+          },
+          {
+            "id": "Scratch",
+            "type": "class",
+            "description": "A scratchpad session.\n\nThis class keeps track of temporary objects used\nin this session and releases them when finished (call to `.done()`).\n\nUse this to retrieve temporary objects:\n- `.vector()`: retrieve a temporary [[Physics.vector]]\n- `.transform()`: retrieve a temporary [[Physics.transform]]\n\nSee [[Physics.scratchpad]] for more info.",
+            "short_description": "A scratchpad session.\n",
+            "line": 37,
+            "aliases": [],
+            "children": [
+              {
+                "id": "Scratch#done",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "val",
+                        "optional": true,
+                        "types": [
+                          "Mixed"
+                        ],
+                        "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "Mixed",
+                        "description": " Whatever you specified as `val`\n\n     "
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "val",
+                    "types": [
+                      "Mixed"
+                    ],
+                    "description": " No effect on this method, just passed on to the return value so you can do things like:\n\n     return scratch.done( myReturnVal );\n\n     "
+                  }
+                ],
+                "returns": [
+                  {
+                    "type": "Mixed",
+                    "description": " Whatever you specified as `val`\n\n     "
+                  }
+                ],
+                "description": "Declare that your work is finished.\n\nRelease temp objects for use elsewhere. Must be called when immediate work is done.",
+                "short_description": "Declare that your work is finished.\n",
+                "line": 60,
+                "aliases": [],
+                "children": [],
+                "file": "src/util/scratchpad.js",
+                "name": "done",
+                "name_prefix": "Scratch#",
+                "path": "Scratch.prototype.done",
+                "outFile": "scratchpad.html#Scratch.prototype.done"
+              }
+            ],
+            "file": "src/util/scratchpad.js",
+            "subclasses": [],
+            "name": "Scratch",
+            "path": "Scratch",
+            "outFile": "scratchpad.html"
           }
         ],
         "file": "src/intro.js",

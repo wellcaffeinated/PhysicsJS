@@ -47,7 +47,7 @@
             this._aabb = new Physics.aabb();
         },
         
-        /**
+        /** related to: Physics.aabb
          * Geometry#aabb( angle ) -> Object
          * - angle (Number): The angle to rotate the geometry
          * + (Object): Bounding box values

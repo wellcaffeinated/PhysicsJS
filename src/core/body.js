@@ -303,9 +303,9 @@
             return this;
         },
 
-        /**
+        /** related to: Physics.aabb
          * Body#aabb() -> Object
-         * + (Object): The aabb values
+         * + (Object): The aabb of this body
          * 
          * Get the Axis aligned bounding box for the body in its current position and rotation
          **/

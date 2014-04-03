@@ -13,22 +13,19 @@
      * - width (Number): The width of the bounding box
      * - height (Number): The height of the bounding box
      * - pt (Vectorish): The center point of the bounding box
-     * + (Object): The bounding box. It's a simple object that has the following signature:
-       ```javascript
-       {
-            x: Number, // the x coord of the center point
-            y: Number, // the y coord of the center point
-            hw: Number, // the half-width
-            hh: Number, // the half-height
-       }
-       ```
      * 
      * Create an Axis Aligned Bounding Box.
-     * 
-     * @param {Object|Number} minX Either an object with the aabb values, or the minimum x value
-     * @param {Number} minY Minimum y value
-     * @param {Number} maxX Maximum x value
-     * @param {Number} maxY Maximum y value
+     *
+     * Signature:
+     *
+     * ```javascript
+     * {
+     *     x: Number, // the x coord of the center point
+     *     y: Number, // the y coord of the center point
+     *     hw: Number, // the half-width
+     *     hh: Number, // the half-height
+     * }
+     * ```
      **/
     Physics.aabb = function( minX, minY, maxX, maxY ){
 
