@@ -65,7 +65,7 @@ Physics.behavior('interactive', function( parent ){
             this.mousePosOld = new Physics.vector();
             this.offset = new Physics.vector();
 
-            this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el
+            this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el;
 
             if ( !this.el ){
                 throw "No DOM element specified";

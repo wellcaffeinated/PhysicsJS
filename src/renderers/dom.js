@@ -65,14 +65,14 @@ Physics.renderer('dom', function( proto ){
         drawBody = function( body, view ){
 
             var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px) rotate('+body.state.angular.pos+'rad)';
+            view.style[cssTransform] = 'translate('+pos.x+'px,'+pos.y+'px) rotate('+body.state.angular.pos+'rad)';
         };
     } else {
         drawBody = function( body, view ){
 
             var pos = body.state.pos;
-            view.style.left = pos.get(0) + px;
-            view.style.top = pos.get(1) + px;
+            view.style.left = pos.x + px;
+            view.style.top = pos.y + px;
         };
     }
 
@@ -122,10 +122,10 @@ Physics.renderer('dom', function( proto ){
 
             var aabb = geometry.aabb();
 
-            el.style.width = (aabb.halfWidth * 2) + px;
-            el.style.height = (aabb.halfHeight * 2) + px;
-            el.style.marginLeft = (-aabb.halfWidth) + px;
-            el.style.marginTop = (-aabb.halfHeight) + px;
+            el.style.width = (aabb.hw * 2) + px;
+            el.style.height = (aabb.hh * 2) + px;
+            el.style.marginLeft = (-aabb.hw) + px;
+            el.style.marginTop = (-aabb.hh) + px;
         },
 
         /**

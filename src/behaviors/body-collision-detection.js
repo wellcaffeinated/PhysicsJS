@@ -63,9 +63,9 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,support
             ,collision = false
             ,aabbA = bodyA.aabb()
-            ,dimA = Math.min( aabbA.halfWidth, aabbA.halfHeight )
+            ,dimA = Math.min( aabbA.hw, aabbA.hh )
             ,aabbB = bodyB.aabb()
-            ,dimB = Math.min( aabbB.halfWidth, aabbB.halfHeight )
+            ,dimB = Math.min( aabbB.hw, aabbB.hh )
             ;
 
         // just check the overlap first

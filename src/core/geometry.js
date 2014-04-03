@@ -41,7 +41,7 @@
              * ```
              * 
              **/
-            this.options = Physics.util.options( defaults );
+            this.options = Physics.util.options();
             this.options( options );
 
             this._aabb = new Physics.aabb();
@@ -56,7 +56,7 @@
          **/
         aabb: function( angle ){
 
-            return this._aabb.get();
+            return Physics.aabb.clone(this._aabb);
         },
 
         /**

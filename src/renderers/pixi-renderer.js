@@ -127,8 +127,8 @@ Physics.renderer('pixi', function( proto ){
 			if (body.view !== null){
 				// Draw a body here
 				var view = body.view;
-				var x = body.state.pos.get(0);
-				var y = body.state.pos.get(1);
+				var x = body.state.pos.x;
+				var y = body.state.pos.y;
 				var angle = body.state.angular.pos;
 				
 				view.position.x = x;
@@ -167,8 +167,8 @@ Physics.renderer('pixi', function( proto ){
 		createPolygon: function(verts, styles){
 		
 			var vert = verts[0]
-				,x = vert.x === undefined ? vert.get(0) : vert.x
-				,y = vert.y === undefined ? vert.get(1) : vert.y
+				,x = vert.x
+				,y = vert.y
 				,l = verts.length
 				;
 			var start = {
@@ -185,8 +185,8 @@ Physics.renderer('pixi', function( proto ){
 			for ( var i = 1; i < l; ++i ){
 				
 				vert = verts[ i ];
-				x = vert.x === undefined ? vert.get(0) : vert.x;
-				y = vert.y === undefined ? vert.get(1) : vert.y;
+				x = vert.x;
+				y = vert.y;
 				graphics.lineTo(x, y);
 			}
 			
@@ -206,8 +206,8 @@ Physics.renderer('pixi', function( proto ){
 		 */
 		createLine: function(from, to, styles){
 		
-			var x = from.x === undefined ? from.get(0) : from.x
-				,y = from.y === undefined ? from.get(1) : from.y
+			var x = from.x
+				,y = from.y
 				;
 		
 			var graphics = new PIXI.Graphics();
@@ -216,8 +216,8 @@ Physics.renderer('pixi', function( proto ){
 		
 			graphics.moveTo(x, y);
 		
-			x = to.x === undefined ? to.get(0) : to.x;
-			y = to.y === undefined ? to.get(1) : to.y;
+			x = to.x;
+			y = to.y;
 			
 			graphics.lineTo(x, y);
 			
@@ -233,8 +233,8 @@ Physics.renderer('pixi', function( proto ){
 
 			var view = null
 				,aabb = geometry.aabb()
-				,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
-				,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
+				,hw = aabb.hw + Math.abs(aabb.x)
+				,hh = aabb.hh + Math.abs(aabb.y)
 				,x = hw + 1
 				,y = hh + 1
 				,name = geometry.name

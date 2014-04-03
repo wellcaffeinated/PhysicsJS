@@ -18,7 +18,7 @@
      * @param {Number|Physics.vector} x (optional) Either the x coord. Or a vector to copy.
      * @param {Number} y (optional) The y coord.
      */
-    var Vector = function Vector(x, y) {
+    var Vector = function Vector( x, y ) {
 
         // enforce instantiation
         if ( !(this instanceof Vector) ){
@@ -31,7 +31,6 @@
         // y = _[1]
         // norm = _[3]
         // normsq = _[4]
-        
 
         if (typedArrays){
             this._ = new Float64Array(5);
@@ -46,9 +45,32 @@
         } else {
 
             this.recalc = true; //whether or not recalculate norms
-            this.set( x || 0.0, y || 0.0 );
+            this.set( x, y );
         }
     };
+
+    Object.defineProperties( Vector.prototype, {
+        x: {
+            get: function(){
+                return +this._[0];
+            },
+            set: function( x ){
+                x = +x || 0;
+                this.recalc = ( x === this._[0] );
+                this._[0] = x;
+            }
+        },
+        y: {
+            get: function(){
+                return +this._[1];
+            },
+            set: function( y ){
+                y = +y || 0;
+                this.recalc = ( y === this._[1] );
+                this._[1] = y;
+            }
+        }
+    });
 
     /**
      * Methods
@@ -57,16 +79,16 @@
     /**
      * Sets the components of this Vector.
      */
-    Vector.prototype.set = function(x, y) {
+    Vector.prototype.set = function( x, y ) {
 
         this.recalc = true;
 
-        this._[0] = x || 0.0;
-        this._[1] = y || 0.0;
+        this._[0] = +x || 0;
+        this._[1] = +y || 0;
         return this;
     };
 
-    /**
+    /** deprecated: 0.6.0..1.0.0
      * Get component
      * @param  {Integer} n The nth component. x is 1, y is 2, ...
      * @return {Integer} component value
@@ -79,7 +101,7 @@
     /**
      * Add Vector to this
      */
-    Vector.prototype.vadd = function(v) {
+    Vector.prototype.vadd = function( v ) {
 
         this.recalc = true;
 
@@ -91,7 +113,7 @@
     /**
      * Subtract Vector from this
      */
-    Vector.prototype.vsub = function(v) {
+    Vector.prototype.vsub = function( v ) {
 
         this.recalc = true;
 
@@ -103,31 +125,31 @@
     /**
      * Add scalars to Vector's components
      */
-    Vector.prototype.add = function(x, y){
+    Vector.prototype.add = function( x, y ){
         
         this.recalc = true;
 
         this._[0] += x;
-        this._[1] += y === undefined? x : y;
+        this._[1] += y === undefined ? 0 : y;
         return this;
     };
 
     /**
      * Subtract scalars to Vector's components
      */
-    Vector.prototype.sub = function(x, y){
+    Vector.prototype.sub = function( x, y ){
         
         this.recalc = true;
 
         this._[0] -= x;
-        this._[1] -= y === undefined? x : y;
+        this._[1] -= y === undefined? 0 : y;
         return this;
     };
 
     /* 
      * Multiply by a scalar
      */
-    Vector.prototype.mult = function(m) {
+    Vector.prototype.mult = function( m ) {
         
         if ( !this.recalc ){
 
@@ -143,7 +165,7 @@
     /* 
      * Get the dot product
      */
-    Vector.prototype.dot = function(v) {
+    Vector.prototype.dot = function( v ) {
 
         return (this._[0] * v._[0]) + (this._[1] * v._[1]);
     };
@@ -151,7 +173,7 @@
     /** 
      * Get the cross product (in a left handed coordinate system)
      */
-    Vector.prototype.cross = function(v) {
+    Vector.prototype.cross = function( v ) {
 
         return ( - this._[0] * v._[1]) + (this._[1] * v._[0]);
     };
@@ -159,7 +181,7 @@
     /**
      * Scalar projection of this along v
      */
-    Vector.prototype.proj = function(v){
+    Vector.prototype.proj = function( v ){
 
         return this.dot( v ) / v.norm();
     };
@@ -168,7 +190,7 @@
     /**
      * Vector project this along v
      */
-    Vector.prototype.vproj = function(v){
+    Vector.prototype.vproj = function( v ){
 
         var m = this.dot( v ) / v.normSq();
         return this.clone( v ).mult( m );
@@ -179,7 +201,7 @@
      * @param  {Vector} v (optional) other vector
      * @return {Number} Angle in radians
      */
-    Vector.prototype.angle = function(v){
+    Vector.prototype.angle = function( v ){
 
         var ang;
 
@@ -267,7 +289,7 @@
     /** 
      * Get distance to other Vector
      */
-    Vector.prototype.dist = function(v) {
+    Vector.prototype.dist = function( v ) {
       
         var dx, dy;
         return sqrt(
@@ -279,7 +301,7 @@
     /**
      * Get distance squared to other Vector
      */
-    Vector.prototype.distSq = function(v) {
+    Vector.prototype.distSq = function( v ) {
 
         var dx, dy;
         return (
@@ -456,11 +478,11 @@
      * Returns clone of current Vector
      * Or clones provided Vector to this one
      */
-    Vector.prototype.clone = function(v) {
+    Vector.prototype.clone = function( v ) {
         
         // http://jsperf.com/vector-storage-test
 
-        if (v){
+        if ( v ){
 
             if (!v._){
 
@@ -488,7 +510,7 @@
      * @param  {Vector} v
      * @return {this}
      */
-    Vector.prototype.swap = function(v){
+    Vector.prototype.swap = function( v ){
 
         var _ = this._;
         this._ = v._;
@@ -544,7 +566,7 @@
     /**
      * Constrain Vector components to minima and maxima
      */
-    Vector.prototype.clamp = function(minV, maxV){
+    Vector.prototype.clamp = function( minV, maxV ){
 
         minV = minV.values ? minV.values() : minV;
         maxV = maxV.values ? maxV.values() : maxV;
@@ -569,7 +591,7 @@
      * @param  {Vector} v
      * @return {boolean}
      */
-    Vector.prototype.equals = function(v){
+    Vector.prototype.equals = function( v ){
 
         return this._[0] === v._[0] &&
             this._[1] === v._[1] &&
@@ -584,7 +606,7 @@
     /** 
      * Return sum of two Vectors
      */
-    Vector.vadd = function(v1, v2) {
+    Vector.vadd = function( v1, v2 ) {
 
         return new Vector( v1._[0] + v2._[0], v1._[1] + v2._[1] );
     };
@@ -592,7 +614,7 @@
     /** 
      * Subtract v2 from v1
      */
-    Vector.vsub = function(v1, v2) {
+    Vector.vsub = function( v1, v2 ) {
 
         return new Vector( v1._[0] - v2._[0], v1._[1] - v2._[1] );
     };
@@ -600,7 +622,7 @@
     /**
      * Multiply v1 by a scalar m
      */
-    Vector.mult = function(m, v1){
+    Vector.mult = function( m, v1 ){
 
         return new Vector( v1._[0]*m, v1._[1]*m );
     };
@@ -608,7 +630,7 @@
     /** 
      * Project v1 onto v2
      */
-    Vector.vproj = function(v1, v2) {
+    Vector.vproj = function( v1, v2 ) {
 
         return Vector.mult( v1.dot(v2) / v2.normSq(), v2 );
     };

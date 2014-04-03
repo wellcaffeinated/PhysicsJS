@@ -176,8 +176,8 @@ Physics.renderer('canvas', function( proto ){
         drawPolygon: function(verts, styles, ctx){
 
             var vert = verts[0]
-                ,x = vert.x === undefined ? vert.get(0) : vert.x
-                ,y = vert.y === undefined ? vert.get(1) : vert.y
+                ,x = vert.x
+                ,y = vert.y
                 ,l = verts.length
                 ;
 
@@ -190,8 +190,8 @@ Physics.renderer('canvas', function( proto ){
             for ( var i = 1; i < l; ++i ){
                 
                 vert = verts[ i ];
-                x = vert.x === undefined ? vert.get(0) : vert.x;
-                y = vert.y === undefined ? vert.get(1) : vert.y;
+                x = vert.x;
+                y = vert.y;
                 ctx.lineTo(x, y);
             }
 
@@ -238,8 +238,8 @@ Physics.renderer('canvas', function( proto ){
          */
         drawLine: function(from, to, styles, ctx){
 
-            var x = from.x === undefined ? from.get(0) : from.x
-                ,y = from.y === undefined ? from.get(1) : from.y
+            var x = from.x
+                ,y = from.y
                 ;
 
             ctx = ctx || this.ctx;
@@ -249,8 +249,8 @@ Physics.renderer('canvas', function( proto ){
 
             ctx.moveTo(x, y);
 
-            x = to.x === undefined ? to.get(0) : to.x;
-            y = to.y === undefined ? to.get(1) : to.y;
+            x = to.x;
+            y = to.y;
             
             ctx.lineTo(x, y);
             
@@ -268,8 +268,8 @@ Physics.renderer('canvas', function( proto ){
 
             var view
                 ,aabb = geometry.aabb()
-                ,hw = aabb.halfWidth + Math.abs(aabb.pos.x)
-                ,hh = aabb.halfHeight + Math.abs(aabb.pos.y)
+                ,hw = aabb.hw + Math.abs(aabb.x)
+                ,hh = aabb.hh + Math.abs(aabb.y)
                 ,x = hw + 1
                 ,y = hh + 1
                 ,hiddenCtx = this.hiddenCtx
@@ -366,19 +366,19 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             ctx.save();
-            ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
+            ctx.translate(pos.x + offset.x, pos.y + offset.y);
             ctx.rotate(body.state.angular.pos);
             ctx.drawImage(view, -view.width/2, -view.height/2);
             ctx.restore();
 
             if ( this.options.debug ){
                 // draw bounding boxes
-                this.drawRect( aabb.pos.x, aabb.pos.y, 2 * aabb.x, 2 * aabb.y, 'rgba(0, 0, 255, 0.3)' );
+                this.drawRect( aabb.x, aabb.y, 2 * aabb.hw, 2 * aabb.hh, 'rgba(0, 0, 255, 0.3)' );
                 
                 // draw also paths
                 body._debugView = body._debugView || this.createView(body.geometry, 'rgba(255, 0, 0, 0.5)');
                 ctx.save();
-                ctx.translate(pos.get(0) + offset.get(0), pos.get(1) + offset.get(1));
+                ctx.translate(pos.x + offset.x, pos.y + offset.y);
                 ctx.rotate(body.state.angular.pos);
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();

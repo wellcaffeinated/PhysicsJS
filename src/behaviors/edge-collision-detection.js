@@ -26,7 +26,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             ;
 
         // right
-        overlap = (aabb.pos.x + aabb.x) - bounds.max.x;
+        overlap = (aabb.x + aabb.hw) - bounds.max.x;
 
         if ( overlap >= 0 ){
 
@@ -51,7 +51,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // bottom
-        overlap = (aabb.pos.y + aabb.y) - bounds.max.y;
+        overlap = (aabb.y + aabb.hh) - bounds.max.y;
 
         if ( overlap >= 0 ){
 
@@ -76,7 +76,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // left
-        overlap = bounds.min.x - (aabb.pos.x - aabb.x);
+        overlap = bounds.min.x - (aabb.x - aabb.hw);
 
         if ( overlap >= 0 ){
 
@@ -101,7 +101,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // top
-        overlap = bounds.min.y - (aabb.pos.y - aabb.y);
+        overlap = bounds.min.y - (aabb.y - aabb.hh);
 
         if ( overlap >= 0 ){
 
@@ -183,16 +183,14 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 throw 'Error: aabb not set';
             }
 
-            aabb = aabb.get && aabb.get() || aabb;
-
             this._edges = {
                 min: {
-                    x: (aabb.pos.x - aabb.x),
-                    y: (aabb.pos.y - aabb.y)
+                    x: (aabb.x - aabb.hw),
+                    y: (aabb.y - aabb.hh)
                 },
                 max: {
-                    x: (aabb.pos.x + aabb.x),
-                    y: (aabb.pos.y + aabb.y)  
+                    x: (aabb.x + aabb.hw),
+                    y: (aabb.y + aabb.hh)  
                 }
             };
         },

@@ -67,14 +67,14 @@ Physics.geometry('convex-polygon', function( parent ){
         aabb: function( angle ){
 
             if (!angle && this._aabb){
-                return this._aabb.get();
+                return Physics.aabb.clone( this._aabb );
             }
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
                 ,trans = scratch.transform().setRotation( angle || 0 )
-                ,xaxis = scratch.vector().clone(Physics.vector.axis[0]).rotateInv( trans )
-                ,yaxis = scratch.vector().clone(Physics.vector.axis[1]).rotateInv( trans )
+                ,xaxis = scratch.vector().set( 1, 0 ).rotateInv( trans )
+                ,yaxis = scratch.vector().set( 0, 1 ).rotateInv( trans )
                 ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
                 ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
                 ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
@@ -82,14 +82,16 @@ Physics.geometry('convex-polygon', function( parent ){
                 ,aabb
                 ;
 
-            aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+            aabb = Physics.aabb( xmin, ymin, xmax, ymax );
 
             if (!angle){
+                // if we don't have an angle specified (or it's zero)
+                // then we can cache this result
                 this._aabb = aabb;
             }
 
             scratch.done();
-            return aabb.get();
+            return Physics.aabb.clone( aabb );
         },
 
         /**

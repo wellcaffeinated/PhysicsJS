@@ -34,16 +34,15 @@ Physics.geometry('circle', function( parent ){
         aabb: function( angle ){
 
             var r = this.radius
-                ,aabb = this._aabb
                 ;
 
             // circles are symetric... so angle has no effect
-            if ( aabb.halfWidth() === r ){
-                // don't recalculate
-                return aabb.get();
+            if ( this._aabb.hw !== r ){
+                // recalculate
+                this._aabb = Physics.aabb( -r, -r, r, r );
             }
 
-            return aabb.set( -r, -r, r, r ).get();
+            return Physics.aabb.clone( this._aabb );
         },
 
         /**
