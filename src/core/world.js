@@ -1,18 +1,9 @@
-/** related to: new Physics.world
+/** related to: Physics
  * class Physics.world
  *
  * The world class and factory function.
  *
- * Here is a test link [[ new Physics.world ]]
- *
- * Example:
- *
- * ```javascript
- * Physics( cfg, function( world ) {
- *     // use world
- *     
- * }); // returns world
- * ```
+ * Use [[Physics]] to create worlds.
  **/
 (function(){
 
@@ -51,18 +42,65 @@
     
     /** alias of: Physics
      * new Physics.world([options, fn(world, Physics)])
-     * - options (Object): configuration options
-       - options.timestep (Number = 1000.0/160): default timestep
-       ...
+     * - options (Object): configuration options (see description)
      * - fn (Function|Array): Callback function or array of callbacks called with this === world
      * - world (Physics.world): The current world created
      * - Physics (Physics): The Physics namespace
      *
      * World Constructor.
+     *
+     * Use [[Physics]] to create worlds.
+     *
+     * Configuration options and defaults:
+     *
+     * ```javascript
+     * {
+     *     // default timestep
+     *     timestep: 1000.0 / 160,
+     *     // maximum number of iterations per step
+     *     maxIPF: 16,
+     *     // default integrator
+     *     integrator: 'verlet'
+     * }
+     * ```
      * 
      * If called with an array of functions, and any functions 
-     * return a promise-like object, the remaining callbacks will 
-     * be called only when that promise is resolved.
+     * return a [promise-like object](http://promises-aplus.github.io/promises-spec/), 
+     * each remaining callback will be called only when that promise is resolved.
+     *
+     * Example:
+     *
+     * ```javascript
+     * // hypothetical resources need to be loaded...
+     * Physics( cfg, [
+     *     function( world ){
+     *         var dfd = $.Deferred()
+     *             ,images = []
+     *             ,toLoad = myImages.length
+     *             ,callback = function(){
+     *                 toLoad--;
+     *                 // wait for all images to be loaded
+     *                 if ( toLoad <= 0 ){
+     *                     dfd.resolve();
+     *                 }
+     *             }
+     *             ;
+     *             
+     *         // load images
+     *         $.each(myImages, function( src ){
+     *             var img = new Image();
+     *             img.onload = callback;
+     *             img.src = src;
+     *         });
+     *         
+     *         return dfd.promise();
+     *     },
+     *     function( world ){
+     *         // won't be executed until images are loaded
+     *         // initialize world... etc...   
+     *     }
+     * ]);
+     * ```
      **/
     var World = function World( cfg, fn ){
 
