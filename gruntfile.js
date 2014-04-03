@@ -55,6 +55,7 @@ module.exports = function(grunt) {
 
             // default geometry
             'src/geometries/point.js',
+            'src/bodies/point.js',
             
             'src/outro.js'
         ],
@@ -63,6 +64,7 @@ module.exports = function(grunt) {
             'src/geometries/*.js',
             '!src/geometries/point.js',
             'src/bodies/*.js',
+            '!src/bodies/point.js',
             'src/behaviors/*.js',
             'src/integrators/*.js',
             '!src/integrators/verlet.js',

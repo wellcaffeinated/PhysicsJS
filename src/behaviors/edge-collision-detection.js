@@ -2,7 +2,6 @@
  * Edge collision detection.
  * Used to detect collisions with the boundaries of an AABB
  * @module behaviors/edge-collision-detection
- * @requires body/point
  */
 Physics.behavior('edge-collision-detection', function( parent ){
 
