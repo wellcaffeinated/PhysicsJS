@@ -350,7 +350,7 @@ module.exports = function(grunt) {
         docs: {
             api: {
                 dest: 'docs/',
-                src: ['src/core/*.js', 'src/math/*.js', '!src/math/vector.js', 'src/intro.js', 'src/util/*.js'],
+                src: ['src/core/*.js', 'src/math/*.js', 'src/intro.js', 'src/util/*.js'],
                 options: {
                     template: 'docs/layout.jade',
                     debugFile: 'docs/debug.json',

@@ -247,7 +247,7 @@
      *
      * var obj = {
      *     name: 'circle',
-     *     labels: [ 'player' ]
+     *     labels: [ 'round' ]
      * };
      *
      * queryFn( obj ); // -> false
