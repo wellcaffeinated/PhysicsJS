@@ -216,7 +216,7 @@ module.exports = function(grunt) {
         },
         watch: {
           files: 'src/**/*.js',
-          tasks: [ 'dev' ]
+          tasks: [ 'watchdev' ]
         },
         uglify : {
             options : { mangle : true, banner: config.banner },
@@ -390,6 +390,7 @@ module.exports = function(grunt) {
 
     // create a build for development
     grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
+    grunt.registerTask('watchdev', ['clean:dev', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
     grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
     // tests on dist code

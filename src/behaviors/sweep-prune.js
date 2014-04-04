@@ -17,24 +17,22 @@ Physics.behavior('sweep-prune', function( parent ){
 
     // add z: 2 to get this to work in 3D
     var dof = { x: 0, y: 1 }; // degrees of freedom
+    var maxDof = 2;
 
-    /**
-     * return hash for a pair of ids
-     * @param  {Number} id1 First id
-     * @param  {Number} id2 Second id
-     * @return {Number}     Hash id
-     */
+    
     function pairHash( id1, id2 ){
+        id1 = id1|0;
+        id2 = id2|0;
 
-        if ( id1 === id2 ){
+        if ( (id1|0) == (id2|0) ){
 
-            return false;
+            return -1;
         }
 
         // valid for values < 2^16
-        return id1 > id2? 
+        return ((id1|0) > (id2|0) ? 
             (id1 << 16) | (id2 & 0xFFFF) : 
-            (id2 << 16) | (id1 & 0xFFFF)
+            (id2 << 16) | (id1 & 0xFFFF))|0
             ;
     }
     
@@ -64,11 +62,11 @@ Physics.behavior('sweep-prune', function( parent ){
 
             this.tracked = [];
             this.pairs = []; // pairs selected as candidate collisions by broad phase
-            this.intervalLists = {}; // stores lists of aabb projection intervals to be sorted
+            this.intervalLists = []; // stores lists of aabb projection intervals to be sorted
             
             // init intervalLists
-            for ( var xyz in dof ){
-
+            for ( var xyz = 0; xyz < maxDof; ++xyz ){
+                
                 this.intervalLists[ xyz ] = [];
             }
         },
@@ -134,13 +132,13 @@ Physics.behavior('sweep-prune', function( parent ){
                 ;
 
             // for each axis...
-            for ( var xyz in dof ){
+            for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
                 // get the intervals for that axis
                 list = this.intervalLists[ xyz ];
                 i = 0;
                 len = list.length;
-                axis = dof[ xyz ];
+                axis = xyz;
 
                 // for each interval bound...
                 while ( (++i) < len ){
@@ -236,17 +234,15 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,candidates = []
                 ;
 
-            for ( var xyz in dof ){
+            for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
                 // is the x coord
-                isX = (xyz === 'x');
+                isX = (xyz === 0);
                 // get the interval list for this axis
                 list = this.intervalLists[ xyz ];
-                i = -1;
-                len = list.length;
-
+                
                 // for each interval bound
-                while ( (++i) < len ){
+                for ( i = 0, len = list.length; i < len; i++ ){
                     
                     bound = list[ i ];
                     tr1 = bound.tracker;
@@ -257,7 +253,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
                         j = enclen;
 
-                        while ( (--j) >= 0 ){
+                        for ( j = enclen - 1; j >= 0; j-- ){
 
                             tr2 = encounters[ j ];
 
@@ -384,7 +380,7 @@ Physics.behavior('sweep-prune', function( parent ){
             tracker.interval = intr;
             this.tracked.push( tracker );
             
-            for ( var xyz in dof ){
+            for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
                 this.intervalLists[ xyz ].push( intr.min, intr.max );
             }
@@ -414,7 +410,7 @@ Physics.behavior('sweep-prune', function( parent ){
                     // remove the tracker at this index
                     trackedList.splice(i, 1);
 
-                    for ( var xyz in dof ){
+                    for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
                         count = 0;
                         list = this.intervalLists[ xyz ];

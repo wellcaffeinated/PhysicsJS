@@ -4,7 +4,7 @@
  * @module renderers/pixi
  */
  /* global PIXI */
-Physics.renderer('pixi', function( proto ){
+Physics.renderer('pixi', function( parent ){
 
     if ( !document ){
         // must be in node environment
@@ -67,8 +67,8 @@ Physics.renderer('pixi', function( proto ){
                 throw "PIXI obj not present - cannot continue ";
             }
                 
-            // call proto init
-            proto.init.call(this, options);
+            // call parent init
+            parent.init.call(this, options);
 
             // further options
             this.options = Physics.util.extend({}, defaults, this.options, deep);
@@ -123,10 +123,9 @@ Physics.renderer('pixi', function( proto ){
          * @param  {DisplayObject} body      The body to render
          * @return {void}
          */
-        drawBody: function( body ){
-            if (body.view !== null){
+        drawBody: function( body, view ){
+            if ( view ){
                 // Draw a body here
-                var view = body.view;
                 var x = body.state.pos.x;
                 var y = body.state.pos.y;
                 var angle = body.state.angular.pos;
@@ -134,10 +133,16 @@ Physics.renderer('pixi', function( proto ){
                 view.position.x = x;
                 view.position.y = y;
                 view.rotation = angle;
-                
-                this.renderer.render(this.stage);
             }
         },
+
+        render: function( bodies, meta ){
+
+            parent.render.call(this, bodies, meta);
+            this.renderer.render(this.stage);
+        },
+
+
         /**
          * Create a circle for use in PIXI stage
          * @param  {Number} x      The x coord
