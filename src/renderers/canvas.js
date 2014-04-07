@@ -359,7 +359,7 @@ Physics.renderer('canvas', function( proto ){
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
-                ,aabb = body.aabb()
+                ,aabb
                 ;
 
             offset = offset || this.options.offset;
@@ -372,6 +372,7 @@ Physics.renderer('canvas', function( proto ){
             ctx.restore();
 
             if ( this.options.debug ){
+                aabb = body.aabb();
                 // draw bounding boxes
                 this.drawRect( aabb.x, aabb.y, 2 * aabb.hw, 2 * aabb.hh, 'rgba(0, 0, 255, 0.3)' );
                 

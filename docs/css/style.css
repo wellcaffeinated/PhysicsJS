@@ -213,8 +213,14 @@ nav.toc .pfx {
   display: none;
 }
 
-nav.toc ul li:not(.section) > ul > li .name:before {
+/*nav.toc ul li:not(.section):not(.subclass) > ul > li .name:before {
   content: '.';
+}
+*/
+
+nav.toc ul li.class > .item > .name:after {
+  content: ' <class>';
+  color: #495353;
 }
 
 nav.toc a {
@@ -310,6 +316,27 @@ nav.toc li .ctrl-expand:hover {
 
 #main .doc .title .aliases {
   float: right;
+}
+
+#main .doc .title .flags {
+  /*display: inline;*/
+  font-size: 0.6em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  margin: 0.2em 0;
+}
+
+#main .doc .title .flags span {
+  margin-right: 1ex;
+}
+
+#main .doc .title .flags .internal {
+  /*display: block;*/
+  color: #1A70AC;
+}
+
+#main .doc .title .flags .deprecated .from,
+#main .doc .title .flags .deprecated .to {
+  margin: 0 1ex;
 }
 
 #main .doc .doc .title a {

@@ -117,16 +117,10 @@
             pt: { x: 2, y: 2 }
        };
        ```
-     * - axis (Physics.vector): The axis to use
+     * - axis (Physics.vector): The axis to search
      * - seed (Physics.vector): The starting direction for the simplex (defaults to x-axis)
+     * - checkOverlapOnly (Boolean): only check whether there is an overlap, don't calculate the depth
      * - debugFn (Function): For debugging. Called at every iteration with the current simplex.
-     * + (Object): The algorithm information containing properties:
-       ```javascript
-       {
-            overlap: Boolean,
-            simplex: [] // array containing simplex points as simple x/y objects
-       }
-       ```
      *
      * Implementation agnostic GJK function.
      *
@@ -134,6 +128,14 @@
      * For general information about GJK see: 
      * - [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)
      * - [mollyrocket.com/849](http://mollyrocket.com/849)
+     *
+     * The algorithm information returned:
+     * ```javascript
+     * {
+     *     overlap: Boolean,
+     *     simplex: [] // array containing simplex points as simple x/y objects
+     * }
+     * ```
      **/
     var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
 

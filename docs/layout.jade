@@ -1,12 +1,16 @@
 mixin toc( item )
   if item.children && item.children.length
     ul
-      each ch in item.children.sort(function( a, b ){ return a.id === 'Physics' ? -1 : b.id === 'Physics' ? 1 : a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
+      each ch in item.children.sort(childrenSort)
         unless ch.hide
-          li(class=ch.type.replace(' ', '-'))
+          li(class=ch.type.replace(' ', '-'),class=ch.superclass ? 'subclass' : '')
             if ch.path
               a.item(href='#'+attrClean(ch.path))
-                +title(ch)
+                if ch.name_prefix && ch.name_prefix.replace(/[#.]$/, '') === item.id
+                  |.
+                span.name=ch.name
+                if ch.type === 'constructor' || ch.type === 'instance method' || ch.type === 'class method'
+                  | ()
             +toc( ch )
 
 mixin title( item, nosuff )
@@ -114,7 +118,7 @@ mixin signatures( item )
 mixin doc( item, level, recurse )
   unless item.hide
     -var level = level || 1
-    article.doc(class=item.type.replace(' ', '-'))
+    article.doc(class=item.type.replace(' ', '-'), class=item.superclass? 'subclass' : '')
       header
         !='<h'+level+' class="title">'
         a(id=attrClean(item.path), href='#'+attrClean(item.path))
@@ -123,6 +127,24 @@ mixin doc( item, level, recurse )
           small.aliases
             | alias of: 
             span.alias=item.alias_of
+        div.flags
+          if item.extension
+            span.extension
+              | extension
+          if item.superclass
+            span.superclass
+              | extends: 
+              =item.superclass
+          if item.deprecated
+            span.deprecated
+              | deprecated
+              span.from=item.deprecated.since
+              if item.deprecated.off
+                | &mdash; 
+                span.to=item.deprecated.off
+          if item.internal
+            span.internal
+              | internal use only
         !='</h'+level+'>'
       
       if item.short_description
@@ -146,7 +168,7 @@ mixin doc( item, level, recurse )
       if recurse !== false && item.children && item.children.length
         .children
           //- sort so that constructors are first
-          for ch in item.children.sort(function( a, b ){ return a.type === 'constructor' ? -1 : b.type === 'constructor' ? 1 : a.id > b.id ? 1 : -1; })
+          for ch in item.children.sort(childrenSort)
             +doc(ch, level+1)
 
 doctype html

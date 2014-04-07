@@ -1,7 +1,29 @@
-/**
- * Convex polygon geometry
- * @module geometries/convex-polygon
- */
+/** 
+ * class ConvexPolygonGeometry < Geometry
+ *
+ * Physics.geometry('convex-polygon')
+ *
+ * Geometry for convex polygons.
+ *
+ * Additional config options:
+ * 
+ * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
+ *
+ * Example:
+ *
+ * ```javascript
+ * var pentagon = Physics.geometry('convex-polygon', {
+ *     // the centroid is automatically calculated and used to position the shape
+ *     vertices: [
+ *         { x: 0, y: -30 },
+ *         { x: -29, y: -9 },
+ *         { x: -18, y: 24 },
+ *         { x: 18, y: 24 },
+ *         { x: 29, y: -9 }
+ *     ]
+ * });
+ * ```
+ **/
 Physics.geometry('convex-polygon', function( parent ){
 
     var ERROR_NOT_CONVEX = 'Error: The vertices specified do not match that of a _convex_ polygon.';
@@ -12,25 +34,28 @@ Physics.geometry('convex-polygon', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
+
+            var self = this;
 
             // call parent init method
             parent.init.call(this, options);
-            options = Physics.util.extend({}, defaults, options);
 
-            this.setVertices( options.vertices || [] );
+            this.options.onChange(function( opts ){
+                self.setVertices( opts.vertices || [] );
+            });
+
+            self.setVertices( options.vertices || [] );
+
         },
 
         /**
-         * Set the vertices of the polygon shape. Vertices will be converted to be relative to the calculated centroid
-         * @param {Array} hull The hull definition. Array of vectorish objects
-         * @return {self}
-         */
+         * ConvexPolygonGeometry#setVertices( hull ) -> this
+         * - hull (Array): Vertices represented by an array of [[Vectorish]] objects, in either clockwise or counterclockwise order
+         *
+         * Set the vertices of this polygon.
+         **/
         setVertices: function( hull ){
 
             var scratch = Physics.scratchpad()
@@ -59,11 +84,7 @@ Physics.geometry('convex-polygon', function( parent ){
             return this;
         },
         
-        /**
-         * Get axis-aligned bounding box for this object (rotated by angle if specified).
-         * @param  {Number} angle (optional) The angle to rotate the geometry.
-         * @return {Object}       Bounding box values
-         */
+        // extended
         aabb: function( angle ){
 
             if (!angle && this._aabb){
@@ -94,15 +115,7 @@ Physics.geometry('convex-polygon', function( parent ){
             return Physics.aabb.clone( aabb );
         },
 
-        /**
-         * Get farthest point on the hull of this geometry
-         * along the direction vector "dir"
-         * returns local coordinates
-         * replaces result if provided
-         * @param {Vector} dir Direction to look
-         * @param {Vector} result (optional) A vector to write result to
-         * @return {Vector} The farthest hull point in local coordinates
-         */
+        // extended
         getFarthestHullPoint: function( dir, result, data ){
 
             var verts = this.vertices
@@ -173,15 +186,7 @@ Physics.geometry('convex-polygon', function( parent ){
             }
         },
 
-        /**
-         * Get farthest point on the core of this geometry
-         * along the direction vector "dir"
-         * returns local coordinates
-         * replaces result if provided
-         * @param {Vector} dir Direction to look
-         * @param {Vector} result (optional) A vector to write result to
-         * @return {Vector} The farthest core point in local coordinates
-         */
+        // extended
         getFarthestCorePoint: function( dir, result, margin ){
 
             var norm

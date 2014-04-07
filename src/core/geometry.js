@@ -11,7 +11,7 @@
      **/
     Physics.geometry = Decorator('geometry', {
 
-        /** section: Classes
+        /** belongs to: Physics.geometry
          * class Geometry
          *
          * The base class for geometries created by [[Physics.geometry]] factory function.

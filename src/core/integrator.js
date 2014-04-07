@@ -30,10 +30,10 @@
      **/
     Physics.integrator = Decorator('integrator', {
 
-        /** section: Classes
+        /** belongs to: Physics.integrator
          * class Integrator
          *
-         * The base class for geometries created by [[Physics.geometry]] factory function.
+         * The base class for integrators created by [[Physics.integrator]] factory function.
          **/
 
         /** internal

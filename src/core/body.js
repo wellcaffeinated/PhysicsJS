@@ -47,10 +47,10 @@
      **/
     Physics.body = Decorator('body', {
 
-        /** section: Classes
+        /** belongs to: Physics.body
          * class Body
          *
-         * The base class for behaviors created by [[Physics.body]] factory function.
+         * The base class for bodies created by [[Physics.body]] factory function.
          **/
 
         /** internal

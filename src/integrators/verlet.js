@@ -16,24 +16,22 @@ Physics.integrator('verlet', function( parent ){
 
 
     return {
+        /** 
+         * class Verlet < Integrator
+         *
+         * `Physics.integrator('verlet')`.
+         *
+         * The improved euler integrator.
+         **/
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
 
-        /**
-         * Velocity integration
-         * @param  {Array} bodies Array of bodies to integrate
-         * @param  {Number} dt     Timestep size
-         * @return {void}
-         */
+        // extended
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep
@@ -121,12 +119,7 @@ Physics.integrator('verlet', function( parent ){
             }
         },
 
-        /**
-         * Position integration
-         * @param  {Array} bodies Array of bodies to integrate
-         * @param  {Number} dt     Timestep size
-         * @return {void}
-         */
+        // extended
         integratePositions: function( bodies, dt ){
 
             // half the timestep

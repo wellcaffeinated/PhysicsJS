@@ -147,7 +147,7 @@
         return this;
     };
 
-    /**
+    /** deprecated: 0.6.0..1.0.0
      * Physics.vector#get( idx ) -> Number
      * - idx (Number): The coordinate index (0 or 1)
      * 

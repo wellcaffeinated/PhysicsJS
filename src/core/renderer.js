@@ -39,7 +39,7 @@
      **/
     Physics.renderer = Decorator('renderer', {
 
-        /** section: Classes
+        /** belongs to: Physics.renderer
          * class Renderer
          *
          * The base class for renderers created by [[Physics.renderer]] factory function.
