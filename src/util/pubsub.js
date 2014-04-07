@@ -1,5 +1,7 @@
 (function(){
 
+    Physics.scratchpad.register('event', function(){ return {}; }, { useFactory: true });
+
     /**
      * class Physics.util.pubsub
      * 
@@ -154,17 +156,17 @@
                 ,l = listeners && listeners.length
                 ,handler
                 ,e
+                ,scratch = Physics.scratchpad()
                 ;
 
             if ( !l ){
-                return this;
+                return scratch.done(this);
             }
 
-            e = {
-                // event data
-                topic: topic,
-                handler: handler
-            };
+            e = scratch.event();
+            // event data
+            e.topic = topic;
+            e.handler = handler;
 
             // reverse iterate so priorities work out correctly
             while ( l-- ){
@@ -178,7 +180,7 @@
                 }
             }
 
-            return this;
+            return scratch.done(this);
         },
 
         /**

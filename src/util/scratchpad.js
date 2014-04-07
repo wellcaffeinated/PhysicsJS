@@ -20,7 +20,7 @@ Physics.scratchpad = (function(){
     var regIndex = 0;
 
 
-    /** section: Classes
+    /** belongs to: Physics.scratchpad
      * class Scratch
      *
      * A scratchpad session.
@@ -175,6 +175,7 @@ Physics.scratchpad = (function(){
         var proto = Scratch.prototype
             ,idx = regIndex++
             ,stackname = '_' + name + 'Stack'
+            ,useFactory = options && options.useFactory
             ;
 
         if ( name in proto ) {
@@ -204,7 +205,7 @@ Physics.scratchpad = (function(){
             instance = stack[ stackIndex ];
 
             if ( !instance ){
-                stack.push( instance = new constructor() );
+                stack.push( instance = useFactory ? constructor() : new constructor() );
             }
 
             return instance;
@@ -215,6 +216,7 @@ Physics.scratchpad = (function(){
     // register some classes
     Scratchpad.register('vector', Physics.vector);
     Scratchpad.register('transform', Physics.transform);
+    Scratchpad.register('object', function(){ return {}; }, { useFactory: true });
 
     return Scratchpad;
 

@@ -51,6 +51,9 @@ Physics.behavior('sweep-prune', function( parent ){
             });
             this.options( options );
 
+            this.encounters = [];
+            this.candidates = [];
+
             this.clear();
         },
 
@@ -229,10 +232,12 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,c
                 // determine which axis is the last we need to check
                 ,collisionFlag = ( dof.z || dof.y || dof.x )
-                ,encounters = []
+                ,encounters = this.encounters
                 ,enclen = 0
-                ,candidates = []
+                ,candidates = this.candidates
                 ;
+
+            encounters.length = candidates.length = 0;
 
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
 

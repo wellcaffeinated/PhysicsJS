@@ -39,7 +39,13 @@ module.exports = function(grunt) {
             'src/intro.js',
             'lib/lodash.js',
             'src/math/*.js',
-            'src/util/*.js',
+            
+            'src/util/noconflict.js',
+            'src/util/decorator.js',
+            'src/util/helpers.js',
+            'src/util/scratchpad.js',
+            'src/util/pubsub.js',
+            'src/util/ticker.js',
 
             'src/core/query.js',
             'src/core/behavior.js',
@@ -350,7 +356,7 @@ module.exports = function(grunt) {
         docs: {
             api: {
                 dest: 'docs/',
-                src: ['src/core/*.js', 'src/math/*.js', 'src/intro.js', 'src/util/*.js'],
+                src: ['src/integrators/*.js', 'src/body/*.js', 'src/geometries/*.js', 'src/core/*.js', 'src/math/*.js', 'src/intro.js', 'src/util/*.js'],
                 options: {
                     template: 'docs/layout.jade',
                     debugFile: 'docs/debug.json',
