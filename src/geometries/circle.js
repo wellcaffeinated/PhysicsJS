@@ -31,14 +31,17 @@ Physics.geometry('circle', function( parent ){
         init: function( options ){
 
             var self = this;
+            // call parent init method
+            parent.init.call(this, options);
+
+            this.options.defaults( defaults );
             this.options.onChange(function( opts ){
                 this.radius = opts.radius;
             });
+            this.options( options );
 
             this._aabb = Physics.aabb();
-            
-            // call parent init method
-            parent.init.call(this, options);
+            this.radius = this.options.radius;
         },
                 
         // extended

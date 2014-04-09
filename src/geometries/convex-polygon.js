@@ -42,11 +42,13 @@ Physics.geometry('convex-polygon', function( parent ){
             // call parent init method
             parent.init.call(this, options);
 
+            this.options.defaults( defaults );
             this.options.onChange(function( opts ){
                 self.setVertices( opts.vertices || [] );
             });
+            this.options( options );
 
-            self.setVertices( options.vertices || [] );
+            self.setVertices( this.options.vertices || [] );
 
         },
 

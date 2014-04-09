@@ -2,7 +2,6 @@
  * A PIXI renderer
  * Renders physics object with PIXI components
  * @module renderers/pixi
- * @requires pixi
  */
  /* global PIXI */
 Physics.renderer('pixi', function( parent ){

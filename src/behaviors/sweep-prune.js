@@ -24,7 +24,7 @@ Physics.behavior('sweep-prune', function( parent ){
         id1 = id1|0;
         id2 = id2|0;
 
-        if ( (id1|0) == (id2|0) ){
+        if ( (id1|0) === (id2|0) ){
 
             return -1;
         }
@@ -207,12 +207,52 @@ Physics.behavior('sweep-prune', function( parent ){
                 c = this.pairs[ hash ] = {
                     bodyA: tr1.body,
                     bodyB: tr2.body,
-                    flag: 0
+                    flag: 1
                 };
             }
 
             return c;
         },
+
+        // getPair: function(tr1, tr2, doCreate){
+
+        //     var hash = Math.min(tr1.id, tr2.id) // = pairHash( tr1.id, tr2.id )
+        //         ,other = Math.max(tr1.id, tr2.id)
+        //         ,first
+        //         ,c
+        //         ;
+
+        //     if ( hash === false ){
+        //         return null;
+        //     }
+
+        //     first = this.pairs[ hash ];
+
+        //     if ( !first ){
+        //         if ( !doCreate ){
+        //             return null;
+        //         }
+
+        //         first = this.pairs[ hash ] = [];
+        //     }
+
+        //     c = first[ other ];
+
+        //     if ( !c ){
+
+        //         if ( !doCreate ){
+        //             return null;
+        //         }
+
+        //         c = first[ other ] = {
+        //             bodyA: tr1.body,
+        //             bodyB: tr2.body,
+        //             flag: 1
+        //         };
+        //     }
+
+        //     return c;
+        // },
 
         /**
          * Check each axis for overlaps of bodies AABBs
@@ -231,7 +271,7 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,j
                 ,c
                 // determine which axis is the last we need to check
-                ,collisionFlag = ( dof.z || dof.y || dof.x )
+                ,collisionFlag = 1 << (dof.z + 1) << (dof.y + 1) << (dof.x + 1)
                 ,encounters = this.encounters
                 ,enclen = 0
                 ,candidates = this.candidates
@@ -286,11 +326,15 @@ Physics.behavior('sweep-prune', function( parent ){
                                 c = this.getPair( tr1, tr2, isX );
 
                                 if ( c ){
-                                    
-                                    // if it's the x axis, set the flag
-                                    // to = 1.
+
+                                    if ( c.flag > collisionFlag ){
+                                        c.flag = 1;
+                                    }
+
+                                    // if it's greater than the axis index, set the flag
+                                    // to = 0.
                                     // if not, increment the flag by one.
-                                    c.flag = isX? 0 : c.flag + 1;
+                                    c.flag = c.flag << (xyz + 1);
 
                                     // c.flag will equal collisionFlag 
                                     // if we've incremented the flag

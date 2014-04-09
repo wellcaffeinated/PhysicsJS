@@ -227,6 +227,7 @@ nav.toc a {
   color: #C1C5C5;
   color: #93a1a1;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 nav.toc a:hover,
