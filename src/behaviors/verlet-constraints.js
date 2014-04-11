@@ -198,7 +198,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#resolveAngleConstraints( coef )
-         * - coeff (Number): Coefficient for this resolution phase
+         * - coef (Number): Coefficient for this resolution phase
          * 
          * Resolve angle constraints.
          **/
@@ -322,7 +322,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#resolveDistanceConstraints( coef )
-         * - coeff (Number): Coefficient for this resolution phase
+         * - coef (Number): Coefficient for this resolution phase
          * 
          * Resolve distance constraints.
          **/
