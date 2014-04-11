@@ -56,6 +56,14 @@ Physics.scratchpad = (function(){
          * Declare that your work is finished.
          * 
          * Release temp objects for use elsewhere. Must be called when immediate work is done.
+         *
+         * You can wrap the return value in scratch.done() so that you don't forget to call it.
+         *
+         * Example:
+         *
+         * ```javascript
+         * return scratch.done( myReturnValue );
+         * ```
          **/
         done: function( val ){
 
@@ -178,8 +186,8 @@ Physics.scratchpad = (function(){
     Scratchpad.register = function register( name, constructor, options ){
 
         var proto = Scratch.prototype
-            ,idx = regIndex++
-            ,stackname = '_' + name + 'Stack'
+            ,idx = regIndex++ // increase the scratch type index
+            ,stackname = '_' + name + 'Stack' // the name of the array stack
             ,useFactory = options && options.useFactory
             ;
 
@@ -187,9 +195,14 @@ Physics.scratchpad = (function(){
             throw ALREADY_DEFINED_ERROR;
         }
 
+        // create a new function on the prototype
         proto[ name ] = function(){
 
+            // get the stack (or initialize it)
             var stack = this[ stackname ] || (this[ stackname ] = [])
+                // we increase this index every time a voletile object is requested
+                // seems weird to store it on this as a number (ie: this.0, this.1)...
+                // but actually it's faster...
                 ,stackIndex = this[ idx ] | 0
                 ;
 

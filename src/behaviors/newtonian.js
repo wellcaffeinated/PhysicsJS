@@ -1,7 +1,15 @@
-/**
- * Newtonian attraction between bodies (inverse square law)
- * @module behaviors/newtonian
- */
+/** 
+ * class NewtonianBehavior < Behavior
+ *
+ * `Physics.behavior('newtonian')`.
+ *
+ * Newtonian attraction between bodies (inverse square law).
+ *
+ * Additional options include:
+ * - strength: The strength of the interaction between bodies. (default: `1`)
+ * - max: The maximum distance between bodies at which to apply the behavior. (default: `false`... infinite)
+ * - min: The minimum distance between bodies at which to apply the behavior. (default: `false`... autocalculate)
+ **/
 Physics.behavior('newtonian', function( parent ){
 
     var defaults = {
@@ -15,11 +23,7 @@ Physics.behavior('newtonian', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             var self = this;
@@ -33,11 +37,7 @@ Physics.behavior('newtonian', function( parent ){
             this.options( options );
         },
         
-        /**
-         * Apply newtonian acceleration between all bodies
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        // extended
         behave: function( data ){
 
             var bodies = this.getTargets()

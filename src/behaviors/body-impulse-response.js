@@ -1,7 +1,13 @@
-/**
- * Body collision response
- * @module behaviors/body-collision-response
- */
+/** 
+ * class BodyImpulseResponseBehavior < Behavior
+ *
+ * `Physics.behavior('body-impulse-response')`.
+ *
+ * Responds to collisions by applying impulses.
+ *
+ * Additional options include:
+ * - check: channel to listen to for collisions (default: `collisions:detected`).
+ **/
 Physics.behavior('body-impulse-response', function( parent ){
     
     var defaults = {
@@ -11,6 +17,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
     return {
 
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -21,36 +28,29 @@ Physics.behavior('body-impulse-response', function( parent ){
         // no applyTo method
         applyTo: false,
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             world.on( this.options.check, this.respond, this );
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off( this.options.check, this.respond );
         },
 
-        /**
+        /** internal
+         * BodyImpulseResponseBehavior#collideBodes( bodyA, bodyB, normal, point, mtrans, contact )
+         * - bodyA (Object): First Body
+         * - bodyB (Object): Second body
+         * - normal (Vector): Normal vector of the collision surface
+         * - point (Vector): Contact point of the collision
+         * - mtrans (Vector): Minimum transit vector that is the smallest displacement to separate the bodies
+         * - contact (Boolean): Are the bodies in resting contact relative to each other
+         *
          * Collide two bodies by modifying their positions and velocities to conserve momentum
-         * @param  {Object} bodyA   First Body
-         * @param  {Object} bodyB   Second body
-         * @param  {Vector} normal  Normal vector of the collision surface
-         * @param  {Vector} point   Contact point of the collision
-         * @param  {Vector} mtrans  Minimum transit vector that is the smallest displacement to separate the bodies
-         * @param  {Boolean} contact Are the bodies in resting contact relative to each other
-         * @return {void}
-         */
+         **/
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var fixedA = bodyA.treatment === 'static' || bodyA.treatment === 'kinematic'
@@ -213,11 +213,12 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
-        /**
-         * Respond to collision event
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyImpulseResponseBehavior#respond( data )
+         * - data (Object): event data
+         * 
+         * Event callback to respond to collision data.
+         **/
         respond: function( data ){
 
             var self = this

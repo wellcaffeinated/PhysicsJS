@@ -1,8 +1,15 @@
-/**
+/** 
+ * class VerletConstraintsBehavior < Behavior
+ *
+ * `Physics.behavior('verlet-constraints')`.
+ *
  * Verlet constraints manager.
+ *
  * Handles distance constraints, and angle constraints
- * @module behaviors/rigid-constraint-manager
- */
+ *
+ * Additional options include:
+ * - iterations: The number of iterations to take to relax the constraints. (default: `2`)
+ **/
 Physics.behavior('verlet-constraints', function( parent ){
 
     var TWOPI = 2 * Math.PI;
@@ -15,11 +22,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -30,11 +33,7 @@ Physics.behavior('verlet-constraints', function( parent ){
             this._angleConstraints = [];
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             var intg = world.integrator();
@@ -47,20 +46,17 @@ Physics.behavior('verlet-constraints', function( parent ){
             world.on('integrate:positions', this.resolve, this);
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off('integrate:positions', this.resolve);
         },
 
         /**
+         * VerletConstraintsBehavior#drop() -> this
+         * 
          * Remove all constraints
-         * @return {self}
-         */
+         **/
         drop: function(){
 
             // drop the current constraints
@@ -70,12 +66,23 @@ Physics.behavior('verlet-constraints', function( parent ){
         },
 
         /**
-         * Constrain two bodies to a target relative distance
-         * @param  {Object} bodyA        First body
-         * @param  {Object} bodyB        Second body
-         * @param  {Number} targetLength (optional) Target length. defaults to target length specified in configuration options
-         * @return {object}              The constraint object, which holds .bodyA and .bodyB references to the bodies, .id the string ID of the constraint, .targetLength the target length
-         */
+         * VerletConstraintsBehavior#distanceConstraint( bodyA, bodyB[, stiffness, targetLength] ) -> Object
+         * - bodyA (Body): First body
+         * - bodyB (Body): Second body
+         * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
+         * - targetLength (Number): Target length. defaults to current distance between the bodies
+         * + (Object): The constraint data object
+         * 
+         * Constrain two bodies to a target relative distance.
+         *
+         * Returns constraint data that can be used to remove the constraint later.
+         *
+         * - `.bodyA` and `.bodyB` are references to the bodies
+         * - `.type` is the type of constraint
+         * - `.id` is the string ID of the constraint
+         * - `.stiffness` is the stiffness
+         * - `.targetLength` is the target length
+         **/
         distanceConstraint: function( bodyA, bodyB, stiffness, targetLength ){
 
             var cst;
@@ -101,8 +108,24 @@ Physics.behavior('verlet-constraints', function( parent ){
         },
 
         /**
+         * VerletConstraintsBehavior#angleConstraint( bodyA, bodyB, bodyC[, stiffness, targetAngle] ) -> Object
+         * - bodyA (Body): First body
+         * - bodyB (Body): Second body
+         * - bodyC (Body): Third body
+         * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
+         * - targetAngle (Number): Target angle. Defaults to the current angle between bodies
+         * + (Object): The constraint data object
+         * 
          * Constrain three bodies to a target relative angle
-         */
+         *
+         * Returns constraint data that can be used to remove the constraint later.
+         *
+         * - `.bodyA`, `.bodyB`, and `.bodyC` are references to the bodies
+         * - `.type` is the type of constraint
+         * - `.id` is the string ID of the constraint
+         * - `.stiffness` is the stiffness
+         * - `.targetAngle` is the target angle
+         **/
         angleConstraint: function( bodyA, bodyB, bodyC, stiffness, targetAngle ){
 
             var cst;
@@ -127,10 +150,13 @@ Physics.behavior('verlet-constraints', function( parent ){
         },
 
         /**
+         * VerletConstraintsBehavior#remove( constraintData ) -> this
+         * VerletConstraintsBehavior#remove( constraintId ) -> this
+         * - constraintData (Object): The constraint data returned when creating a constraint
+         * - constraintId (String): The constraint id
+         * 
          * Remove a constraint
-         * @param  {Mixed} indexCstrOrId Either the constraint object or the constraint id
-         * @return {self}
-         */
+         **/
         remove: function( cstrOrId ){
 
             var constraints
@@ -170,6 +196,12 @@ Physics.behavior('verlet-constraints', function( parent ){
             return this;
         },
 
+        /** internal
+         * VerletConstraintsBehavior#resolveAngleConstraints( coef )
+         * - coeff (Number): Coefficient for this resolution phase
+         * 
+         * Resolve angle constraints.
+         **/
         resolveAngleConstraints: function( coef ){
 
             var constraints = this._angleConstraints
@@ -288,6 +320,12 @@ Physics.behavior('verlet-constraints', function( parent ){
             scratch.done();
         },
 
+        /** internal
+         * VerletConstraintsBehavior#resolveDistanceConstraints( coef )
+         * - coeff (Number): Coefficient for this resolution phase
+         * 
+         * Resolve distance constraints.
+         **/
         resolveDistanceConstraints: function( coef ){
 
             var constraints = this._distanceConstraints
@@ -338,16 +376,22 @@ Physics.behavior('verlet-constraints', function( parent ){
             scratch.done();
         },
 
+        /** internal
+         * VerletConstraintsBehavior#shuffleConstraints()
+         * 
+         * Mix up the constraints.
+         **/
         shuffleConstraints: function(){
 
             this._distanceConstraints = Physics.util.shuffle( this._distanceConstraints );
             this._angleConstraints = Physics.util.shuffle( this._angleConstraints );
         },
 
-        /**
-         * Resolve constraints
-         * @return {void}
-         */
+        /** internal
+         * VerletConstraintsBehavior#resolve()
+         * 
+         * Resolve all constraints.
+         **/
         resolve: function(){
 
             var its = this.options.iterations
@@ -363,9 +407,11 @@ Physics.behavior('verlet-constraints', function( parent ){
         },
 
         /**
-         * Get all constraints
-         * @return {Object} The object containing copied arrays of the constraints
-         */
+         * VerletConstraintsBehavior#getConstraints() -> Object
+         * + (Object): The object containing copied arrays of the constraints
+         * 
+         * Get all constraints.
+         **/
         getConstraints: function(){
 
             return {

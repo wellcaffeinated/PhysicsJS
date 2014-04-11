@@ -1,14 +1,38 @@
-/**
- * Body collision detection
- * @module behaviors/body-collision-detection
- */
+/** 
+ * class BodyCollisionDetectionBehavior < Behavior
+ *
+ * `Physics.behavior('body-collision-detection')`.
+ *
+ * Detect collisions of bodies.
+ *
+ * Publishes collision events to the world as a group of detected collisions per iteration.
+ *
+ * The event data will have a `.collisions` property that is an array of collisions of the form:
+ *
+ * ```javascript
+ * {
+ *     bodyA: // the first body
+ *     bodyB: // the second body
+ *     norm: // the normal vector (Vectorish)
+ *     mtv: // the minimum transit vector. (the direction and length needed to extract bodyB from bodyA)
+ *     pos: // the collision point 
+ *     overlap: // the amount bodyA overlaps bodyB
+ * }
+ * ```
+ *
+ * Additional options include:
+ * - check: channel to listen to for collision candidates (default: `collisions:candidates`). set to `true` to force check every pair of bodies in the world
+ * - channel: channel to publish events to (default: `collisions:detected`)
+ **/
 Physics.behavior('body-collision-detection', function( parent ){
 
-    /**
+    /*
+     * getSupportFn( bodyA, bodyB ) -> Function
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Function): The support function
+     *
      * Get a general support function for use with GJK algorithm
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Function}       The support function
      */
     var getSupportFn = function getSupportFn( bodyA, bodyB ){
 
@@ -24,7 +48,6 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
                 ,marginA = fn.marginA
                 ,marginB = fn.marginB
-                ,ret
                 ;
 
             vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
@@ -32,13 +55,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             searchDir.negate().rotate( tB );
 
-            ret = {
+            return scratch.done({
                 a: vA.values(),
                 b: vB.values(),
                 pt: vA.vsub( vB ).values() 
-            };
-            scratch.done();
-            return ret;
+            });
         };
 
         fn.useCore = false;
@@ -47,11 +68,13 @@ Physics.behavior('body-collision-detection', function( parent ){
         return fn;
     };
 
-    /**
+    /*
+     * checkGJK( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
      * Use GJK algorithm to check arbitrary bodies for collisions
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Object}       Collision result
      */
     var checkGJK = function checkGJK( bodyA, bodyB ){
 
@@ -98,9 +121,8 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             if ( result.overlap || result.maxIterationsReached ){
-                scratch.done();
                 // This implementation can't deal with a core overlap yet
-                return false;
+                return scratch.done(false);
             }
 
             // calc overlap
@@ -113,15 +135,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
         }
 
-        scratch.done();
-        return collision;
+        return scratch.done( collision );
     };
 
-    /**
-     * Check two circles for collisions
-     * @param  {Object} bodyA First circle
-     * @param  {Object} bodyB Second circle
-     * @return {Object}       Collision result
+    /*
+     * checkCircles( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
+     * Check two circles for collisions.
      */
     var checkCircles = function checkCircles( bodyA, bodyB ){
 
@@ -159,15 +182,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             };
         }
     
-        scratch.done();
-        return collision;
+        return scratch.done( collision );
     };
 
-    /**
+    /*
+     * checkPair( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
      * Check a pair for collisions
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Object}       Collision result
      */
     var checkPair = function checkPair( bodyA, bodyB ){
 
@@ -201,11 +225,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -213,11 +233,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             this.options( options );
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             if ( this.options.check === true ){
@@ -230,11 +246,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             if ( this.options.check === true ){
@@ -247,11 +259,12 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        /**
-         * Check pairs of objects that have been flagged by broad phase for possible collisions.
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyCollisionDetectionBehavior#check( data )
+         * - data (Object): The event data
+         * 
+         * Event callback to check pairs of objects that have been flagged by broad phase for possible collisions.
+         **/
         check: function( data ){
 
             var candidates = data.candidates
@@ -286,11 +299,12 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
-        /**
-         * Check all pairs of objects in the list for collisions
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyCollisionDetectionBehavior#checkAll( data )
+         * - data (Object): The event data
+         * 
+         * Event callback to check all pairs of objects in the list for collisions
+         **/
         checkAll: function( data ){
 
             var bodies = this.getTargets()

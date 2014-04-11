@@ -64,12 +64,11 @@
 
             // oh.. it's a zero vector. So A and B are both the closest.
             // just use one of them
-            scratch.done();
-            return {
+            return scratch.done({
 
                 a: last.a,
                 b: last.b
-            };
+            });
         }
 
         lambdaB = - L.dot( A ) / L.normSq();
@@ -78,30 +77,25 @@
         if ( lambdaA <= 0 ){
             // woops.. that means the closest simplex point
             // isn't on the line it's point B itself
-            scratch.done();
-            return {
+            return scratch.done({
                 a: prev.a,
                 b: prev.b
-            };
+            });
         } else if ( lambdaB <= 0 ){
             // vice versa
-            scratch.done();
-            return {
+            return scratch.done({
                 a: last.a,
                 b: last.b
-            };
+            });
         }
 
         // guess we'd better do the math now...
-        var ret = {
+        return scratch.done({
             // a closest = lambdaA * Aa + lambdaB * Ba
             a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
             // b closest = lambdaA * Ab + lambdaB * Bb
             b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
-        };
-
-        scratch.done();
-        return ret;
+        });
     };
 
     /**

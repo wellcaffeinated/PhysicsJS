@@ -1,15 +1,20 @@
-/**
- * Sweep and Prune implementation for broad phase collision detection
- * @module behaviors/sweep-prune
- */
+/** 
+ * class SweepPruneBehavior < Behavior
+ *
+ * `Physics.behavior('sweep-prune')`.
+ *
+ * Sweep and Prune implementation for broad phase collision detection.
+ *
+ * This massively improves the speed of collision detection. It's set up to always be used with [[BodyCollisionDetection]], and [[BodyImpulseResponse]].
+ *
+ * Additional options include:
+ * - channel: The channel to publish collision candidates to. (default: `collisions:candidates`)
+ **/
 Physics.behavior('sweep-prune', function( parent ){
 
     var uid = 1;
 
-    /**
-     * Get a unique numeric id for internal use
-     * @return {Number} Unique id
-     */
+    // Get a unique numeric id for internal use
     var getUniqueId = function getUniqueId(){
 
         return uid++;
@@ -17,8 +22,8 @@ Physics.behavior('sweep-prune', function( parent ){
 
     // add z: 2 to get this to work in 3D
     var dof = { x: 0, y: 1 }; // degrees of freedom
+    // change to "3" to get it to work in 3D
     var maxDof = 2;
-
     
     function pairHash( id1, id2 ){
         id1 = id1|0;
@@ -38,11 +43,7 @@ Physics.behavior('sweep-prune', function( parent ){
     
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -58,9 +59,10 @@ Physics.behavior('sweep-prune', function( parent ){
         },
 
         /**
+         * SweepPruneBehavior#clear()
+         * 
          * Refresh tracking data
-         * @return {void}
-         */
+         **/
         clear: function(){
 
             this.tracked = [];
@@ -74,11 +76,7 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             world.on( 'add:body', this.trackBody, this );
@@ -93,11 +91,7 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off( 'add:body', this.trackBody );
@@ -106,10 +100,12 @@ Physics.behavior('sweep-prune', function( parent ){
             this.clear();
         },
 
-        /**
+        /** internal
+         * SweepPruneBehavior#broadPhase() -> Array
+         * + (Array): The candidate data of overlapping aabbs
+         * 
          * Execute the broad phase and get candidate collisions
-         * @return {Array} List of candidates
-         */
+         **/
         broadPhase: function(){
 
             this.updateIntervals();
@@ -117,10 +113,11 @@ Physics.behavior('sweep-prune', function( parent ){
             return this.checkOverlaps();
         },
 
-        /**
+        /** internal
+         * SweepPruneBehavior#sortIntervalLists()
+         * 
          * Simple insertion sort for each axis
-         * @return {void}
-         */
+         **/
         sortIntervalLists: function(){
 
             var list
@@ -181,13 +178,15 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        /**
+        /** internal
+         * SweepPruneBehavior#getPair( tr1, tr2, doCreate ) -> Object
+         * - tr1 (Object): First tracker
+         * - tr2 (Object): Second tracker
+         * - doCreate (Boolean): Create if not found
+         * + (Object): Pair object or null if not found
+         * 
          * Get a pair object for the tracker objects
-         * @param  {Object} tr1      First tracker
-         * @param  {Object} tr2      Second tracker
-         * @param  {Boolean} doCreate Create if not already found
-         * @return {Mixed}          Pair object or null if not found
-         */
+         **/
         getPair: function(tr1, tr2, doCreate){
 
             var hash = pairHash( tr1.id, tr2.id );
@@ -254,10 +253,12 @@ Physics.behavior('sweep-prune', function( parent ){
         //     return c;
         // },
 
-        /**
+        /** internal
+         * SweepPruneBehavior#checkOverlaps() -> Array
+         * + (Array): List of candidate collisions 
+         * 
          * Check each axis for overlaps of bodies AABBs
-         * @return {Array} List of candidate collisions 
-         */
+         **/
         checkOverlaps: function(){
 
             var isX
@@ -363,10 +364,11 @@ Physics.behavior('sweep-prune', function( parent ){
             return candidates;
         },
 
-        /**
+        /** internal
+         * SweepPruneBehavior#updateIntervals()
+         * 
          * Update position intervals on each axis
-         * @return {[type]} [description]
-         */
+         **/
         updateIntervals: function(){
 
             var tr
@@ -397,11 +399,12 @@ Physics.behavior('sweep-prune', function( parent ){
             scratch.done();
         },
 
-        /**
-         * Add body to list of those tracked by sweep and prune
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * SweepPruneBehavior#trackBody( data )
+         * - data (Object): Event data
+         * 
+         * Event callback to add body to list of those tracked by sweep and prune
+         **/
         trackBody: function( data ){
 
             var body = data.body
@@ -435,11 +438,12 @@ Physics.behavior('sweep-prune', function( parent ){
             }
         },
 
-        /**
-         * Remove body from list of those tracked
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * SweepPruneBehavior#untrackBody( data )
+         * - data (Object): Event data
+         * 
+         * Event callback to remove body from list of those tracked
+         **/
         untrackBody: function( data ){
 
             var body = data.body
@@ -489,11 +493,12 @@ Physics.behavior('sweep-prune', function( parent ){
             }            
         },
 
-        /**
-         * Sweep and publish event if any candidate collisions are found
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * SweepPruneBehavior#sweep( data )
+         * - data (Object): Event data
+         * 
+         * Event callback to sweep and publish event if any candidate collisions are found
+         **/
         sweep: function( data ){
 
             var self = this

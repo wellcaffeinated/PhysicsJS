@@ -1,5 +1,6 @@
 (function(){
 
+    // register a new scratch object so we can reuse event data
     Physics.scratchpad.register('event', function(){ return {}; }, { useFactory: true });
 
     /**

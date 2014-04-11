@@ -1,3 +1,18 @@
+/** 
+ * class InteractiveBehavior < Behavior
+ *
+ * `Physics.behavior('interactive')`.
+ *
+ * User interaction helper.
+ *
+ * Used to get mouse/touch events and add a mouse grab interaction.
+ *
+ * Additional options include:
+ * - el: The element of the renderer. What you input as the `el` for the renderer.
+ * - moveThrottle: The min time between move events (default: `10`).
+ * - minVel: The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
+ * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+ **/
 Physics.behavior('interactive', function( parent ){
 
     if ( !document ){
@@ -44,10 +59,7 @@ Physics.behavior('interactive', function( parent ){
         ;
 
     return {
-        /**
-         * Initialize mouse events
-         * @return {[type]} [description]
-         */
+        // extended
         init: function( options ){
             
             var self = this
@@ -154,28 +166,21 @@ Physics.behavior('interactive', function( parent ){
             this.el.addEventListener('touchend', release);
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             // subscribe the .behave() method to the position integration step
             world.on('integrate:positions', this.behave, this);
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             // unsubscribe when disconnected
             world.off('integrate:positions', this.behave);
         },
 
+        // extended
         behave: function( data ){
 
             var self = this
