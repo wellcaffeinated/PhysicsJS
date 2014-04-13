@@ -1,4 +1,4 @@
-/** 
+/**
  * class BodyImpulseResponseBehavior < Behavior
  *
  * `Physics.behavior('body-impulse-response')`.
@@ -9,7 +9,7 @@
  * - check: channel to listen to for collisions (default: `collisions:detected`).
  **/
 Physics.behavior('body-impulse-response', function( parent ){
-    
+
     var defaults = {
         // channel to listen to for collisions
         check: 'collisions:detected'
@@ -70,7 +70,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
                 // extract bodies
                 bodyB.state.pos.vadd( mtv );
-                
+
             } else if ( fixedB ){
 
                 // extract bodies
@@ -129,17 +129,20 @@ Physics.behavior('body-impulse-response', function( parent ){
                 return;
             }
 
+            invMoiA = invMoiA === Infinity ? 0 : invMoiA;
+            invMoiB = invMoiB === Infinity ? 0 : invMoiB;
+
             impulse =  - ((1 + cor) * vproj) / ( invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg) );
             // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
             // angVel -= impulse * rreg * invMoi;
 
-            
+
             if ( fixedA ){
 
                 // apply impulse
                 bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
                 bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
-                
+
             } else if ( fixedB ){
 
                 // apply impulse
@@ -156,7 +159,7 @@ Physics.behavior('body-impulse-response', function( parent ){
             }
 
             // inContact = (impulse < 0.004);
-            
+
             // if we have friction and a relative velocity perpendicular to the normal
             if ( cof && vreg ){
 
@@ -182,7 +185,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     impulse *= sign * cof;
                     // make sure the impulse isn't giving the system energy
                     impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-                    
+
                 } else {
 
                     impulse = max;
@@ -193,7 +196,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     // apply frictional impulse
                     bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
                     bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
-                    
+
                 } else if ( fixedB ){
 
                     // apply frictional impulse
@@ -207,7 +210,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
                     bodyA.state.vel.vadd( perp.mult( invMassA * bodyB.mass ) );
                     bodyA.state.angular.vel += impulse * invMoiA * rAproj;
-                }  
+                }
             }
 
             scratch.done();
@@ -216,7 +219,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         /** internal
          * BodyImpulseResponseBehavior#respond( data )
          * - data (Object): event data
-         * 
+         *
          * Event callback to respond to collision data.
          **/
         respond: function( data ){
@@ -227,9 +230,9 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ;
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
-                
+
                 col = collisions[ i ];
-                self.collideBodies( 
+                self.collideBodies(
                     col.bodyA,
                     col.bodyB,
                     col.norm,

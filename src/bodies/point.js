@@ -1,8 +1,15 @@
-/** alias of: Body 
+/** alias of: Body
  * class PointBody < Body
  *
  * Physics.body('point')
  *
- * The point body is just an alias for the base class.
+ * The point body represents a point.
  **/
-Physics.body('point', function(){});
+Physics.body('point', function( parent ){
+    return {
+        init: function( opts ){
+            parent.init.call( this, opts );
+            this.moi = 0;
+        }
+    };
+});

@@ -13,7 +13,7 @@
      * - width (Number): The width of the bounding box
      * - height (Number): The height of the bounding box
      * - pt (Vectorish): The center point of the bounding box
-     * 
+     *
      * Create an Axis Aligned Bounding Box.
      *
      * Signature:
@@ -29,7 +29,11 @@
      **/
     Physics.aabb = function( minX, minY, maxX, maxY ){
 
-        var aabb = {};
+        var aabb = { x: 0, y: 0, hw: 0, hh: 0 };
+
+        if ( minX === undefined ){
+            return aabb;
+        }
 
         if ( minX && minX.x !== undefined ){
             // we have a point specified as first arg
@@ -39,15 +43,18 @@
             minX = minX.x;
         }
 
-        if ( maxX && maxX.x !== undefined ){
-            // we have a point specified as the third arg
-            // so we assume it's the center point
-            aabb.x = maxX.x;
-            aabb.y = maxX.y;
+        if ( maxY === undefined && minX !== undefined && minY !== undefined ){
+
             aabb.hw = minX * 0.5;
             aabb.hh = minY * 0.5;
 
-            // done
+            if ( maxX && maxX.x !== undefined ){
+                // we have a point specified as the third arg
+                // so we assume it's the center point
+                aabb.x = maxX.x;
+                aabb.y = maxX.y;
+            }
+
             return aabb;
         }
 
@@ -65,18 +72,18 @@
      * - aabb (Object): The aabb
      * - pt (Vectorish): The point
      * + (Boolean): `true` if `pt` is inside `aabb`, `false` otherwise
-     * 
+     *
      * Check if a point is inside an aabb.
      **/
     Physics.aabb.contains = function contains( aabb, pt ){
 
-        return  (pt.x > (aabb.x - aabb.hw)) && 
+        return  (pt.x > (aabb.x - aabb.hw)) &&
                 (pt.x < (aabb.x + aabb.hw)) &&
                 (pt.y > (aabb.y - aabb.hh)) &&
                 (pt.y < (aabb.y + aabb.hh));
     };
 
-    /** 
+    /**
      * Physics.aabb.clone( aabb ) -> Object
      * - aabb (Object): The aabb to clone
      * + (Object): The clone
@@ -92,7 +99,7 @@
         };
     };
 
-    /** 
+    /**
      * Physics.aabb.overlap( aabb1, aabb2 ) -> Boolean
      * - aabb1 (Object): The first aabb
      * - aabb2 (Object): The second aabb
@@ -109,7 +116,7 @@
             ;
 
         // first check x-axis
-        
+
         if ( (min2 <= max1 && max1 <= max2) || (min1 <= max2 && max2 <= max1) ){
             // overlap in x-axis
             // check y...
