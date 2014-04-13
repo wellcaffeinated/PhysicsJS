@@ -21,7 +21,7 @@
      * - name (String): The name of the body to create
      * - options (Object): The configuration for that body ( depends on body ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // is the body hidden (not to be rendered)?
@@ -56,7 +56,7 @@
         /** internal
          * Body#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
@@ -67,23 +67,23 @@
              * Body#options( options ) -> Object
              * - options (Object): The options to set as an object
              * + (Object): The options
-             * 
-             * Set options on this instance. 
-             * 
+             *
+             * Set options on this instance.
+             *
              * Access options directly from the options object.
-             * 
+             *
              * Example:
              *
              * ```javascript
              * this.options.someOption;
              * ```
-             * 
+             *
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
             this.options( options );
 
-            /** 
+            /**
              * Body#state
              *
              * The physical state container.
@@ -135,31 +135,31 @@
 
             /** related to: Physics.geometry
              * Body#geometry
-             * 
+             *
              * The geometry for this body.
              *
              * By default it is a `point` geometry which gets overridden.
              **/
             this.geometry = Physics.geometry('point');
 
-            /** 
+            /**
              * Body#mass = 1.0
              *
              * The mass.
              **/
 
-             /** 
+             /**
               * Body#restitution = 1.0
               *
               * The restitution.
               *
               * This is the "bounciness" of the body.
               * It's a number between `0` and `1`.
-              * 
+              *
               * A restitution of 1 is the bounciest.
               *
               * A restitution of 0 is not bouncy.
-              * 
+              *
               * When colliding the restitutions of bodies are
               * multiplied together to get the restitution between two
               * bodies.
@@ -251,7 +251,7 @@
         /**
          * Body#accelerate( acc ) -> this
          * - acc (Physics.vector): The acceleration vector
-         * 
+         *
          * Accelerate the body by adding supplied vector to its current acceleration
          **/
         accelerate: function( acc ){
@@ -259,7 +259,7 @@
             if ( this.treatment === 'dynamic' ){
                 this.state.acc.vadd( acc );
             }
-            
+
             return this;
         },
 
@@ -267,7 +267,7 @@
          * Body#applyForce( force[, p] ) -> this
          * - force (Vectorish): The force vector
          * - p (Vectorish): The point vector from the COM at which to apply the force
-         * 
+         *
          * Apply a force at center of mass, or at point `p` relative to the center of mass
          **/
         applyForce: function( force, p ){
@@ -280,10 +280,10 @@
                 ,r = scratch.vector()
                 ,state
                 ;
-                
+
             // if no point at which to apply the force... apply at center of mass
             if ( !p ){
-                
+
                 this.accelerate( r.clone( force ).mult( 1/this.mass ) );
 
             } else if ( this.moi ) {
@@ -306,7 +306,7 @@
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
-         * 
+         *
          * Get the Axis aligned bounding box for the body in its current position and rotation
          **/
         aabb: function(){
@@ -323,9 +323,9 @@
 
         /**
          * Body#recalc() -> this
-         * 
+         *
          * Recalculate properties.
-         * 
+         *
          * Intended to be overridden by subclasses. Call when body physical properties are changed.
          **/
         recalc: function(){

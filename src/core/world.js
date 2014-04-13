@@ -8,7 +8,7 @@
 (function(){
 
     var execCallbacks = function execCallbacks( fns, scope, args ){
-        
+
         var fn
             ,ret
             ,cb = function(){
@@ -39,7 +39,7 @@
     };
 
     // begin world definitions
-    
+
     /** alias of: Physics
      * new Physics.world([options, fn(world, Physics)])
      * - options (Object): configuration options (see description)
@@ -63,9 +63,9 @@
      *     integrator: 'verlet'
      * }
      * ```
-     * 
-     * If called with an array of functions, and any functions 
-     * return a [promise-like object](http://promises-aplus.github.io/promises-spec/), 
+     *
+     * If called with an array of functions, and any functions
+     * return a [promise-like object](http://promises-aplus.github.io/promises-spec/),
      * each remaining callback will be called only when that promise is resolved.
      *
      * Example:
@@ -85,19 +85,19 @@
      *                 }
      *             }
      *             ;
-     *             
+     *
      *         // load images
      *         $.each(myImages, function( src ){
      *             var img = new Image();
      *             img.onload = callback;
      *             img.src = src;
      *         });
-     *         
+     *
      *         return dfd.promise();
      *     },
      *     function( world ){
      *         // won't be executed until images are loaded
-     *         // initialize world... etc...   
+     *         // initialize world... etc...
      *     }
      * ]);
      * ```
@@ -108,7 +108,7 @@
         if (!(this instanceof World)){
             return new World( cfg, fn );
         }
-        
+
         this.init( cfg, fn );
     };
 
@@ -134,8 +134,8 @@
             this._stats = {
                // statistics (fps, etc)
                fps: 0,
-               ipf: 0 
-            }; 
+               ipf: 0
+            };
             this._bodies = [];
             this._behaviors = [];
             this._integrator = null;
@@ -177,7 +177,7 @@
         /** chainable
          * Physics.world#add( things ) -> this
          * - things (Object|Array): The thing, or array of things (body, behavior, integrator, or renderer) to add.
-         * 
+         *
          * Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...
          **/
         add: function( arg ){
@@ -211,7 +211,7 @@
                     case 'body':
                         this.addBody(thing);
                     break; // end body
-                    
+
                     default:
                         throw 'Error: failed to add item of unknown type "'+ thing.type +'" to world';
                     // end default
@@ -225,7 +225,7 @@
         /** chainable
          * Physics.world#remove( things ) -> this
          * - things (Object|Array): The thing, or array of things (body, behavior, integrator, or renderer) to remove.
-         * 
+         *
          * Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...
          **/
         remove: function( arg ){
@@ -263,7 +263,7 @@
                     case 'body':
                         this.removeBody( thing );
                     break; // end body
-                    
+
                     default:
                         throw 'Error: failed to remove item of unknown type "'+ thing.type +'" from world';
                     // end default
@@ -278,7 +278,7 @@
          * Physics.world#has( thing ) -> Boolean
          * - thing (Object): The thing to test
          * + (Boolean): `true` if thing is in the world, `false` otherwise.
-         * 
+         *
          * Determine if a thing has been added to world.
          **/
         has: function( thing ){
@@ -309,7 +309,7 @@
                 case 'body':
                     arr = this._bodies;
                 break; // end body
-                
+
                 default:
                     throw 'Error: unknown type "'+ thing.type +'"';
                 // end default
@@ -422,7 +422,7 @@
         },
 
         /** chainable
-         * Physics.world#addBehavior( behavior ) -> this 
+         * Physics.world#addBehavior( behavior ) -> this
          * - behavior (Behavior): The behavior to add
          *
          * Add a behavior to the world
@@ -459,7 +459,7 @@
         },
 
         /** chainable
-         * Physics.world#removeBehavior( behavior ) -> this 
+         * Physics.world#removeBehavior( behavior ) -> this
          * - behavior (Behavior): The behavior to remove
          *
          * Remove a behavior from the world
@@ -469,11 +469,11 @@
             var behaviors = this._behaviors;
 
             if (behavior){
-                
+
                 for ( var i = 0, l = behaviors.length; i < l; ++i ){
-                    
+
                     if (behavior === behaviors[ i ]){
-                        
+
                         behaviors.splice( i, 1 );
                         behavior.setWorld( null );
 
@@ -490,7 +490,7 @@
         },
 
         /** chainable
-         * Physics.world#addBody( body ) -> this 
+         * Physics.world#addBody( body ) -> this
          * - body (Body): The behavior to add
          *
          * Add a body to the world
@@ -527,7 +527,7 @@
         },
 
         /** chainable
-         * Physics.world#removeBody( body ) -> this 
+         * Physics.world#removeBody( body ) -> this
          * - body (Body): The body to remove
          *
          * Remove a body from the world
@@ -537,11 +537,11 @@
             var bodies = this._bodies;
 
             if (body){
-                
+
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
-                    
+
                     if (body === bodies[ i ]){
-                        
+
                         bodies.splice( i, 1 );
                         body.setWorld( null );
 
@@ -563,7 +563,7 @@
          * - rules (Object): Query rules.
          * - filter (Function): Filter function called to check bodies
          * - body (Body): Each body in the world
-         * 
+         *
          * Find first matching body based on query rules.
          **/
         findOne: function( rules ){
@@ -581,7 +581,7 @@
          * - rules (Object): Query rules
          * - filter (Function): Filter function called to check bodies
          * - body (Body): Each body in the world
-         * 
+         *
          * Find all matching bodies based on query rules.
          **/
         find: function( rules ){
@@ -611,7 +611,7 @@
          * Do a single step.
          **/
         step: function( now ){
-            
+
             if ( this._paused ){
 
                 this._time = false;
@@ -627,7 +627,7 @@
             if ( !diff ){
                 return this;
             }
-            
+
             // limit number of iterations in each step
             if ( diff > this._maxJump ){
 
@@ -650,7 +650,7 @@
 
         /** chainable
          * Physics.world#render() -> this
-         * 
+         *
          * Render current world state using the renderer
          **/
         render: function(){
@@ -658,7 +658,7 @@
             if ( !this._renderer ){
                 throw "No renderer added to world";
             }
-            
+
             this._renderer.render( this._bodies, this._stats );
             this.emit('render', {
                 bodies: this._bodies,
@@ -670,7 +670,7 @@
 
         /** chainable
          * Physics.world#pause() -> this
-         * 
+         *
          * Pause the world (step calls do nothing).
          **/
         pause: function(){
@@ -682,7 +682,7 @@
 
         /** chainable
          * Physics.world#unpause() -> this
-         * 
+         *
          * Unpause the world (step calls continue as usual).
          **/
         unpause: function(){
@@ -695,7 +695,7 @@
         /**
          * Physics.world#isPaused() -> Boolean
          * + (Boolean): Returns `true` if world is paused, `false` otherwise.
-         * 
+         *
          * Determine if world is paused.
          **/
         isPaused: function(){
@@ -705,7 +705,7 @@
 
         /**
          * Physics.world#destroy()
-         * 
+         *
          * Destroy the world.
          * (Bwahahahahaha!)
          **/
@@ -729,5 +729,5 @@
     });
 
     Physics.world = World;
-    
+
 }());
