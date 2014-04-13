@@ -1,7 +1,10 @@
 /**
- * A pathetically simple dom renderer
- * @module renderers/dom
- */
+ * class DomRenderer < Renderer
+ *
+ * Physics.renderer('dom')
+ *
+ * Renderer that manipulates DOM elements according to the physics simulation. Very primative...
+ **/
 Physics.renderer('dom', function( proto ){
 
     if ( !document ){
@@ -78,11 +81,7 @@ Physics.renderer('dom', function( proto ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Config options passed by initializer
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             // call proto init
@@ -112,12 +111,13 @@ Physics.renderer('dom', function( proto ){
             }
         },
 
-        /**
-         * Set dom element style properties for a circle
-         * @param  {HTMLElement} el       The element
-         * @param  {Geometry} geometry The body's geometry
-         * @return {void}
-         */
+        /** internal
+         * DomRenderer#circleProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a circle.
+         **/
         circleProperties: function( el, geometry ){
 
             var aabb = geometry.aabb();
@@ -128,11 +128,7 @@ Physics.renderer('dom', function( proto ){
             el.style.marginTop = (-aabb.hh) + px;
         },
 
-        /**
-         * Create a dom element for the specified geometry
-         * @param  {Geometry} geometry The body's geometry
-         * @return {HTMLElement}          The element
-         */
+        // extended
         createView: function( geometry ){
 
             var el = newEl()
@@ -140,34 +136,26 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             el.className = classpfx + geometry.name;
-            el.style.position = 'absolute';            
+            el.style.position = 'absolute';
             el.style.top = '0px';
             el.style.left = '0px';
-            
+
             if (this[ fn ]){
                 this[ fn ](el, geometry);
             }
-            
+
             this.el.appendChild( el );
             return el;
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             world.on( 'add:body', this.attach, this );
             world.on( 'remove:body', this.detach, this );
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off( 'add:body', this.attach );
@@ -175,10 +163,11 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Detach a node from the DOM
-         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
-         * @return {self}
-         */
+         * DomRenderer#detach( data ) -> this
+         * - data (HTMLElement|Object): DOM node or event data (`data.body`)
+         *
+         * Event callback to detach a node from the DOM
+         **/
         detach: function( data ){
 
             // interpred data as either dom node or event data
@@ -195,10 +184,11 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Attach a node to the viewport
-         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
-         * @return {self}
-         */
+         * DomRenderer#attach( data ) -> this
+         * - data (HTMLElement|Object): DOM node or event data (`data.body`)
+         *
+         * Event callback to attach a node to the viewport
+         **/
         attach: function( data ){
 
             // interpred data as either dom node or event data
@@ -213,23 +203,14 @@ Physics.renderer('dom', function( proto ){
             return this;
         },
 
-        /**
-         * Draw the meta data
-         * @param  {Object} meta The meta data
-         * @return {void}
-         */
+        // extended
         drawMeta: function( meta ){
 
             this.els.fps.innerHTML = meta.fps.toFixed(2);
             this.els.ipf.innerHTML = meta.ipf;
         },
 
-        /**
-         * Update dom element to reflect body's current state
-         * @param  {Body} body The body to draw
-         * @param  {HTMLElement} view The view for that body
-         * @return {void}
-         */
+        // extended
         drawBody: drawBody
     };
 });

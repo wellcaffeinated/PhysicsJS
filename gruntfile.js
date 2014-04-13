@@ -39,7 +39,7 @@ module.exports = function(grunt) {
             'src/intro.js',
             'lib/lodash.js',
             'src/math/*.js',
-            
+
             'src/util/noconflict.js',
             'src/util/decorator.js',
             'src/util/helpers.js',
@@ -62,7 +62,7 @@ module.exports = function(grunt) {
             // default geometry
             'src/geometries/point.js',
             'src/bodies/point.js',
-            
+
             'src/outro.js'
         ],
 
@@ -114,7 +114,7 @@ module.exports = function(grunt) {
 
     // remove the exclusions. we want it to match all files.
     for ( var i = 0, l = config.sourcesFull.length; i < l; ++i ){
-        
+
         if (config.sourcesFull[ i ].charAt(0) === '!'){
             config.sourcesFull.splice( i, 1 );
             i--;
@@ -144,7 +144,7 @@ module.exports = function(grunt) {
             deps: deps
         };
 
-        return grunt.template.process(config.banner, config) + 
+        return grunt.template.process(config.banner, config) +
             grunt.template.process(config.extensionWrapper, {data: data});
     }
 
@@ -326,7 +326,7 @@ module.exports = function(grunt) {
                     exports: ['none'],
                     iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
                     include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'find', 'each', 'random', 'defaults', 'extend', 'transform', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
-                    
+
                     // minus: ['result', 'shuffle'],
                     // plus: ['random', 'template'],
                     // template: './*.jst',
@@ -356,7 +356,7 @@ module.exports = function(grunt) {
         docs: {
             api: {
                 dest: 'docs/',
-                src: ['src/integrators/*.js', 'src/behaviors/*.js', 'src/body/*.js', 'src/geometries/*.js', 'src/core/*.js', 'src/math/*.js', 'src/intro.js', 'src/util/*.js'],
+                src: ['src/**/*.js'],
                 options: {
                     template: 'docs/layout.jade',
                     debugFile: 'docs/debug.json',
@@ -407,5 +407,5 @@ module.exports = function(grunt) {
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);
-    
+
 };
