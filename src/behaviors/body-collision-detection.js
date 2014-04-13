@@ -1,4 +1,4 @@
-/** 
+/**
  * class BodyCollisionDetectionBehavior < Behavior
  *
  * `Physics.behavior('body-collision-detection')`.
@@ -15,7 +15,7 @@
  *     bodyB: // the second body
  *     norm: // the normal vector (Vectorish)
  *     mtv: // the minimum transit vector. (the direction and length needed to extract bodyB from bodyA)
- *     pos: // the collision point 
+ *     pos: // the collision point
  *     overlap: // the amount bodyA overlaps bodyB
  * }
  * ```
@@ -45,20 +45,24 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
                 ,vA = scratch.vector()
                 ,vB = scratch.vector()
-                ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
                 ,marginA = fn.marginA
                 ,marginB = fn.marginB
                 ;
 
-            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+            if ( fn.useCore ){
+                vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+                vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+            } else {
+                vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+                vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+            }
 
             searchDir.negate().rotate( tB );
 
             return scratch.done({
                 a: vA.values(),
                 b: vB.values(),
-                pt: vA.vsub( vB ).values() 
+                pt: vA.vsub( vB ).values()
             });
         };
 
@@ -154,7 +158,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,overlap
             ,collision = false
             ;
-        
+
         d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
@@ -181,7 +185,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 overlap: -overlap
             };
         }
-    
+
         return scratch.done( collision );
     };
 
@@ -196,7 +200,7 @@ Physics.behavior('body-collision-detection', function( parent ){
     var checkPair = function checkPair( bodyA, bodyB ){
 
         // filter out bodies that don't collide with each other
-        if ( 
+        if (
             ( bodyA.treatment === 'static' || bodyA.treatment === 'kinematic' ) &&
             ( bodyB.treatment === 'static' || bodyB.treatment === 'kinematic' )
         ){
@@ -262,7 +266,7 @@ Physics.behavior('body-collision-detection', function( parent ){
         /** internal
          * BodyCollisionDetectionBehavior#check( data )
          * - data (Object): The event data
-         * 
+         *
          * Event callback to check pairs of objects that have been flagged by broad phase for possible collisions.
          **/
         check: function( data ){
@@ -275,10 +279,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ;
 
             for ( var i = 0, l = candidates.length; i < l; ++i ){
-                
+
                 pair = candidates[ i ];
 
-                if ( targets === this._world._bodies || 
+                if ( targets === this._world._bodies ||
                     // only check if the members are targeted by this behavior
                     (Physics.util.indexOf( targets, pair.bodyA ) > -1) &&
                     (Physics.util.indexOf( targets, pair.bodyB ) > -1)
@@ -302,7 +306,7 @@ Physics.behavior('body-collision-detection', function( parent ){
         /** internal
          * BodyCollisionDetectionBehavior#checkAll( data )
          * - data (Object): The event data
-         * 
+         *
          * Event callback to check all pairs of objects in the list for collisions
          **/
         checkAll: function( data ){
@@ -316,7 +320,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
-                
+
                 bodyA = bodies[ j ];
 
                 for ( var i = j + 1; i < l; i++ ){
