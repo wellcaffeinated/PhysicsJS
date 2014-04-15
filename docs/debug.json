@@ -12,6 +12,7 @@
     "src/bodies/circle.js",
     "src/bodies/convex-polygon.js",
     "src/bodies/point.js",
+    "src/bodies/rectangle.js",
     "src/core/behavior.js",
     "src/core/body.js",
     "src/core/geometry-helpers.js",
@@ -23,6 +24,7 @@
     "src/geometries/circle.js",
     "src/geometries/convex-polygon.js",
     "src/geometries/point.js",
+    "src/geometries/rectangle.js",
     "src/integrators/improved-euler.js",
     "src/integrators/verlet.js",
     "src/intro.js",
@@ -996,7 +998,7 @@
           "returns": [
             {
               "type": "Array",
-              "description": " List of candidate collisions \n\n     "
+              "description": " List of candidate collisions\n\n     "
             }
           ],
           "internal": true,
@@ -1428,7 +1430,7 @@
       "returns": [
         {
           "type": "Array",
-          "description": " List of candidate collisions \n\n     "
+          "description": " List of candidate collisions\n\n     "
         }
       ],
       "internal": true,
@@ -2496,6 +2498,21 @@
       "path": "PointBody",
       "outFile": "point.html"
     },
+    "RectangleBody": {
+      "id": "RectangleBody",
+      "type": "class",
+      "superclass": "Body",
+      "description": "Physics.body('rectangle')\n\nBody for rectangles. The position of the body is the centroid of the rectangle.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rect = Physics.body('rectangle', {\n    // place the centroid of the rectangle at (300, 200)\n    x: 300,\n    y: 200,\n    width: 30,\n    height: 40\n});\n```",
+      "short_description": "Physics.body('rectangle')\n",
+      "line": 28,
+      "aliases": [],
+      "children": [],
+      "file": "src/bodies/rectangle.js",
+      "subclasses": [],
+      "name": "RectangleBody",
+      "path": "RectangleBody",
+      "outFile": "rectangle.html"
+    },
     "Physics.behavior": {
       "id": "Physics.behavior",
       "type": "class method",
@@ -3422,7 +3439,7 @@
                   "returns": [
                     {
                       "type": "Array",
-                      "description": " List of candidate collisions \n\n     "
+                      "description": " List of candidate collisions\n\n     "
                     }
                   ],
                   "internal": true,
@@ -5036,7 +5053,7 @@
               "returns": [
                 {
                   "type": "Array",
-                  "description": " List of candidate collisions \n\n     "
+                  "description": " List of candidate collisions\n\n     "
                 }
               ],
               "internal": true,
@@ -6643,13 +6660,29 @@
               "name": "PointBody",
               "path": "PointBody",
               "outFile": "point.html"
+            },
+            {
+              "id": "RectangleBody",
+              "type": "class",
+              "superclass": "Body",
+              "description": "Physics.body('rectangle')\n\nBody for rectangles. The position of the body is the centroid of the rectangle.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rect = Physics.body('rectangle', {\n    // place the centroid of the rectangle at (300, 200)\n    x: 300,\n    y: 200,\n    width: 30,\n    height: 40\n});\n```",
+              "short_description": "Physics.body('rectangle')\n",
+              "line": 28,
+              "aliases": [],
+              "children": [],
+              "file": "src/bodies/rectangle.js",
+              "subclasses": [],
+              "name": "RectangleBody",
+              "path": "RectangleBody",
+              "outFile": "rectangle.html"
             }
           ],
           "file": "src/core/body.js",
           "subclasses": [
             "CircleBody",
             "ConvexPolygonBody",
-            "PointBody"
+            "PointBody",
+            "RectangleBody"
           ],
           "name": "Body",
           "path": "Body",
@@ -7180,13 +7213,29 @@
           "name": "PointBody",
           "path": "PointBody",
           "outFile": "point.html"
+        },
+        {
+          "id": "RectangleBody",
+          "type": "class",
+          "superclass": "Body",
+          "description": "Physics.body('rectangle')\n\nBody for rectangles. The position of the body is the centroid of the rectangle.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rect = Physics.body('rectangle', {\n    // place the centroid of the rectangle at (300, 200)\n    x: 300,\n    y: 200,\n    width: 30,\n    height: 40\n});\n```",
+          "short_description": "Physics.body('rectangle')\n",
+          "line": 28,
+          "aliases": [],
+          "children": [],
+          "file": "src/bodies/rectangle.js",
+          "subclasses": [],
+          "name": "RectangleBody",
+          "path": "RectangleBody",
+          "outFile": "rectangle.html"
         }
       ],
       "file": "src/core/body.js",
       "subclasses": [
         "CircleBody",
         "ConvexPolygonBody",
-        "PointBody"
+        "PointBody",
+        "RectangleBody"
       ],
       "name": "Body",
       "path": "Body",
@@ -8725,13 +8774,76 @@
               "name": "PointGeometry",
               "path": "PointGeometry",
               "outFile": "point.html"
+            },
+            {
+              "id": "RectangleGeometry",
+              "type": "class",
+              "superclass": "Geometry",
+              "description": "Physics.geometry('rectangle')\n\nGeometry for rectangles.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rectGeo = Physics.geometry('rectangle', {\n    width: 30,\n    height: 40\n});\n```",
+              "short_description": "Physics.geometry('rectangle')\n",
+              "line": 22,
+              "aliases": [],
+              "children": [
+                {
+                  "id": "RectangleGeometry#height",
+                  "type": "constant",
+                  "signatures": [
+                    {
+                      "returns": [
+                        {
+                          "type": "Number"
+                        }
+                      ]
+                    }
+                  ],
+                  "description": "The height",
+                  "short_description": "The height",
+                  "line": 51,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/geometries/rectangle.js",
+                  "name": "height",
+                  "name_prefix": "RectangleGeometry#",
+                  "path": "RectangleGeometry.prototype.height",
+                  "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+                },
+                {
+                  "id": "RectangleGeometry#width",
+                  "type": "constant",
+                  "signatures": [
+                    {
+                      "returns": [
+                        {
+                          "type": "Number"
+                        }
+                      ]
+                    }
+                  ],
+                  "description": "The width",
+                  "short_description": "The width",
+                  "line": 45,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/geometries/rectangle.js",
+                  "name": "width",
+                  "name_prefix": "RectangleGeometry#",
+                  "path": "RectangleGeometry.prototype.width",
+                  "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+                }
+              ],
+              "file": "src/geometries/rectangle.js",
+              "subclasses": [],
+              "name": "RectangleGeometry",
+              "path": "RectangleGeometry",
+              "outFile": "rectangle.html"
             }
           ],
           "file": "src/core/geometry.js",
           "subclasses": [
             "CircleGeometry",
             "ConvexPolygonGeometry",
-            "PointGeometry"
+            "PointGeometry",
+            "RectangleGeometry"
           ],
           "name": "Geometry",
           "path": "Geometry",
@@ -9104,13 +9216,76 @@
           "name": "PointGeometry",
           "path": "PointGeometry",
           "outFile": "point.html"
+        },
+        {
+          "id": "RectangleGeometry",
+          "type": "class",
+          "superclass": "Geometry",
+          "description": "Physics.geometry('rectangle')\n\nGeometry for rectangles.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rectGeo = Physics.geometry('rectangle', {\n    width: 30,\n    height: 40\n});\n```",
+          "short_description": "Physics.geometry('rectangle')\n",
+          "line": 22,
+          "aliases": [],
+          "children": [
+            {
+              "id": "RectangleGeometry#height",
+              "type": "constant",
+              "signatures": [
+                {
+                  "returns": [
+                    {
+                      "type": "Number"
+                    }
+                  ]
+                }
+              ],
+              "description": "The height",
+              "short_description": "The height",
+              "line": 51,
+              "aliases": [],
+              "children": [],
+              "file": "src/geometries/rectangle.js",
+              "name": "height",
+              "name_prefix": "RectangleGeometry#",
+              "path": "RectangleGeometry.prototype.height",
+              "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+            },
+            {
+              "id": "RectangleGeometry#width",
+              "type": "constant",
+              "signatures": [
+                {
+                  "returns": [
+                    {
+                      "type": "Number"
+                    }
+                  ]
+                }
+              ],
+              "description": "The width",
+              "short_description": "The width",
+              "line": 45,
+              "aliases": [],
+              "children": [],
+              "file": "src/geometries/rectangle.js",
+              "name": "width",
+              "name_prefix": "RectangleGeometry#",
+              "path": "RectangleGeometry.prototype.width",
+              "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+            }
+          ],
+          "file": "src/geometries/rectangle.js",
+          "subclasses": [],
+          "name": "RectangleGeometry",
+          "path": "RectangleGeometry",
+          "outFile": "rectangle.html"
         }
       ],
       "file": "src/core/geometry.js",
       "subclasses": [
         "CircleGeometry",
         "ConvexPolygonGeometry",
-        "PointGeometry"
+        "PointGeometry",
+        "RectangleGeometry"
       ],
       "name": "Geometry",
       "path": "Geometry",
@@ -12436,7 +12611,7 @@
                   ],
                   "description": "Event callback to attach a node to the viewport",
                   "short_description": "Event callback to attach a node to the viewport",
-                  "line": 192,
+                  "line": 209,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -12530,7 +12705,7 @@
                   ],
                   "description": "Event callback to detach a node from the DOM",
                   "short_description": "Event callback to detach a node from the DOM",
-                  "line": 171,
+                  "line": 188,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -12538,6 +12713,57 @@
                   "name_prefix": "DomRenderer#",
                   "path": "DomRenderer.prototype.detach",
                   "outFile": "dom.html#DomRenderer.prototype.detach"
+                },
+                {
+                  "id": "DomRenderer#rectangleProperties",
+                  "type": "instance method",
+                  "signatures": [
+                    {
+                      "arguments": [
+                        {
+                          "name": "el",
+                          "types": [
+                            "HTMLElement"
+                          ],
+                          "description": " The element\n\n     "
+                        },
+                        {
+                          "name": "geometry",
+                          "types": [
+                            "Geometry"
+                          ],
+                          "description": " The body's geometry\n\n     "
+                        }
+                      ]
+                    }
+                  ],
+                  "arguments": [
+                    {
+                      "name": "el",
+                      "types": [
+                        "HTMLElement"
+                      ],
+                      "description": " The element\n\n     "
+                    },
+                    {
+                      "name": "geometry",
+                      "types": [
+                        "Geometry"
+                      ],
+                      "description": " The body's geometry\n\n     "
+                    }
+                  ],
+                  "internal": true,
+                  "description": "Set dom element style properties for a rectangle.",
+                  "short_description": "Set dom element style properties for a rectangle.",
+                  "line": 138,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/renderers/dom.js",
+                  "name": "rectangleProperties",
+                  "name_prefix": "DomRenderer#",
+                  "path": "DomRenderer.prototype.rectangleProperties",
+                  "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
                 }
               ],
               "file": "src/renderers/dom.js",
@@ -14336,7 +14562,7 @@
               ],
               "description": "Event callback to attach a node to the viewport",
               "short_description": "Event callback to attach a node to the viewport",
-              "line": 192,
+              "line": 209,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -14430,7 +14656,7 @@
               ],
               "description": "Event callback to detach a node from the DOM",
               "short_description": "Event callback to detach a node from the DOM",
-              "line": 171,
+              "line": 188,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -14438,6 +14664,57 @@
               "name_prefix": "DomRenderer#",
               "path": "DomRenderer.prototype.detach",
               "outFile": "dom.html#DomRenderer.prototype.detach"
+            },
+            {
+              "id": "DomRenderer#rectangleProperties",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "el",
+                      "types": [
+                        "HTMLElement"
+                      ],
+                      "description": " The element\n\n     "
+                    },
+                    {
+                      "name": "geometry",
+                      "types": [
+                        "Geometry"
+                      ],
+                      "description": " The body's geometry\n\n     "
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "el",
+                  "types": [
+                    "HTMLElement"
+                  ],
+                  "description": " The element\n\n     "
+                },
+                {
+                  "name": "geometry",
+                  "types": [
+                    "Geometry"
+                  ],
+                  "description": " The body's geometry\n\n     "
+                }
+              ],
+              "internal": true,
+              "description": "Set dom element style properties for a rectangle.",
+              "short_description": "Set dom element style properties for a rectangle.",
+              "line": 138,
+              "aliases": [],
+              "children": [],
+              "file": "src/renderers/dom.js",
+              "name": "rectangleProperties",
+              "name_prefix": "DomRenderer#",
+              "path": "DomRenderer.prototype.rectangleProperties",
+              "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
             }
           ],
           "file": "src/renderers/dom.js",
@@ -17555,6 +17832,114 @@
       "path": "PointGeometry",
       "outFile": "point.html"
     },
+    "RectangleGeometry": {
+      "id": "RectangleGeometry",
+      "type": "class",
+      "superclass": "Geometry",
+      "description": "Physics.geometry('rectangle')\n\nGeometry for rectangles.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rectGeo = Physics.geometry('rectangle', {\n    width: 30,\n    height: 40\n});\n```",
+      "short_description": "Physics.geometry('rectangle')\n",
+      "line": 22,
+      "aliases": [],
+      "children": [
+        {
+          "id": "RectangleGeometry#height",
+          "type": "constant",
+          "signatures": [
+            {
+              "returns": [
+                {
+                  "type": "Number"
+                }
+              ]
+            }
+          ],
+          "description": "The height",
+          "short_description": "The height",
+          "line": 51,
+          "aliases": [],
+          "children": [],
+          "file": "src/geometries/rectangle.js",
+          "name": "height",
+          "name_prefix": "RectangleGeometry#",
+          "path": "RectangleGeometry.prototype.height",
+          "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+        },
+        {
+          "id": "RectangleGeometry#width",
+          "type": "constant",
+          "signatures": [
+            {
+              "returns": [
+                {
+                  "type": "Number"
+                }
+              ]
+            }
+          ],
+          "description": "The width",
+          "short_description": "The width",
+          "line": 45,
+          "aliases": [],
+          "children": [],
+          "file": "src/geometries/rectangle.js",
+          "name": "width",
+          "name_prefix": "RectangleGeometry#",
+          "path": "RectangleGeometry.prototype.width",
+          "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+        }
+      ],
+      "file": "src/geometries/rectangle.js",
+      "subclasses": [],
+      "name": "RectangleGeometry",
+      "path": "RectangleGeometry",
+      "outFile": "rectangle.html"
+    },
+    "RectangleGeometry#width": {
+      "id": "RectangleGeometry#width",
+      "type": "constant",
+      "signatures": [
+        {
+          "returns": [
+            {
+              "type": "Number"
+            }
+          ]
+        }
+      ],
+      "description": "The width",
+      "short_description": "The width",
+      "line": 45,
+      "aliases": [],
+      "children": [],
+      "file": "src/geometries/rectangle.js",
+      "name": "width",
+      "name_prefix": "RectangleGeometry#",
+      "path": "RectangleGeometry.prototype.width",
+      "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+    },
+    "RectangleGeometry#height": {
+      "id": "RectangleGeometry#height",
+      "type": "constant",
+      "signatures": [
+        {
+          "returns": [
+            {
+              "type": "Number"
+            }
+          ]
+        }
+      ],
+      "description": "The height",
+      "short_description": "The height",
+      "line": 51,
+      "aliases": [],
+      "children": [],
+      "file": "src/geometries/rectangle.js",
+      "name": "height",
+      "name_prefix": "RectangleGeometry#",
+      "path": "RectangleGeometry.prototype.height",
+      "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+    },
     "ImprovedEuler": {
       "id": "ImprovedEuler",
       "type": "class",
@@ -18867,7 +19252,7 @@
                       "returns": [
                         {
                           "type": "Array",
-                          "description": " List of candidate collisions \n\n     "
+                          "description": " List of candidate collisions\n\n     "
                         }
                       ],
                       "internal": true,
@@ -20175,13 +20560,29 @@
                   "name": "PointBody",
                   "path": "PointBody",
                   "outFile": "point.html"
+                },
+                {
+                  "id": "RectangleBody",
+                  "type": "class",
+                  "superclass": "Body",
+                  "description": "Physics.body('rectangle')\n\nBody for rectangles. The position of the body is the centroid of the rectangle.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rect = Physics.body('rectangle', {\n    // place the centroid of the rectangle at (300, 200)\n    x: 300,\n    y: 200,\n    width: 30,\n    height: 40\n});\n```",
+                  "short_description": "Physics.body('rectangle')\n",
+                  "line": 28,
+                  "aliases": [],
+                  "children": [],
+                  "file": "src/bodies/rectangle.js",
+                  "subclasses": [],
+                  "name": "RectangleBody",
+                  "path": "RectangleBody",
+                  "outFile": "rectangle.html"
                 }
               ],
               "file": "src/core/body.js",
               "subclasses": [
                 "CircleBody",
                 "ConvexPolygonBody",
-                "PointBody"
+                "PointBody",
+                "RectangleBody"
               ],
               "name": "Body",
               "path": "Body",
@@ -20935,13 +21336,76 @@
                   "name": "PointGeometry",
                   "path": "PointGeometry",
                   "outFile": "point.html"
+                },
+                {
+                  "id": "RectangleGeometry",
+                  "type": "class",
+                  "superclass": "Geometry",
+                  "description": "Physics.geometry('rectangle')\n\nGeometry for rectangles.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rectGeo = Physics.geometry('rectangle', {\n    width: 30,\n    height: 40\n});\n```",
+                  "short_description": "Physics.geometry('rectangle')\n",
+                  "line": 22,
+                  "aliases": [],
+                  "children": [
+                    {
+                      "id": "RectangleGeometry#height",
+                      "type": "constant",
+                      "signatures": [
+                        {
+                          "returns": [
+                            {
+                              "type": "Number"
+                            }
+                          ]
+                        }
+                      ],
+                      "description": "The height",
+                      "short_description": "The height",
+                      "line": 51,
+                      "aliases": [],
+                      "children": [],
+                      "file": "src/geometries/rectangle.js",
+                      "name": "height",
+                      "name_prefix": "RectangleGeometry#",
+                      "path": "RectangleGeometry.prototype.height",
+                      "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+                    },
+                    {
+                      "id": "RectangleGeometry#width",
+                      "type": "constant",
+                      "signatures": [
+                        {
+                          "returns": [
+                            {
+                              "type": "Number"
+                            }
+                          ]
+                        }
+                      ],
+                      "description": "The width",
+                      "short_description": "The width",
+                      "line": 45,
+                      "aliases": [],
+                      "children": [],
+                      "file": "src/geometries/rectangle.js",
+                      "name": "width",
+                      "name_prefix": "RectangleGeometry#",
+                      "path": "RectangleGeometry.prototype.width",
+                      "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+                    }
+                  ],
+                  "file": "src/geometries/rectangle.js",
+                  "subclasses": [],
+                  "name": "RectangleGeometry",
+                  "path": "RectangleGeometry",
+                  "outFile": "rectangle.html"
                 }
               ],
               "file": "src/core/geometry.js",
               "subclasses": [
                 "CircleGeometry",
                 "ConvexPolygonGeometry",
-                "PointGeometry"
+                "PointGeometry",
+                "RectangleGeometry"
               ],
               "name": "Geometry",
               "path": "Geometry",
@@ -22963,7 +23427,7 @@
                       ],
                       "description": "Event callback to attach a node to the viewport",
                       "short_description": "Event callback to attach a node to the viewport",
-                      "line": 192,
+                      "line": 209,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -23057,7 +23521,7 @@
                       ],
                       "description": "Event callback to detach a node from the DOM",
                       "short_description": "Event callback to detach a node from the DOM",
-                      "line": 171,
+                      "line": 188,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -23065,6 +23529,57 @@
                       "name_prefix": "DomRenderer#",
                       "path": "DomRenderer.prototype.detach",
                       "outFile": "dom.html#DomRenderer.prototype.detach"
+                    },
+                    {
+                      "id": "DomRenderer#rectangleProperties",
+                      "type": "instance method",
+                      "signatures": [
+                        {
+                          "arguments": [
+                            {
+                              "name": "el",
+                              "types": [
+                                "HTMLElement"
+                              ],
+                              "description": " The element\n\n     "
+                            },
+                            {
+                              "name": "geometry",
+                              "types": [
+                                "Geometry"
+                              ],
+                              "description": " The body's geometry\n\n     "
+                            }
+                          ]
+                        }
+                      ],
+                      "arguments": [
+                        {
+                          "name": "el",
+                          "types": [
+                            "HTMLElement"
+                          ],
+                          "description": " The element\n\n     "
+                        },
+                        {
+                          "name": "geometry",
+                          "types": [
+                            "Geometry"
+                          ],
+                          "description": " The body's geometry\n\n     "
+                        }
+                      ],
+                      "internal": true,
+                      "description": "Set dom element style properties for a rectangle.",
+                      "short_description": "Set dom element style properties for a rectangle.",
+                      "line": 138,
+                      "aliases": [],
+                      "children": [],
+                      "file": "src/renderers/dom.js",
+                      "name": "rectangleProperties",
+                      "name_prefix": "DomRenderer#",
+                      "path": "DomRenderer.prototype.rectangleProperties",
+                      "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
                     }
                   ],
                   "file": "src/renderers/dom.js",
@@ -35156,7 +35671,7 @@
           ],
           "description": "Event callback to attach a node to the viewport",
           "short_description": "Event callback to attach a node to the viewport",
-          "line": 192,
+          "line": 209,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -35250,7 +35765,7 @@
           ],
           "description": "Event callback to detach a node from the DOM",
           "short_description": "Event callback to detach a node from the DOM",
-          "line": 171,
+          "line": 188,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -35258,6 +35773,57 @@
           "name_prefix": "DomRenderer#",
           "path": "DomRenderer.prototype.detach",
           "outFile": "dom.html#DomRenderer.prototype.detach"
+        },
+        {
+          "id": "DomRenderer#rectangleProperties",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "el",
+                  "types": [
+                    "HTMLElement"
+                  ],
+                  "description": " The element\n\n     "
+                },
+                {
+                  "name": "geometry",
+                  "types": [
+                    "Geometry"
+                  ],
+                  "description": " The body's geometry\n\n     "
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "el",
+              "types": [
+                "HTMLElement"
+              ],
+              "description": " The element\n\n     "
+            },
+            {
+              "name": "geometry",
+              "types": [
+                "Geometry"
+              ],
+              "description": " The body's geometry\n\n     "
+            }
+          ],
+          "internal": true,
+          "description": "Set dom element style properties for a rectangle.",
+          "short_description": "Set dom element style properties for a rectangle.",
+          "line": 138,
+          "aliases": [],
+          "children": [],
+          "file": "src/renderers/dom.js",
+          "name": "rectangleProperties",
+          "name_prefix": "DomRenderer#",
+          "path": "DomRenderer.prototype.rectangleProperties",
+          "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
         }
       ],
       "file": "src/renderers/dom.js",
@@ -35317,6 +35883,57 @@
       "path": "DomRenderer.prototype.circleProperties",
       "outFile": "dom.html#DomRenderer.prototype.circleProperties"
     },
+    "DomRenderer#rectangleProperties": {
+      "id": "DomRenderer#rectangleProperties",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "el",
+              "types": [
+                "HTMLElement"
+              ],
+              "description": " The element\n\n     "
+            },
+            {
+              "name": "geometry",
+              "types": [
+                "Geometry"
+              ],
+              "description": " The body's geometry\n\n     "
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "el",
+          "types": [
+            "HTMLElement"
+          ],
+          "description": " The element\n\n     "
+        },
+        {
+          "name": "geometry",
+          "types": [
+            "Geometry"
+          ],
+          "description": " The body's geometry\n\n     "
+        }
+      ],
+      "internal": true,
+      "description": "Set dom element style properties for a rectangle.",
+      "short_description": "Set dom element style properties for a rectangle.",
+      "line": 138,
+      "aliases": [],
+      "children": [],
+      "file": "src/renderers/dom.js",
+      "name": "rectangleProperties",
+      "name_prefix": "DomRenderer#",
+      "path": "DomRenderer.prototype.rectangleProperties",
+      "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
+    },
     "DomRenderer#detach": {
       "id": "DomRenderer#detach",
       "type": "instance method",
@@ -35351,7 +35968,7 @@
       ],
       "description": "Event callback to detach a node from the DOM",
       "short_description": "Event callback to detach a node from the DOM",
-      "line": 171,
+      "line": 188,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -35394,7 +36011,7 @@
       ],
       "description": "Event callback to attach a node to the viewport",
       "short_description": "Event callback to attach a node to the viewport",
-      "line": 192,
+      "line": 209,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -40049,7 +40666,7 @@
                         "returns": [
                           {
                             "type": "Array",
-                            "description": " List of candidate collisions \n\n     "
+                            "description": " List of candidate collisions\n\n     "
                           }
                         ],
                         "internal": true,
@@ -41357,13 +41974,29 @@
                     "name": "PointBody",
                     "path": "PointBody",
                     "outFile": "point.html"
+                  },
+                  {
+                    "id": "RectangleBody",
+                    "type": "class",
+                    "superclass": "Body",
+                    "description": "Physics.body('rectangle')\n\nBody for rectangles. The position of the body is the centroid of the rectangle.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rect = Physics.body('rectangle', {\n    // place the centroid of the rectangle at (300, 200)\n    x: 300,\n    y: 200,\n    width: 30,\n    height: 40\n});\n```",
+                    "short_description": "Physics.body('rectangle')\n",
+                    "line": 28,
+                    "aliases": [],
+                    "children": [],
+                    "file": "src/bodies/rectangle.js",
+                    "subclasses": [],
+                    "name": "RectangleBody",
+                    "path": "RectangleBody",
+                    "outFile": "rectangle.html"
                   }
                 ],
                 "file": "src/core/body.js",
                 "subclasses": [
                   "CircleBody",
                   "ConvexPolygonBody",
-                  "PointBody"
+                  "PointBody",
+                  "RectangleBody"
                 ],
                 "name": "Body",
                 "path": "Body",
@@ -42117,13 +42750,76 @@
                     "name": "PointGeometry",
                     "path": "PointGeometry",
                     "outFile": "point.html"
+                  },
+                  {
+                    "id": "RectangleGeometry",
+                    "type": "class",
+                    "superclass": "Geometry",
+                    "description": "Physics.geometry('rectangle')\n\nGeometry for rectangles.\n\nAdditional config options:\n\n- width: The width\n- height: The height\n\nExample:\n\n```javascript\nvar rectGeo = Physics.geometry('rectangle', {\n    width: 30,\n    height: 40\n});\n```",
+                    "short_description": "Physics.geometry('rectangle')\n",
+                    "line": 22,
+                    "aliases": [],
+                    "children": [
+                      {
+                        "id": "RectangleGeometry#height",
+                        "type": "constant",
+                        "signatures": [
+                          {
+                            "returns": [
+                              {
+                                "type": "Number"
+                              }
+                            ]
+                          }
+                        ],
+                        "description": "The height",
+                        "short_description": "The height",
+                        "line": 51,
+                        "aliases": [],
+                        "children": [],
+                        "file": "src/geometries/rectangle.js",
+                        "name": "height",
+                        "name_prefix": "RectangleGeometry#",
+                        "path": "RectangleGeometry.prototype.height",
+                        "outFile": "rectangle.html#RectangleGeometry.prototype.height"
+                      },
+                      {
+                        "id": "RectangleGeometry#width",
+                        "type": "constant",
+                        "signatures": [
+                          {
+                            "returns": [
+                              {
+                                "type": "Number"
+                              }
+                            ]
+                          }
+                        ],
+                        "description": "The width",
+                        "short_description": "The width",
+                        "line": 45,
+                        "aliases": [],
+                        "children": [],
+                        "file": "src/geometries/rectangle.js",
+                        "name": "width",
+                        "name_prefix": "RectangleGeometry#",
+                        "path": "RectangleGeometry.prototype.width",
+                        "outFile": "rectangle.html#RectangleGeometry.prototype.width"
+                      }
+                    ],
+                    "file": "src/geometries/rectangle.js",
+                    "subclasses": [],
+                    "name": "RectangleGeometry",
+                    "path": "RectangleGeometry",
+                    "outFile": "rectangle.html"
                   }
                 ],
                 "file": "src/core/geometry.js",
                 "subclasses": [
                   "CircleGeometry",
                   "ConvexPolygonGeometry",
-                  "PointGeometry"
+                  "PointGeometry",
+                  "RectangleGeometry"
                 ],
                 "name": "Geometry",
                 "path": "Geometry",
@@ -44145,7 +44841,7 @@
                         ],
                         "description": "Event callback to attach a node to the viewport",
                         "short_description": "Event callback to attach a node to the viewport",
-                        "line": 192,
+                        "line": 209,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -44239,7 +44935,7 @@
                         ],
                         "description": "Event callback to detach a node from the DOM",
                         "short_description": "Event callback to detach a node from the DOM",
-                        "line": 171,
+                        "line": 188,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -44247,6 +44943,57 @@
                         "name_prefix": "DomRenderer#",
                         "path": "DomRenderer.prototype.detach",
                         "outFile": "dom.html#DomRenderer.prototype.detach"
+                      },
+                      {
+                        "id": "DomRenderer#rectangleProperties",
+                        "type": "instance method",
+                        "signatures": [
+                          {
+                            "arguments": [
+                              {
+                                "name": "el",
+                                "types": [
+                                  "HTMLElement"
+                                ],
+                                "description": " The element\n\n     "
+                              },
+                              {
+                                "name": "geometry",
+                                "types": [
+                                  "Geometry"
+                                ],
+                                "description": " The body's geometry\n\n     "
+                              }
+                            ]
+                          }
+                        ],
+                        "arguments": [
+                          {
+                            "name": "el",
+                            "types": [
+                              "HTMLElement"
+                            ],
+                            "description": " The element\n\n     "
+                          },
+                          {
+                            "name": "geometry",
+                            "types": [
+                              "Geometry"
+                            ],
+                            "description": " The body's geometry\n\n     "
+                          }
+                        ],
+                        "internal": true,
+                        "description": "Set dom element style properties for a rectangle.",
+                        "short_description": "Set dom element style properties for a rectangle.",
+                        "line": 138,
+                        "aliases": [],
+                        "children": [],
+                        "file": "src/renderers/dom.js",
+                        "name": "rectangleProperties",
+                        "name_prefix": "DomRenderer#",
+                        "path": "DomRenderer.prototype.rectangleProperties",
+                        "outFile": "dom.html#DomRenderer.prototype.rectangleProperties"
                       }
                     ],
                     "file": "src/renderers/dom.js",

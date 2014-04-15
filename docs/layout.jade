@@ -16,7 +16,7 @@ mixin toc( item )
 mixin title( item, nosuff )
   if item.type === 'constructor'
     span.constructor=item.id
-  else 
+  else
     span.pfx= item.name_prefix && item.name_prefix.match(/.#/) ? 'this.' : item.name_prefix
     span.name= item.name
 
@@ -57,7 +57,7 @@ mixin argdesc( sig, item )
             =arg.name
             if arg.callback
               +args( arg )
-            
+
           dd
             if arg.types
               span.types
@@ -125,7 +125,7 @@ mixin doc( item, level, recurse )
           +title( item )
         if item.alias_of
           small.aliases
-            | alias of: 
+            | alias of:
             span.alias=item.alias_of
         div.flags
           if item.extension
@@ -133,20 +133,20 @@ mixin doc( item, level, recurse )
               | extension
           if item.superclass
             span.superclass
-              | extends: 
+              | extends:
               =item.superclass
           if item.deprecated
             span.deprecated
               | deprecated
               span.from=item.deprecated.since
               if item.deprecated.off
-                | &mdash; 
+                | &mdash;
                 span.to=item.deprecated.off
           if item.internal
             span.internal
               | internal use only
         !='</h'+level+'>'
-      
+
       if item.short_description
         .desc
           !=md(linkify(item.short_description))
@@ -156,9 +156,9 @@ mixin doc( item, level, recurse )
       if item.description
         .desc.long
           !=md(linkify(item.description.replace(item.short_description, '')))
-      
+
       if item.related_to
-        | Related to: 
+        | Related to:
         a.related(href='#'+attrClean(getPath(item.related_to)))
           !=item.related_to
 
@@ -185,7 +185,7 @@ html
 
     // Prism CSS
     //link(rel="stylesheet", href="css/prism.css")
-    link(rel="stylesheet", href="css/highlight.css")
+    link(rel="stylesheet", href="css/highlight-nearly-solarized.css")
 
     // Custom Styles
     link(rel="stylesheet", href="css/style.css")
@@ -193,21 +193,26 @@ html
     script(srr="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/vendor/custom.modernizr.js")
 
   body
-    
+
     section#main
 
       nav.toc
-        h1 PhysicsJS API Docs
+        h1.header
+            a(href="http://wellcaffeinated.net/PhysicsJS")
+                |Physics
+                span JS
+            !=' API Docs'
+
         +toc(tree)
 
       //- get PhysicsJS namespace first
       - var physicsjs = tree.children.filter(function( a ){ return a.id === 'Physics'; })[0]
       +doc(physicsjs)
-      
+
       //- others
       - var others = tree.children.filter(function( a ){ return a.id !== 'Physics'; });
       each mainItem in others
-        +doc(mainItem) 
+        +doc(mainItem)
 
     //- Foundation JS
     //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')
@@ -218,5 +223,3 @@ html
     script(src='js/page.js')
     // Prism js
     //script(src='js/prism.js')
-
-
