@@ -1,4 +1,4 @@
-/** 
+/**
  * class ConvexPolygonGeometry < Geometry
  *
  * Physics.geometry('convex-polygon')
@@ -6,7 +6,7 @@
  * Geometry for convex polygons.
  *
  * Additional config options:
- * 
+ *
  * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
  *
  * Example:
@@ -75,7 +75,7 @@ Physics.geometry('convex-polygon', function( parent ){
             // translate each vertex so that the centroid is at the origin
             // then add the vertex as a vector to this.vertices
             for ( var i = 0, l = hull.length; i < l; ++i ){
-                
+
                 verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
             }
 
@@ -85,7 +85,7 @@ Physics.geometry('convex-polygon', function( parent ){
             scratch.done();
             return this;
         },
-        
+
         // extended
         aabb: function( angle ){
 
@@ -110,11 +110,11 @@ Physics.geometry('convex-polygon', function( parent ){
             if (!angle){
                 // if we don't have an angle specified (or it's zero)
                 // then we can cache this result
-                this._aabb = aabb;
+                this._aabb = Physics.aabb.clone( aabb );
             }
 
             scratch.done();
-            return Physics.aabb.clone( aabb );
+            return aabb;
         },
 
         // extended
@@ -150,7 +150,7 @@ Physics.geometry('convex-polygon', function( parent ){
 
             if ( val >= prev ){
                 // go up
-                // search until the next dot product 
+                // search until the next dot product
                 // is less than the previous
                 while ( i < l && val >= prev ){
                     prev = val;
@@ -184,7 +184,7 @@ Physics.geometry('convex-polygon', function( parent ){
                 if ( data ){
                     data.idx = idx;
                 }
-                return result.clone( verts[ idx ] );                
+                return result.clone( verts[ idx ] );
             }
         },
 
@@ -208,7 +208,7 @@ Physics.geometry('convex-polygon', function( parent ){
             next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( sign );
             prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( !sign );
 
-            // get the magnitude of a vector from the result vertex 
+            // get the magnitude of a vector from the result vertex
             // that splits down the middle
             // creating a margin of "m" to each edge
             mag = margin / (1 + next.dot(prev));
