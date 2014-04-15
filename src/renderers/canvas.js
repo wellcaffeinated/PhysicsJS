@@ -627,6 +627,10 @@ Physics.renderer('canvas', function( proto ){
             } else if (name === 'convex-polygon'){
 
                 this.drawPolygon(geometry.vertices, styles, hiddenCtx);
+                
+            } else if (name === 'rectangle'){
+
+                this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
             }
 
             if (styles.angleIndicator){

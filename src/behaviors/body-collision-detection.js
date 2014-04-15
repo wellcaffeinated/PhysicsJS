@@ -53,8 +53,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
                 vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
             } else {
-                vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-                vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
+                vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
             }
 
             searchDir.negate().rotate( tB );

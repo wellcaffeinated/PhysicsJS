@@ -128,6 +128,23 @@ Physics.renderer('dom', function( proto ){
             el.style.marginTop = (-aabb.hh) + px;
         },
 
+        /** internal
+         * DomRenderer#rectangleProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a rectangle.
+         **/
+        rectangleProperties: function( el, geometry ){
+
+            var aabb = geometry.aabb();
+
+            el.style.width = (aabb.hw * 2) + px;
+            el.style.height = (aabb.hh * 2) + px;
+            el.style.marginLeft = (-aabb.hw) + px;
+            el.style.marginTop = (-aabb.hh) + px;
+        },
+
         // extended
         createView: function( geometry ){
 

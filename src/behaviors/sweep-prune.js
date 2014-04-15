@@ -1,4 +1,4 @@
-/** 
+/**
  * class SweepPruneBehavior < Behavior
  *
  * `Physics.behavior('sweep-prune')`.
@@ -24,7 +24,7 @@ Physics.behavior('sweep-prune', function( parent ){
     var dof = { x: 0, y: 1 }; // degrees of freedom
     // change to "3" to get it to work in 3D
     var maxDof = 2;
-    
+
     function pairHash( id1, id2 ){
         id1 = id1|0;
         id2 = id2|0;
@@ -35,12 +35,12 @@ Physics.behavior('sweep-prune', function( parent ){
         }
 
         // valid for values < 2^16
-        return ((id1|0) > (id2|0) ? 
-            (id1 << 16) | (id2 & 0xFFFF) : 
+        return ((id1|0) > (id2|0) ?
+            (id1 << 16) | (id2 & 0xFFFF) :
             (id2 << 16) | (id1 & 0xFFFF))|0
             ;
     }
-    
+
     return {
 
         // extended
@@ -60,7 +60,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
         /**
          * SweepPruneBehavior#clear()
-         * 
+         *
          * Refresh tracking data
          **/
         clear: function(){
@@ -68,10 +68,10 @@ Physics.behavior('sweep-prune', function( parent ){
             this.tracked = [];
             this.pairs = []; // pairs selected as candidate collisions by broad phase
             this.intervalLists = []; // stores lists of aabb projection intervals to be sorted
-            
+
             // init intervalLists
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
-                
+
                 this.intervalLists[ xyz ] = [];
             }
         },
@@ -86,7 +86,7 @@ Physics.behavior('sweep-prune', function( parent ){
             // add current bodies
             var bodies = world.getBodies();
             for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
+
                 this.trackBody({ body: bodies[ i ] });
             }
         },
@@ -103,7 +103,7 @@ Physics.behavior('sweep-prune', function( parent ){
         /** internal
          * SweepPruneBehavior#broadPhase() -> Array
          * + (Array): The candidate data of overlapping aabbs
-         * 
+         *
          * Execute the broad phase and get candidate collisions
          **/
         broadPhase: function(){
@@ -115,7 +115,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
         /** internal
          * SweepPruneBehavior#sortIntervalLists()
-         * 
+         *
          * Simple insertion sort for each axis
          **/
         sortIntervalLists: function(){
@@ -152,11 +152,11 @@ Physics.behavior('sweep-prune', function( parent ){
                     leftVal = left && left.val.get( axis );
 
                     // while others are greater than bound...
-                    while ( 
-                        hole > 0 && 
+                    while (
+                        hole > 0 &&
                         (
                             leftVal > boundVal ||
-                            // if it's an equality, only move it over if 
+                            // if it's an equality, only move it over if
                             // the hole was created by a minimum
                             // and the previous is a maximum
                             // so that we detect contacts also
@@ -184,7 +184,7 @@ Physics.behavior('sweep-prune', function( parent ){
          * - tr2 (Object): Second tracker
          * - doCreate (Boolean): Create if not found
          * + (Object): Pair object or null if not found
-         * 
+         *
          * Get a pair object for the tracker objects
          **/
         getPair: function(tr1, tr2, doCreate){
@@ -255,8 +255,8 @@ Physics.behavior('sweep-prune', function( parent ){
 
         /** internal
          * SweepPruneBehavior#checkOverlaps() -> Array
-         * + (Array): List of candidate collisions 
-         * 
+         * + (Array): List of candidate collisions
+         *
          * Check each axis for overlaps of bodies AABBs
          **/
         checkOverlaps: function(){
@@ -286,10 +286,10 @@ Physics.behavior('sweep-prune', function( parent ){
                 isX = (xyz === 0);
                 // get the interval list for this axis
                 list = this.intervalLists[ xyz ];
-                
+
                 // for each interval bound
                 for ( i = 0, len = list.length; i < len; i++ ){
-                    
+
                     bound = list[ i ];
                     tr1 = bound.tracker;
 
@@ -309,7 +309,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                 // remove the interval from the encounters list
                                 // faster than .splice()
                                 if ( j < enclen - 1 ) {
-                                    
+
                                     encounters[ j ] = encounters.pop();
 
                                 } else {
@@ -337,7 +337,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                     // if not, increment the flag by one.
                                     c.flag = c.flag << (xyz + 1);
 
-                                    // c.flag will equal collisionFlag 
+                                    // c.flag will equal collisionFlag
                                     // if we've incremented the flag
                                     // enough that all axes are overlapping
                                     if ( c.flag === collisionFlag ){
@@ -366,7 +366,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
         /** internal
          * SweepPruneBehavior#updateIntervals()
-         * 
+         *
          * Update position intervals on each axis
          **/
         updateIntervals: function(){
@@ -402,7 +402,7 @@ Physics.behavior('sweep-prune', function( parent ){
         /** internal
          * SweepPruneBehavior#trackBody( data )
          * - data (Object): Event data
-         * 
+         *
          * Event callback to add body to list of those tracked by sweep and prune
          **/
         trackBody: function( data ){
@@ -431,7 +431,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             tracker.interval = intr;
             this.tracked.push( tracker );
-            
+
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
                 this.intervalLists[ xyz ].push( intr.min, intr.max );
@@ -441,7 +441,7 @@ Physics.behavior('sweep-prune', function( parent ){
         /** internal
          * SweepPruneBehavior#untrackBody( data )
          * - data (Object): Event data
-         * 
+         *
          * Event callback to remove body from list of those tracked
          **/
         untrackBody: function( data ){
@@ -457,7 +457,7 @@ Physics.behavior('sweep-prune', function( parent ){
             for ( var i = 0, l = trackedList.length; i < l; ++i ){
 
                 tracker = trackedList[ i ];
-                
+
                 if ( tracker.body === body ){
 
                     // remove the tracker at this index
@@ -469,7 +469,7 @@ Physics.behavior('sweep-prune', function( parent ){
                         list = this.intervalLists[ xyz ];
 
                         for ( var j = 0, m = list.length; j < m; ++j ){
-                                
+
                             minmax = list[ j ];
 
                             if ( minmax === tracker.interval.min || minmax === tracker.interval.max ){
@@ -490,13 +490,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                     break;
                 }
-            }            
+            }
         },
 
         /** internal
          * SweepPruneBehavior#sweep( data )
          * - data (Object): Event data
-         * 
+         *
          * Event callback to sweep and publish event if any candidate collisions are found
          **/
         sweep: function( data ){
@@ -506,7 +506,7 @@ Physics.behavior('sweep-prune', function( parent ){
                 ;
 
             candidates = self.broadPhase();
-            
+
             if ( candidates.length ){
 
                 this._world.emit( this.options.channel, {
