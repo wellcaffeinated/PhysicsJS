@@ -24912,7 +24912,7 @@
                           "types": [
                             "Function"
                           ],
-                          "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                          "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                         }
                       ],
                       "returns": [
@@ -24958,7 +24958,7 @@
                       "types": [
                         "Function"
                       ],
-                      "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                      "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                     }
                   ],
                   "description": "Unsubscribe callback(s) from topic(s).",
@@ -28535,7 +28535,7 @@
                       "types": [
                         "Function"
                       ],
-                      "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                      "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                     }
                   ],
                   "returns": [
@@ -28581,7 +28581,7 @@
                   "types": [
                     "Function"
                   ],
-                  "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                  "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                 }
               ],
               "description": "Unsubscribe callback(s) from topic(s).",
@@ -37400,7 +37400,7 @@
                   "types": [
                     "Function"
                   ],
-                  "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                  "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                 }
               ],
               "returns": [
@@ -37446,7 +37446,7 @@
               "types": [
                 "Function"
               ],
-              "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+              "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
             }
           ],
           "description": "Unsubscribe callback(s) from topic(s).",
@@ -37927,7 +37927,7 @@
               "types": [
                 "Function"
               ],
-              "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+              "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
             }
           ],
           "returns": [
@@ -37973,7 +37973,7 @@
           "types": [
             "Function"
           ],
-          "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+          "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
         }
       ],
       "description": "Unsubscribe callback(s) from topic(s).",
@@ -46326,7 +46326,7 @@
                             "types": [
                               "Function"
                             ],
-                            "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                            "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                           }
                         ],
                         "returns": [
@@ -46372,7 +46372,7 @@
                         "types": [
                           "Function"
                         ],
-                        "description": " fn The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
+                        "description": " The original callback function. Specify `true` to remove all listeners for specified topic\n\n     "
                       }
                     ],
                     "description": "Unsubscribe callback(s) from topic(s).",

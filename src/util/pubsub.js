@@ -5,7 +5,7 @@
 
     /**
      * class Physics.util.pubsub
-     * 
+     *
      * Fast pubsub implementation.
      *
      * Can be mixed into other classes easily.
@@ -29,7 +29,7 @@
          * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
          * - scope (Object): The scope to bind callback to
          * - priority (Number): The priority of the callback (higher is earlier)
-         * 
+         *
          * Subscribe callback(s) to a topic(s).
          **/
         on: function( topic, fn, scope, priority ){
@@ -47,7 +47,7 @@
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.on( t, topic[ t ], fn, scope );
                 }
 
@@ -58,7 +58,7 @@
             orig = fn;
 
             if ( Physics.util.isObject( scope ) ){
-                
+
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
@@ -81,8 +81,8 @@
          * Physics.util.pubsub#off( topicCfg ) -> this
          * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
          * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
-         * - fn (Function): fn The original callback function. Specify `true` to remove all listeners for specified topic
-         * 
+         * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+         *
          * Unsubscribe callback(s) from topic(s).
          **/
         off: function( topic, fn ){
@@ -107,7 +107,7 @@
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.off( t, topic[ t ] );
                 }
 
@@ -127,7 +127,7 @@
             }
 
             for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
+
                 listn = listeners[ i ];
 
                 if ( listn._bindfn_ === fn || listn === fn ){
@@ -143,7 +143,7 @@
          * Physics.util.pubsub#emit( topic[, data] ) -> this
          * - topic (String): The topic name
          * - data (Mixed): The data to send
-         * 
+         *
          * Publish data to a topic.
          **/
         emit: function( topic, data ){
@@ -171,7 +171,7 @@
 
             // reverse iterate so priorities work out correctly
             while ( l-- ){
-                
+
                 handler = listeners[ l ];
                 handler( data, e );
 
@@ -194,7 +194,7 @@
          * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
          * - scope (Object): The scope to bind callback to
          * - priority (Number): The priority of the callback (higher is earlier)
-         * 
+         *
          * Subscribe callback(s) to a topic(s), but only ONCE.
          **/
         one: function( topic, fn, scope ){
@@ -204,7 +204,7 @@
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.one( t, topic[ t ], fn, scope );
                 }
 
@@ -218,6 +218,6 @@
             return this;
         }
     };
-    
+
     Physics.util.pubsub = PubSub;
 })();
