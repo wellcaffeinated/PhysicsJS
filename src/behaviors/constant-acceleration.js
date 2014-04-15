@@ -1,7 +1,15 @@
-/**
- * Constant acceleration behavior
- * @module behaviors/constant-acceleration
- */
+/** 
+ * class ConstantAccelerationBehavior < Behavior
+ *
+ * `Physics.behavior('constant-acceleration')`.
+ *
+ * Constant acceleration behavior.
+ *
+ * Basically the "gravity" behavior. Used to give "earth-like gravity" to the world.
+ *
+ * Additional options include:
+ * - acc: The acceleration vector (Vectorish). (default: `{ x: 0, y: 0.0004 }`)
+ **/
 Physics.behavior('constant-acceleration', function( parent ){
 
     var defaults = {
@@ -11,11 +19,7 @@ Physics.behavior('constant-acceleration', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -29,21 +33,18 @@ Physics.behavior('constant-acceleration', function( parent ){
         },
 
         /**
-         * Set the acceleration of the behavior
-         * @param {Vectorish} acc The acceleration vector
-         * @return {self}
-         */
+         * ConstantAccelerationBehavior#setAcceleration( acc ) -> this
+         * - acc (Vectorish): The acceleration vector
+         * 
+         * Set the acceleration of the behavior.
+         **/
         setAcceleration: function( acc ){
 
             this._acc.clone( acc );
             return this;
         },
 
-        /**
-         * Callback run on integrate:positions event
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        // extended
         behave: function( data ){
 
             var bodies = this.getTargets();

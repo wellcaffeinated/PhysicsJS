@@ -1,17 +1,26 @@
-/**
- * Edge collision detection.
- * Used to detect collisions with the boundaries of an AABB
- * @module behaviors/edge-collision-detection
- * @requires body/point
- */
+/** 
+ * class EdgeCollisionDetectionBehavior < Behavior
+ *
+ * `Physics.behavior('edge-collision-detection')`.
+ *
+ * Used to detect collisions with the boundaries of an AABB.
+ *
+ * Additional options include:
+ * - aabb: The [[Physics.aabb]] bounds to use as the constraining boundary
+ * - restitution: The restitution of the boundary walls (default: `0.99`)
+ * - cof: The coefficient of friction of the boundary walls (default: `1`)
+ * - channel: The channel to publish collisions to. (default: 'collisions:detected')
+ **/
 Physics.behavior('edge-collision-detection', function( parent ){
 
-    /**
+    /*
+     * checkGeneral( body, bounds, dummy ) -> Array
+     * - body (Body): The body to check
+     * - bounds (Physics.aabb): The boundary
+     * - dummy: (Body): The dummy body to publish as the static other body it collides with
+     * + (Array): The collision data
+     * 
      * Check if a body collides with the boundary
-     * @param  {Object} body   The body to check
-     * @param  {AABB} bounds The aabb representing the boundary
-     * @param  {Object} dummy  Dummy body supplied to the collision event
-     * @return {Object}        Collision data
      */
     var checkGeneral = function checkGeneral( body, bounds, dummy ){
 
@@ -26,7 +35,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
             ;
 
         // right
-        overlap = (aabb.pos.x + aabb.x) - bounds.max.x;
+        overlap = (aabb.x + aabb.hw) - bounds.max.x;
 
         if ( overlap >= 0 ){
 
@@ -51,7 +60,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // bottom
-        overlap = (aabb.pos.y + aabb.y) - bounds.max.y;
+        overlap = (aabb.y + aabb.hh) - bounds.max.y;
 
         if ( overlap >= 0 ){
 
@@ -76,7 +85,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // left
-        overlap = bounds.min.x - (aabb.pos.x - aabb.x);
+        overlap = bounds.min.x - (aabb.x - aabb.hw);
 
         if ( overlap >= 0 ){
 
@@ -101,7 +110,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         }
 
         // top
-        overlap = bounds.min.y - (aabb.pos.y - aabb.y);
+        overlap = bounds.min.y - (aabb.y - aabb.hh);
 
         if ( overlap >= 0 ){
 
@@ -129,12 +138,14 @@ Physics.behavior('edge-collision-detection', function( parent ){
         return collisions;
     };
 
-    /**
+    /*
+     * checkEdgeCollide( body, bounds, dummy ) -> Array
+     * - body (Body): The body to check
+     * - bounds (Physics.aabb): The boundary
+     * - dummy: (Body): The dummy body to publish as the static other body it collides with
+     * + (Array): The collision data
+     * 
      * Check if a body collides with the boundary
-     * @param  {Object} body   The body to check
-     * @param  {AABB} bounds The aabb representing the boundary
-     * @param  {Object} dummy  Dummy body supplied to the collision event
-     * @return {Object}        Collision data
      */
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
 
@@ -151,11 +162,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -173,55 +180,49 @@ Physics.behavior('edge-collision-detection', function( parent ){
         },
 
         /**
-         * Set the boundaries of the edge
-         * @param {AABB} aabb The aabb of the boundary
-         * @return {void}
-         */
+         * EdgeCollisionDetectionBehavior#setAABB( aabb ) -> this
+         * - aabb (Physics.aabb): The aabb to use as the boundary
+         * 
+         * Set the boundaries of the edge.
+         **/
         setAABB: function( aabb ){
 
             if (!aabb) {
                 throw 'Error: aabb not set';
             }
 
-            aabb = aabb.get && aabb.get() || aabb;
-
             this._edges = {
                 min: {
-                    x: (aabb.pos.x - aabb.x),
-                    y: (aabb.pos.y - aabb.y)
+                    x: (aabb.x - aabb.hw),
+                    y: (aabb.y - aabb.hh)
                 },
                 max: {
-                    x: (aabb.pos.x + aabb.x),
-                    y: (aabb.pos.y + aabb.y)  
+                    x: (aabb.x + aabb.hw),
+                    y: (aabb.y + aabb.hh)  
                 }
             };
+
+            return this;
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             world.on( 'integrate:velocities', this.checkAll, this );
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off( 'integrate:velocities', this.checkAll );
         },
 
-        /**
-         * Check all bodies for collisions with the edge
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * EdgeCollisionDetectionBehavior#checkAll( data )
+         * - data (Object): Event data
+         * 
+         * Event callback to check all bodies for collisions with the edge
+         **/
         checkAll: function( data ){
             
             var bodies = this.getTargets()

@@ -1,8 +1,26 @@
-/**
- * Circle body definition
- * @module bodies/circle
+/*
  * @requires geometries/circle
  */
+/** 
+ * class CircleBody < Body
+ *
+ * Physics.body('circle')
+ *
+ * The circle body has a circular shape.
+ *
+ * Additional options include:
+ * - radius: the radius
+ *
+ * Example:
+ *
+ * ```javascript
+ * var round = Physics.body('circle', {
+ *     x: 30,
+ *     y: 20,
+ *     radius: 5
+ * });
+ * ```
+ **/
 Physics.body('circle', function( parent ){
 
     var defaults = {
@@ -11,11 +29,7 @@ Physics.body('circle', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             // call parent init method
@@ -30,10 +44,7 @@ Physics.body('circle', function( parent ){
             this.recalc();
         },
 
-        /**
-         * Recalculate properties. Call when body physical properties are changed.
-         * @return {this}
-         */
+        // extended
         recalc: function(){
             parent.recalc.call(this);
             // moment of inertia

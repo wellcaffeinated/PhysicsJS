@@ -1,24 +1,22 @@
 Physics.integrator('improved-euler', function( parent ){
 
     return {
+        /** 
+         * class ImprovedEuler < Integrator
+         *
+         * `Physics.integrator('improved-euler')`.
+         *
+         * The improved euler integrator.
+         **/
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             // call parent init
             parent.init.call(this, options);
         },
-
-        /**
-         * Velocity integration
-         * @param  {Array} bodies Array of bodies to integrate
-         * @param  {Number} dt     Timestep size
-         * @return {void}
-         */
+ 
+        // extended
         integrateVelocities: function( bodies, dt ){
 
             // half the timestep squared
@@ -83,12 +81,7 @@ Physics.integrator('improved-euler', function( parent ){
             }
         },
 
-        /**
-         * Position integration
-         * @param  {Array} bodies Array of bodies to integrate
-         * @param  {Number} dt     Timestep size
-         * @return {void}
-         */
+        // extended
         integratePositions: function( bodies, dt ){
 
             // half the timestep squared

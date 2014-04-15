@@ -1,7 +1,17 @@
-/**
- * Attractor behavior attracts bodies to a specific point
- * @module behaviors/attractor
- */
+/** 
+ * class AttractorBehavior < Behavior
+ *
+ * `Physics.behavior('attractor')`.
+ *
+ * Attractor behavior attracts bodies to a specific point.
+ *
+ * Additional options include:
+ * - pos: The position of the attraction point
+ * - strength: How strong the attraction is (default: `1`)
+ * - order: The power of the inverse distance (default: `2` because that is newtonian gravity... inverse square)
+ * - max: The maximum distance in which to apply the attraction (default: Infinity)
+ * - min: The minimum distance above which to apply the attraction (default: very small non-zero)
+ **/
 Physics.behavior('attractor', function( parent ){
 
     var defaults = {
@@ -19,11 +29,7 @@ Physics.behavior('attractor', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration object
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             var self = this;
@@ -39,6 +45,14 @@ Physics.behavior('attractor', function( parent ){
             this.options( options );
         },
 
+        /**
+         * AttractorBehavior#position( [pos] ) -> this|Object
+         * - pos (Vectorish): The position to set
+         * + (Object): Returns the [[Vectorish]] position if no arguments provided
+         * + (this): For chaining
+         *
+         * Get or set the position of the attractor.
+         **/
         position: function( pos ){
             
             var self = this;
@@ -51,11 +65,7 @@ Physics.behavior('attractor', function( parent ){
             return this._pos.values();
         },
         
-        /**
-         * Apply acceleration to bodies
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        // extended
         behave: function( data ){
 
             var bodies = this.getTargets()

@@ -1,9 +1,15 @@
 /**
- * Body collision response
- * @module behaviors/body-collision-response
- */
+ * class BodyImpulseResponseBehavior < Behavior
+ *
+ * `Physics.behavior('body-impulse-response')`.
+ *
+ * Responds to collisions by applying impulses.
+ *
+ * Additional options include:
+ * - check: channel to listen to for collisions (default: `collisions:detected`).
+ **/
 Physics.behavior('body-impulse-response', function( parent ){
-    
+
     var defaults = {
         // channel to listen to for collisions
         check: 'collisions:detected'
@@ -11,6 +17,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
     return {
 
+        // extended
         init: function( options ){
 
             parent.init.call( this );
@@ -21,36 +28,29 @@ Physics.behavior('body-impulse-response', function( parent ){
         // no applyTo method
         applyTo: false,
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
             world.on( this.options.check, this.respond, this );
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
             world.off( this.options.check, this.respond );
         },
 
-        /**
+        /** internal
+         * BodyImpulseResponseBehavior#collideBodes( bodyA, bodyB, normal, point, mtrans, contact )
+         * - bodyA (Object): First Body
+         * - bodyB (Object): Second body
+         * - normal (Vector): Normal vector of the collision surface
+         * - point (Vector): Contact point of the collision
+         * - mtrans (Vector): Minimum transit vector that is the smallest displacement to separate the bodies
+         * - contact (Boolean): Are the bodies in resting contact relative to each other
+         *
          * Collide two bodies by modifying their positions and velocities to conserve momentum
-         * @param  {Object} bodyA   First Body
-         * @param  {Object} bodyB   Second body
-         * @param  {Vector} normal  Normal vector of the collision surface
-         * @param  {Vector} point   Contact point of the collision
-         * @param  {Vector} mtrans  Minimum transit vector that is the smallest displacement to separate the bodies
-         * @param  {Boolean} contact Are the bodies in resting contact relative to each other
-         * @return {void}
-         */
+         **/
         collideBodies: function(bodyA, bodyB, normal, point, mtrans, contact){
 
             var fixedA = bodyA.treatment === 'static' || bodyA.treatment === 'kinematic'
@@ -70,7 +70,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
                 // extract bodies
                 bodyB.state.pos.vadd( mtv );
-                
+
             } else if ( fixedB ){
 
                 // extract bodies
@@ -129,17 +129,20 @@ Physics.behavior('body-impulse-response', function( parent ){
                 return;
             }
 
+            invMoiA = invMoiA === Infinity ? 0 : invMoiA;
+            invMoiB = invMoiB === Infinity ? 0 : invMoiB;
+
             impulse =  - ((1 + cor) * vproj) / ( invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg) );
             // vproj += impulse * ( invMass + (invMoi * rreg * rreg) );
             // angVel -= impulse * rreg * invMoi;
 
-            
+
             if ( fixedA ){
 
                 // apply impulse
                 bodyB.state.vel.vadd( n.mult( impulse * invMassB ) );
                 bodyB.state.angular.vel -= impulse * invMoiB * rBreg;
-                
+
             } else if ( fixedB ){
 
                 // apply impulse
@@ -156,7 +159,7 @@ Physics.behavior('body-impulse-response', function( parent ){
             }
 
             // inContact = (impulse < 0.004);
-            
+
             // if we have friction and a relative velocity perpendicular to the normal
             if ( cof && vreg ){
 
@@ -182,7 +185,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     impulse *= sign * cof;
                     // make sure the impulse isn't giving the system energy
                     impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-                    
+
                 } else {
 
                     impulse = max;
@@ -193,7 +196,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                     // apply frictional impulse
                     bodyB.state.vel.vsub( perp.mult( impulse * invMassB ) );
                     bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
-                    
+
                 } else if ( fixedB ){
 
                     // apply frictional impulse
@@ -207,17 +210,18 @@ Physics.behavior('body-impulse-response', function( parent ){
                     bodyB.state.angular.vel -= impulse * invMoiB * rBproj;
                     bodyA.state.vel.vadd( perp.mult( invMassA * bodyB.mass ) );
                     bodyA.state.angular.vel += impulse * invMoiA * rAproj;
-                }  
+                }
             }
 
             scratch.done();
         },
 
-        /**
-         * Respond to collision event
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyImpulseResponseBehavior#respond( data )
+         * - data (Object): event data
+         *
+         * Event callback to respond to collision data.
+         **/
         respond: function( data ){
 
             var self = this
@@ -226,9 +230,9 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ;
 
             for ( var i = 0, l = collisions.length; i < l; ++i ){
-                
+
                 col = collisions[ i ];
-                self.collideBodies( 
+                self.collideBodies(
                     col.bodyA,
                     col.bodyB,
                     col.norm,

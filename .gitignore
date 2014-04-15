@@ -3,3 +3,4 @@ node_modules
 .DS_Store
 _SpecRunner.html
 _working
+.sass-cache

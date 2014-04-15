@@ -1,0 +1,225 @@
+mixin toc( item )
+  if item.children && item.children.length
+    ul
+      each ch in item.children.sort(childrenSort)
+        unless ch.hide
+          li(class=ch.type.replace(' ', '-'),class=ch.superclass ? 'subclass' : '')
+            if ch.path
+              a.item(href='#'+attrClean(ch.path))
+                if ch.name_prefix && ch.name_prefix.replace(/[#.]$/, '') === item.id
+                  |.
+                span.name=ch.name
+                if ch.type === 'constructor' || ch.type === 'instance method' || ch.type === 'class method'
+                  | ()
+            +toc( ch )
+
+mixin title( item, nosuff )
+  if item.type === 'constructor'
+    span.constructor=item.id
+  else
+    span.pfx= item.name_prefix && item.name_prefix.match(/.#/) ? 'this.' : item.name_prefix
+    span.name= item.name
+
+  unless nosuff
+    if item.type === 'constructor' || item.type === 'instance method' || item.type === 'class method'
+      | ()
+
+mixin args( sig )
+  -var opt=false
+  |(
+  if sig.arguments && sig.arguments.length
+    span.arguments
+      each arg, i in sig.arguments
+        if arg.optional
+          unless opt
+            !='<small class="optional">'
+            -opt=true
+        else if opt
+          !='</small>'
+          -opt=false
+
+        =(i === 0 ? '':', ')
+        span(class=[arg.types])
+          =arg.name
+          if arg.callback
+            +args( arg )
+      if opt
+        !='</small>'
+  | )
+
+mixin argdesc( sig, item )
+  if sig.arguments && sig.arguments.length
+    .arguments-desc
+      h4.title accepts
+      dl
+        each arg in sig.arguments
+          dt(class=[arg.types])
+            =arg.name
+            if arg.callback
+              +args( arg )
+
+          dd
+            if arg.types
+              span.types
+                | (
+                each type,i in arg.types
+                  if i !== 0
+                    ='|'
+                  a(href=getLinkPath(type, item),class=type)=type
+                |)
+            if arg.optional
+              span.optional optional
+
+            if arg.description
+              !=md(linkify(arg.description))
+            if arg.callback
+              p Accepts:
+              +argdesc( arg, item )
+
+mixin returns( sig, item )
+  if sig.returns && sig.returns.length
+    .returns-desc
+      h4.title returns
+      dl
+        each ret in sig.returns
+          dt(class=ret.type)
+            a(href=getLinkPath(ret.type, item))=ret.type
+
+          if ret.description
+            dd
+              !=md(linkify(ret.description))
+
+mixin signatures( item )
+  if item.signatures
+    ul.signatures
+      each sig in item.signatures
+        li
+          div.declaration
+            +title( item, true )
+            if item.type !== 'constant'
+              +args( sig )
+
+            if item.type !== 'constructor' && item.type !== 'constant'
+              |; // ->
+              span.returns
+                - var rets = sig.returns || [{ type: 'void' }]
+                each ret, i in rets
+                  =(i === 0 ? ' ':' | ')
+                  a(href=getLinkPath(ret.type, item),class=ret.type)=ret.type
+
+            if item.type === 'constant'
+              =' = '+sig.returns[0].type+';'
+
+          unless item.type === 'constant'
+            +argdesc( sig, item )
+            +returns( sig, item )
+
+
+mixin doc( item, level, recurse )
+  unless item.hide
+    -var level = level || 1
+    article.doc(class=item.type.replace(' ', '-'), class=item.superclass? 'subclass' : '')
+      header
+        !='<h'+level+' class="title">'
+        a(id=attrClean(item.path), href='#'+attrClean(item.path))
+          +title( item )
+        if item.alias_of
+          small.aliases
+            | alias of:
+            span.alias=item.alias_of
+        div.flags
+          if item.extension
+            span.extension
+              | extension
+          if item.superclass
+            span.superclass
+              | extends:
+              =item.superclass
+          if item.deprecated
+            span.deprecated
+              | deprecated
+              span.from=item.deprecated.since
+              if item.deprecated.off
+                | &mdash;
+                span.to=item.deprecated.off
+          if item.internal
+            span.internal
+              | internal use only
+        !='</h'+level+'>'
+
+      if item.short_description
+        .desc
+          !=md(linkify(item.short_description))
+
+      +signatures(item)
+
+      if item.description
+        .desc.long
+          !=md(linkify(item.description.replace(item.short_description, '')))
+
+      if item.related_to
+        | Related to:
+        a.related(href='#'+attrClean(getPath(item.related_to)))
+          !=item.related_to
+
+      p.file='source: '
+        a(href=fileRoot+item.file+'#L'+item.line)=item.file+' : '+item.line
+
+      if recurse !== false && item.children && item.children.length
+        .children
+          //- sort so that constructors are first
+          for ch in item.children.sort(childrenSort)
+            +doc(ch, level+1)
+
+doctype html
+html
+  head
+    meta(name='viewport', content='width=device-width', charset='utf-8')
+
+    title= title
+
+    link(href="http://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700" rel="stylesheet",type="text/css")
+    link(href="http://wellcaffeinated.net/PhysicsJS/assets/fonts/Caviar-Dreams-fontfacekit/stylesheet.css" rel="stylesheet",type="text/css")
+    // Foundation CSS
+    //link(rel="stylesheet", href="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/css/foundation.min.css")
+
+    // Prism CSS
+    //link(rel="stylesheet", href="css/prism.css")
+    link(rel="stylesheet", href="css/highlight-nearly-solarized.css")
+
+    // Custom Styles
+    link(rel="stylesheet", href="css/style.css")
+
+    script(srr="http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/vendor/custom.modernizr.js")
+
+  body
+
+    section#main
+
+      nav.toc
+        h1.header
+            a(href="http://wellcaffeinated.net/PhysicsJS")
+                |Physics
+                span JS
+            !=' API Docs'
+
+        +toc(tree)
+
+      //- get PhysicsJS namespace first
+      - var physicsjs = tree.children.filter(function( a ){ return a.id === 'Physics'; })[0]
+      +doc(physicsjs)
+
+      //- others
+      - var others = tree.children.filter(function( a ){ return a.id !== 'Physics'; });
+      each mainItem in others
+        +doc(mainItem)
+
+    //- Foundation JS
+    //- script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/3.2.2/javascripts/foundation.min.js')
+    script(type='text/javascript', src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js')
+
+    //script(src='http://cdnjs.cloudflare.com/ajax/libs/foundation/4.1.6/js/foundation/foundation.reveal.min.js')
+
+    script(src='js/page.js')
+    // Prism js
+    //script(src='js/prism.js')

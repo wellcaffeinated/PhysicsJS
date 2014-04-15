@@ -1,6 +1,10 @@
 /**
- * The Ticker singleton for easily binding callbacks to requestAnimationFrame
- */
+ * class Physics.util.ticker
+ * 
+ * The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).
+ *
+ * Requires window.requestAnimationFrame... so polyfill it if you need to.
+ **/
 (function(window){
         
     var active = false
@@ -15,11 +19,11 @@
             Date.now();
     }
 
-    /**
+    /* 
+     * step( time )
+     * - time (Number): The current time
+     * 
      * Publish a tick to subscribed callbacks
-     * @private
-     * @param  {Number} time The current time
-     * @return {void}
      */
     function step( time ){
 
@@ -31,10 +35,11 @@
         ps.emit( 'tick', time );
     }
 
-    /**
+    /** 
+     * Physics.util.ticker.start() -> this
+     * 
      * Start the ticker
-     * @return {this}
-     */
+     **/
     function start(){
         
         active = true;
@@ -43,9 +48,10 @@
     }
 
     /**
+     * Physics.util.ticker.stop() -> this
+     *  
      * Stop the ticker
-     * @return {this}
-     */
+     **/
     function stop(){
 
         active = false;
@@ -53,31 +59,36 @@
     }
 
     /**
-     * Subscribe a callback to the ticker
-     * @param  {Function} listener The callback function
-     * @return {this}
-     */
-    function subscribe( listener ){
+     * Physics.util.ticker.on( listener( time ) ) -> this
+     * - listener (Function): The callback function
+     * - time (Number): The current timestamp
+     * 
+     * Subscribe a callback to the ticker.
+     **/
+    function on( listener ){
 
         ps.on('tick', listener);
         return this;
     }
 
     /**
-     * Unsubscribe a callback from the ticker
-     * @param  {Function} listener Original callback added
-     * @return {this}
-     */
-    function unsubscribe( listener ){
+     * Physics.util.ticker.off( listener ) -> this
+     * - listener (Function): The callback function previously bound
+     * 
+     * Unsubscribe a callback from the ticker.
+     **/
+    function off( listener ){
 
         ps.off('tick', listener);
         return this;
     }
 
     /**
-     * Determine if ticker is currently running
-     * @return {Boolean} True if running
-     */
+     * Physics.util.ticker.isActive() -> Boolean
+     * + (Boolean): `true` if running, `false` otherwise.
+     * 
+     * Determine if ticker is currently running.
+     **/
     function isActive(){
 
         return !!active;
@@ -88,8 +99,8 @@
         now: now,
         start: start,
         stop: stop,
-        on: subscribe,
-        off: unsubscribe,
+        on: on,
+        off: off,
         isActive: isActive
     };
 

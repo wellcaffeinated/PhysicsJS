@@ -1,0 +1,545 @@
+/* line 3, style.scss */
+body {
+  font-size: 16px;
+  color: #232323;
+  margin: 0;
+  line-height: 1.8em;
+  background: #fff;
+  font-family: 'Quattrocento Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* line 12, style.scss */
+h1, h2, h3, h4, h5, h6 {
+  color: #232323;
+  margin: 0.5em 0;
+}
+
+/* line 17, style.scss */
+p, ul, ol, table, dl {
+  margin: 0 0 22px;
+}
+
+/* line 21, style.scss */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "CaviarDreamsRegular", Monaco, serif;
+  line-height: 1.3;
+  font-weight: normal;
+}
+
+/* line 27, style.scss */
+h1, h2, h3 {
+  display: block;
+  padding-bottom: 5px;
+}
+
+/* line 32, style.scss */
+h1 {
+  font-size: 30px;
+}
+
+/* line 36, style.scss */
+h2 {
+  font-size: 24px;
+}
+
+/* line 40, style.scss */
+h3 {
+  font-size: 18px;
+}
+
+/* line 44, style.scss */
+h4, h5, h6 {
+  font-weight: normal;
+}
+
+/* line 48, style.scss */
+a {
+  color: #C30000;
+  font-weight: 200;
+  text-decoration: none;
+  outline: none;
+}
+
+/* line 55, style.scss */
+a:hover {
+  text-decoration: underline;
+}
+
+/* line 59, style.scss */
+a small {
+  font-size: 0.75em;
+}
+
+/* line 63, style.scss */
+em {
+  font-style: italic;
+}
+
+/* line 67, style.scss */
+strong {
+  font-weight: 700;
+}
+
+/* line 72, style.scss */
+ul,
+ol {
+  margin-left: 0px;
+}
+
+/* line 76, style.scss */
+ul li {
+  list-style: outside;
+  padding-left: 4px;
+}
+
+/* line 82, style.scss */
+ol li {
+  list-style: decimal outside;
+  padding-left: 4px;
+}
+
+/* line 87, style.scss */
+blockquote {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-style: italic;
+}
+
+/* line 93, style.scss */
+dl, dt, dd, dl p {
+  font-color: #444;
+}
+
+/* line 97, style.scss */
+dl dt {
+  font-weight: bold;
+}
+
+/* line 101, style.scss */
+dl dd {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+/* line 106, style.scss */
+dl p {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+/* line 111, style.scss */
+hr {
+  border: 0;
+  background: #ccc;
+  height: 1px;
+  margin: 0 0 24px;
+}
+
+/* line 118, style.scss */
+p {
+  margin-bottom: 1em;
+}
+
+/* Images */
+/* line 124, style.scss */
+img {
+  position: relative;
+  margin: 0 auto;
+  max-width: 650px;
+  padding: 5px;
+  margin: 10px 0 32px 0;
+  border: 1px solid #ccc;
+}
+
+/* Code blocks */
+/* line 136, style.scss */
+code, pre {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #333;
+}
+
+/* line 141, style.scss */
+code {
+  font-size: 0.875em;
+}
+
+/* line 145, style.scss */
+pre {
+  /*padding: 4px 12px;*/
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0 0 1em;
+}
+
+/* line 152, style.scss */
+pre code {
+  white-space: normal;
+}
+
+/* line 156, style.scss */
+.highlight {
+  background: #171717;
+  padding: 1em;
+  margin-bottom: 1em;
+  /*margin-left: 1em;*/
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* line 167, style.scss */
+.highlight pre {
+  margin: 0;
+}
+
+/* Documentation styles */
+/* line 173, style.scss */
+nav.toc {
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 1em 1.5em;
+  font-size: 14px;
+  color: #C1C5C5;
+  background: #171717;
+  width: 360px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 193, style.scss */
+nav.toc h1 {
+  color: #C1C5C5;
+}
+/* line 195, style.scss */
+nav.toc h1 a {
+  color: #fff;
+}
+/* line 197, style.scss */
+nav.toc h1 a span {
+  color: #dc322f;
+}
+/* line 204, style.scss */
+nav.toc ul,
+nav.toc ul li {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 212, style.scss */
+nav.toc ul ul {
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+/* line 217, style.scss */
+nav.toc > ul > li > a {
+  border-bottom: 1px solid #2aa198;
+}
+/* line 221, style.scss */
+nav.toc .pfx {
+  display: none;
+}
+/* line 225, style.scss */
+nav.toc ul li.class > .item > .name:after {
+  content: ' <class>';
+  color: #495353;
+}
+/* line 230, style.scss */
+nav.toc a {
+  color: #C1C5C5;
+  color: #93a1a1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* line 238, style.scss */
+nav.toc a:hover,
+nav.toc a.inside {
+  color: #b58900;
+}
+/* line 242, style.scss */
+nav.toc li {
+  position: relative;
+}
+/* line 246, style.scss */
+nav.toc li .ctrl-expand {
+  position: absolute;
+  left: -1em;
+  top: auto;
+  color: #2aa198;
+  /*font-size: 1.5em;*/
+  text-decoration: none;
+}
+/* line 255, style.scss */
+nav.toc li .ctrl-expand:hover {
+  color: #b58900;
+}
+
+/* line 260, style.scss */
+#main {
+  width: 100%;
+  padding: 4em 0;
+  padding-left: 360px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 270, style.scss */
+#main > article {
+  margin: 0 6em;
+}
+/* line 275, style.scss */
+#main .doc header {
+  padding-bottom: 1em;
+}
+/* line 279, style.scss */
+#main .doc .title {
+  font-size: 1.5em;
+}
+/* line 283, style.scss */
+#main .doc .desc {
+  margin: 0 0 0.5em;
+}
+/* line 287, style.scss */
+#main .doc .children {
+  margin-top: 2em;
+}
+/* line 291, style.scss */
+#main .doc .doc .children {
+  overflow: hidden;
+  /*background: #eee;*/
+  /*padding: 2em;*/
+  /*border-left: 4px solid #171717;*/
+  /*padding-left: 2em;
+  margin-left: 0.2em;*/
+  /*border: 1px solid #aaa;
+  background: #fafafa;*/
+  /*padding:  0 0 0 2em;*/
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 307, style.scss */
+#main .doc.class {
+  border: 1px solid #aaa;
+  background: #fafafa;
+  padding: 2em;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 317, style.scss */
+#main .doc .doc .title {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #aaa;
+}
+/* line 324, style.scss */
+#main .doc .title .aliases {
+  float: right;
+}
+/* line 328, style.scss */
+#main .doc .title .flags {
+  /*display: inline;*/
+  font-size: 0.6em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  margin: 0.2em 0;
+}
+/* line 334, style.scss */
+#main .doc .title .flags span {
+  margin-right: 1ex;
+}
+/* line 338, style.scss */
+#main .doc .title .flags .internal {
+  /*display: block;*/
+  color: #1A70AC;
+}
+/* line 344, style.scss */
+#main .doc .title .flags .deprecated .from,
+#main .doc .title .flags .deprecated .to {
+  margin: 0 1ex;
+}
+/* line 350, style.scss */
+#main .doc .doc .title a {
+  /*color: #fafafa;*/
+}
+/* line 354, style.scss */
+#main .doc .doc {
+  margin-bottom: 4em;
+}
+/* line 359, style.scss */
+#main .doc .signatures,
+#main .doc .signatures > li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 365, style.scss */
+#main .doc .signatures {
+  margin: 1em 0 2em 0;
+  /* callback functions... */
+}
+/* line 368, style.scss */
+#main .doc .signatures > li {
+  /*border-left: 1em solid #171717;*/
+}
+/* line 372, style.scss */
+#main .doc .signatures .declaration {
+  padding: 1em;
+  background: #171717;
+  color: #93a1a1;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+/* line 381, style.scss */
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
+  padding: 1em;
+  border-top: 1px dotted #888;
+  color: #C1C5C5;
+  background: #25221F;
+  /*rgba(10,10,0,0.03);*/
+  overflow: hidden;
+}
+/* line 390, style.scss */
+#main .doc .signatures .arguments-desc code,
+#main .doc .signatures .returns-desc code {
+  color: #b58900;
+}
+/* line 394, style.scss */
+#main .doc .signatures .returns-desc {
+  border: none;
+}
+/* line 399, style.scss */
+#main .doc .signatures .arguments-desc .arguments-desc {
+  background: #000;
+}
+/* line 404, style.scss */
+#main .doc .signatures .arguments-desc p,
+#main .doc .signatures .returns-desc p {
+  padding: 0;
+  font-style: normal;
+}
+/* line 410, style.scss */
+#main .doc .signatures .arguments-desc dt,
+#main .doc .signatures .returns-desc dt {
+  width: 160px;
+  float: left;
+  clear: both;
+  letter-spacing: -1px;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+/* line 420, style.scss */
+#main .doc .signatures .arguments-desc dd,
+#main .doc .signatures .returns-desc dd {
+  float: left;
+  padding: 0;
+  margin-left: 2em;
+  font-style: normal;
+}
+/* line 427, style.scss */
+#main .doc .signatures .arguments-desc dd .arguments-desc {
+  margin-bottom: 2em;
+}
+/* line 434, style.scss */
+#main .doc .signatures .arguments-desc .title,
+#main .doc .signatures .returns-desc .title,
+#main .doc .signatures .arguments-desc dd > .types,
+#main .doc .signatures .arguments-desc dd > .optional {
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #888;
+  border: none;
+}
+/* line 442, style.scss */
+#main .doc .signatures .arguments-desc .title:before,
+#main .doc .signatures .returns-desc .title:before {
+  content: '// ';
+}
+/* line 446, style.scss */
+#main .doc .signatures .arguments {
+  margin: 0 1ex;
+}
+/* line 450, style.scss */
+#main .doc .signatures .arguments .arguments {
+  color: #93a1a1;
+}
+/* line 454, style.scss */
+#main .doc .signatures .returns > span {
+  margin: 0 1ex;
+}
+
+/* type colors */
+/* line 467, style.scss */
+.arguments a,
+.returns a,
+.arguments-desc a,
+.returns-desc a {
+  color: inherit;
+}
+
+/* line 475, style.scss */
+.arguments a,
+.arguments span,
+.returns a,
+.arguments-desc dt,
+.returns-desc dt {
+  color: #b58900;
+}
+
+/* line 479, style.scss */
+.signatures {
+  /* optional */
+}
+/* line 480, style.scss */
+.signatures .name {
+  color: #c7c7c7;
+}
+/* line 486, style.scss */
+.signatures .this,
+.signatures .Object,
+.signatures .Array {
+  color: #dc322f;
+}
+/* line 490, style.scss */
+.signatures .Function {
+  color: #859900;
+}
+/* line 494, style.scss */
+.signatures .String {
+  color: #6c71c4;
+}
+/* line 505, style.scss */
+.signatures .false,
+.signatures .true,
+.signatures .void,
+.signatures .Boolean,
+.signatures .Number,
+.signatures .Infinity,
+.signatures .RegExp,
+.signatures .NaN {
+  color: #2aa198 !important;
+}
+/* line 510, style.scss */
+.signatures .optional {
+  font-size: inherit;
+  margin: 0 1ex;
+}
+/* line 515, style.scss */
+.signatures .optional:before {
+  content: '[';
+}
+/* line 519, style.scss */
+.signatures .optional:after {
+  content: ']';
+}
