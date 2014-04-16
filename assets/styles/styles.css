@@ -1,0 +1,684 @@
+/* line 4, styles.scss */
+::-moz-selection {
+  background: #073642;
+}
+
+/* line 7, styles.scss */
+::-webkit-selection {
+  background: #073642;
+}
+
+/* line 10, styles.scss */
+::selection {
+  background: #073642;
+}
+
+/* line 14, styles.scss */
+body {
+  font-size: 16px;
+  color: #878787;
+  margin: 0;
+  line-height: 1.8em;
+  background: #171717;
+  font-family: 'Quattrocento Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* line 23, styles.scss */
+h1, h2, h3, h4, h5, h6 {
+  color: #c7c7c7;
+  margin: 0.5em 0;
+}
+
+/* line 28, styles.scss */
+p, ul, ol, table, dl {
+  margin: 0 0 22px;
+}
+
+/* line 32, styles.scss */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "CaviarDreamsRegular", Monaco, serif;
+  line-height: 1.3;
+  font-weight: normal;
+  margin: 1.5em 0 0.5em;
+}
+
+/* line 39, styles.scss */
+h1, h2, h3 {
+  display: block;
+  padding-bottom: 5px;
+}
+
+/* line 44, styles.scss */
+h1 {
+  font-size: 30px;
+}
+
+/* line 48, styles.scss */
+h2 {
+  font-size: 24px;
+}
+
+/* line 52, styles.scss */
+h3 {
+  font-size: 18px;
+}
+
+/* line 56, styles.scss */
+h4, h5, h6 {
+  font-weight: normal;
+}
+
+/* line 60, styles.scss */
+a {
+  color: #268bd2;
+  font-weight: 200;
+  text-decoration: none;
+  outline: none;
+}
+
+/* line 67, styles.scss */
+a:hover {
+  color: #c7c7c7;
+  text-decoration: underline;
+}
+
+/* line 72, styles.scss */
+a small {
+  font-size: 0.75em;
+}
+
+/* line 76, styles.scss */
+em {
+  font-style: italic;
+}
+
+/* line 80, styles.scss */
+strong {
+  font-weight: 700;
+}
+
+/* line 85, styles.scss */
+ul,
+ol {
+  margin-left: 0px;
+}
+
+/* line 89, styles.scss */
+ul li {
+  list-style: outside;
+  padding-left: 4px;
+}
+
+/* line 95, styles.scss */
+ol li {
+  list-style: decimal outside;
+  padding-left: 4px;
+}
+
+/* line 100, styles.scss */
+blockquote {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-style: italic;
+}
+
+/* line 106, styles.scss */
+dl, dt, dd, dl p {
+  font-color: #7a7a7a;
+}
+
+/* line 110, styles.scss */
+dl dt {
+  font-weight: bold;
+}
+
+/* line 114, styles.scss */
+dl dd {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+/* line 119, styles.scss */
+dl p {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+/* line 124, styles.scss */
+hr {
+  border: 0;
+  background: #ccc;
+  height: 1px;
+  margin: 0 0 24px;
+}
+
+/* line 131, styles.scss */
+p {
+  margin-bottom: 1em;
+}
+
+/* Images */
+/* line 137, styles.scss */
+img {
+  position: relative;
+  margin: 0 auto;
+  max-width: 650px;
+  padding: 5px;
+  margin: 10px 0 32px 0;
+  border: 1px solid #ccc;
+}
+
+/* Code blocks */
+/* line 149, styles.scss */
+code, pre {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #7a7a7a;
+}
+
+/* line 154, styles.scss */
+code {
+  font-size: 0.875em;
+}
+
+/* line 158, styles.scss */
+pre {
+  /*padding: 4px 12px;*/
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0 0 1em;
+}
+
+/* line 170, styles.scss */
+a.button,
+button {
+  display: inline-block;
+  border: none;
+  background: #268bd2;
+  color: #fff;
+  padding: 1em 2em;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  border-radius: 3px;
+}
+/* line 184, styles.scss */
+a.button:hover,
+button:hover {
+  background: #1e6ea7;
+}
+/* line 188, styles.scss */
+a.button:active,
+button:active {
+  background: #268bd2;
+}
+
+/* line 193, styles.scss */
+.highlight {
+  background: #171717;
+  border: 1px solid #000;
+  padding: 1em;
+  margin-bottom: 1em;
+  /*margin-left: 1em;*/
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  border-radius: 4px;
+}
+
+/* line 205, styles.scss */
+.highlight pre {
+  margin: 0;
+}
+/* line 207, styles.scss */
+.highlight pre code {
+  white-space: pre;
+}
+
+/* line 212, styles.scss */
+.row {
+  overflow: hidden;
+  *zoom: 1;
+}
+/* line 215, styles.scss */
+.row .col {
+  float: left;
+  width: 50%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Documentation styles */
+/* line 227, styles.scss */
+#main-header,
+nav.toc {
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 0 1.5em 1em;
+  font-size: 16px;
+  -moz-box-shadow: 2px 0 9px 0px #000;
+  -webkit-box-shadow: 2px 0 9px 0px #000;
+  box-shadow: 2px 0 9px 0px #000;
+  color: #C1C5C5;
+  background: #171717;
+  width: 280px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 250, styles.scss */
+#main-header h1,
+nav.toc h1 {
+  color: #C1C5C5;
+}
+/* line 252, styles.scss */
+#main-header h1 a,
+nav.toc h1 a {
+  color: #fff;
+}
+/* line 254, styles.scss */
+#main-header h1 a span,
+nav.toc h1 a span {
+  color: #dc322f;
+}
+/* line 260, styles.scss */
+#main-header .menu a,
+nav.toc .menu a {
+  color: #c7c7c7;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* line 264, styles.scss */
+#main-header .menu a:hover,
+nav.toc .menu a:hover {
+  text-decoration: underline;
+}
+/* line 269, styles.scss */
+#main-header footer .author,
+nav.toc footer .author {
+  color: #dc322f;
+  font-family: Alice, serif;
+}
+/* line 274, styles.scss */
+#main-header li.button,
+nav.toc li.button {
+  margin-bottom: 0.5em;
+}
+/* line 278, styles.scss */
+#main-header a.download,
+nav.toc a.download {
+  padding-left: 2.5em;
+  background-image: url(../images/arrow-down.png);
+  background-repeat: no-repeat;
+  background-position: 1.15em 1.3em;
+}
+/* line 285, styles.scss */
+#main-header a.github,
+nav.toc a.github {
+  padding-left: 2.5em;
+  background-image: url(../images/octocat-small.png);
+  background-repeat: no-repeat;
+  background-position: 1em 1.3em;
+}
+/* line 293, styles.scss */
+#main-header ul,
+#main-header ul li,
+nav.toc ul,
+nav.toc ul li {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 301, styles.scss */
+#main-header ul,
+nav.toc ul {
+  margin: 2em 0;
+}
+
+/* line 306, styles.scss */
+#content {
+  padding: 0 10% 15%;
+  overflow: hidden;
+}
+
+/* line 311, styles.scss */
+.welcome {
+  position: relative;
+  z-index: 2;
+}
+/* line 314, styles.scss */
+.welcome .col:first-child {
+  padding-right: 1em;
+}
+
+/* line 319, styles.scss */
+#intro-viewport {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+}
+
+/* line 326, styles.scss */
+#demo-area {
+  position: absolute;
+  top: 0;
+  left: 280px;
+  right: 0;
+  bottom: 0;
+  border-left: 1px solid #000;
+  padding-left: 2px;
+}
+/* line 335, styles.scss */
+#demo-area .demo-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+/* line 343, styles.scss */
+.demo-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 500px;
+  background: #171717;
+}
+/* line 349, styles.scss */
+.demo-wrap .display {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+/* line 358, styles.scss */
+.demo-wrap .controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1em;
+  z-index: 3;
+}
+/* line 366, styles.scss */
+.demo-wrap .CodeMirror {
+  height: 100%;
+  z-index: 2;
+  background: rgba(23, 23, 23, 0.85);
+}
+
+/* line 377, styles.scss */
+#main {
+  width: 100%;
+  max-width: 1600px;
+  padding: 0 0 0 280px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* line 387, styles.scss */
+#main > article {
+  margin: 0 6em;
+}
+/* line 392, styles.scss */
+#main .doc header {
+  padding-bottom: 1em;
+}
+/* line 396, styles.scss */
+#main .doc .title {
+  font-size: 1.5em;
+}
+/* line 400, styles.scss */
+#main .doc .desc {
+  margin: 0 0 0.5em;
+}
+/* line 404, styles.scss */
+#main .doc .children {
+  margin-top: 2em;
+}
+/* line 408, styles.scss */
+#main .doc .doc .children {
+  overflow: hidden;
+  /*background: #eee;*/
+  /*padding: 2em;*/
+  /*border-left: 4px solid #171717;*/
+  /*padding-left: 2em;
+  margin-left: 0.2em;*/
+  /*border: 1px solid #aaa;
+  background: #fafafa;*/
+  /*padding:  0 0 0 2em;*/
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 424, styles.scss */
+#main .doc.class {
+  border: 1px solid #aaa;
+  background: #fafafa;
+  padding: 2em;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  border-radius: 5px;
+}
+/* line 434, styles.scss */
+#main .doc .doc .title {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #aaa;
+}
+/* line 441, styles.scss */
+#main .doc .title .aliases {
+  float: right;
+}
+/* line 445, styles.scss */
+#main .doc .title .flags {
+  /*display: inline;*/
+  font-size: 0.6em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  margin: 0.2em 0;
+}
+/* line 451, styles.scss */
+#main .doc .title .flags span {
+  margin-right: 1ex;
+}
+/* line 455, styles.scss */
+#main .doc .title .flags .internal {
+  /*display: block;*/
+  color: #1A70AC;
+}
+/* line 461, styles.scss */
+#main .doc .title .flags .deprecated .from,
+#main .doc .title .flags .deprecated .to {
+  margin: 0 1ex;
+}
+/* line 467, styles.scss */
+#main .doc .doc .title a {
+  /*color: #fafafa;*/
+}
+/* line 471, styles.scss */
+#main .doc .doc {
+  margin-bottom: 4em;
+}
+/* line 476, styles.scss */
+#main .doc .signatures,
+#main .doc .signatures > li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+/* line 482, styles.scss */
+#main .doc .signatures {
+  margin: 1em 0 2em 0;
+  /* callback functions... */
+}
+/* line 485, styles.scss */
+#main .doc .signatures > li {
+  /*border-left: 1em solid #171717;*/
+}
+/* line 489, styles.scss */
+#main .doc .signatures .declaration {
+  padding: 1em;
+  background: #171717;
+  color: #93a1a1;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+/* line 498, styles.scss */
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
+  padding: 1em;
+  border-top: 1px dotted #888;
+  color: #C1C5C5;
+  background: #25221F;
+  /*rgba(10,10,0,0.03);*/
+  overflow: hidden;
+}
+/* line 507, styles.scss */
+#main .doc .signatures .arguments-desc code,
+#main .doc .signatures .returns-desc code {
+  color: #b58900;
+}
+/* line 511, styles.scss */
+#main .doc .signatures .returns-desc {
+  border: none;
+}
+/* line 516, styles.scss */
+#main .doc .signatures .arguments-desc .arguments-desc {
+  background: #000;
+}
+/* line 521, styles.scss */
+#main .doc .signatures .arguments-desc p,
+#main .doc .signatures .returns-desc p {
+  padding: 0;
+  font-style: normal;
+}
+/* line 527, styles.scss */
+#main .doc .signatures .arguments-desc dt,
+#main .doc .signatures .returns-desc dt {
+  width: 160px;
+  float: left;
+  clear: both;
+  letter-spacing: -1px;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+/* line 537, styles.scss */
+#main .doc .signatures .arguments-desc dd,
+#main .doc .signatures .returns-desc dd {
+  float: left;
+  padding: 0;
+  margin-left: 2em;
+  font-style: normal;
+}
+/* line 544, styles.scss */
+#main .doc .signatures .arguments-desc dd .arguments-desc {
+  margin-bottom: 2em;
+}
+/* line 551, styles.scss */
+#main .doc .signatures .arguments-desc .title,
+#main .doc .signatures .returns-desc .title,
+#main .doc .signatures .arguments-desc dd > .types,
+#main .doc .signatures .arguments-desc dd > .optional {
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #888;
+  border: none;
+}
+/* line 559, styles.scss */
+#main .doc .signatures .arguments-desc .title:before,
+#main .doc .signatures .returns-desc .title:before {
+  content: '// ';
+}
+/* line 563, styles.scss */
+#main .doc .signatures .arguments {
+  margin: 0 1ex;
+}
+/* line 567, styles.scss */
+#main .doc .signatures .arguments .arguments {
+  color: #93a1a1;
+}
+/* line 571, styles.scss */
+#main .doc .signatures .returns > span {
+  margin: 0 1ex;
+}
+
+/* type colors */
+/* line 584, styles.scss */
+.arguments a,
+.returns a,
+.arguments-desc a,
+.returns-desc a {
+  color: inherit;
+}
+
+/* line 592, styles.scss */
+.arguments a,
+.arguments span,
+.returns a,
+.arguments-desc dt,
+.returns-desc dt {
+  color: #b58900;
+}
+
+/* line 596, styles.scss */
+.signatures {
+  /* optional */
+}
+/* line 597, styles.scss */
+.signatures .name {
+  color: #c7c7c7;
+}
+/* line 603, styles.scss */
+.signatures .this,
+.signatures .Object,
+.signatures .Array {
+  color: #dc322f;
+}
+/* line 607, styles.scss */
+.signatures .Function {
+  color: #859900;
+}
+/* line 611, styles.scss */
+.signatures .String {
+  color: #6c71c4;
+}
+/* line 622, styles.scss */
+.signatures .false,
+.signatures .true,
+.signatures .void,
+.signatures .Boolean,
+.signatures .Number,
+.signatures .Infinity,
+.signatures .RegExp,
+.signatures .NaN {
+  color: #2aa198 !important;
+}
+/* line 627, styles.scss */
+.signatures .optional {
+  font-size: inherit;
+  margin: 0 1ex;
+}
+/* line 632, styles.scss */
+.signatures .optional:before {
+  content: '[';
+}
+/* line 636, styles.scss */
+.signatures .optional:after {
+  content: ']';
+}
