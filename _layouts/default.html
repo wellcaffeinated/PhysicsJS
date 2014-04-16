@@ -15,63 +15,53 @@
     <link href='http://fonts.googleapis.com/css?family=Alice&text=Well%20Caffeinated' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{relative}}assets/fonts/Caviar-Dreams-fontfacekit/stylesheet.css">
-    <link rel="stylesheet" href="{{relative}}assets/styles/solarized.css">
+    <link rel="stylesheet" href="{{relative}}docs/css/highlight-nearly-solarized.css">
+    <link rel="stylesheet" href="{{relative}}assets/styles/codemirror.css">
     <link rel="stylesheet" href="{{relative}}assets/styles/styles.css">
     <script src="{{relative}}assets/scripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <script type="text/javascript" src="{{relative}}assets/scripts/vendor/require.js"></script>
-    <script>
-    require.config({
-      baseUrl: '{{relative}}assets/scripts/',
-
-      packages: [
-        {
-          name: 'physicsjs',
-          location: 'vendor/physicsjs-0.5.3/',
-          main: 'physicsjs-0.5.3.min'
-        }
-      ],
-
-      paths: {
-        'jquery': 'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min'
-      }
-    });
-    </script>
+    <script src="{{relative}}assets/scripts/vendor/raf.js"></script>
+    <script src="{{relative}}assets/scripts/vendor/physicsjs-0.6.0/physicsjs-full-0.6.0.min.js"></script>
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header"><a href="{{site.url}}">Physics<span>JS</span></a></h1>
-      
-        <ul>
-          <li><a href="./{{relative}}">About</a></li>
-          <li><a href="{{relative}}examples">Demos</a></li>
-          <li><a href="{{relative}}installation">Installation</a></li>
-          <li><a href="{{relative}}basic-usage">Basic Usage</a></li>
-          <li><a href="{{relative}}tutorials">Tutorials</a></li>
-          <li><a href="https://github.com/wellcaffeinated/PhysicsJS/wiki">Documentation</a></li>
-          <li><a href="{{relative}}contribute">Contribute</a></li>
-        </ul>
-        <ul>
-          <li>v0.5.4 (alpha)</li>
-          <li class="button download"><a class="buttons" href="https://github.com/wellcaffeinated/PhysicsJS/archive/physicsjs-v0.5.4-alpha.zip">Download</a></li>
-          <li class="button"><a class="buttons github" href="https://github.com/wellcaffeinated/PhysicsJS">GitHub</a></li>
-          <li>MIT License</li>
-        </ul>
+    <div id="main" class="site">
+        <section  id="main-header">
+            <header>
+                <h1 class="header"><a href="{{site.url}}">Physics<span>JS</span></a></h1>
 
-      </header>
-      <section>
-        {{ content }}
-      </section>
-      <footer>
-        <p><small>a <a href="http://wellcaffeinated.net" target="_blank" class="author">Well Caffeinated</a> project</small></p>
-        <script data-gittip-username="wellcaffeinated" src="//gttp.co/v1.js"></script>
-      </footer>
+                <ul class="menu">
+                  <li><a href="./{{relative}}">About</a></li>
+                  <li><a href="{{relative}}examples">Demos</a></li>
+                  <li><a href="{{relative}}installation">Installation</a></li>
+                  <li><a href="{{relative}}basic-usage">Basic Usage</a></li>
+                  <li><a href="{{relative}}tutorials">Tutorials</a></li>
+                  <li><a href="https://github.com/wellcaffeinated/PhysicsJS/wiki">Documentation</a></li>
+                  <li><a href="{{relative}}docs">API</a></li>
+                  <li><a href="{{relative}}contribute">Contribute</a></li>
+                </ul>
+                <ul>
+                  <li>v0.5.4 (alpha)</li>
+                  <li class="button download"><a class="button download" href="https://github.com/wellcaffeinated/PhysicsJS/archive/physicsjs-v0.5.4-alpha.zip">Download</a></li>
+                  <li class="button"><a class="button github" href="https://github.com/wellcaffeinated/PhysicsJS">GitHub</a></li>
+                  <li>MIT License</li>
+                </ul>
+
+            </header>
+            <footer>
+                <p><small>a <a href="http://wellcaffeinated.net" target="_blank" class="author">Well Caffeinated</a> project</small></p>
+                <script data-gittip-username="wellcaffeinated" src="//gttp.co/v1.js"></script>
+            </footer>
+        </section>
+        <section id="content">
+            {{ content }}
+        </section>
     </div>
-  
+
+  <script src="{{relative}}assets/scripts/vendor/codemirror.js"></script>
+  <script src="{{relative}}assets/scripts/demo-editor.js"></script>
   <!--[if !IE]><script>fixScale(document);</script><![endif]-->
   <script type="text/javascript">
     var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
@@ -83,6 +73,5 @@
       pageTracker._trackPageview();
     } catch(err) {}
   </script>
-
   </body>
 </html>

@@ -1,0 +1,522 @@
+@import '_colors';
+
+body {
+  font-size: 16px;
+  color: #232323;
+  margin: 0;
+  line-height: 1.8em;
+  background: #fff;
+  font-family: 'Quattrocento Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color:#232323;
+  margin:0.5em 0;
+}
+
+p, ul, ol, table, dl {
+  margin:0 0 22px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "CaviarDreamsRegular", Monaco, serif;
+  line-height:1.3;
+  font-weight: normal;
+}
+
+h1,h2, h3 {
+  display: block;
+  padding-bottom: 5px;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4, h5, h6 {
+  font-weight: normal;
+}
+
+a {
+  color:#C30000;
+  font-weight:200;
+  text-decoration:none;
+  outline: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a small {
+  font-size: 0.75em;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight:700;
+}
+
+ul,
+ol {
+  margin-left: 0px;
+}
+
+ul li {
+  list-style: outside;
+  padding-left: 4px;
+}
+
+
+ol li {
+  list-style: decimal outside;
+  padding-left: 4px;
+}
+
+blockquote {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-style: italic;
+}
+
+dl, dt, dd, dl p {
+  font-color: #444;
+}
+
+dl dt {
+  font-weight: bold;
+}
+
+dl dd {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+dl p {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+hr {
+  border:0;
+  background:#ccc;
+  height:1px;
+  margin:0 0 24px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+/* Images */
+
+img {
+  position: relative;
+  margin: 0 auto;
+  max-width: 650px;
+  padding: 5px;
+  margin: 10px 0 32px 0;
+  border: 1px solid #ccc;
+}
+
+
+/* Code blocks */
+
+code, pre {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color:#333;
+}
+
+code {
+  font-size:0.875em;
+}
+
+pre {
+  /*padding: 4px 12px;*/
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0 0 1em;
+}
+
+pre code {
+  white-space: normal;
+}
+
+.highlight {
+  background: #171717;
+  padding: 1em;
+  margin-bottom: 1em;
+  /*margin-left: 1em;*/
+  -webkit-border-radius:4px;
+     -moz-border-radius:4px;
+      -ms-border-radius:4px;
+          border-radius:4px;
+}
+
+.highlight pre {
+  margin: 0;
+}
+
+/* Documentation styles */
+
+nav.toc {
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 1em 1.5em;
+  font-size: 14px;
+
+  color: #C1C5C5;
+  background: #171717;
+
+  width: 360px;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+       -o-box-sizing: border-box;
+          box-sizing: border-box;
+
+
+    h1 {
+        color: #C1C5C5;
+        a {
+            color: #fff;
+            span {
+                color: $red;
+            }
+        }
+    }
+
+    ul,
+    ul li {
+      font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    ul ul {
+      margin-left: 1em;
+      margin-bottom: 1em;
+    }
+
+    > ul > li > a {
+      border-bottom: 1px solid #2aa198;
+    }
+
+    .pfx {
+      display: none;
+    }
+
+    ul li.class > .item > .name:after {
+      content: ' <class>';
+      color: #495353;
+    }
+
+    a {
+      color: #C1C5C5;
+      color: #93a1a1;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    a:hover,
+    a.inside {
+      color: $yellow;
+    }
+
+    li {
+      position: relative;
+    }
+
+    li .ctrl-expand {
+      position: absolute;
+      left: -1em;
+      top: auto;
+      color: #2aa198;
+      /*font-size: 1.5em;*/
+      text-decoration: none;
+    }
+
+    li .ctrl-expand:hover {
+      color: $yellow;
+    }
+}
+
+#main {
+    width: 100%;
+    padding: 4em 0;
+    padding-left: 360px;
+    -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+       -o-box-sizing: border-box;
+          box-sizing: border-box;
+
+    > article {
+        margin: 0 6em;
+    }
+
+    .doc {
+        header {
+          padding-bottom: 1em;
+        }
+
+        .title {
+          font-size: 1.5em;
+        }
+
+        .desc {
+          margin: 0 0 0.5em;
+        }
+
+        .children {
+          margin-top: 2em;
+        }
+
+        .doc .children {
+          overflow: hidden;
+          /*background: #eee;*/
+          /*padding: 2em;*/
+          /*border-left: 4px solid #171717;*/
+          /*padding-left: 2em;
+          margin-left: 0.2em;*/
+          /*border: 1px solid #aaa;
+          background: #fafafa;*/
+          /*padding:  0 0 0 2em;*/
+          -webkit-border-radius: 5px;
+             -moz-border-radius: 5px;
+              -ms-border-radius: 5px;
+                  border-radius: 5px;
+        }
+
+        &.class {
+          border: 1px solid #aaa;
+          background: #fafafa;
+          padding: 2em;
+          -webkit-border-radius: 5px;
+             -moz-border-radius: 5px;
+              -ms-border-radius: 5px;
+                  border-radius: 5px;
+        }
+
+        .doc .title {
+          margin: 0;
+          padding: 0;
+          border-bottom: 1px solid #aaa;
+        }
+
+        .title {
+            .aliases {
+              float: right;
+            }
+
+            .flags {
+                /*display: inline;*/
+                font-size: 0.6em;
+                font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+                margin: 0.2em 0;
+
+                span {
+                  margin-right: 1ex;
+                }
+
+                .internal {
+                  /*display: block;*/
+                  color: #1A70AC;
+                }
+
+                .deprecated .from,
+                .deprecated .to {
+                  margin: 0 1ex;
+                }
+            }
+        }
+
+        .doc .title a {
+          /*color: #fafafa;*/
+        }
+
+        .doc {
+          margin-bottom: 4em;
+        }
+
+        .signatures,
+        .signatures > li {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .signatures {
+            margin: 1em 0 2em 0;
+
+            > li {
+              /*border-left: 1em solid #171717;*/
+            }
+
+            .declaration {
+              padding: 1em;
+              background: #171717;
+              color: #93a1a1;
+              font-size: 0.875em;
+              font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+            }
+
+            .arguments-desc,
+            .returns-desc {
+              padding: 1em;
+              border-top: 1px dotted #888;
+              color: #C1C5C5;
+              background: #25221F; /*rgba(10,10,0,0.03);*/
+              overflow: hidden;
+            }
+
+            .arguments-desc code,
+            .returns-desc code {
+              color: $yellow;
+            }
+
+            .returns-desc {
+              border: none;
+            }
+
+            /* callback functions... */
+            .arguments-desc .arguments-desc {
+                background: #000;
+            }
+
+            .arguments-desc p,
+            .returns-desc p {
+              padding: 0;
+              font-style: normal;
+            }
+
+            .arguments-desc dt,
+            .returns-desc dt {
+              width: 160px;
+              float: left;
+              clear: both;
+              letter-spacing: -1px;
+              font-size: 0.875em;
+              font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+            }
+
+            .arguments-desc dd,
+            .returns-desc dd {
+              float: left;
+              padding: 0;
+              margin-left: 2em;
+              font-style: normal;
+            }
+
+            .arguments-desc dd .arguments-desc {
+              margin-bottom: 2em;
+            }
+
+            .arguments-desc .title,
+            .returns-desc .title,
+            .arguments-desc dd > .types,
+            .arguments-desc dd > .optional {
+              font-size: 0.875em;
+              font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+              color: #888;
+              border: none;
+            }
+
+            .arguments-desc .title:before,
+            .returns-desc .title:before {
+              content: '// ';
+            }
+
+            .arguments {
+              margin: 0 1ex;
+            }
+
+            .arguments .arguments {
+              color: #93a1a1;
+            }
+
+            .returns > span {
+              margin: 0 1ex;
+            }
+        }
+    }
+}
+
+
+
+/* type colors */
+.arguments a,
+.returns a,
+.arguments-desc a,
+.returns-desc a {
+  color: inherit;
+}
+
+.arguments a,
+.arguments span,
+.returns a,
+.arguments-desc dt,
+.returns-desc dt {
+  color: $yellow;
+}
+
+.signatures {
+    .name {
+        color: $base2;
+    }
+
+    .this,
+    .Object,
+    .Array {
+      color: $red;
+    }
+
+    .Function {
+      color: $green;
+    }
+
+    .String {
+      color: $violet;
+    }
+
+    .false,
+    .true,
+    .void,
+    .Boolean,
+    .Number,
+    .Infinity,
+    .RegExp,
+    .NaN {
+      color: $cyan !important;
+    }
+
+    /* optional */
+    .optional {
+      font-size: inherit;
+      margin: 0 1ex;
+    }
+
+    .optional:before {
+      content: '[';
+    }
+
+    .optional:after {
+      content: ']';
+    }
+}

@@ -1,0 +1,160 @@
+/* modified from original */
+/*
+Solarized theme for code-mirror
+http://ethanschoonover.com/solarized
+*/
+
+/*
+Solarized color pallet
+http://ethanschoonover.com/solarized/img/solarized-palette.png
+*/
+
+@import '_colors';
+
+.solarized.base03 { color: $base03; }
+.solarized.base02 { color: $base02; }
+.solarized.base01 { color: $base01; }
+.solarized.base00 { color: $base00; }
+.solarized.base0 { color: $base0; }
+.solarized.base1 { color: $base1; }
+.solarized.base2 { color: $base2; }
+.solarized.base3  { color: $base3; }
+.solarized.solar-yellow  { color: $yellow; }
+.solarized.solar-orange  { color: $orange; }
+.solarized.solar-red { color: $red; }
+.solarized.solar-magenta { color: $magenta; }
+.solarized.solar-violet  { color: $violet; }
+.solarized.solar-blue { color: $blue; }
+.solarized.solar-cyan { color: $cyan; }
+.solarized.solar-green { color: $green; }
+
+/* Color scheme for code-mirror */
+
+.cm-s-solarized {
+  line-height: 1.45em;
+  color-profile: sRGB;
+  rendering-intent: auto;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  background: #171717;
+  color: $orange;
+}
+
+.cm-s-solarized .CodeMirror-widget {
+  text-shadow: none;
+}
+
+.cm-s-solarized .cm-keyword { color: $green; }
+.cm-s-solarized .cm-atom { color: $violet; }
+.cm-s-solarized .cm-number { color: $cyan; }
+.cm-s-solarized .cm-def { color: $base1; }
+
+.cm-s-solarized .cm-variable { color: $base1; }
+.cm-s-solarized .cm-variable-2 { color: $base1; }
+.cm-s-solarized .cm-variable-3 { color: $base1; }
+
+.cm-s-solarized .cm-property { color: $base1; }
+.cm-s-solarized .cm-operator {color: $green;}
+
+.cm-s-solarized .cm-comment { color: $base00; }
+
+.cm-s-solarized .cm-string { color: $violet; }
+.cm-s-solarized .cm-string-2 { color: $yellow; }
+
+.cm-s-solarized .cm-meta { color: $green; }
+.cm-s-solarized .cm-qualifier { color: $yellow; }
+.cm-s-solarized .cm-builtin { color: $violet; }
+.cm-s-solarized .cm-bracket { color: $orange; }
+.CodeMirror.cm-s-solarized .CodeMirror-matchingbracket { color: #fff; background: $orange; }
+.CodeMirror.cm-s-solarized .CodeMirror-nonmatchingbracket { color: $orange; }
+.cm-s-solarized .cm-tag { color: $base1; }
+.cm-s-solarized .cm-attribute {  color: $cyan; }
+.cm-s-solarized .cm-header { color: $base0; }
+.cm-s-solarized .cm-quote { color: $violet; }
+.cm-s-solarized .cm-hr {
+  color: transparent;
+  border-top: 1px solid $base1;
+  display: block;
+}
+.cm-s-solarized .cm-link { color: $base2; cursor: pointer; }
+.cm-s-solarized .cm-special { color: $violet; }
+.cm-s-solarized .cm-em {
+  color: $base3;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+.cm-s-solarized .cm-strong { color: $base3; }
+.cm-s-solarized .cm-tab:before {
+  content: "¬";   /*visualize tab character*/
+  color: $base01;
+  position:absolute;
+}
+.cm-s-solarized .cm-error,
+.cm-s-solarized .cm-invalidchar {
+  color: $base00;
+  border-bottom: 1px dotted $red;
+}
+
+.cm-s-solarized .CodeMirror-selected {
+  background: #073642;
+}
+
+/* Editor styling */
+
+
+
+/* Little shadow on the view-port of the buffer view */
+.cm-s-solarized.CodeMirror {
+  -moz-box-shadow: inset 7px 0 12px -6px #000;
+  -webkit-box-shadow: inset 7px 0 12px -6px #000;
+  box-shadow: inset 7px 0 12px -6px #000;
+}
+
+.cm-s-solarized.CodeMirror .CodeMirror-scroll {
+    padding-left: 1em;
+    padding-top: 1em;
+}
+
+/* Gutter border and some shadow from it  */
+
+
+/* Gutter colors and line number styling based of color scheme (dark / light) */
+
+/* Dark */
+.cm-s-solarized .CodeMirror-gutters {
+  background-color: #171717;
+  border-right: 2px solid #171717;
+  -moz-box-shadow: 2px 0 9px 0px #000;
+  -webkit-box-shadow: 2px 0 9px 0px #000;
+  box-shadow: 2px 0 9px 0px #000;
+}
+
+.cm-s-solarized .CodeMirror-linenumber {
+  text-shadow: #021014 0 -1px;
+}
+
+/* Common */
+.cm-s-solarized .CodeMirror-linenumber {
+  color: #586e75;
+  padding: 0 5px;
+}
+
+.cm-s-solarized .CodeMirror-gutter .CodeMirror-gutter-text {
+  color: #586e75;
+}
+
+.cm-s-solarized .CodeMirror-lines .CodeMirror-cursor {
+  border-left: 1px solid #819090;
+}
+
+/*
+Active line. Negative margin compensates left padding of the text in the
+view-port
+*/
+.cm-s-solarized .CodeMirror-activeline-background {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.cm-s-solarized .CodeMirror-foldmarker {
+    color: $blue;
+    text-shadow: none;
+}

@@ -28,9 +28,9 @@ Physics(function(){
 });
 {% endhighlight %}
 
-**The return value, the function argument, and the "this" variable all 
-refer to the same world**. The benefit of using the last two methods is 
-that it encourages a coding style that does *not polute the global scope*. 
+**The return value, the function argument, and the "this" variable all
+refer to the same world**. The benefit of using the last two methods is
+that it encourages a coding style that does *not polute the global scope*.
 Many worlds can be created this way which will be properly scoped and modular.
 
 Example:
@@ -78,7 +78,7 @@ Physics({
 In order to advance the simulation by one frame, simply call the `.step()` method
 with the current time as a parameter. This can be done in any way you like,
 but usually this will be called inside an animation loop, using
-`window.requestAnimationFrame` or similar. 
+`window.requestAnimationFrame` or similar.
 
 A helper is provided with PhysicsJS to facilitate animation loops:
 `Physics.util.ticker`. The ticker methods will use `requestAnimationFrame`
@@ -168,7 +168,7 @@ gravity.setAcceleration({ x: 0, y: -0.0004 });
 Some behaviors act as "detectors", which don't modify bodies directly. Instead
 they detect specific events and announce them to the world's [pubsub][wiki-pubsub]
 system so other behaviors can take appropriate actions. One example of this is
-[collision detection and response][wiki-collisions]. There are separate behaviors 
+[collision detection and response][wiki-collisions]. There are separate behaviors
 for collision detection, collision response, and even so-called "sweep and prune"
 optimization algorithms.
 
@@ -234,7 +234,7 @@ Custom renderers can be created and renderers can be extended.
 [Read more about Integrators on the wiki](wiki-integrators).
 
 An integrator is the mathematical workhorse of a simulation. An integrator
-will [numerically integrate](http://en.wikipedia.org/wiki/Numerical_integration) 
+will [numerically integrate](http://en.wikipedia.org/wiki/Numerical_integration)
 the physical properties of the bodies. In other words, it will move them to
 their next positions and velocities every "tick".
 
@@ -268,9 +268,73 @@ Custom integrators can be created and integrators can be extended.
 The example code snippets from these basic instructions can be found in this
 little example simulation:
 
-<p data-height="351" data-theme-id="0" data-slug-hash="vCqHb" data-user="wellcaffeinated" data-default-tab="result" class='codepen'>See the Pen <a href='http://codepen.io/wellcaffeinated/pen/vCqHb'>vCqHb</a> by Jasper (<a href='http://codepen.io/wellcaffeinated'>@wellcaffeinated</a>) on <a href='http://codepen.io'>CodePen</a></p>
-<script async="async" src="http://codepen.io/assets/embed/ei.js"></script>
+<pre class="demo">
+Physics(function(world){
 
+  var viewWidth = 500;
+  var viewHeight = 300;
+
+  var renderer = Physics.renderer('canvas', {
+    el: 'viewport',
+    width: viewWidth,
+    height: viewHeight,
+    meta: false, // don't display meta data
+    styles: {
+        // set colors for the circle bodies
+        'circle' : {
+            strokeStyle: '#351024',
+            lineWidth: 1,
+            fillStyle: '#d33682',
+            angleIndicator: '#351024'
+        }
+    }
+  });
+
+  // add the renderer
+  world.add( renderer );
+  // render on each step
+  world.on('step', function(){
+    world.render();
+  });
+
+  // bounds of the window
+  var viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+
+  // constrain objects to these bounds
+  world.add(Physics.behavior('edge-collision-detection', {
+      aabb: viewportBounds,
+      restitution: 0.99,
+      cof: 0.99
+  }));
+
+  // add a circle
+  world.add(
+      Physics.body('circle', {
+        x: 50, // x-coordinate
+        y: 30, // y-coordinate
+        vx: 0.2, // velocity in x-direction
+        vy: 0.01, // velocity in y-direction
+        radius: 20
+      })
+  );
+
+  // ensure objects bounce when edge collision is detected
+  world.add( Physics.behavior('body-impulse-response') );
+
+  // add some gravity
+  world.add( Physics.behavior('constant-acceleration') );
+
+  // subscribe to ticker to advance the simulation
+  Physics.util.ticker.on(function( time, dt ){
+
+      world.step( time );
+  });
+
+  // start the ticker
+  Physics.util.ticker.start();
+
+});
+</pre>
 
 [wiki-bodies]: https://github.com/wellcaffeinated/PhysicsJS/wiki/Bodies
 [wiki-behaviors]: https://github.com/wellcaffeinated/PhysicsJS/wiki/Behaviors

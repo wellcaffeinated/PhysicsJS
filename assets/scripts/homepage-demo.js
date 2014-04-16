@@ -3,7 +3,7 @@ require([
     'jquery',
 
     'physicsjs',
-    
+
     'physicsjs/renderers/canvas',
 
     'physicsjs/bodies/circle',
@@ -22,31 +22,31 @@ require([
     'use strict';
 
     Physics(function(world){
-      
+
         var el = document.getElementById('intro-viewport').parentNode;
         var viewWidth = Math.max(el.offsetWidth, 400);
         var viewHeight = 300;
-            
-        var renderer = Physics.renderer('canvas', {
-        el: 'intro-viewport',
-        width: viewWidth,
-        height: viewHeight,
-        meta: false,
-        styles: {
-            'circle' : {
-                strokeStyle: 'hsla(60, 37%, 17%, 1)',
-                lineWidth: 1,
-                fillStyle: 'hsla(60, 37%, 57%, 0.8)',
-                angleIndicator: 'hsla(60, 37%, 17%, 0.4)'
-            },
 
-            'convex-polygon' : {
-                strokeStyle: 'hsla(60, 37%, 17%, 1)',
-                lineWidth: 1,
-                fillStyle: 'hsla(60, 37%, 57%, 0.8)',
-                angleIndicator: 'none'
+        var renderer = Physics.renderer('canvas', {
+            el: 'intro-viewport',
+            width: viewWidth,
+            height: viewHeight,
+            meta: false,
+            styles: {
+                'circle' : {
+                    strokeStyle: 'hsla(60, 37%, 17%, 1)',
+                    lineWidth: 1,
+                    fillStyle: 'hsla(60, 37%, 57%, 0.8)',
+                    angleIndicator: 'hsla(60, 37%, 17%, 0.4)'
+                },
+
+                'convex-polygon' : {
+                    strokeStyle: 'hsla(60, 37%, 17%, 1)',
+                    lineWidth: 1,
+                    fillStyle: 'hsla(60, 37%, 57%, 0.8)',
+                    angleIndicator: 'none'
+                }
             }
-        }
         });
 
         // add the renderer
@@ -117,7 +117,7 @@ require([
           ;
 
         for ( var i = 100; i < viewWidth - 100; i += 10 ){
-                
+
             l = basket.push(
                 Physics.body('circle', {
                     x: i,
@@ -136,7 +136,7 @@ require([
 
             var renderer = data.renderer;
             for ( var i = 1, l = basket.length; i < l; ++i ){
-                
+
                 renderer.drawLine(basket[ i - 1 ].state.pos, basket[ i ].state.pos, {
                     strokeStyle: '#C30000',
                     lineWidth: 3

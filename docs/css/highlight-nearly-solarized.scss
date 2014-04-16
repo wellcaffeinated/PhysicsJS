@@ -1,0 +1,109 @@
+@import '_colors';
+
+.highlight {
+
+    &,
+    .nx {
+        color: $base1;
+    }
+
+    .p {// punctuation
+        color: $orange;
+    }
+
+    .ne, // Name.Exception
+    .err,
+    .gr { // errors
+        color: $red;
+    }
+
+    .o { // operator
+        // color: $base1;
+        color: $green;
+    }
+
+    .go { color: $base00; } // Generic.Output
+    .gp { color: $base0; } // Generic.Prompt
+    .gs { font-weight: bold } // Generic.Strong
+    .gu { color: $base1; } // Generic.Subheading
+    .gt { color: $red; } // Generic.Traceback
+
+
+    .gd, // generic deleted
+    .ge, // generic emph
+    .gi, // generic inserted
+    .k, // keyword
+    .kd, // keyword declaration
+    .kn, // keyword namespace
+    .kp, // keyword pseudo
+    .kr, // keyword reserved
+    .kt { // keyword type
+        color: $green;
+    }
+
+    .no, // Name.Constant
+    .kc { // keyword constant
+        color: $yellow;
+    }
+
+    .c,
+    .cm,
+    .c1 { // comments
+        color: $base01;
+    }
+
+    .bp, // name builtin pseudo
+    .gh, // generic heading
+    .cp, // comment preprocessor
+    .cs { // comment special
+        color: $base00;
+    }
+
+    .m, // number
+    .mf, // Literal.Number.Float
+    .mh, // Literal.Number.Hex
+    .mi, // Literal.Number.Integer
+    .il, // number integer long
+    .mo { // Literal.Number.Oct
+        color: $cyan;
+    }
+
+    .na, // Name.Attribute
+    .nb, // Name.Builtin
+    .nc, // Name.Class
+    .nd, // Name.Decorator
+    .ni { // Name.Entity
+        color: $blue;
+    }
+
+    .nl, // name label
+    .nn, // name namespace
+    .nt, // name tag
+    .nv, // name variable
+    .nf, // name function
+    .vc, // Name.Variable.Class
+    .vg, // Name.Variable.Global
+    .vi { // Name.Variable.Instance
+        color: $blue;
+    }
+
+
+    .s, // string
+    .sb, // Literal.String.Backtick
+    .sc, // Literal.String.Char
+    .sd, // Literal.String.Doc
+    .s2, // Literal.String.Double
+    .se, // Literal.String.Escape
+    .sh, // Literal.String.Heredoc
+    .si, // Literal.String.Interpol
+    .sx, // Literal.String.Other
+    .s1 { // Literal.String.Single
+        color: $violet;
+    }
+
+
+    .sr { color: $violet; } /* Literal.String.Regex */
+
+    .ss { color: $cyan; } /* Literal.String.Symbol */
+
+}
