@@ -161,3 +161,58 @@ Physics(function (world) {
 });
 </textarea>
 </div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script>
+jQuery(function( $ ){
+    var editor = window.CodeEditors[0];
+    var $changer = $('<select>').width(100);
+    var idx;
+    var demos = {
+        'Simple': './demos/simple.js'
+        ,'Newtonian Orbit': './demos/newtonian.js'
+        ,'Newton\'s Revenge': './demos/newton-gravity.js'
+        ,'Supermarket Catastrophy': './demos/supermarket-catastrophy.js'
+        ,'Mixed Shapes': './demos/mixed-shapes.js'
+        ,'Basket of Verlet Constraints': './demos/basket.js'
+        ,'Tearable Cloth': './demos/cloth.js'
+        ,'Fruitcake on Wheels': './demos/fruitcake.js'
+        ,'Autumn Leaves': './demos/autumn-leaves.js'
+        ,'Intro': 'intro'
+    };
+    $.each(demos, function( key, src ){
+        $changer.append('<option value="'+src+'">'+key+'</option>');
+    });
+    $changer.val('intro');
+    $('#demo-area .controls').prepend( $changer );
+
+    var introText = editor.getValue();
+
+    function update( content ){
+        editor.setValue( content );
+        $('#demo-area .ctrl-run').trigger('click');
+    }
+
+    $(document).on('change', '.controls select', function(){
+        var $this = $(this);
+        var src = $this.val();
+        var idx = $.inArray( $this.children('[value="'+src+'"]')[0], $this.children() );
+        window.location.hash = '#demo-'+idx;
+
+        if ( src !== 'intro' ){
+            $.get(src, function( content ){
+                update( content );
+            }, 'text');
+        } else {
+            update( introText );
+        }
+    });
+
+    idx = window.location.hash.replace('#demo-', '')|0;
+    if ( idx ){
+        $changer.val( $changer.children().eq(idx).val() )
+            .trigger('change')
+            ;
+    }
+});
+</script>

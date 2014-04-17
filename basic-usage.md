@@ -81,17 +81,16 @@ but usually this will be called inside an animation loop, using
 `window.requestAnimationFrame` or similar.
 
 A helper is provided with PhysicsJS to facilitate animation loops:
-`Physics.util.ticker`. The ticker methods will use `requestAnimationFrame`
-when available and fallback to `setTimeout` when necessary. To use the ticker,
-just `subscribe()` to it, and call the `start()` method.
+`Physics.util.ticker`. The ticker methods will use `requestAnimationFrame` so
+**you will need to [polyfill](https://gist.github.com/paulirish/1579671) it if necessary**. To use the ticker,
+just call `.on()` to subscribe to the event, and call the `start()` method.
 
 Example:
 
 {% highlight js %}
 // subscribe to the ticker
-Physics.util.ticker.subscribe(function(time, dt){
+Physics.util.ticker.on(function( time ){
     world.step( time );
-    // Note: FPS ~= 1/dt
 });
 // start the ticker
 Physics.util.ticker.start();
@@ -218,7 +217,7 @@ var renderer = Physics.renderer('canvas', {
 });
 // add the renderer
 world.add( renderer );
-world.subscribe('step', function(){
+world.on('step', function(){
     // Note: equivalent to just calling world.render() after world.step()
     world.render();
 });

@@ -7,19 +7,19 @@ title: 'Tutorial: Creating a scene of interacting polygons | PhysicsJS'
 
 So... you want to see how polygons collide? Well then, let's get started.
 First set up PhysicsJS as described in the [Installation][installation] and [Basic Usage][basic-usage] documentation.
-You can use this [jsFiddle as a boilerplate](http://jsfiddle.net/wellcaffeinated/kgEZm/) to follow along with.
+You can use the [editor on the home page](http://jsfiddle.net/wellcaffeinated/kgEZm/) to follow along with.
 
 Let's first set up the scene. All of our javascript can go inside the PhysicsJS world initializer.
 
 {% highlight js %}
 Physics(function( world ){
-   // code here... 
+   // code here...
 });
 {% endhighlight %}
 
 So all further javascript in this tutorial should be placed there.
 
-We need to add a canvas element for the renderer.
+We need to add a canvas element for the renderer. (If you're using the homepage editor this is already done)
 So we'll add this to the html body:
 
 {% highlight html %}
@@ -44,15 +44,11 @@ We'll use the `convex-polygon` extension to create a square with edge 50px in le
 (remember to `require` the `convex-polygon` extension if necessary).
 
 {% highlight js %}
-var square = Physics.body('convex-polygon', {
+var square = Physics.body('rectangle', {
     x: 250,
     y: 250,
-    vertices: [
-        {x: 0, y: 50},
-        {x: 50, y: 50},
-        {x: 50, y: 0},
-        {x: 0, y: 0}
-    ]
+    width: 50,
+    height: 50
 });
 world.add( square );
 world.render();
@@ -66,7 +62,7 @@ Let's do that:
 
 {% highlight js %}
 // subscribe to ticker to advance the simulation
-Physics.util.ticker.subscribe(function( time, dt ){
+Physics.util.ticker.on(function( time, dt ){
     world.step( time );
 });
 
@@ -78,7 +74,7 @@ We'll also need to subscribe to the world's "step" event and call `world.render(
 the view every frame.
 
 {% highlight js %}
-world.subscribe('step', function(){
+world.on('step', function(){
     world.render();
 });
 {% endhighlight %}
@@ -88,16 +84,12 @@ Aaaaand... nothing happened. That's because our square has a velocity of (0, 0).
 Let's give it a small velocity in the x direction:
 
 {% highlight js %}
-var square = Physics.body('convex-polygon', {
+var square = Physics.body('rectangle', {
     x: 250,
     y: 250,
     vx: 0.01,
-    vertices: [
-        {x: 0, y: 50},
-        {x: 50, y: 50},
-        {x: 50, y: 0},
-        {x: 0, y: 0}
-    ]
+    width: 50,
+    height: 50
 });
 // ...
 {% endhighlight %}

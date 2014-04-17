@@ -1,17 +1,28 @@
 (function(){
-    var url = Array.prototype.filter.call(document.getElementsByTagName('script'), function( el ){
-        return el.src.indexOf('physicsjs') > -1;
-    })[0].src;
+    var editors = window.CodeEditors = [];
     var htmlContent = [
         '<!doctype html>'
         ,'<html>'
           ,'<head>'
-          ,'<style>body { background: #171717; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
+          ,'<style>body { background: #171717; } .pjs-meta { color: #fff; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
           ,'</head>'
           ,'<body>'
-          ,'<script src="'+url+'"></script>'
+          ,'<script src="'+getScriptUrlLike('raf')+'"></script>'
+          ,'<script src="'+getScriptUrlLike('physicsjs')+'"></script>'
 
     ].join( '\n' );
+
+    function getScriptUrlLike( word ){
+        var el = Array.prototype.filter.call(document.getElementsByTagName('script'), function( el ){
+            return el.src.indexOf('physicsjs') > -1;
+        });
+
+        if ( el[0] ){
+            return el[0].src;
+        }
+
+        return '';
+    }
 
     var els = document.getElementsByClassName('demo');
 
@@ -22,10 +33,11 @@
         if (!el){ return; }
 
         el.parentNode.insertBefore( wrapper, el );
-        var thecode = el.innerHTML;
+        var thecode = el.childNodes[0].nodeValue;
         el.parentNode.removeChild( el );
 
         var fold = el.dataset && el.dataset.fold;
+        var codeOn = el.dataset && el.dataset.code !== 'off';
 
         // buttons
         var buttons = document.createElement('div');
@@ -64,6 +76,8 @@
             tabSize: 4,
             indentUnit: 4
         });
+
+        editors.push( editor );
 
         if ( fold ){
             fold = fold.split(',');
@@ -112,6 +126,10 @@
             if ( e ){
                 e.preventDefault();
             }
+        }
+
+        if ( !codeOn ){
+            hideCode();
         }
 
         hideBtn.addEventListener('click', hideCode);

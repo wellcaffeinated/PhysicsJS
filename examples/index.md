@@ -13,6 +13,7 @@ title: PhysicsJS Examples
 ## From the community
 
 * [Colors](http://physics.meteor.com/) - a game by Jussi Rytkönen
+* [Asteroid Mining Game](http://killfall.github.io/asteroid-prospector/)
 
 <script>
 if (window.location.hash.match(/demo-/)){
