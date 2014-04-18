@@ -382,7 +382,32 @@ for usage documentation.</p>
 <li>minVel: The minimum velocity clamp <a href="#Vectorish">Vectorish</a> (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body</li>
 <li>maxVel: The maximum velocity clamp <a href="#Vectorish">Vectorish</a> (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body</li>
 </ul>
-</div><p class="file">source: <a href="https://github.com/wellcaffeinated/PhysicsJS/tree/master/src/behaviors/interactive.js#L16">src/behaviors/interactive.js : 16</a></p></article><article class="doc class subclass"><header><h4 class="title"><a id="NewtonianBehavior" href="#NewtonianBehavior"><span class="pfx"></span><span class="name">NewtonianBehavior</span></a><div class="flags"><span class="superclass">extends:Behavior</span></div></h4></header><div class="desc"><p><code>Physics.behavior(&#39;newtonian&#39;)</code>.</p>
+<p>The behavior also triggers the following events on the world:</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="c1">// a body has been grabbed</span>
+<span class="nx">world</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;interact:grab&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">){</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">x</span><span class="p">;</span> <span class="c1">// the x coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">y</span><span class="p">;</span> <span class="c1">// the y coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span> <span class="c1">// the body that was grabbed</span>
+<span class="p">});</span>
+<span class="c1">// no body was grabbed, but the renderer area was clicked, or touched</span>
+<span class="nx">world</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;interact:poke&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">){</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">x</span><span class="p">;</span> <span class="c1">// the x coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">y</span><span class="p">;</span> <span class="c1">// the y coord</span>
+<span class="p">});</span>
+<span class="nx">world</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;interact:move&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">){</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">x</span><span class="p">;</span> <span class="c1">// the x coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">y</span><span class="p">;</span> <span class="c1">// the y coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span> <span class="c1">// the body that was grabbed (if applicable)</span>
+<span class="p">});</span>
+<span class="c1">// when the viewport is released (mouseup, touchend)</span>
+<span class="nx">world</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;interact:release&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">){</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">x</span><span class="p">;</span> <span class="c1">// the x coord</span>
+    <span class="nx">data</span><span class="p">.</span><span class="nx">y</span><span class="p">;</span> <span class="c1">// the y coord</span>
+<span class="p">});</span>
+</pre></div>
+
+</code></pre>
+</div><p class="file">source: <a href="https://github.com/wellcaffeinated/PhysicsJS/tree/master/src/behaviors/interactive.js#L41">src/behaviors/interactive.js : 41</a></p></article><article class="doc class subclass"><header><h4 class="title"><a id="NewtonianBehavior" href="#NewtonianBehavior"><span class="pfx"></span><span class="name">NewtonianBehavior</span></a><div class="flags"><span class="superclass">extends:Behavior</span></div></h4></header><div class="desc"><p><code>Physics.behavior(&#39;newtonian&#39;)</code>.</p>
 </div><div class="desc long"><p>Newtonian attraction between bodies (inverse square law).</p>
 <p>Additional options include:</p>
 <ul>

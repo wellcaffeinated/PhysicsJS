@@ -27,7 +27,7 @@
 
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
-            // if (left handed coordinate system) 
+            // if (left handed coordinate system)
             // A cross AB < 0 then get perpendicular counterclockwise
             return dir.perp( (ptA.cross( dir ) > 0) );
         }
@@ -36,7 +36,7 @@
     /** hide
      * getClosestPoints( simplex ) -> Object
      * - simplex (Array): The simplex
-     * 
+     *
      * Figure out the closest points on the original objects
      * from the last two entries of the simplex
      **/
@@ -45,7 +45,7 @@
         // see http://www.codezealot.org/archives/153
         // for algorithm details
 
-        // we know that the position of the last point 
+        // we know that the position of the last point
         // is very close to the previous. (by nature of the distance test)
         // this won't give great results for the closest
         // points algorithm, so let's use the previous two
@@ -100,14 +100,14 @@
 
     /**
      * Physics.gjk( support(axis)[, seed, checkOverlapOnly, debugFn] ) -> Object
-     * - support (Function): The support function. Must return an object containing 
+     * - support (Function): The support function. Must return an object containing
        the witness points (`.a`, `.b`) and the support point (`.pt`).
-       Recommended to use simple objects. 
-       Eg: 
+       Recommended to use simple objects.
+       Eg:
        ```javascript
        return {
-            a: { x: 1, y:2 }, 
-            b: { x: 3, y: 4 }, 
+            a: { x: 1, y:2 },
+            b: { x: 3, y: 4 },
             pt: { x: 2, y: 2 }
        };
        ```
@@ -119,7 +119,7 @@
      * Implementation agnostic GJK function.
      *
      * Gilbert–Johnson–Keerthi object collison algorithm
-     * For general information about GJK see: 
+     * For general information about GJK see:
      * - [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)
      * - [mollyrocket.com/849](http://mollyrocket.com/849)
      *
@@ -180,7 +180,7 @@
                 overlap = true;
                 break;
             }
-            
+
             // check if the last point we added actually passed the origin
             if ( !noOverlap && last.dot( dir ) <= 0.0 ) {
                 // if the point added last was not past the origin in the direction of d
@@ -225,11 +225,11 @@
                 // the norm is the same as distance(origin, a)
                 // use norm squared to avoid the sqrt operations
                 if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
-                    
+
                     simplex.shift();
 
                 } else {
-                    
+
                     simplex.splice(1, 1);
                 }
 
@@ -252,7 +252,7 @@
                 // normals and checking dot products. Since we're in 2D
                 // we can be clever...
                 sign = ab.cross( ac ) > 0;
-                
+
                 if ( sign ^ (last.cross( ab ) > 0) ){
 
                     // ok... so there's an XOR here... don't freak out
@@ -269,27 +269,27 @@
                     // then we know which way to look...
                     // morph the ab vector into its outward facing normal
                     ab.perp( !sign );
-                    
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                     // if we get to this if, then it means we can continue to look along
                     // the other outward normal direction (ACperp)
                     // if we don't see the origin... then we must have it enclosed
                 } else if ( sign ^ (ac.cross( last ) > 0) ){
-                    // then the origin is along the outward facing normal 
+                    // then the origin is along the outward facing normal
                     // of AC; (ACperp)
 
                     // point B is dead to us now...
                     simplex.splice(1, 1);
 
                     ac.perp( sign );
-                    
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                 } else {

@@ -3,7 +3,7 @@
  * - arr (Array): The array to search
  * - value (Mixed): The value to find
  * + (Number): The index of `value` in the array OR `-1` if not found
- * 
+ *
  * Fast indexOf implementation.
  **/
 Physics.util.indexOf = function indexOf(arr, value) {
@@ -26,7 +26,7 @@ Physics.util.indexOf = function indexOf(arr, value) {
  * - def (Object): Default options to set
  * - target (Object): Where to copy the options to. Defaults to the returned function.
  * + (Function): The options function
- * 
+ *
  * Options helper to keep track of options. Call it with a config object. Access options directly on the function.
  *
  * Example:
@@ -83,3 +83,28 @@ Physics.util.options = function( def, target ){
     return fn;
 };
 
+/**
+ * Physics.util.pairHash( id1, id2 ) -> Number
+ * - id1 (Number): The id of the first thing
+ * - id2 (Number): The id of the second thing
+ * + (Number): A unique numeric hash (valid for values < 2^16)
+ *
+ * Generate a unique numeric hash from two input IDs.
+ *
+ * Useful for speedy indexing of pairs.
+ **/
+Physics.util.pairHash = function( id1, id2 ){
+    id1 = id1|0;
+    id2 = id2|0;
+
+    if ( (id1|0) === (id2|0) ){
+
+        return -1;
+    }
+
+    // valid for values < 2^16
+    return ((id1|0) > (id2|0) ?
+        (id1 << 16) | (id2 & 0xFFFF) :
+        (id2 << 16) | (id1 & 0xFFFF))|0
+        ;
+};

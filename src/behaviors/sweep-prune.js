@@ -25,21 +25,7 @@ Physics.behavior('sweep-prune', function( parent ){
     // change to "3" to get it to work in 3D
     var maxDof = 2;
 
-    function pairHash( id1, id2 ){
-        id1 = id1|0;
-        id2 = id2|0;
-
-        if ( (id1|0) === (id2|0) ){
-
-            return -1;
-        }
-
-        // valid for values < 2^16
-        return ((id1|0) > (id2|0) ?
-            (id1 << 16) | (id2 & 0xFFFF) :
-            (id2 << 16) | (id1 & 0xFFFF))|0
-            ;
-    }
+    var pairHash = Physics.util.pairHash;
 
     return {
 

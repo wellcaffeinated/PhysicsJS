@@ -16,6 +16,9 @@
         // what is the view object (mixed) that should be used when rendering?
         view: null
     };
+
+    var uidGen = 1;
+
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
      * - name (String): The name of the body to create
@@ -132,6 +135,13 @@
             if (this.mass === 0){
                 throw "Error: Bodies must have non-zero mass";
             }
+
+            /**
+             * Body#uid = Number
+             *
+             * The unique id for the body
+             **/
+            this.uid = uidGen++;
 
             /** related to: Physics.geometry
              * Body#geometry
