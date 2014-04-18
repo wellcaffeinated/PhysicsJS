@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Installation | PhysicsJS
+title: Getting Started | PhysicsJS
 ---
 
-# Installation
+# Getting Started
 
 You can use PhysicsJS as an [AMD module](http://requirejs.org/docs/whyamd.html) (requireJS), a CommonJS module, or a regular browser global.
 
