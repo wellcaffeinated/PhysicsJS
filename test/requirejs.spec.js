@@ -38,14 +38,20 @@ describe("AMD Loading", function() {
                 })
                 ;
 
+            expect( world._dt ).toEqual( 0.1 );
+
             world.add( body );
             world.step( 1 ); // sets the initial time
+            expect( world._animTime ).toEqual( 1 );
+
+            expect( body.state.pos.get(0) ).toBeCloseTo( 0, 2 );
+
             world.step( 2 ); // actually steps once
 
-            expect( body.state.pos.get(0) ).toBeCloseTo( 2, 2 );
+            expect( body.state.pos.get(0) ).toBeCloseTo( 2 * (world._time), 2 );
 
             body.accelerate( Phys.vector( 0, 1 ) );
-            
+
             world.step( 2.1 );
 
             expect( body.state.pos.get(1) ).toBeCloseTo( .01, 2 );
@@ -80,7 +86,7 @@ describe("AMD Loading", function() {
                 expect( args.length ).toBe( modules.length );
 
                 for ( var i = 0, l = args.length; i < l; ++i ){
-                    
+
                     expect( args[ i ] ).toBeDefined();
                 }
 

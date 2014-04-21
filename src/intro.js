@@ -1,6 +1,6 @@
 (function (root, factory) {
     if (typeof exports === 'object') {
-        // Node. 
+        // Node.
         module.exports = factory.call(root);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -41,14 +41,13 @@ var Physics = function Physics(){
 
 /**
  * Physics.util
- * 
- * Namespace for utility functions. It contains a subset of
- * the [lodash API](http://lodash.com/docs).
+ *
+ * Namespace for utility functions.
  **/
 Physics.util = {};
 
 /**
  * == Special ==
  *
- * This section contains miscellaneous functionality. 
+ * This section contains miscellaneous functionality.
  **/

@@ -29,7 +29,7 @@
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 160,
+        timestep: 1000.0 / 120,
         // maximum number of iterations per step
         maxIPF: 16,
         webworker: false, // NOT YET IMPLEMENTED
@@ -56,7 +56,7 @@
      * ```javascript
      * {
      *     // default timestep
-     *     timestep: 1000.0 / 160,
+     *     timestep: 1000.0 / 120,
      *     // maximum number of iterations per step
      *     maxIPF: 16,
      *     // default integrator
@@ -141,13 +141,15 @@
             this._integrator = null;
             this._renderer = null;
             this._paused = false;
+            this._warp = 1;
+            this._time = 0;
 
             // set options
             this.options = Physics.util.options( defaults );
             this.options.onChange(function( opts ){
 
                 // set timestep
-                self.timeStep( opts.timestep );
+                self.timestep( opts.timestep );
             });
             this.options( cfg );
 
@@ -400,14 +402,14 @@
         },
 
         /** chainable
-         * Physics.world#timeStep( [dt] ) -> Number|this
+         * Physics.world#timestep( [dt] ) -> Number|this
          * - dt (Number): The time step for the world
          * + (Number): The currently set time step if `dt` not specified
          * + (this): for chaining if `dt` specified
          *
-         * Get or Set the time step
+         * Get or Set the timestep
          **/
-        timeStep: function( dt ){
+        timestep: function( dt ){
 
             if ( dt ){
 
@@ -605,46 +607,85 @@
         },
 
         /** chainable
-         * Physics.world#step( now ) -> this
-         * - now (Number): now Current unix timestamp
+         * Physics.world#step( [now] ) -> this
+         * - now (Number): Current unix timestamp
          *
-         * Do a single step.
+         * Step the world up to specified time or do one step if no time is specified.
          **/
         step: function( now ){
 
-            if ( this._paused ){
-
-                this._time = false;
-                return this;
-            }
-
-            var time = this._time || (this._time = now)
-                ,diff = now - time
-                ,stats = this._stats
+            var time = this._time
                 ,dt = this._dt
+                ,animDiff
+                ,worldDiff
+                ,target
+                ,stats = this._stats
                 ;
 
-            if ( !diff ){
+            // if it's paused, don't step
+            // or if it's the first step...
+            if ( this._paused || this._animTime === undefined ){
+                this._animTime = now || this._animTime || Physics.util.ticker.now();
+
+                if ( !this._paused ){
+                    this.emit('step', stats);
+                }
                 return this;
             }
 
-            // limit number of iterations in each step
-            if ( diff > this._maxJump ){
+            // new time is specified, or just one iteration ahead
+            now = now || (this._animTime + dt / this._warp);
+            // the time between this step and the last
+            animDiff = now - this._animTime;
+            // the "world" time between this step and the last. Adjusts for warp
+            worldDiff = Math.min(animDiff * this._warp, this._maxJump);
 
-                this._time = now - this._maxJump;
-                diff = this._maxJump;
+            // the target time for the world time to step to
+            target = time + worldDiff;
+
+            if ( worldDiff >= dt ){
+
+                while ( time < target ){
+                    // increment world time
+                    time += dt;
+                    // record the world time
+                    this._time = time;
+                    // iterate by one timestep
+                    this.iterate( dt );
+                }
+
+                // record the animation time
+                this._animTime = now;
             }
 
             // set some stats
-            stats.fps = 1000/diff;
-            stats.ipf = Math.ceil(diff/this._dt);
+            stats.fps = 1000 / animDiff; // frames per second
+            stats.ipf = Math.ceil(worldDiff / dt); // iterations per frame
+            stats.remainder = time - target;
 
-            while ( this._time < now ){
-                this._time += dt;
-                this.iterate( dt );
+            this.emit('step', stats);
+            return this;
+        },
+
+        /**
+         * Physics.world#warp( [warp] ) -> this|Number
+         * - warp (Number): The time warp factor
+         *
+         * Speed up or slow down the iteration by this factor.
+         *
+         * Example:
+         * ```javascript
+         * // slow motion... 10x slower
+         * world.warp( 0.01 );
+         * ```
+         **/
+        warp: function( warp ){
+            if ( warp === undefined ){
+                return this._warp;
             }
 
-            this.emit('step');
+            this._warp = warp || 1;
+
             return this;
         },
 

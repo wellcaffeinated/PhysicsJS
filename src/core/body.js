@@ -292,24 +292,18 @@
                 ;
 
             // if no point at which to apply the force... apply at center of mass
-            if ( !p ){
-
-                this.accelerate( r.clone( force ).mult( 1/this.mass ) );
-
-            } else if ( this.moi ) {
-
+            if ( p && this.moi ){
+                
                 // apply torques
                 state = this.state;
                 r.clone( p );
                 // r cross F
                 this.state.angular.acc -= r.cross( force ) / this.moi;
-                // projection of force towards center of mass
-                this.applyForce( force );
-
             }
 
-            scratch.done();
+            this.accelerate( r.clone( force ).mult( 1/this.mass ) );
 
+            scratch.done();
             return this;
         },
 
