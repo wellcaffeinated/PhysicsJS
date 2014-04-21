@@ -3,14 +3,14 @@
  * - type (String): The name of the factory you are creating
  * - protoDef (Object): The top-level prototype
  * + (Function): The factory function
- * 
+ *
  * Facilitates creation of decorator factory functions.
  *
  * See the [[factory]] definition for the factory signatures.
  * [For full documentation and examples, please visit the wiki](https://github.com/wellcaffeinated/PhysicsJS/wiki/Fundamentals#the-factory-pattern).
- * 
+ *
  * Example:
- * 
+ *
  * ```javascript
  * var factory = Physics.util.decorator('factory', {
  *      // prototype methods...
@@ -29,7 +29,7 @@
  *          }
  *      };
  * });
- * 
+ *
  * // instantiate
  * var options = { key: 'val' };
  * var instance = factory( 'name', options );
@@ -41,24 +41,22 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,proto = {}
         ;
 
-    // transform callback that only extends functions
-    var transformFn = function transformFn( to, val, key, from ){
-
-        var desc = Object.getOwnPropertyDescriptor( from, key );
-        if ( desc.get || desc.set ){
-
-            Object.defineProperty( to, key, desc );
-
-        } else if ( Physics.util.isFunction( desc.value ) ){
-
-            to[ key ] = desc.value;
-        }
-    };
-
     // extend that supports getters/setters
+    // only extends functions
     var extend = function extend( to, from ){
+        var desc, key;
+        for ( key in from ){
+            desc = Object.getOwnPropertyDescriptor( from, key );
+            if ( desc.get || desc.set ){
 
-        return Physics.util.transform( from, transformFn, to );
+                Object.defineProperty( to, key, desc );
+
+            } else if ( Physics.util.isFunction( desc.value ) ){
+
+                to[ key ] = desc.value;
+            }
+        }
+        return to;
     };
 
     // http://ejohn.org/blog/objectgetprototypeof/
@@ -93,7 +91,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      * - key (String): The method name
      * - val (Function): The function to assign
      * - obj (Object): object with many `key: fn` pairs
-     * 
+     *
      * Apply mixin methods to decorator base.
      */
     var mixin = function mixin( key, val ){
@@ -120,9 +118,9 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      * -  parentName (String): The name of parent class to extend
      * -  decorator  (Function): The decorator function that should define and return methods to extend (decorate) the base class
      * -  cfg        (Object): The configuration to pass to the class initializer
-     * 
+     *
      * Factory function for definition and instantiation of subclasses.
-     * 
+     *
      * Use the first signature (once) to define it first.
      * If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned.
      *
@@ -163,7 +161,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             if ( result ){
 
                 result.prototype = extend(result.prototype, decorator( getProto(result.prototype) ));
-                
+
             } else {
                 // newly defined
                 // store the new class
@@ -179,7 +177,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             result.prototype.type = type;
             result.prototype.name = name;
-            
+
         } else {
 
             cfg = decorator || {};

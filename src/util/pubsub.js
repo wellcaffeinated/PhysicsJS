@@ -1,5 +1,9 @@
 (function(){
 
+    function getPriority( val ){
+        return val._priority_;
+    }
+
     // register a new scratch object so we can reuse event data
     Physics.scratchpad.register('event', function(){ return {}; }, { useFactory: true });
 
@@ -70,7 +74,7 @@
 
             fn._priority_ = priority;
 
-            idx = Physics.util.sortedIndex( listeners, fn, '_priority_' );
+            idx = Physics.util.sortedIndex( listeners, fn, getPriority );
 
             listeners.splice( idx, 0, fn );
             return this;

@@ -37,7 +37,6 @@ module.exports = function(grunt) {
 
         sources : [
             'src/intro.js',
-            'lib/lodash.js',
             'src/math/*.js',
 
             'src/util/noconflict.js',
@@ -313,46 +312,6 @@ module.exports = function(grunt) {
             },
             source : 'src/*/*.js'
         },
-        lodash: {
-            mixer: {
-                // output location
-                dest: 'lib/lodash.js',
-                options: {
-                    // modifiers for prepared builds
-                    // backbone, legacy, modern, mobile, strict, underscore
-                    modifier: 'modern',
-                    // modularize: true,
-                    // category: ['collections', 'functions'],
-                    exports: ['none'],
-                    iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
-                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'uniq', 'filter', 'find', 'each', 'random', 'defaults', 'extend', 'transform', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
-
-                    // minus: ['result', 'shuffle'],
-                    // plus: ['random', 'template'],
-                    // template: './*.jst',
-                    // settings: '{interpolate:/\\{\\{([\\s\\S]+?)\\}\\}/g}',
-                    // moduleId: 'underscore',
-                    // with or without the --
-                    // these are the only tested options,
-                    // as the others don't make sense to use here
-                    flags: [
-                        // '--stdout',
-                        // 'debug',
-                        '--minify',
-                        // 'source-map'
-                    ]//,
-                    // with or without the -
-                    // these are the only tested options,
-                    // as the others don't make sense to use here
-                    // shortFlags: [
-                    //   'c',
-                    //   '-d',
-                    //   'm',
-                    //   '-p'
-                    // ]
-                }
-            }
-        },
         docs: {
             api: {
                 dest: 'docs/',
@@ -369,7 +328,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-lodash');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -395,7 +353,7 @@ module.exports = function(grunt) {
     // Run `grunt watch` to create a dev build whenever a file is changed
 
     // create a build for development
-    grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
+    grunt.registerTask('dev', ['clean:dev', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
     grunt.registerTask('watchdev', ['clean:dev', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
     grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
@@ -403,7 +361,7 @@ module.exports = function(grunt) {
     grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);
 
     // create a distribution build
-    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
+    grunt.registerTask('dist', ['clean:dist', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);

@@ -17,7 +17,7 @@
      * - name (String): The name of the renderer to create
      * - options (Object): The configuration for that renderer ( depends on renderer ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // draw meta data (fps, steps, etc)
@@ -48,7 +48,7 @@
         /** internal
          * Renderer#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
@@ -89,7 +89,7 @@
          * Renderer#render( bodies, meta ) -> this
          * - bodies (Array): Array of bodies in the world (by reference!)
          * - meta (Object): meta information
-         * 
+         *
          * Render the world bodies and meta. Called by world.render()
          **/
         render: function( bodies, meta ){
@@ -115,7 +115,7 @@
             }
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
+
                 body = bodies[ i ];
                 view = body.view || ( body.view = this.createView(body.geometry, body.styles) );
 
@@ -132,7 +132,7 @@
          * - geometry (Geometry): geometry The geometry
          * - styles (Object|String): The styles configuration
          * + (Mixed): Whatever the renderer needs to render the body.
-         * 
+         *
          * Create a view for the specified geometry.
          *
          * The view is used to render the body. It is a cached version
@@ -156,7 +156,7 @@
         /**
          * Renderer#drawMeta( meta )
          * - meta (Object): The meta data
-         * 
+         *
          * Draw the meta data.
          *
          * The meta data will look like this:
@@ -171,7 +171,7 @@
          * Override this when creating renderers.
          **/
         drawMeta: function( meta ){
-            
+
             // example:
             // this.els.fps.innerHTML = meta.fps.toFixed(2);
             // this.els.steps.innerHTML = meta.steps;
@@ -182,7 +182,7 @@
          * Renderer#drawBody( body, view )
          * - body (Object): The body to draw
          * - view (Object): The view for the body
-         * 
+         *
          * Draw specified body using specified view.
          *
          * Override this when creating renderers.
@@ -195,7 +195,7 @@
             throw 'You must override the renderer.drawBody() method.';
         }
 
-        
+
     });
 
 }());
