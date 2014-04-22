@@ -133,13 +133,13 @@ Physics(function (world) {
     };
 
     // create three trees
-    Physics.util.each([
+    [
 
         [{ x: viewWidth / 2, y: viewHeight - 10 }, 6, 70, 0.92, (Math.PI/2)/3],
         [{ x: viewWidth / 2 + 250, y: viewHeight - 10 }, 5, 40, 0.9, (Math.PI/2)/3],
         [{ x: viewWidth / 2 - 250, y: viewHeight - 10 }, 3, 50, 0.95, (Math.PI/1)/5]
 
-    ], function( params ){
+    ].forEach(function( params ){
 
         var tree = generateTree.apply(this, params);
         world.add( tree );
@@ -253,6 +253,9 @@ Physics(function (world) {
         'interact:poke': function( pos ){
             attractor.position( pos );
             world.add( attractor );
+        }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
         }
         ,'interact:release': function(){
             world.remove( attractor );

@@ -55,18 +55,22 @@ Physics(function (world) {
         ,{ x: 0, y: 50 }
     ];
 
+    function random( min, max ){
+        return (Math.random() * (max-min) + min)|0
+    }
+
     function dropInBody(){
 
         var body;
 
-        switch ( Physics.util.random( 2 ) | 0 ){
+        switch ( random( 0, 3 ) ){
 
                 // add a circle
             case 0:
                 body = Physics.body('circle', {
                     x: viewWidth / 2
                     ,y: 50
-                    ,vx: Physics.util.random(-5, 5)/100
+                    ,vx: random(-5, 5)/100
                     ,radius: 40
                     ,restitution: 0.9
                     ,styles: {
@@ -83,7 +87,7 @@ Physics(function (world) {
                     ,height: 50
                     ,x: viewWidth / 2
                     ,y: 50
-                    ,vx: Physics.util.random(-5, 5)/100
+                    ,vx: random(-5, 5)/100
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: '#d33682'
@@ -98,8 +102,8 @@ Physics(function (world) {
                     vertices: pent
                     ,x: viewWidth / 2
                     ,y: 50
-                    ,vx: Physics.util.random(-5, 5)/100
-                    ,angle: Physics.util.random( 2 * Math.PI )
+                    ,vx: random(-5, 5)/100
+                    ,angle: random( 0, 2 * Math.PI )
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: '#859900'
@@ -128,6 +132,9 @@ Physics(function (world) {
         'interact:poke': function( pos ){
             attractor.position( pos );
             world.add( attractor );
+        }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
         }
         ,'interact:release': function(){
             world.remove( attractor );

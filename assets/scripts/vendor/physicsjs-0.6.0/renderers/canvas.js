@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v1.0.0-rc1 - 2014-04-15
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -645,7 +645,7 @@
                 } else if (name === 'convex-polygon'){
     
                     this.drawPolygon(geometry.vertices, styles, hiddenCtx);
-                    
+    
                 } else if (name === 'rectangle'){
     
                     this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
@@ -679,15 +679,25 @@
             drawBody: function( body, view, ctx, offset ){
     
                 var pos = body.state.pos
+                    ,v = body.state.vel
+                    ,t = this._interpolateTime || 0
+                    ,x
+                    ,y
+                    ,ang
                     ,aabb
                     ;
     
                 offset = offset || this.options.offset;
                 ctx = ctx || this.ctx;
     
+                // interpolate positions
+                x = pos.x + offset.x - v.x * t;
+                y = pos.y + offset.y - v.y * t;
+                ang = body.state.angular.pos - body.state.angular.vel * t;
+    
                 ctx.save();
-                ctx.translate(pos.x + offset.x, pos.y + offset.y);
-                ctx.rotate(body.state.angular.pos);
+                ctx.translate( x, y );
+                ctx.rotate( ang );
                 ctx.drawImage(view, -view.width/2, -view.height/2);
                 ctx.restore();
     
@@ -722,6 +732,8 @@
                 if ( this.options.meta ) {
                     this.drawMeta( meta );
                 }
+    
+                this._interpolateTime = meta.interpolateTime;
     
                 for ( var id in this._layers ){
     

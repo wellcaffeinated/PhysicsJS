@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v1.0.0-rc1 - 2014-04-15
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -12,7 +12,7 @@
 
 (function (root, factory) {
     if (typeof exports === 'object') {
-        // Node. 
+        // Node.
         module.exports = factory.call(root);
     } else if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -53,49 +53,17 @@ var Physics = function Physics(){
 
 /**
  * Physics.util
- * 
- * Namespace for utility functions. It contains a subset of
- * the [lodash API](http://lodash.com/docs).
+ *
+ * Namespace for utility functions.
  **/
 Physics.util = {};
 
 /**
  * == Special ==
  *
- * This section contains miscellaneous functionality. 
+ * This section contains miscellaneous functionality.
  **/
 
-
-// ---
-// inside: lib/lodash.js
-
-/**
- * @license
- * Lo-Dash 2.2.1 (Custom Build) lodash.com/license | Underscore.js 1.5.2 underscorejs.org/LICENSE
- * Build: `lodash modern exports="none" iife="(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));" include="isObject,isFunction,isArray,isPlainObject,uniqueId,uniq,filter,find,each,random,defaults,extend,transform,clone,throttle,bind,sortedIndex,shuffle" --minify --output lib/lodash.js`
- */
-;(function(H){function O(a,b,c){c=(c||0)-1;for(var d=a?a.length:0;++c<d;)if(a[c]===b)return c;return-1}function Da(a,b){var c=typeof b;a=a.l;if("boolean"==c||null==b)return a[b]?0:-1;"number"!=c&&"string"!=c&&(c="object");var d="number"==c?b:na+b;a=(a=a[c])&&a[d];return"object"==c?a&&-1<O(a,b)?0:-1:a?0:-1}function Ea(a){var b=this.l,c=typeof a;if("boolean"==c||null==a)b[a]=!0;else{"number"!=c&&"string"!=c&&(c="object");var d="number"==c?a:na+a,b=b[c]||(b[c]={});"object"==c?(b[d]||(b[d]=[])).push(a):
-b[d]=!0}}function I(){return ba.pop()||[]}function oa(){return ca.pop()||{k:null,l:null,"false":!1,"null":!1,number:null,object:null,push:null,string:null,"true":!1,undefined:!1}}function P(){}function z(a){a.length=0;ba.length<pa&&ba.push(a)}function qa(a){var b=a.l;b&&qa(b);a.k=a.l=a.object=a.number=a.string=null;ca.length<pa&&ca.push(a)}function Fa(a,b,c){b||(b=0);typeof c=="undefined"&&(c=a?a.length:0);var d=-1;c=c-b||0;for(var e=Array(0>c?0:c);++d<c;)e[d]=a[b+d];return e}function f(){}function ra(a,
-b,c,d,e){if(c){var g=c(a);if(typeof g!="undefined")return g}if(t(a)){var h=A.call(a);if(!q[h])return a;var l=u[h];switch(h){case Q:case R:return new l(+a);case S:case T:return new l(a);case U:return g=l(a.source,Ga.exec(a)),g.lastIndex=a.lastIndex,g}}else return a;h=da(a);if(b){var k=!d;d||(d=I());e||(e=I());for(var p=d.length;p--;)if(d[p]==a)return e[p];g=h?l(a.length):{}}else g=h?Fa(a):ea({},a);h&&(v.call(a,"index")&&(g.index=a.index),v.call(a,"input")&&(g.input=a.input));if(!b)return g;d.push(a);
-e.push(g);(h?J:F)(a,function(a,h){g[h]=ra(a,b,c,d,e)});k&&(z(d),z(e));return g}function B(a,b,c){if(typeof a!="function")return fa;if(typeof b=="undefined")return a;var d=a.__bindData__||x.funcNames&&!a.name;if(typeof d=="undefined"){var e=ga&&Ha.call(a);x.funcNames||!e||Ia.test(e)||(d=!0);if(x.funcNames||!d)d=!x.funcDecomp||ga.test(e),sa(a,d)}if(true!==d&&d&&d[1]&1)return a;switch(c){case 1:return function(c){return a.call(b,c)};case 2:return function(c,d){return a.call(b,c,d)};case 3:return function(c,
-d,e){return a.call(b,c,d,e)};case 4:return function(c,d,e,k){return a.call(b,c,d,e,k)}}return ta(a,b)}function K(a,b,c,d,e,g){if(c){var h=c(a,b);if(typeof h!="undefined")return!!h}if(a===b)return 0!==a||1/a==1/b;if(a===a&&!(a&&n[typeof a]||b&&n[typeof b]))return!1;if(null==a||null==b)return a===b;var l=A.call(a),k=A.call(b);l==ha&&(l=C);k==ha&&(k=C);if(l!=k)return!1;switch(l){case Q:case R:return+a==+b;case S:return a!=+a?b!=+b:0==a?1/a==1/b:a==+b;case U:case T:return a==String(b)}k=l==V;if(!k){if(v.call(a,
-"__wrapped__")||v.call(b,"__wrapped__"))return K(a.__wrapped__||a,b.__wrapped__||b,c,d,e,g);if(l!=C)return!1;var l=a.constructor,p=b.constructor;if(l!=p&&!(D(l)&&l instanceof l&&D(p)&&p instanceof p))return!1}p=!e;e||(e=I());g||(g=I());for(l=e.length;l--;)if(e[l]==a)return g[l]==b;var f=0,h=!0;e.push(a);g.push(b);if(k){l=a.length;f=b.length;h=f==a.length;if(!h&&!d)return h;for(;f--;)if(k=l,p=b[f],d)for(;k--&&!(h=K(a[k],p,c,d,e,g)););else if(!(h=K(a[f],p,c,d,e,g)))break;return h}W(b,function(b,k,l){if(v.call(l,
-k))return f++,h=v.call(a,k)&&K(a[k],b,c,d,e,g)});h&&!d&&W(a,function(a,b,c){if(v.call(c,b))return h=-1<--f});p&&(z(e),z(g));return h}function X(a,b,c,d,e,g){var h=b&1,l=b&2,k=b&4,f=b&8,s=b&16,r=b&32,Ja=a;if(!l&&!D(a))throw new TypeError;s&&!c.length&&(b&=-17,s=c=!1);r&&!d.length&&(b&=-33,r=d=!1);var m=a&&a.__bindData__;if(m)return!h||m[1]&1||(m[4]=e),!h&&m[1]&1&&(b|=8),!k||m[1]&4||(m[5]=g),s&&Y.apply(m[2]||(m[2]=[]),c),r&&Y.apply(m[3]||(m[3]=[]),d),m[1]|=b,X.apply(null,m);if(!h||l||k||r||!(x.fastBind||
-y&&s))q=function(){var m=arguments,n=h?e:this;if(k||s||r)if(m=ia.call(m),s&&Ka.apply(m,c),r&&Y.apply(m,d),k&&m.length<g)return b|=16,X(a,f?b:b&-4,m,null,e,g);l&&(a=n[Ja]);return this instanceof q?(n=ja(a.prototype),m=a.apply(n,m),t(m)?m:n):a.apply(n,m)};else{if(s){var n=[e];Y.apply(n,c)}var q=s?y.apply(a,n):y.call(a,e)}sa(q,ia.call(arguments));return q}function ja(a){return t(a)?Z(a):{}}function La(a){var b,c;if(!a||A.call(a)!=C||(b=a.constructor,D(b)&&!(b instanceof b)))return!1;W(a,function(a,b){c=
-b});return typeof c=="undefined"||v.call(a,c)}function D(a){return typeof a=="function"}function t(a){return!(!a||!n[typeof a])}function ua(a,b,c){var d=[];b=f.createCallback(b,c,3);c=-1;var e=a?a.length:0;if(typeof e=="number")for(;++c<e;){var g=a[c];b(g,c,a)&&d.push(g)}else F(a,function(a,c,e){b(a,c,e)&&d.push(a)});return d}function ka(a,b,c){b=f.createCallback(b,c,3);c=-1;var d=a?a.length:0;if(typeof d=="number")for(;++c<d;){var e=a[c];if(b(e,c,a))return e}else{var g;F(a,function(a,c,d){if(b(a,c,
-d))return g=a,!1});return g}}function J(a,b,c){var d=-1,e=a?a.length:0;b=b&&typeof c=="undefined"?b:B(b,c,3);if(typeof e=="number")for(;++d<e&&false!==b(a[d],d,a););else F(a,b);return a}function va(a,b,c){if(typeof c=="number"){var d=a?a.length:0;c=0>c?la(0,d+c):c||0}else if(c)return c=wa(a,b),a[c]===b?c:-1;return O(a,b,c)}function wa(a,b,c,d){var e=0,g=a?a.length:e;c=c?f.createCallback(c,d,1):fa;for(b=c(b);e<g;)d=e+g>>>1,c(a[d])<b?e=d+1:g=d;return e}function xa(a,b,c,d){typeof b!="boolean"&&null!=b&&
-(c=(d=c)&&d[b]===a?null:b,b=!1);null!=c&&(c=f.createCallback(c,d,3));d=-1;var e;e=(e=f.indexOf)===va?O:e;var g=a?a.length:0,h=[],l=!b&&g>=Ma&&e===O,k=c||l?I():h;if(l){var p;p=k;var s=-1,r=p.length,n=p[0],m=p[r/2|0],q=p[r-1];if(n&&typeof n=="object"&&m&&typeof m=="object"&&q&&typeof q=="object")p=!1;else{n=oa();n["false"]=n["null"]=n["true"]=n.undefined=!1;m=oa();m.k=p;m.l=n;for(m.push=Ea;++s<r;)m.push(p[s]);p=m}p?(e=Da,k=p):(l=!1,k=c?k:(z(k),h))}for(;++d<g;)if(p=a[d],s=c?c(p,d,a):p,b?!d||k[k.length-
-1]!==s:0>e(k,s))(c||l)&&k.push(s),h.push(p);l?(z(k.k),qa(k)):c&&z(k);return h}function ta(a,b){return 2<arguments.length?X(a,17,ia.call(arguments,2),null,b):X(a,1,null,null,b)}function ya(a,b,c){var d,e,g,h,l,k,f,n=0,r=!1,q=!0;if(!D(a))throw new TypeError;b=la(0,b)||0;if(true===c)var m=!0,q=!1;else t(c)&&(m=c.leading,r="maxWait"in c&&(la(b,c.maxWait)||0),q="trailing"in c?c.trailing:q);var u=function(){var c=b-(G()-h);0>=c?(e&&clearTimeout(e),c=f,e=k=f=za,c&&(n=G(),g=a.apply(l,d))):k=setTimeout(u,c)},
-v=function(){k&&clearTimeout(k);e=k=f=za;if(q||r!==b)n=G(),g=a.apply(l,d)};return function(){d=arguments;h=G();l=this;f=q&&(k||!m);if(false===r)var c=m&&!k;else{e||m||(n=h);var t=r-(h-n);0>=t?(e&&(e=clearTimeout(e)),n=h,g=a.apply(l,d)):e||(e=setTimeout(v,t))}k||b===r||(k=setTimeout(u,b));c&&(g=a.apply(l,d));return g}}function fa(a){return a}function Aa(a,b,c){var d=null==a,e=null==b;null==c&&(typeof a=="boolean"&&e?(c=a,a=1):e||typeof b!="boolean"||(c=b,e=!0));d&&e&&(b=1);a=+a||0;e?(b=a,a=0):b=+b||0;
-d=Na();return c||a%1||b%1?Oa(a+d*(b-a+parseFloat("1e-"+((d+"").length-1))),b):a+Pa(d*(b-a+1))}var za,ba=[],ca=[],Qa=0,na=+new Date+"",Ma=75,pa=40,Ga=/\w*$/,Ia=/^function[ \n\r\t]+\w/,ga=/\bthis\b/,ha="[object Arguments]",V="[object Array]",Q="[object Boolean]",R="[object Date]",S="[object Number]",C="[object Object]",U="[object RegExp]",T="[object String]",q={"[object Function]":!1};q[ha]=q[V]=q[Q]=q[R]=q[S]=q[C]=q[U]=q[T]=!0;var $={leading:!1,maxWait:0,trailing:!1},Ba={configurable:!1,enumerable:!1,
-value:null,writable:!1},n={"boolean":!1,"function":!0,object:!0,number:!1,string:!1,undefined:!1};H=n[typeof H]&&H||this;var E=[],ma=Object.prototype,w=RegExp("^"+String(ma.valueOf).replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/valueOf|for [^\]]+/g,".+?")+"$"),Pa=Math.floor,Ha=Function.prototype.toString,L=w.test(L=Object.getPrototypeOf)&&L,v=ma.hasOwnProperty,G=w.test(G=Date.now)&&G||function(){return+new Date},Y=E.push,A=ma.toString,Ka=E.unshift,Ca=function(){try{var a={},b=w.test(b=Object.defineProperty)&&
-b,c=b(a,a,a)&&b}catch(d){}return c}(),y=w.test(y=A.bind)&&y,Z=w.test(Z=Object.create)&&Z,M=w.test(M=Array.isArray)&&M,aa=w.test(aa=Object.keys)&&aa,la=Math.max,Oa=Math.min,Na=Math.random,ia=E.slice,E=w.test(H.attachEvent),E=y&&!/\n|true/.test(y+E),u={};u[V]=Array;u[Q]=Boolean;u[R]=Date;u["[object Function]"]=Function;u[C]=Object;u[S]=Number;u[U]=RegExp;u[T]=String;var x=f.support={};x.fastBind=y&&!E;x.funcDecomp=!w.test(H.WinRTError)&&ga.test(function(){return this});x.funcNames=typeof Function.name=="string";
-Z||(ja=function(a){if(t(a)){P.prototype=a;var b=new P;P.prototype=null}return b||{}});var sa=Ca?function(a,b){Ba.value=b;Ca(a,"__bindData__",Ba)}:P,da=M||function(a){return a&&typeof a=="object"&&typeof a.length=="number"&&A.call(a)==V||!1},M=function(a){var b,c=[];if(!a||!n[typeof a])return c;for(b in a)v.call(a,b)&&c.push(b);return c},N=aa?function(a){return t(a)?aa(a):[]}:M,ea=function(a,b,c){var d,e=a,g=e;if(!e)return g;var h=arguments,l=0,k=typeof c=="number"?2:h.length;if(3<k&&"function"==typeof h[k-
-2])var f=B(h[--k-1],h[k--],2);else 2<k&&"function"==typeof h[k-1]&&(f=h[--k]);for(;++l<k;)if((e=h[l])&&n[typeof e])for(var q=-1,r=n[typeof e]&&N(e),t=r?r.length:0;++q<t;)d=r[q],g[d]=f?f(g[d],e[d]):e[d];return g},W=function(a,b,c){var d;if(!a||!n[typeof a])return a;b=b&&typeof c=="undefined"?b:B(b,c,3);for(d in a)if(false===b(a[d],d,a))break;return a},F=function(a,b,c){if(!a||!n[typeof a])return a;b=b&&typeof c=="undefined"?b:B(b,c,3);for(var d=-1,e=n[typeof a]&&N(a),g=e?e.length:0;++d<g&&(c=e[d],false!==
-b(a[c],c,a)););return a};f.assign=ea;f.bind=ta;f.createCallback=function(a,b,c){var d=typeof a;if(null==a||"function"==d)return B(a,b,c);if("object"!=d)return function(b){return b[a]};var e=N(a),g=e[0],h=a[g];return 1!=e.length||h!==h||t(h)?function(b){for(var c=e.length,d=!1;c--&&(d=K(b[e[c]],a[e[c]],null,!0)););return d}:function(a){a=a[g];return h===a&&(0!==h||1/h==1/a)}};f.debounce=ya;f.defaults=function(a,b,c){var d,e=a,g=e;if(!e)return g;for(var h=arguments,f=0,k=typeof c=="number"?2:h.length;++f<
-k;)if((e=h[f])&&n[typeof e])for(var p=-1,q=n[typeof e]&&N(e),r=q?q.length:0;++p<r;)d=q[p],"undefined"==typeof g[d]&&(g[d]=e[d]);return g};f.filter=ua;f.forEach=J;f.forIn=W;f.forOwn=F;f.keys=N;f.shuffle=function(a){var b=-1,c=a?a.length:0,d=Array(typeof c=="number"?c:0);J(a,function(a){var c=Aa(++b);d[b]=d[c];d[c]=a});return d};f.throttle=function(a,b,c){var d=!0,e=!0;if(!D(a))throw new TypeError;false===c?d=!1:t(c)&&(d="leading"in c?c.leading:d,e="trailing"in c?c.trailing:e);$.leading=d;$.maxWait=b;
-$.trailing=e;return ya(a,b,$)};f.transform=function(a,b,c,d){var e=da(a);b=B(b,d,4);null==c&&(e?c=[]:(d=a&&a.constructor,c=ja(d&&d.prototype)));(e?J:F)(a,function(a,d,e){return b(c,a,d,e)});return c};f.uniq=xa;f.each=J;f.extend=ea;f.select=ua;f.unique=xa;f.clone=function(a,b,c,d){typeof b!="boolean"&&null!=b&&(d=c,c=b,b=!1);return ra(a,b,typeof c=="function"&&B(c,d,1))};f.find=ka;f.identity=fa;f.indexOf=va;f.isArray=da;f.isFunction=D;f.isObject=t;f.isPlainObject=function(a){if(!a||A.call(a)!=C)return!1;
-var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La(a)};f.random=Aa;f.sortedIndex=wa;f.uniqueId=function(a){var b=++Qa;return String(null==a?"":a)+b};f.detect=ka;f.findWhere=ka;f.VERSION="2.2.1";f.extend(Physics.util,f)})(this);
 
 // ---
 // inside: src/math/aabb.js
@@ -269,7 +237,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
 
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
-            // if (left handed coordinate system) 
+            // if (left handed coordinate system)
             // A cross AB < 0 then get perpendicular counterclockwise
             return dir.perp( (ptA.cross( dir ) > 0) );
         }
@@ -278,7 +246,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
     /** hide
      * getClosestPoints( simplex ) -> Object
      * - simplex (Array): The simplex
-     * 
+     *
      * Figure out the closest points on the original objects
      * from the last two entries of the simplex
      **/
@@ -287,7 +255,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
         // see http://www.codezealot.org/archives/153
         // for algorithm details
 
-        // we know that the position of the last point 
+        // we know that the position of the last point
         // is very close to the previous. (by nature of the distance test)
         // this won't give great results for the closest
         // points algorithm, so let's use the previous two
@@ -342,14 +310,14 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
 
     /**
      * Physics.gjk( support(axis)[, seed, checkOverlapOnly, debugFn] ) -> Object
-     * - support (Function): The support function. Must return an object containing 
+     * - support (Function): The support function. Must return an object containing
        the witness points (`.a`, `.b`) and the support point (`.pt`).
-       Recommended to use simple objects. 
-       Eg: 
+       Recommended to use simple objects.
+       Eg:
        ```javascript
        return {
-            a: { x: 1, y:2 }, 
-            b: { x: 3, y: 4 }, 
+            a: { x: 1, y:2 },
+            b: { x: 3, y: 4 },
             pt: { x: 2, y: 2 }
        };
        ```
@@ -361,7 +329,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
      * Implementation agnostic GJK function.
      *
      * Gilbert–Johnson–Keerthi object collison algorithm
-     * For general information about GJK see: 
+     * For general information about GJK see:
      * - [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)
      * - [mollyrocket.com/849](http://mollyrocket.com/849)
      *
@@ -422,7 +390,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
                 overlap = true;
                 break;
             }
-            
+
             // check if the last point we added actually passed the origin
             if ( !noOverlap && last.dot( dir ) <= 0.0 ) {
                 // if the point added last was not past the origin in the direction of d
@@ -467,11 +435,11 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
                 // the norm is the same as distance(origin, a)
                 // use norm squared to avoid the sqrt operations
                 if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
-                    
+
                     simplex.shift();
 
                 } else {
-                    
+
                     simplex.splice(1, 1);
                 }
 
@@ -494,7 +462,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
                 // normals and checking dot products. Since we're in 2D
                 // we can be clever...
                 sign = ab.cross( ac ) > 0;
-                
+
                 if ( sign ^ (last.cross( ab ) > 0) ){
 
                     // ok... so there's an XOR here... don't freak out
@@ -511,27 +479,27 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
                     // then we know which way to look...
                     // morph the ab vector into its outward facing normal
                     ab.perp( !sign );
-                    
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                     // if we get to this if, then it means we can continue to look along
                     // the other outward normal direction (ACperp)
                     // if we don't see the origin... then we must have it enclosed
                 } else if ( sign ^ (ac.cross( last ) > 0) ){
-                    // then the origin is along the outward facing normal 
+                    // then the origin is along the outward facing normal
                     // of AC; (ACperp)
 
                     // point B is dead to us now...
                     simplex.splice(1, 1);
 
                     ac.perp( sign );
-                    
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                 } else {
@@ -577,6 +545,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
     Physics.gjk = gjk;
 
 })();
+
 
 // ---
 // inside: src/math/transform.js
@@ -1511,14 +1480,14 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
  * - type (String): The name of the factory you are creating
  * - protoDef (Object): The top-level prototype
  * + (Function): The factory function
- * 
+ *
  * Facilitates creation of decorator factory functions.
  *
  * See the [[factory]] definition for the factory signatures.
  * [For full documentation and examples, please visit the wiki](https://github.com/wellcaffeinated/PhysicsJS/wiki/Fundamentals#the-factory-pattern).
- * 
+ *
  * Example:
- * 
+ *
  * ```javascript
  * var factory = Physics.util.decorator('factory', {
  *      // prototype methods...
@@ -1537,7 +1506,7 @@ var b=a.valueOf,c=typeof b=="function"&&(c=L(b))&&L(c);return c?a==c||L(a)==c:La
  *          }
  *      };
  * });
- * 
+ *
  * // instantiate
  * var options = { key: 'val' };
  * var instance = factory( 'name', options );
@@ -1549,24 +1518,22 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
         ,proto = {}
         ;
 
-    // transform callback that only extends functions
-    var transformFn = function transformFn( to, val, key, from ){
-
-        var desc = Object.getOwnPropertyDescriptor( from, key );
-        if ( desc.get || desc.set ){
-
-            Object.defineProperty( to, key, desc );
-
-        } else if ( Physics.util.isFunction( desc.value ) ){
-
-            to[ key ] = desc.value;
-        }
-    };
-
     // extend that supports getters/setters
+    // only extends functions
     var extend = function extend( to, from ){
+        var desc, key;
+        for ( key in from ){
+            desc = Object.getOwnPropertyDescriptor( from, key );
+            if ( desc.get || desc.set ){
 
-        return Physics.util.transform( from, transformFn, to );
+                Object.defineProperty( to, key, desc );
+
+            } else if ( Physics.util.isFunction( desc.value ) ){
+
+                to[ key ] = desc.value;
+            }
+        }
+        return to;
     };
 
     // http://ejohn.org/blog/objectgetprototypeof/
@@ -1601,7 +1568,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      * - key (String): The method name
      * - val (Function): The function to assign
      * - obj (Object): object with many `key: fn` pairs
-     * 
+     *
      * Apply mixin methods to decorator base.
      */
     var mixin = function mixin( key, val ){
@@ -1628,9 +1595,9 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
      * -  parentName (String): The name of parent class to extend
      * -  decorator  (Function): The decorator function that should define and return methods to extend (decorate) the base class
      * -  cfg        (Object): The configuration to pass to the class initializer
-     * 
+     *
      * Factory function for definition and instantiation of subclasses.
-     * 
+     *
      * Use the first signature (once) to define it first.
      * If defining without the "cfg" parameter, void will be returned. Otherwise the class instance will be returned.
      *
@@ -1671,7 +1638,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
             if ( result ){
 
                 result.prototype = extend(result.prototype, decorator( getProto(result.prototype) ));
-                
+
             } else {
                 // newly defined
                 // store the new class
@@ -1687,7 +1654,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
 
             result.prototype.type = type;
             result.prototype.name = name;
-            
+
         } else {
 
             cfg = decorator || {};
@@ -1710,6 +1677,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
     return factory;
 };
 
+
 // ---
 // inside: src/util/helpers.js
 
@@ -1718,7 +1686,7 @@ var Decorator = Physics.util.decorator = function Decorator( type, baseProto ){
  * - arr (Array): The array to search
  * - value (Mixed): The value to find
  * + (Number): The index of `value` in the array OR `-1` if not found
- * 
+ *
  * Fast indexOf implementation.
  **/
 Physics.util.indexOf = function indexOf(arr, value) {
@@ -1737,11 +1705,40 @@ Physics.util.indexOf = function indexOf(arr, value) {
 };
 
 /**
+ * Physics.util.throttle( fn, delay ) -> Function
+ * - fn (Function): The function to throttle
+ * - delay (Number): Time in milliseconds
+ *
+ * Ensure a function is only called once every specified time span.
+ **/
+Physics.util.throttle = function throttle( fn, delay ){
+    var to
+        ,call = false
+        ,cb = function( args ){
+            clearTimeout( to );
+            if ( call ){
+                call = false;
+                to = setTimeout(Physics.util.bind(cb, this, args), delay);
+                fn.apply(this, args);
+            } else {
+                to = false;
+            }
+        }
+        ;
+    return function(){
+        call = true;
+        if ( !to ){
+            cb.call(this, arguments);
+        }
+    };
+};
+
+/**
  * Physics.util.options( def[, target] ) -> Function
  * - def (Object): Default options to set
  * - target (Object): Where to copy the options to. Defaults to the returned function.
  * + (Function): The options function
- * 
+ *
  * Options helper to keep track of options. Call it with a config object. Access options directly on the function.
  *
  * Example:
@@ -1798,6 +1795,561 @@ Physics.util.options = function( def, target ){
     return fn;
 };
 
+/**
+ * Physics.util.pairHash( id1, id2 ) -> Number
+ * - id1 (Number): The id of the first thing
+ * - id2 (Number): The id of the second thing
+ * + (Number): A unique numeric hash (valid for values < 2^16)
+ *
+ * Generate a unique numeric hash from two input IDs.
+ *
+ * Useful for speedy indexing of pairs.
+ **/
+Physics.util.pairHash = function( id1, id2 ){
+    id1 = id1|0;
+    id2 = id2|0;
+
+    if ( (id1|0) === (id2|0) ){
+
+        return -1;
+    }
+
+    // valid for values < 2^16
+    return ((id1|0) > (id2|0) ?
+        (id1 << 16) | (id2 & 0xFFFF) :
+        (id2 << 16) | (id1 & 0xFFFF))|0
+        ;
+};
+
+/**
+ * Physics.util.bind( fn, scope[, args... ] ) -> Function
+ * - fn (Function): The function to bind scope to
+ * - scope (Object): The scope to give to `fn`
+ * - args (Mixed): Arguments to send to `fn`
+ *
+ * Bind a scope to a function.
+ *
+ * Basically the same functionality as [Function.prototype.bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
+ **/
+if ( !Function.prototype.bind ){
+    Physics.util.bind = function( fn, scope, args ){
+        args = Array.prototype.slice.call( arguments, 2 );
+        return function(){
+            return fn.apply( scope, args.concat( Array.prototype.slice.call(arguments) ) );
+        };
+    };
+} else {
+    Physics.util.bind = function( fn, scope, args ){
+        args = Array.prototype.slice.call( arguments, 1 );
+        return Function.prototype.bind.apply( fn, args );
+    };
+}
+
+/**
+ * Physics.util.find( collection, fn( value, index, collection ) ) -> Mixed
+ * - collection (Array): Collection of values to test
+ * - fn (Function): The test function
+ * - value (Mixed): The value to test
+ * - index (Number): The index of value in collection
+ * - collection (Array): The input collection
+ *
+ * Test an array of values against a test function
+ * and return the first value for which the function
+ * returns true.
+ **/
+Physics.util.find = function( collection, fn ){
+    var i
+        ,l = collection.length
+        ,val
+        ;
+
+    for ( i = 0; i < l; i++ ){
+        val = collection[ i ];
+        if ( fn( val, i, collection ) ){
+            return val;
+        }
+    }
+};
+
+/**
+ * Physics.util.filter( collection, fn( value, index, collection ) ) -> Array
+ * - collection (Array): Collection of values to test
+ * - fn (Function): The test function
+ * - value (Mixed): The value to test
+ * - index (Number): The index of value in collection
+ * - collection (Array): The input collection
+ *
+ * Test an array of values against a test function
+ * and return another array of values for which
+ * the test function returns true.
+ **/
+Physics.util.filter = function( collection, fn ){
+    var i
+        ,l = collection.length
+        ,val
+        ,matches = []
+        ;
+
+    for ( i = 0; i < l; i++ ){
+        val = collection[ i ];
+        if ( fn( val, i, collection ) ){
+            matches.push( val );
+        }
+    }
+
+    return matches;
+};
+
+// lodash methods
+
+(function(){
+/*
+ * @license
+ * Modified version of:
+ * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+ * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <http://lodash.com/license>
+ */
+
+/* Used to determine if values are of the language type Object */
+var objectTypes = {
+  'boolean': false,
+  'function': true,
+  'object': true,
+  'number': false,
+  'string': false,
+  'undefined': false
+};
+var identity = function(a){ return a; };
+var arrayClass = '[object Array]';
+var objectClass = '[object Object]';
+var nativeKeys = Object.keys;
+var toString = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+/* Used as the size when optimizations are enabled for large arrays */
+var largeArraySize = 75;
+/* Used to pool arrays and objects used internally */
+var arrayPool = [],
+    objectPool = [];
+/* Used as the max size of the `arrayPool` and `objectPool` */
+var maxPoolSize = 40;
+var keyPrefix = +new Date() + '';
+
+function releaseArray(array) {
+  array.length = 0;
+  if (arrayPool.length < maxPoolSize) {
+    arrayPool.push(array);
+  }
+}
+
+function releaseObject(object) {
+  var cache = object.cache;
+  if (cache) {
+    releaseObject(cache);
+  }
+  object.array = object.cache = object.criteria = object.object = object.number = object.string = object.value = null;
+  if (objectPool.length < maxPoolSize) {
+    objectPool.push(object);
+  }
+}
+
+function getObject() {
+  return objectPool.pop() || {
+    'array': null,
+    'cache': null,
+    'criteria': null,
+    'false': false,
+    'index': 0,
+    'null': false,
+    'number': null,
+    'object': null,
+    'push': null,
+    'string': null,
+    'true': false,
+    'undefined': false,
+    'value': null
+  };
+}
+
+function getArray() {
+  return arrayPool.pop() || [];
+}
+
+function cacheIndexOf(cache, value) {
+  var type = typeof value;
+  cache = cache.cache;
+
+  if (type === 'boolean' || value == null) {
+    return cache[value] ? 0 : -1;
+  }
+  if (type !== 'number' && type !== 'string') {
+    type = 'object';
+  }
+  var key = type === 'number' ? value : keyPrefix + value;
+  cache = (cache = cache[type]) && cache[key];
+
+  return type === 'object' ?
+    (cache && Physics.util.indexOf(cache, value) > -1 ? 0 : -1) :
+    (cache ? 0 : -1);
+}
+
+function cachePush(value) {
+  var cache = this.cache,
+      type = typeof value;
+
+  if (type === 'boolean' || value == null) {
+    cache[value] = true;
+  } else {
+    if (type !== 'number' && type !== 'string') {
+      type = 'object';
+    }
+    var key = type === 'number' ? value : keyPrefix + value,
+        typeCache = cache[type] || (cache[type] = {});
+
+    if (type === 'object') {
+      (typeCache[key] || (typeCache[key] = [])).push(value);
+    } else {
+      typeCache[key] = true;
+    }
+  }
+}
+
+function createCache(array) {
+  var index = -1,
+      length = array.length,
+      first = array[0],
+      mid = array[(length / 2) | 0],
+      last = array[length - 1];
+
+  if (first && typeof first === 'object' &&
+      mid && typeof mid === 'object' && last && typeof last === 'object') {
+    return false;
+  }
+  var cache = getObject();
+  cache['false'] = cache['null'] = cache['true'] = cache['undefined'] = false;
+
+  var result = getObject();
+  result.array = array;
+  result.cache = cache;
+  result.push = cachePush;
+
+  while (++index < length) {
+    result.push(array[index]);
+  }
+  return result;
+}
+
+var shimKeys = function(object) {
+  var index, iterable = object, result = [];
+  if (!iterable){ return result; }
+  if (!(objectTypes[typeof object])){ return result; }
+    for (index in iterable) {
+      if (hasOwnProperty.call(iterable, index)) {
+        result.push(index);
+      }
+    }
+  return result;
+};
+
+var keys = !nativeKeys ? shimKeys : function(object) {
+  if (!Physics.util.isObject(object)) {
+    return [];
+  }
+  return nativeKeys(object);
+};
+
+var idCounter = 0;
+/**
+ * Physics.util.uniqueId( [prefix] ) -> String
+ * - prefix (String): Prefix to the id
+ *
+ * Generate a unique id, optionally prefixed.
+ **/
+Physics.util.uniqueId = function uniqueId(prefix) {
+    var id = ++idCounter;
+    return '' + (prefix || '') + id;
+};
+
+/*
+ * The base implementation of `_.random` without argument juggling or support
+ * for returning floating-point numbers.
+ *
+ * @private
+ * @param {number} min The minimum possible value.
+ * @param {number} max The maximum possible value.
+ * @returns {number} Returns a random number.
+ */
+function baseRandom(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+/*
+ * Creates an array of shuffled values, using a version of the Fisher-Yates
+ * shuffle. See http://en.wikipedia.org/wiki/Fisher-Yates_shuffle.
+ *
+ * @static
+ * @memberOf _
+ * @category Collections
+ * @param {Array|Object|string} collection The collection to shuffle.
+ * @returns {Array} Returns a new shuffled collection.
+ * @example
+ *
+ * _.shuffle([1, 2, 3, 4, 5, 6]);
+ * // => [4, 1, 6, 3, 5, 2]
+ */
+Physics.util.shuffle = function(collection) {
+    var index = -1
+        ,length = collection ? collection.length : 0
+        ,result = Array(typeof length === 'number' ? length : 0)
+        ,i
+        ,l
+        ,value
+        ,rand
+        ;
+
+    for ( i = 0, l = collection.length; i < l; i++ ){
+        value = collection[ i ];
+        rand = baseRandom(0, ++index);
+        result[index] = result[rand];
+        result[rand] = value;
+    }
+    return result;
+};
+
+/**
+ * Physics.util.isObject( val ) -> Boolean
+ * - val (Mixed): The value to test
+ *
+ * Test if a value is an object.
+ **/
+Physics.util.isObject = function isObject(value) {
+    // check if the value is the ECMAScript language type of Object
+    // http://es5.github.io/#x8
+    // and avoid a V8 bug
+    // http://code.google.com/p/v8/issues/detail?id=2291
+    return !!(value && objectTypes[typeof value]);
+};
+
+function isFunction(value) {
+    return typeof value === 'function';
+}
+
+/**
+ * Physics.util.isFunction( val ) -> Boolean
+ * - val (Mixed): The value to test
+ *
+ * Test if a value is a function.
+ **/
+Physics.util.isFunction = isFunction;
+
+/**
+ * Physics.util.isArray( val ) -> Boolean
+ * - val (Mixed): The value to test
+ *
+ * Test if a value is an array.
+ **/
+Physics.util.isArray = Array.isArray || function(value) {
+  return value && typeof value === 'object' && typeof value.length === 'number' &&
+    toString.call(value) === arrayClass || false;
+};
+
+var reNative = RegExp('^' +
+  String(toString)
+    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/toString| for [^\]]+/g, '.*?') + '$'
+);
+function isNative(value) {
+  return typeof value === 'function' && reNative.test(value);
+}
+
+function shimIsPlainObject(value) {
+  var ctor,
+      result;
+
+  // avoid non Object objects, `arguments` objects, and DOM elements
+  if (!(value && toString.call(value) === objectClass) ||
+      (ctor = value.constructor, isFunction(ctor) && !(ctor instanceof ctor))) {
+    return false;
+  }
+  // In most environments an object's own properties are iterated before
+  // its inherited properties. If the last iterated property is an object's
+  // own property then there are no inherited enumerable properties.
+  for (var key in value){
+    result = key;
+  }
+  return typeof result === 'undefined' || hasOwnProperty.call(value, result);
+}
+
+/**
+ * Physics.util.isPlainObject( val ) -> Boolean
+ * - val (Mixed): The value to test
+ *
+ * Test if a value is a plain javascript object.
+ **/
+Physics.util.isPlainObject = !Object.getPrototypeOf ? shimIsPlainObject : function(value) {
+  if (!(value && toString.call(value) === objectClass)) {
+    return false;
+  }
+  var valueOf = value.valueOf,
+      objProto = isNative(valueOf) && (objProto = Object.getPrototypeOf(valueOf)) && Object.getPrototypeOf(objProto);
+
+  return objProto ?
+    (value === objProto || Object.getPrototypeOf(value) === objProto) :
+    shimIsPlainObject(value);
+};
+
+function baseUniq(array, isSorted, callback) {
+  var index = -1,
+      indexOf = Physics.util.indexOf,
+      length = array ? array.length : 0,
+      result = [];
+
+  var isLarge = !isSorted && length >= largeArraySize && indexOf === Physics.util.indexOf,
+      seen = (callback || isLarge) ? getArray() : result;
+
+  if (isLarge) {
+    var cache = createCache(seen);
+    indexOf = cacheIndexOf;
+    seen = cache;
+  }
+  while (++index < length) {
+    var value = array[index],
+        computed = callback ? callback(value, index, array) : value;
+
+    if (isSorted ?
+          !index || seen[seen.length - 1] !== computed :
+          indexOf(seen, computed) < 0
+        ) {
+      if (callback || isLarge) {
+        seen.push(computed);
+      }
+      result.push(value);
+    }
+  }
+  if (isLarge) {
+    releaseArray(seen.array);
+    releaseObject(seen);
+  } else if (callback) {
+    releaseArray(seen);
+  }
+  return result;
+}
+
+/**
+ * Physics.util.uniq( array, [isSorted, callback] ) -> Array
+ * - array (Array): The array
+ * - isSorted (Boolean): Flag to indicate the array is sorted
+ * - callback (Function): Mapping function
+ *
+ * Create an array without duplicates.
+ **/
+Physics.util.uniq = function uniq(array, isSorted, callback) {
+  // juggle arguments
+  if (typeof isSorted !== 'boolean' && isSorted != null) {
+    callback = isSorted;
+    isSorted = false;
+  }
+  return baseUniq(array, isSorted, callback);
+};
+
+var assign = function(object, source, guard) {
+  var index, iterable = object, result = iterable;
+  if (!iterable) { return result; }
+  var args = arguments,
+      argsIndex = 0,
+      callback,
+      argsLength = typeof guard === 'number' ? 2 : args.length;
+  if (argsLength > 2 && typeof args[argsLength - 1] === 'function') {
+    callback = args[--argsLength];
+  }
+  while (++argsIndex < argsLength) {
+    iterable = args[argsIndex];
+    if (iterable && objectTypes[typeof iterable]) {
+        var ownIndex = -1,
+            ownProps = objectTypes[typeof iterable] && keys(iterable),
+            length = ownProps ? ownProps.length : 0;
+
+        while (++ownIndex < length) {
+          index = ownProps[ownIndex];
+          result[index] = callback ? callback(result[index], iterable[index]) : iterable[index];
+        }
+    }
+  }
+  return result;
+};
+
+/**
+ * Physics.util.extend( object, source...[, callback] ) -> Object
+ * - object (Object): The destination object
+ * - source (Object): The source objects
+ * - callback (Function): The function to customize assigning values
+ *
+ * Implementation of [lodash.extend](http://lodash.com/docs#assign)
+ **/
+Physics.util.extend = assign;
+
+/**
+ * Physics.util.defaults( object, source...[, callback] ) -> Object
+ * - object (Object): The destination object
+ * - source (Object): The source objects
+ * - callback (Function): The function to customize assigning values
+ *
+ * Implementation of [lodash.defaults](http://lodash.com/docs#defaults).
+ **/
+Physics.util.defaults = function(object, source, guard) {
+  var index, iterable = object, result = iterable;
+  if (!iterable){ return result; }
+  var args = arguments,
+      argsIndex = 0,
+      argsLength = typeof guard === 'number' ? 2 : args.length;
+  while (++argsIndex < argsLength) {
+    iterable = args[argsIndex];
+    if (iterable && objectTypes[typeof iterable]) {
+        var ownIndex = -1,
+            ownProps = objectTypes[typeof iterable] && keys(iterable),
+            length = ownProps ? ownProps.length : 0;
+
+        while (++ownIndex < length) {
+          index = ownProps[ownIndex];
+          if (typeof result[index] === 'undefined') {
+              result[index] = iterable[index];
+          }
+        }
+    }
+  }
+  return result;
+};
+
+/**
+ * Physics.util.sortedIndex( array, value[, callback] ) -> Number
+ * - array (Array): The array to inspect
+ * - value (Mixed): The value to evaluate
+ * - callback (Function): Function called per iteration
+ *
+ * Implementation of [lodash.sortedIndex](http://lodash.com/docs#sortedIndex).
+ **/
+Physics.util.sortedIndex = function sortedIndex(array, value, callback) {
+  var low = 0,
+      high = array ? array.length : low;
+
+  // explicitly reference `identity` for better inlining in Firefox
+  callback = callback || identity;
+  value = callback(value);
+
+  /* jshint -W030 */
+  while (low < high) {
+    var mid = (low + high) >>> 1;
+    (callback(array[mid]) < value) ?
+      low = mid + 1 :
+      high = mid;
+  }
+  /* jshint +W030 */
+  return low;
+};
+
+})();
 
 
 // ---
@@ -2043,12 +2595,16 @@ Physics.scratchpad = (function(){
 
 (function(){
 
+    function getPriority( val ){
+        return val._priority_;
+    }
+
     // register a new scratch object so we can reuse event data
     Physics.scratchpad.register('event', function(){ return {}; }, { useFactory: true });
 
     /**
      * class Physics.util.pubsub
-     * 
+     *
      * Fast pubsub implementation.
      *
      * Can be mixed into other classes easily.
@@ -2072,7 +2628,7 @@ Physics.scratchpad = (function(){
          * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
          * - scope (Object): The scope to bind callback to
          * - priority (Number): The priority of the callback (higher is earlier)
-         * 
+         *
          * Subscribe callback(s) to a topic(s).
          **/
         on: function( topic, fn, scope, priority ){
@@ -2090,7 +2646,7 @@ Physics.scratchpad = (function(){
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.on( t, topic[ t ], fn, scope );
                 }
 
@@ -2101,7 +2657,7 @@ Physics.scratchpad = (function(){
             orig = fn;
 
             if ( Physics.util.isObject( scope ) ){
-                
+
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
@@ -2113,7 +2669,7 @@ Physics.scratchpad = (function(){
 
             fn._priority_ = priority;
 
-            idx = Physics.util.sortedIndex( listeners, fn, '_priority_' );
+            idx = Physics.util.sortedIndex( listeners, fn, getPriority );
 
             listeners.splice( idx, 0, fn );
             return this;
@@ -2124,8 +2680,8 @@ Physics.scratchpad = (function(){
          * Physics.util.pubsub#off( topicCfg ) -> this
          * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
          * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
-         * - fn (Function): fn The original callback function. Specify `true` to remove all listeners for specified topic
-         * 
+         * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+         *
          * Unsubscribe callback(s) from topic(s).
          **/
         off: function( topic, fn ){
@@ -2150,7 +2706,7 @@ Physics.scratchpad = (function(){
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.off( t, topic[ t ] );
                 }
 
@@ -2170,7 +2726,7 @@ Physics.scratchpad = (function(){
             }
 
             for ( var i = 0, l = listeners.length; i < l; i++ ){
-                
+
                 listn = listeners[ i ];
 
                 if ( listn._bindfn_ === fn || listn === fn ){
@@ -2186,7 +2742,7 @@ Physics.scratchpad = (function(){
          * Physics.util.pubsub#emit( topic[, data] ) -> this
          * - topic (String): The topic name
          * - data (Mixed): The data to send
-         * 
+         *
          * Publish data to a topic.
          **/
         emit: function( topic, data ){
@@ -2214,7 +2770,7 @@ Physics.scratchpad = (function(){
 
             // reverse iterate so priorities work out correctly
             while ( l-- ){
-                
+
                 handler = listeners[ l ];
                 handler( data, e );
 
@@ -2237,7 +2793,7 @@ Physics.scratchpad = (function(){
          * - event (Object): Event data, holding `.topic`, the topic, and `.handler`, the `fn` callback.
          * - scope (Object): The scope to bind callback to
          * - priority (Number): The priority of the callback (higher is earlier)
-         * 
+         *
          * Subscribe callback(s) to a topic(s), but only ONCE.
          **/
         one: function( topic, fn, scope ){
@@ -2247,7 +2803,7 @@ Physics.scratchpad = (function(){
             if ( Physics.util.isObject( topic ) ){
 
                 for ( var t in topic ){
-                    
+
                     this.one( t, topic[ t ], fn, scope );
                 }
 
@@ -2261,22 +2817,23 @@ Physics.scratchpad = (function(){
             return this;
         }
     };
-    
+
     Physics.util.pubsub = PubSub;
 })();
+
 
 // ---
 // inside: src/util/ticker.js
 
 /**
  * class Physics.util.ticker
- * 
+ *
  * The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).
  *
  * Requires window.requestAnimationFrame... so polyfill it if you need to.
  **/
 (function(window){
-        
+
     var active = false
         ,ps = Physics.util.pubsub()
         ,perf = window.performance
@@ -2285,19 +2842,27 @@ Physics.scratchpad = (function(){
     function now(){
         // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
         return (perf && perf.now) ?
-            (perf.now() + perf.timing.navigationStart) : 
+            (perf.now() + perf.timing.navigationStart) :
             Date.now();
     }
 
-    /* 
+    /*
      * step( time )
      * - time (Number): The current time
-     * 
+     *
      * Publish a tick to subscribed callbacks
      */
-    function step( time ){
+    function step(){
+
+        var time;
 
         if (!active){
+            return;
+        }
+
+        time = now();
+
+        if (!time){
             return;
         }
 
@@ -2305,13 +2870,13 @@ Physics.scratchpad = (function(){
         ps.emit( 'tick', time );
     }
 
-    /** 
+    /**
      * Physics.util.ticker.start() -> this
-     * 
+     *
      * Start the ticker
      **/
     function start(){
-        
+
         active = true;
         step();
         return this;
@@ -2319,7 +2884,7 @@ Physics.scratchpad = (function(){
 
     /**
      * Physics.util.ticker.stop() -> this
-     *  
+     *
      * Stop the ticker
      **/
     function stop(){
@@ -2332,7 +2897,7 @@ Physics.scratchpad = (function(){
      * Physics.util.ticker.on( listener( time ) ) -> this
      * - listener (Function): The callback function
      * - time (Number): The current timestamp
-     * 
+     *
      * Subscribe a callback to the ticker.
      **/
     function on( listener ){
@@ -2344,7 +2909,7 @@ Physics.scratchpad = (function(){
     /**
      * Physics.util.ticker.off( listener ) -> this
      * - listener (Function): The callback function previously bound
-     * 
+     *
      * Unsubscribe a callback from the ticker.
      **/
     function off( listener ){
@@ -2356,7 +2921,7 @@ Physics.scratchpad = (function(){
     /**
      * Physics.util.ticker.isActive() -> Boolean
      * + (Boolean): `true` if running, `false` otherwise.
-     * 
+     *
      * Determine if ticker is currently running.
      **/
     function isActive(){
@@ -2375,6 +2940,7 @@ Physics.scratchpad = (function(){
     };
 
 }(this));
+
 
 // ---
 // inside: src/core/query.js
@@ -2884,6 +3450,9 @@ Physics.scratchpad = (function(){
         // what is the view object (mixed) that should be used when rendering?
         view: null
     };
+
+    var uidGen = 1;
+
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
      * - name (String): The name of the body to create
@@ -3000,6 +3569,13 @@ Physics.scratchpad = (function(){
             if (this.mass === 0){
                 throw "Error: Bodies must have non-zero mass";
             }
+
+            /**
+             * Body#uid = Number
+             *
+             * The unique id for the body
+             **/
+            this.uid = uidGen++;
 
             /** related to: Physics.geometry
              * Body#geometry
@@ -3150,24 +3726,18 @@ Physics.scratchpad = (function(){
                 ;
 
             // if no point at which to apply the force... apply at center of mass
-            if ( !p ){
-
-                this.accelerate( r.clone( force ).mult( 1/this.mass ) );
-
-            } else if ( this.moi ) {
-
+            if ( p && this.moi ){
+                
                 // apply torques
                 state = this.state;
                 r.clone( p );
                 // r cross F
                 this.state.angular.acc -= r.cross( force ) / this.moi;
-                // projection of force towards center of mass
-                this.applyForce( force );
-
             }
 
-            scratch.done();
+            this.accelerate( r.clone( force ).mult( 1/this.mass ) );
 
+            scratch.done();
             return this;
         },
 
@@ -3830,7 +4400,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      * - name (String): The name of the renderer to create
      * - options (Object): The configuration for that renderer ( depends on renderer ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // draw meta data (fps, steps, etc)
@@ -3861,7 +4431,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /** internal
          * Renderer#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
@@ -3902,7 +4472,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Renderer#render( bodies, meta ) -> this
          * - bodies (Array): Array of bodies in the world (by reference!)
          * - meta (Object): meta information
-         * 
+         *
          * Render the world bodies and meta. Called by world.render()
          **/
         render: function( bodies, meta ){
@@ -3927,8 +4497,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 this.drawMeta( meta );
             }
 
+            this._interpolateTime = meta.interpolateTime;
+
             for ( var i = 0, l = bodies.length; i < l; ++i ){
-                
+
                 body = bodies[ i ];
                 view = body.view || ( body.view = this.createView(body.geometry, body.styles) );
 
@@ -3945,7 +4517,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * - geometry (Geometry): geometry The geometry
          * - styles (Object|String): The styles configuration
          * + (Mixed): Whatever the renderer needs to render the body.
-         * 
+         *
          * Create a view for the specified geometry.
          *
          * The view is used to render the body. It is a cached version
@@ -3969,7 +4541,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Renderer#drawMeta( meta )
          * - meta (Object): The meta data
-         * 
+         *
          * Draw the meta data.
          *
          * The meta data will look like this:
@@ -3984,7 +4556,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Override this when creating renderers.
          **/
         drawMeta: function( meta ){
-            
+
             // example:
             // this.els.fps.innerHTML = meta.fps.toFixed(2);
             // this.els.steps.innerHTML = meta.steps;
@@ -3995,7 +4567,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Renderer#drawBody( body, view )
          * - body (Object): The body to draw
          * - view (Object): The view for the body
-         * 
+         *
          * Draw specified body using specified view.
          *
          * Override this when creating renderers.
@@ -4008,7 +4580,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             throw 'You must override the renderer.drawBody() method.';
         }
 
-        
+
     });
 
 }());
@@ -4048,7 +4620,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 160,
+        timestep: 1000.0 / 120,
         // maximum number of iterations per step
         maxIPF: 16,
         webworker: false, // NOT YET IMPLEMENTED
@@ -4075,7 +4647,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      * ```javascript
      * {
      *     // default timestep
-     *     timestep: 1000.0 / 160,
+     *     timestep: 1000.0 / 120,
      *     // maximum number of iterations per step
      *     maxIPF: 16,
      *     // default integrator
@@ -4150,7 +4722,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 cfg = {};
             }
 
-            this._stats = {
+            this._meta = {
                // statistics (fps, etc)
                fps: 0,
                ipf: 0
@@ -4160,13 +4732,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             this._integrator = null;
             this._renderer = null;
             this._paused = false;
+            this._warp = 1;
+            this._time = 0;
 
             // set options
             this.options = Physics.util.options( defaults );
             this.options.onChange(function( opts ){
 
                 // set timestep
-                self.timeStep( opts.timestep );
+                self.timestep( opts.timestep );
             });
             this.options( cfg );
 
@@ -4419,14 +4993,14 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         },
 
         /** chainable
-         * Physics.world#timeStep( [dt] ) -> Number|this
+         * Physics.world#timestep( [dt] ) -> Number|this
          * - dt (Number): The time step for the world
          * + (Number): The currently set time step if `dt` not specified
          * + (this): for chaining if `dt` specified
          *
-         * Get or Set the time step
+         * Get or Set the timestep
          **/
-        timeStep: function( dt ){
+        timestep: function( dt ){
 
             if ( dt ){
 
@@ -4624,46 +5198,98 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         },
 
         /** chainable
-         * Physics.world#step( now ) -> this
-         * - now (Number): now Current unix timestamp
+         * Physics.world#step( [now] ) -> this
+         * - now (Number): Current unix timestamp
          *
-         * Do a single step.
+         * Step the world up to specified time or do one step if no time is specified.
          **/
         step: function( now ){
 
-            if ( this._paused ){
-
-                this._time = false;
-                return this;
-            }
-
-            var time = this._time || (this._time = now)
-                ,diff = now - time
-                ,stats = this._stats
+            var time = this._time
                 ,dt = this._dt
+                ,warp = this._warp
+                ,invWarp = 1 / warp
+                ,animDt = this._dt * invWarp
+                ,animMaxJump = this._maxJump * invWarp
+                ,animDiff
+                ,worldDiff
+                ,target
+                ,meta = this._meta
                 ;
 
-            if ( !diff ){
+            // if it's paused, don't step
+            // or if it's the first step...
+            if ( this._paused || this._animTime === undefined ){
+                this._animTime = now || this._animTime || Physics.util.ticker.now();
+
+                if ( !this._paused ){
+                    this.emit('step', meta);
+                }
                 return this;
             }
 
-            // limit number of iterations in each step
-            if ( diff > this._maxJump ){
+            // new time is specified, or just one iteration ahead
+            now = now || (this._animTime + animDt);
+            // the time between this step and the last
+            animDiff = now - this._animTime;
 
-                this._time = now - this._maxJump;
-                diff = this._maxJump;
+            // if the time difference is too big... adjust
+            if ( animDiff > animMaxJump ){
+                this._animTime = now - animMaxJump;
+                animDiff = animMaxJump;
             }
 
-            // set some stats
-            stats.fps = 1000/diff;
-            stats.ipf = Math.ceil(diff/this._dt);
+            // the "world" time between this step and the last. Adjusts for warp
+            worldDiff = animDiff * warp;
 
-            while ( this._time < now ){
-                this._time += dt;
-                this.iterate( dt );
+            // the target time for the world time to step to
+            target = time + worldDiff - dt;
+
+            if ( time <= target ){
+
+                while ( time <= target ){
+                    // increment world time
+                    time += dt;
+                    // record the world time
+                    this._time = time;
+                    // iterate by one timestep
+                    this.iterate( dt );
+                }
+
+                this._animTime = now;
             }
 
-            this.emit('step');
+            // set some meta
+            meta.fps = 1000 / (now - this._lastTime); // frames per second
+            meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
+            meta.interpolateTime = time - target;
+
+            // record the time this was called
+            this._lastTime = now;
+
+            this.emit('step', meta);
+            return this;
+        },
+
+        /**
+         * Physics.world#warp( [warp] ) -> this|Number
+         * - warp (Number): The time warp factor
+         *
+         * Speed up or slow down the iteration by this factor.
+         *
+         * Example:
+         * ```javascript
+         * // slow motion... 10x slower
+         * world.warp( 0.01 );
+         * ```
+         **/
+        warp: function( warp ){
+            if ( warp === undefined ){
+                return this._warp;
+            }
+
+            this._warp = warp || 1;
+
             return this;
         },
 
@@ -4678,10 +5304,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 throw "No renderer added to world";
             }
 
-            this._renderer.render( this._bodies, this._stats );
+            this._renderer.render( this._bodies, this._meta );
             this.emit('render', {
                 bodies: this._bodies,
-                stats: this._stats,
+                meta: this._meta,
                 renderer: this._renderer
             });
             return this;
@@ -5720,6 +6346,8 @@ Physics.behavior('attractor', function( parent ){
  **/
 Physics.behavior('body-collision-detection', function( parent ){
 
+    var supportFnStack = [];
+
     /*
      * getSupportFn( bodyA, bodyB ) -> Function
      * - bodyA (Object): First body
@@ -5730,38 +6358,49 @@ Physics.behavior('body-collision-detection', function( parent ){
      */
     var getSupportFn = function getSupportFn( bodyA, bodyB ){
 
-        var fn;
+        var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
+            ,fn = supportFnStack[ hash ]
+            ;
 
-        fn = function( searchDir ){
+        if ( !fn ){
+            fn = supportFnStack[ hash ] = function( searchDir ){
 
-            var scratch = Physics.scratchpad()
-                ,tA = scratch.transform().setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos )
-                ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
-                ,vA = scratch.vector()
-                ,vB = scratch.vector()
-                ,marginA = fn.marginA
-                ,marginB = fn.marginB
-                ;
+                var scratch = Physics.scratchpad()
+                    ,tA = fn.tA
+                    ,tB = fn.tB
+                    ,vA = scratch.vector()
+                    ,vB = scratch.vector()
+                    ,marginA = fn.marginA
+                    ,marginB = fn.marginB
+                    ;
 
-            if ( fn.useCore ){
-                vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-                vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
-            } else {
-                vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
-                vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
-            }
+                if ( fn.useCore ){
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                } else {
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+                }
 
-            searchDir.negate().rotate( tB );
+                searchDir.negate().rotate( tB );
 
-            return scratch.done({
-                a: vA.values(),
-                b: vB.values(),
-                pt: vA.vsub( vB ).values()
-            });
-        };
+                return scratch.done({
+                    a: vA.values(),
+                    b: vB.values(),
+                    pt: vA.vsub( vB ).values()
+                });
+            };
+
+            fn.tA = Physics.transform();
+            fn.tB = Physics.transform();
+        }
 
         fn.useCore = false;
         fn.margin = 0;
+        fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
+        fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+        fn.bodyA = bodyA;
+        fn.bodyB = bodyB;
 
         return fn;
     };
@@ -6621,7 +7260,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 // ---
 // inside: src/behaviors/interactive.js
 
-/** 
+/**
  * class InteractiveBehavior < Behavior
  *
  * `Physics.behavior('interactive')`.
@@ -6635,6 +7274,31 @@ Physics.behavior('edge-collision-detection', function( parent ){
  * - moveThrottle: The min time between move events (default: `10`).
  * - minVel: The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
  * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+ *
+ * The behavior also triggers the following events on the world:
+ * ```javascript
+ * // a body has been grabbed
+ * world.on('interact:grab', function( data ){
+ *     data.x; // the x coord
+ *     data.y; // the y coord
+ *     data.body; // the body that was grabbed
+ * });
+ * // no body was grabbed, but the renderer area was clicked, or touched
+ * world.on('interact:poke', function( data ){
+ *     data.x; // the x coord
+ *     data.y; // the y coord
+ * });
+ * world.on('interact:move', function( data ){
+ *     data.x; // the x coord
+ *     data.y; // the y coord
+ *     data.body; // the body that was grabbed (if applicable)
+ * });
+ * // when the viewport is released (mouseup, touchend)
+ * world.on('interact:release', function( data ){
+ *     data.x; // the x coord
+ *     data.y; // the y coord
+ * });
+ * ```
  **/
 Physics.behavior('interactive', function( parent ){
 
@@ -6684,7 +7348,7 @@ Physics.behavior('interactive', function( parent ){
     return {
         // extended
         init: function( options ){
-            
+
             var self = this
                 ,prevTreatment
                 ,time
@@ -6733,25 +7397,29 @@ Physics.behavior('interactive', function( parent ){
                         self._world.emit('interact:grab', pos);
 
                     } else {
-                        
+
                         self._world.emit('interact:poke', pos);
                     }
                 }
             };
 
             var move = Physics.util.throttle(function move( e ){
-                var pos
+                var pos = getCoords( e )
                     ,state
                     ;
 
                 if ( self.body ){
-                    pos = getCoords( e );
                     time = Date.now();
 
                     self.mousePosOld.clone( self.mousePos );
                     // get new mouse position
                     self.mousePos.set(pos.x, pos.y);
+
+                    pos.body = self.body;
                 }
+
+                self._world.emit('interact:move', pos);
+
             }, self.options.moveThrottle);
 
             var release = function release( e ){
@@ -6938,21 +7606,7 @@ Physics.behavior('sweep-prune', function( parent ){
     // change to "3" to get it to work in 3D
     var maxDof = 2;
 
-    function pairHash( id1, id2 ){
-        id1 = id1|0;
-        id2 = id2|0;
-
-        if ( (id1|0) === (id2|0) ){
-
-            return -1;
-        }
-
-        // valid for values < 2^16
-        return ((id1|0) > (id2|0) ?
-            (id1 << 16) | (id2 & 0xFFFF) :
-            (id2 << 16) | (id1 & 0xFFFF))|0
-            ;
-    }
+    var pairHash = Physics.util.pairHash;
 
     return {
 
@@ -8631,7 +9285,7 @@ Physics.renderer('canvas', function( proto ){
             } else if (name === 'convex-polygon'){
 
                 this.drawPolygon(geometry.vertices, styles, hiddenCtx);
-                
+
             } else if (name === 'rectangle'){
 
                 this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
@@ -8665,15 +9319,25 @@ Physics.renderer('canvas', function( proto ){
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
+                ,v = body.state.vel
+                ,t = this._interpolateTime || 0
+                ,x
+                ,y
+                ,ang
                 ,aabb
                 ;
 
             offset = offset || this.options.offset;
             ctx = ctx || this.ctx;
 
+            // interpolate positions
+            x = pos.x + offset.x - v.x * t;
+            y = pos.y + offset.y - v.y * t;
+            ang = body.state.angular.pos - body.state.angular.vel * t;
+
             ctx.save();
-            ctx.translate(pos.x + offset.x, pos.y + offset.y);
-            ctx.rotate(body.state.angular.pos);
+            ctx.translate( x, y );
+            ctx.rotate( ang );
             ctx.drawImage(view, -view.width/2, -view.height/2);
             ctx.restore();
 
@@ -8708,6 +9372,8 @@ Physics.renderer('canvas', function( proto ){
             if ( this.options.meta ) {
                 this.drawMeta( meta );
             }
+
+            this._interpolateTime = meta.interpolateTime;
 
             for ( var id in this._layers ){
 
@@ -8787,22 +9453,6 @@ Physics.renderer('dom', function( proto ){
         }
         ,drawBody
         ;
-
-    // determine which drawBody method we can use
-    if (cssTransform){
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.x+'px,'+pos.y+'px) rotate('+body.state.angular.pos+'rad)';
-        };
-    } else {
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style.left = pos.x + px;
-            view.style.top = pos.y + px;
-        };
-    }
 
     return {
 
@@ -8953,7 +9603,22 @@ Physics.renderer('dom', function( proto ){
         },
 
         // extended
-        drawBody: drawBody
+        drawBody: function( body, view ){
+
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,x
+                ,y
+                ,ang
+                ,t = this._interpolateTime
+                ;
+
+            // interpolate positions
+            x = pos.x - v.x * t;
+            y = pos.y - v.y * t;
+            ang = body.state.angular.pos - body.state.angular.vel * t;
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+        }
     };
 });
 

@@ -1,7 +1,7 @@
 //
 // Supermarket Catastrophy
 //
-Physics(function (world) {
+Physics({ timestep: 3 }, function (world) {
 
     var viewWidth = window.innerWidth
         ,viewHeight = window.innerHeight
@@ -99,6 +99,9 @@ Physics(function (world) {
         'interact:poke': function( pos ){
             attractor.position( pos );
             world.add( attractor );
+        }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
         }
         ,'interact:release': function(){
             world.remove( attractor );

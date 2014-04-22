@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v1.0.0-rc1 - 2014-04-15
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -16,7 +16,7 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /** 
+    /**
      * class InteractiveBehavior < Behavior
      *
      * `Physics.behavior('interactive')`.
@@ -30,6 +30,31 @@
      * - moveThrottle: The min time between move events (default: `10`).
      * - minVel: The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
      * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+     *
+     * The behavior also triggers the following events on the world:
+     * ```javascript
+     * // a body has been grabbed
+     * world.on('interact:grab', function( data ){
+     *     data.x; // the x coord
+     *     data.y; // the y coord
+     *     data.body; // the body that was grabbed
+     * });
+     * // no body was grabbed, but the renderer area was clicked, or touched
+     * world.on('interact:poke', function( data ){
+     *     data.x; // the x coord
+     *     data.y; // the y coord
+     * });
+     * world.on('interact:move', function( data ){
+     *     data.x; // the x coord
+     *     data.y; // the y coord
+     *     data.body; // the body that was grabbed (if applicable)
+     * });
+     * // when the viewport is released (mouseup, touchend)
+     * world.on('interact:release', function( data ){
+     *     data.x; // the x coord
+     *     data.y; // the y coord
+     * });
+     * ```
      **/
     Physics.behavior('interactive', function( parent ){
     
@@ -79,7 +104,7 @@
         return {
             // extended
             init: function( options ){
-                
+    
                 var self = this
                     ,prevTreatment
                     ,time
@@ -128,25 +153,29 @@
                             self._world.emit('interact:grab', pos);
     
                         } else {
-                            
+    
                             self._world.emit('interact:poke', pos);
                         }
                     }
                 };
     
                 var move = Physics.util.throttle(function move( e ){
-                    var pos
+                    var pos = getCoords( e )
                         ,state
                         ;
     
                     if ( self.body ){
-                        pos = getCoords( e );
                         time = Date.now();
     
                         self.mousePosOld.clone( self.mousePos );
                         // get new mouse position
                         self.mousePos.set(pos.x, pos.y);
+    
+                        pos.body = self.body;
                     }
+    
+                    self._world.emit('interact:move', pos);
+    
                 }, self.options.moveThrottle);
     
                 var release = function release( e ){

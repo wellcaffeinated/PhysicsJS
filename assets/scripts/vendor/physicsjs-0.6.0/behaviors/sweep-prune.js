@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v1.0.0-rc1 - 2014-04-15
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -43,21 +43,7 @@
         // change to "3" to get it to work in 3D
         var maxDof = 2;
     
-        function pairHash( id1, id2 ){
-            id1 = id1|0;
-            id2 = id2|0;
-    
-            if ( (id1|0) === (id2|0) ){
-    
-                return -1;
-            }
-    
-            // valid for values < 2^16
-            return ((id1|0) > (id2|0) ?
-                (id1 << 16) | (id2 & 0xFFFF) :
-                (id2 << 16) | (id1 & 0xFFFF))|0
-                ;
-        }
+        var pairHash = Physics.util.pairHash;
     
         return {
     

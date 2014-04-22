@@ -70,7 +70,7 @@ Physics(function (world) {
     for ( var row = 0, l = 4; row < l; ++row ){
         for ( var col = 0, lcol = 10; col < lcol; ++col ){
 
-            var r = Physics.util.random(10, 20);
+            var r = (Math.random() * 10 + 10)|0;
 
             if ( row === 0 ||
                 col === 0 ||
@@ -145,6 +145,9 @@ Physics(function (world) {
         'interact:poke': function( pos ){
             attractor.position( pos );
             world.add( attractor );
+        }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
         }
         ,'interact:release': function(){
             world.remove( attractor );

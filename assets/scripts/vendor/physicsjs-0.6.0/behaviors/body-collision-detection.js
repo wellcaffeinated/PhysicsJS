@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v1.0.0-rc1 - 2014-04-15
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -44,6 +44,8 @@
      **/
     Physics.behavior('body-collision-detection', function( parent ){
     
+        var supportFnStack = [];
+    
         /*
          * getSupportFn( bodyA, bodyB ) -> Function
          * - bodyA (Object): First body
@@ -54,38 +56,49 @@
          */
         var getSupportFn = function getSupportFn( bodyA, bodyB ){
     
-            var fn;
+            var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
+                ,fn = supportFnStack[ hash ]
+                ;
     
-            fn = function( searchDir ){
+            if ( !fn ){
+                fn = supportFnStack[ hash ] = function( searchDir ){
     
-                var scratch = Physics.scratchpad()
-                    ,tA = scratch.transform().setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos )
-                    ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
-                    ,vA = scratch.vector()
-                    ,vB = scratch.vector()
-                    ,marginA = fn.marginA
-                    ,marginB = fn.marginB
-                    ;
+                    var scratch = Physics.scratchpad()
+                        ,tA = fn.tA
+                        ,tB = fn.tB
+                        ,vA = scratch.vector()
+                        ,vB = scratch.vector()
+                        ,marginA = fn.marginA
+                        ,marginB = fn.marginB
+                        ;
     
-                if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
-                } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
-                }
+                    if ( fn.useCore ){
+                        vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+                        vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                    } else {
+                        vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
+                        vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+                    }
     
-                searchDir.negate().rotate( tB );
+                    searchDir.negate().rotate( tB );
     
-                return scratch.done({
-                    a: vA.values(),
-                    b: vB.values(),
-                    pt: vA.vsub( vB ).values()
-                });
-            };
+                    return scratch.done({
+                        a: vA.values(),
+                        b: vB.values(),
+                        pt: vA.vsub( vB ).values()
+                    });
+                };
+    
+                fn.tA = Physics.transform();
+                fn.tB = Physics.transform();
+            }
     
             fn.useCore = false;
             fn.margin = 0;
+            fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
+            fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+            fn.bodyA = bodyA;
+            fn.bodyB = bodyB;
     
             return fn;
         };

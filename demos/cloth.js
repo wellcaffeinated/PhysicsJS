@@ -139,6 +139,9 @@ Physics(function (world) {
             attractor.position( pos );
             world.add( attractor );
         }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
+        }
         ,'interact:release': function(){
             world.remove( attractor );
         }

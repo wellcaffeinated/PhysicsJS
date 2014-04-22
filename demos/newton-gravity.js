@@ -54,12 +54,12 @@ Physics(function (world) {
 
         circles.push(
             Physics.body('circle', {
-                x: Physics.util.random(10, viewWidth - 10)
-                ,y: Physics.util.random(10, viewHeight - 10)
+                x: Math.random()*(viewWidth - 10) + 10
+                ,y: Math.random()*(viewHeight - 10) + 10
                 ,mass: 1
                 ,radius: 4
-                ,vx: Physics.util.random(0.01) - 0.005
-                ,vy: Physics.util.random(0.01) - 0.005
+                ,vx: Math.random()*0.01 - 0.005
+                ,vy: Math.random()*0.01 - 0.005
                 ,restitution: 0.99
                 ,styles: {
                     fillStyle: '#dc322f'
@@ -80,6 +80,9 @@ Physics(function (world) {
         'interact:poke': function( pos ){
             attractor.position( pos );
             world.add( attractor );
+        }
+        ,'interact:move': function( pos ){
+            attractor.position( pos );
         }
         ,'interact:release': function(){
             world.remove( attractor );
