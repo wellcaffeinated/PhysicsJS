@@ -1,7 +1,7 @@
 //
 // Tearable Cloth
 //
-Physics(function (world) {
+Physics({ timestep: 8 },function (world) {
 
     var viewWidth = window.innerWidth
         ,viewHeight = window.innerHeight
@@ -113,16 +113,23 @@ Physics(function (world) {
     world.on('render', function( data ){
 
         var renderer = data.renderer
-            ,constraints = rigidConstraints.getConstraints().distanceConstraints
+        	,constraints = rigidConstraints.getConstraints().distanceConstraints
             ,c
-            ,styles = clothStyles
+            ,ctx = renderer.ctx
+        	,t = data.meta.interpolateTime || 0
             ;
 
+        // optimized line drawing
+        ctx.beginPath();
+        ctx.strokeStyle = clothStyles.strokeStyle;
+        ctx.lineWidth = clothStyles.lineWidth;
         for ( var i = 0, l = constraints.length; i < l; ++i ){
 
             c = constraints[ i ];
-            renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, styles);
+            ctx.moveTo(c.bodyA.state.pos.x + c.bodyA.state.vel.x * t, c.bodyA.state.pos.y + c.bodyA.state.vel.y * t);
+            ctx.lineTo(c.bodyB.state.pos.x + c.bodyB.state.vel.x * t, c.bodyB.state.pos.y + c.bodyB.state.vel.y * t);
         }
+        ctx.stroke();
     });
 
     // add things to world
@@ -149,7 +156,7 @@ Physics(function (world) {
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.el })
+        Physics.behavior('interactive', { el: renderer.el, moveThrottle: 5 })
         ,Physics.behavior('constant-acceleration')
         //,edgeBounce
     ]);

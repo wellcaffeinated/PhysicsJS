@@ -1711,24 +1711,29 @@ Physics.util.indexOf = function indexOf(arr, value) {
  *
  * Ensure a function is only called once every specified time span.
  **/
-Physics.util.throttle = function throttle( fn, delay ){
+Physics.util.throttle = function throttle( fn, delay, scope ){
     var to
         ,call = false
-        ,cb = function( args ){
+        ,args
+        ,cb = function(){
             clearTimeout( to );
             if ( call ){
                 call = false;
-                to = setTimeout(Physics.util.bind(cb, this, args), delay);
-                fn.apply(this, args);
+                to = setTimeout(cb, delay);
+                fn.apply(scope, args);
             } else {
                 to = false;
             }
         }
         ;
+        
+    scope = scope || null;
+
     return function(){
         call = true;
+        args = arguments;
         if ( !to ){
-            cb.call(this, arguments);
+            cb();
         }
     };
 };
@@ -5206,10 +5211,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         step: function( now ){
 
             var time = this._time
-                ,dt = this._dt
                 ,warp = this._warp
                 ,invWarp = 1 / warp
-                ,animDt = this._dt * invWarp
+                ,dt = this._dt
+                ,animDt = dt * invWarp
                 ,animMaxJump = this._maxJump * invWarp
                 ,animDiff
                 ,worldDiff
@@ -5250,19 +5255,19 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 while ( time <= target ){
                     // increment world time
                     time += dt;
+                    // increment animation time
+                    this._animTime += animDt;
                     // record the world time
                     this._time = time;
                     // iterate by one timestep
                     this.iterate( dt );
                 }
-
-                this._animTime = now;
             }
 
             // set some meta
             meta.fps = 1000 / (now - this._lastTime); // frames per second
             meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
-            meta.interpolateTime = time - target;
+            meta.interpolateTime = dt + target - time;
 
             // record the time this was called
             this._lastTime = now;

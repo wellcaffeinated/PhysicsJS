@@ -1711,24 +1711,29 @@ Physics.util.indexOf = function indexOf(arr, value) {
  *
  * Ensure a function is only called once every specified time span.
  **/
-Physics.util.throttle = function throttle( fn, delay ){
+Physics.util.throttle = function throttle( fn, delay, scope ){
     var to
         ,call = false
-        ,cb = function( args ){
+        ,args
+        ,cb = function(){
             clearTimeout( to );
             if ( call ){
                 call = false;
-                to = setTimeout(Physics.util.bind(cb, this, args), delay);
-                fn.apply(this, args);
+                to = setTimeout(cb, delay);
+                fn.apply(scope, args);
             } else {
                 to = false;
             }
         }
         ;
+        
+    scope = scope || null;
+
     return function(){
         call = true;
+        args = arguments;
         if ( !to ){
-            cb.call(this, arguments);
+            cb();
         }
     };
 };
@@ -5206,10 +5211,10 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         step: function( now ){
 
             var time = this._time
-                ,dt = this._dt
                 ,warp = this._warp
                 ,invWarp = 1 / warp
-                ,animDt = this._dt * invWarp
+                ,dt = this._dt
+                ,animDt = dt * invWarp
                 ,animMaxJump = this._maxJump * invWarp
                 ,animDiff
                 ,worldDiff
@@ -5250,19 +5255,19 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
                 while ( time <= target ){
                     // increment world time
                     time += dt;
+                    // increment animation time
+                    this._animTime += animDt;
                     // record the world time
                     this._time = time;
                     // iterate by one timestep
                     this.iterate( dt );
                 }
-
-                this._animTime = now;
             }
 
             // set some meta
             meta.fps = 1000 / (now - this._lastTime); // frames per second
             meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
-            meta.interpolateTime = time - target;
+            meta.interpolateTime = dt + target - time;
 
             // record the time this was called
             this._lastTime = now;
@@ -7409,7 +7414,7 @@ Physics.behavior('interactive', function( parent ){
                     ;
 
                 if ( self.body ){
-                    time = Date.now();
+                    time = Physics.util.ticker.now();
 
                     self.mousePosOld.clone( self.mousePos );
                     // get new mouse position
@@ -7425,7 +7430,7 @@ Physics.behavior('interactive', function( parent ){
             var release = function release( e ){
                 var pos = getCoords( e )
                     ,body
-                    ,dt = Math.max(Date.now() - time, self.options.moveThrottle)
+                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
                     ;
 
                 // get new mouse position
@@ -7476,6 +7481,7 @@ Physics.behavior('interactive', function( parent ){
 
             var self = this
                 ,state
+                ,dt = Math.max(data.dt, self.options.moveThrottle)
                 ;
 
             if ( self.body ){
@@ -7483,7 +7489,7 @@ Physics.behavior('interactive', function( parent ){
                 // if we have a body, we need to move it the the new mouse position.
                 // we'll do this by adjusting the velocity so it gets there at the next step
                 state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / self.options.moveThrottle );
+                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };
@@ -9331,9 +9337,9 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x - v.x * t;
-            y = pos.y + offset.y - v.y * t;
-            ang = body.state.angular.pos - body.state.angular.vel * t;
+            x = pos.x + offset.x + v.x * t;
+            y = pos.y + offset.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
@@ -9614,9 +9620,9 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             // interpolate positions
-            x = pos.x - v.x * t;
-            y = pos.y - v.y * t;
-            ang = body.state.angular.pos - body.state.angular.vel * t;
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
             view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
         }
     };
@@ -9789,14 +9795,22 @@ Physics.renderer('pixi', function( parent ){
          * Draw a PIXI.DisplayObject to the stage.
          **/
         drawBody: function( body, view ){
-            // Draw a body here
-            var x = body.state.pos.x;
-            var y = body.state.pos.y;
-            var angle = body.state.angular.pos;
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,t = this._interpolateTime || 0
+                ,x
+                ,y
+                ,ang
+                ;
+
+            // interpolate positions
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             view.position.x = x;
             view.position.y = y;
-            view.rotation = angle;
+            view.rotation = ang;
         },
 
         // extended

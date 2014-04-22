@@ -1,7 +1,7 @@
 //
 // Mixed Shapes
 //
-Physics(function (world) {
+Physics({ timestep: 4 }, function (world) {
 
     var viewWidth = window.innerWidth
         ,viewHeight = window.innerHeight

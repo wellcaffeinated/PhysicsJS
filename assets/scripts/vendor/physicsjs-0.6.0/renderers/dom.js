@@ -241,9 +241,9 @@
                     ;
     
                 // interpolate positions
-                x = pos.x - v.x * t;
-                y = pos.y - v.y * t;
-                ang = body.state.angular.pos - body.state.angular.vel * t;
+                x = pos.x + v.x * t;
+                y = pos.y + v.y * t;
+                ang = body.state.angular.pos + body.state.angular.vel * t;
                 view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
             }
         };
