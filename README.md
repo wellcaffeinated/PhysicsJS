@@ -2,7 +2,7 @@
 
 A modular, extendable, and easy-to-use physics engine for javascript.
 
-Latest version: 0.5.4 (alpha)
+Latest version: 0.6.0 (beta)
 
 ## Usage
 
@@ -28,7 +28,7 @@ then run grunt
     $ grunt
 
 The default grunt task will create a `_working/` directory with the
-PhysicsJS development build. You can play around with that. 
+PhysicsJS development build. You can play around with that.
 **NOTE**: the `_working/` directory won't be committed
 (it is in .gitignore).
 
