@@ -165,7 +165,7 @@
                         ;
     
                     if ( self.body ){
-                        time = Date.now();
+                        time = Physics.util.ticker.now();
     
                         self.mousePosOld.clone( self.mousePos );
                         // get new mouse position
@@ -181,7 +181,7 @@
                 var release = function release( e ){
                     var pos = getCoords( e )
                         ,body
-                        ,dt = Math.max(Date.now() - time, self.options.moveThrottle)
+                        ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
                         ;
     
                     // get new mouse position
@@ -232,6 +232,7 @@
     
                 var self = this
                     ,state
+                    ,dt = Math.max(data.dt, self.options.moveThrottle)
                     ;
     
                 if ( self.body ){
@@ -239,7 +240,7 @@
                     // if we have a body, we need to move it the the new mouse position.
                     // we'll do this by adjusting the velocity so it gets there at the next step
                     state = self.body.state;
-                    state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / self.options.moveThrottle );
+                    state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
                 }
             }
         };

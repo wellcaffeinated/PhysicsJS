@@ -1711,24 +1711,29 @@ Physics.util.indexOf = function indexOf(arr, value) {
  *
  * Ensure a function is only called once every specified time span.
  **/
-Physics.util.throttle = function throttle( fn, delay ){
+Physics.util.throttle = function throttle( fn, delay, scope ){
     var to
         ,call = false
-        ,cb = function( args ){
+        ,args
+        ,cb = function(){
             clearTimeout( to );
             if ( call ){
                 call = false;
-                to = setTimeout(Physics.util.bind(cb, this, args), delay);
-                fn.apply(this, args);
+                to = setTimeout(cb, delay);
+                fn.apply(scope, args);
             } else {
                 to = false;
             }
         }
         ;
+        
+    scope = scope || null;
+
     return function(){
         call = true;
+        args = arguments;
         if ( !to ){
-            cb.call(this, arguments);
+            cb();
         }
     };
 };

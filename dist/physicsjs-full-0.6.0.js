@@ -1711,24 +1711,29 @@ Physics.util.indexOf = function indexOf(arr, value) {
  *
  * Ensure a function is only called once every specified time span.
  **/
-Physics.util.throttle = function throttle( fn, delay ){
+Physics.util.throttle = function throttle( fn, delay, scope ){
     var to
         ,call = false
-        ,cb = function( args ){
+        ,args
+        ,cb = function(){
             clearTimeout( to );
             if ( call ){
                 call = false;
-                to = setTimeout(Physics.util.bind(cb, this, args), delay);
-                fn.apply(this, args);
+                to = setTimeout(cb, delay);
+                fn.apply(scope, args);
             } else {
                 to = false;
             }
         }
         ;
+        
+    scope = scope || null;
+
     return function(){
         call = true;
+        args = arguments;
         if ( !to ){
-            cb.call(this, arguments);
+            cb();
         }
     };
 };
@@ -7409,7 +7414,7 @@ Physics.behavior('interactive', function( parent ){
                     ;
 
                 if ( self.body ){
-                    time = Date.now();
+                    time = Physics.util.ticker.now();
 
                     self.mousePosOld.clone( self.mousePos );
                     // get new mouse position
@@ -7425,7 +7430,7 @@ Physics.behavior('interactive', function( parent ){
             var release = function release( e ){
                 var pos = getCoords( e )
                     ,body
-                    ,dt = Math.max(Date.now() - time, self.options.moveThrottle)
+                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
                     ;
 
                 // get new mouse position
@@ -7476,6 +7481,7 @@ Physics.behavior('interactive', function( parent ){
 
             var self = this
                 ,state
+                ,dt = Math.max(data.dt, self.options.moveThrottle)
                 ;
 
             if ( self.body ){
@@ -7483,7 +7489,7 @@ Physics.behavior('interactive', function( parent ){
                 // if we have a body, we need to move it the the new mouse position.
                 // we'll do this by adjusting the velocity so it gets there at the next step
                 state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / self.options.moveThrottle );
+                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };
