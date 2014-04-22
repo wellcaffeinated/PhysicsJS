@@ -5267,7 +5267,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // set some meta
             meta.fps = 1000 / (now - this._lastTime); // frames per second
             meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
-            meta.interpolateTime = time - target;
+            meta.interpolateTime = dt + target - time;
 
             // record the time this was called
             this._lastTime = now;

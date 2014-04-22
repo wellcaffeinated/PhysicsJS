@@ -5267,7 +5267,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // set some meta
             meta.fps = 1000 / (now - this._lastTime); // frames per second
             meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
-            meta.interpolateTime = time - target;
+            meta.interpolateTime = dt + target - time;
 
             // record the time this was called
             this._lastTime = now;
@@ -9337,9 +9337,9 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x - v.x * t;
-            y = pos.y + offset.y - v.y * t;
-            ang = body.state.angular.pos - body.state.angular.vel * t;
+            x = pos.x + offset.x + v.x * t;
+            y = pos.y + offset.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
@@ -9620,9 +9620,9 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             // interpolate positions
-            x = pos.x - v.x * t;
-            y = pos.y - v.y * t;
-            ang = body.state.angular.pos - body.state.angular.vel * t;
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
             view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
         }
     };
@@ -9795,14 +9795,22 @@ Physics.renderer('pixi', function( parent ){
          * Draw a PIXI.DisplayObject to the stage.
          **/
         drawBody: function( body, view ){
-            // Draw a body here
-            var x = body.state.pos.x;
-            var y = body.state.pos.y;
-            var angle = body.state.angular.pos;
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,t = this._interpolateTime || 0
+                ,x
+                ,y
+                ,ang
+                ;
+
+            // interpolate positions
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             view.position.x = x;
             view.position.y = y;
-            view.rotation = angle;
+            view.rotation = ang;
         },
 
         // extended

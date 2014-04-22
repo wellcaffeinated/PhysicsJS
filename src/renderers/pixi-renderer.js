@@ -170,8 +170,8 @@ Physics.renderer('pixi', function( parent ){
                 ;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             view.position.x = x;
