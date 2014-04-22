@@ -615,10 +615,10 @@
         step: function( now ){
 
             var time = this._time
-                ,dt = this._dt
                 ,warp = this._warp
                 ,invWarp = 1 / warp
-                ,animDt = this._dt * invWarp
+                ,dt = this._dt
+                ,animDt = dt * invWarp
                 ,animMaxJump = this._maxJump * invWarp
                 ,animDiff
                 ,worldDiff
@@ -659,13 +659,13 @@
                 while ( time <= target ){
                     // increment world time
                     time += dt;
+                    // increment animation time
+                    this._animTime += animDt;
                     // record the world time
                     this._time = time;
                     // iterate by one timestep
                     this.iterate( dt );
                 }
-
-                this._animTime = now;
             }
 
             // set some meta
