@@ -131,7 +131,7 @@
                 cfg = {};
             }
 
-            this._stats = {
+            this._meta = {
                // statistics (fps, etc)
                fps: 0,
                ipf: 0
@@ -616,10 +616,14 @@
 
             var time = this._time
                 ,dt = this._dt
+                ,warp = this._warp
+                ,invWarp = 1 / warp
+                ,animDt = this._dt * invWarp
+                ,animMaxJump = this._maxJump * invWarp
                 ,animDiff
                 ,worldDiff
                 ,target
-                ,stats = this._stats
+                ,meta = this._meta
                 ;
 
             // if it's paused, don't step
@@ -628,24 +632,31 @@
                 this._animTime = now || this._animTime || Physics.util.ticker.now();
 
                 if ( !this._paused ){
-                    this.emit('step', stats);
+                    this.emit('step', meta);
                 }
                 return this;
             }
 
             // new time is specified, or just one iteration ahead
-            now = now || (this._animTime + dt / this._warp);
+            now = now || (this._animTime + animDt);
             // the time between this step and the last
             animDiff = now - this._animTime;
+
+            // if the time difference is too big... adjust
+            if ( animDiff > animMaxJump ){
+                this._animTime = now - animMaxJump;
+                animDiff = animMaxJump;
+            }
+
             // the "world" time between this step and the last. Adjusts for warp
-            worldDiff = Math.min(animDiff * this._warp, this._maxJump);
+            worldDiff = animDiff * warp;
 
             // the target time for the world time to step to
-            target = time + worldDiff;
+            target = time + worldDiff - dt;
 
-            if ( worldDiff >= dt ){
+            if ( time <= target ){
 
-                while ( time < target ){
+                while ( time <= target ){
                     // increment world time
                     time += dt;
                     // record the world time
@@ -654,16 +665,18 @@
                     this.iterate( dt );
                 }
 
-                // record the animation time
                 this._animTime = now;
             }
 
-            // set some stats
-            stats.fps = 1000 / animDiff; // frames per second
-            stats.ipf = Math.ceil(worldDiff / dt); // iterations per frame
-            stats.remainder = time - target;
+            // set some meta
+            meta.fps = 1000 / (now - this._lastTime); // frames per second
+            meta.ipf = (worldDiff / dt).toFixed(2); // iterations per frame
+            meta.interpolateTime = time - target;
 
-            this.emit('step', stats);
+            // record the time this was called
+            this._lastTime = now;
+
+            this.emit('step', meta);
             return this;
         },
 
@@ -700,10 +713,10 @@
                 throw "No renderer added to world";
             }
 
-            this._renderer.render( this._bodies, this._stats );
+            this._renderer.render( this._bodies, this._meta );
             this.emit('render', {
                 bodies: this._bodies,
-                stats: this._stats,
+                meta: this._meta,
                 renderer: this._renderer
             });
             return this;

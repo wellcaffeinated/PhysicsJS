@@ -25,14 +25,22 @@
      *
      * Publish a tick to subscribed callbacks
      */
-    function step( time ){
+    function step(){
+
+        var time;
 
         if (!active){
             return;
         }
 
+        time = now();
+
+        if (!time){
+            return;
+        }
+
         window.requestAnimationFrame( step );
-        ps.emit( 'tick', now() );
+        ps.emit( 'tick', time );
     }
 
     /**

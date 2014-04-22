@@ -63,22 +63,6 @@ Physics.renderer('dom', function( proto ){
         ,drawBody
         ;
 
-    // determine which drawBody method we can use
-    if (cssTransform){
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.x+'px,'+pos.y+'px) rotate('+body.state.angular.pos+'rad)';
-        };
-    } else {
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style.left = pos.x + px;
-            view.style.top = pos.y + px;
-        };
-    }
-
     return {
 
         // extended
@@ -228,6 +212,21 @@ Physics.renderer('dom', function( proto ){
         },
 
         // extended
-        drawBody: drawBody
+        drawBody: function( body, view ){
+
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,x
+                ,y
+                ,ang
+                ,t = this._interpolateTime
+                ;
+
+            // interpolate positions
+            x = pos.x - v.x * t;
+            y = pos.y - v.y * t;
+            ang = body.state.angular.pos - body.state.angular.vel * t;
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+        }
     };
 });

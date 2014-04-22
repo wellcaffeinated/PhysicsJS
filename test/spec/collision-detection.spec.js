@@ -19,6 +19,7 @@ describe("Collision Detection", function() {
     world.add( Physics.behavior('sweep-prune') );
     world.add( Physics.behavior('body-collision-detection') );
     world.step();
+    world.step();
 
     it("Should find a collision", function() {
 

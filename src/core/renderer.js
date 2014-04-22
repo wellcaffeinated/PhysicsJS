@@ -114,6 +114,8 @@
                 this.drawMeta( meta );
             }
 
+            this._interpolateTime = meta.interpolateTime;
+
             for ( var i = 0, l = bodies.length; i < l; ++i ){
 
                 body = bodies[ i ];
