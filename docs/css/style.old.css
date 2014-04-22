@@ -1,0 +1,514 @@
+body {
+  font-size: 16px;
+  color: #232323;
+  margin: 0;
+  line-height: 1.8em;
+  background: #fff;
+  font-family: 'Quattrocento Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color:#232323;
+  margin:0.5em 0;
+}
+
+p, ul, ol, table, dl {
+  margin:0 0 22px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "CaviarDreamsRegular", Monaco, serif;
+  line-height:1.3;
+  font-weight: normal;
+}
+
+h1,h2, h3 {
+  display: block;
+  padding-bottom: 5px;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4, h5, h6 {
+  font-weight: normal;
+}
+
+a {
+  color:#C30000;
+  font-weight:200;
+  text-decoration:none;
+  outline: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a small {
+  font-size: 0.75em;
+}
+
+em {
+  font-style: italic;
+}
+
+strong {
+  font-weight:700;
+}
+
+ul,
+ol {
+  margin-left: 0px;
+}
+
+ul li {
+  list-style: outside;
+  padding-left: 4px;
+}
+
+
+ol li {
+  list-style: decimal outside;
+  padding-left: 4px;
+}
+
+blockquote {
+  margin: 0;
+  padding: 0 0 0 20px;
+  font-style: italic;
+}
+
+dl, dt, dd, dl p {
+  font-color: #444;
+}
+
+dl dt {
+  font-weight: bold;
+}
+
+dl dd {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+dl p {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+hr {
+  border:0;
+  background:#ccc;
+  height:1px;
+  margin:0 0 24px;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+/* Images */
+
+img {
+  position: relative;
+  margin: 0 auto;
+  max-width: 650px;
+  padding: 5px;
+  margin: 10px 0 32px 0;
+  border: 1px solid #ccc;
+}
+
+
+/* Code blocks */
+
+code, pre {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color:#333;
+}
+
+code {
+  font-size:0.875em;
+}
+
+pre {
+  /*padding: 4px 12px;*/
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0 0 1em;
+}
+
+pre code {
+  white-space: normal;
+}
+
+.highlight {
+  background: #171717;
+  padding: 1em;
+  margin-bottom: 1em;
+  /*margin-left: 1em;*/
+  -webkit-border-radius:4px;
+     -moz-border-radius:4px;
+      -ms-border-radius:4px;
+          border-radius:4px;
+}
+
+.highlight pre {
+  margin: 0;
+}
+
+/* Documentation styles */
+
+nav.toc {
+  position: fixed;
+  overflow: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  padding: 1em 1.5em;
+  font-size: 14px;
+
+  color: #C1C5C5;
+  background: #171717;
+
+  width: 360px;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+       -o-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+nav.toc h1 {
+  color: #C1C5C5;
+}
+
+nav.toc ul,
+nav.toc ul li {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav.toc ul ul {
+  margin-left: 1em;
+  margin-bottom: 1em;
+}
+
+nav.toc > ul > li > a {
+  border-bottom: 1px solid #2aa198;
+}
+
+nav.toc .pfx {
+  display: none;
+}
+
+/*nav.toc ul li:not(.section):not(.subclass) > ul > li .name:before {
+  content: '.';
+}
+*/
+
+nav.toc ul li.class > .item > .name:after {
+  content: ' <class>';
+  color: #495353;
+}
+
+nav.toc a {
+  color: #C1C5C5;
+  color: #93a1a1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+nav.toc a:hover,
+nav.toc a.inside {
+  color: #b58900;
+}
+
+nav.toc li {
+  position: relative;
+}
+
+nav.toc li .ctrl-expand {
+  position: absolute;
+  left: -1em;
+  top: auto;
+  color: #2aa198;
+  /*font-size: 1.5em;*/
+  text-decoration: none;
+}
+
+nav.toc li .ctrl-expand:hover {
+  color: #b58900;
+}
+
+#main {
+  width: 100%;
+  padding: 4em 0;
+  padding-left: 360px;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+       -o-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+#main > article {
+  margin: 0 6em;
+}
+
+#main .doc header {
+  padding-bottom: 1em;
+}
+
+#main .doc .title {
+  font-size: 1.5em;
+}
+
+#main .doc .desc {
+  margin: 0 0 0.5em;
+}
+
+#main .doc .children {
+  margin-top: 2em;
+}
+
+#main .doc .doc .children {
+  overflow: hidden;
+  /*background: #eee;*/
+  /*padding: 2em;*/
+  /*border-left: 4px solid #171717;*/
+  /*padding-left: 2em;
+  margin-left: 0.2em;*/
+  /*border: 1px solid #aaa;
+  background: #fafafa;*/
+  /*padding:  0 0 0 2em;*/
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+      -ms-border-radius: 5px;
+          border-radius: 5px;
+}
+
+#main .doc.class {
+  border: 1px solid #aaa;
+  background: #fafafa;
+  padding: 2em;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+      -ms-border-radius: 5px;
+          border-radius: 5px;
+}
+
+#main .doc .doc .title {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid #aaa;
+}
+
+#main .doc .title .aliases {
+  float: right;
+}
+
+#main .doc .title .flags {
+  /*display: inline;*/
+  font-size: 0.6em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  margin: 0.2em 0;
+}
+
+#main .doc .title .flags span {
+  margin-right: 1ex;
+}
+
+#main .doc .title .flags .internal {
+  /*display: block;*/
+  color: #1A70AC;
+}
+
+#main .doc .title .flags .deprecated .from,
+#main .doc .title .flags .deprecated .to {
+  margin: 0 1ex;
+}
+
+#main .doc .doc .title a {
+  /*color: #fafafa;*/
+}
+
+#main .doc .doc {
+  margin-bottom: 4em;
+}
+
+#main .doc .signatures,
+#main .doc .signatures > li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#main .doc .signatures {
+  margin: 1em 0 2em 0;
+}
+
+#main .doc .signatures > li {
+  /*border-left: 1em solid #171717;*/
+}
+
+#main .doc .signatures .declaration {
+  padding: 1em;
+  background: #171717;
+  color: #93a1a1;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
+  padding: 1em;
+  border-top: 1px dotted #888;
+  color: #C1C5C5;
+  background: #25221F; /*rgba(10,10,0,0.03);*/
+}
+
+#main .doc .signatures .arguments-desc,
+#main .doc .signatures .returns-desc {
+  overflow: hidden;
+}
+
+#main .doc .signatures .arguments-desc code,
+#main .doc .signatures .returns-desc code {
+  color: #b58900;
+}
+
+#main .doc .signatures .returns-desc {
+  border: none;
+}
+
+  /* callback functions... */
+  #main .doc .signatures .arguments-desc .arguments-desc {
+    background: #000;
+  }
+
+#main .doc .signatures .arguments-desc p,
+#main .doc .signatures .returns-desc p {
+  padding: 0;
+  font-style: normal;
+}
+
+#main .doc .signatures .arguments-desc dt,
+#main .doc .signatures .returns-desc dt {
+  width: 160px;
+  float: left;
+  clear: both;
+  letter-spacing: -1px;
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+
+#main .doc .signatures .arguments-desc dd,
+#main .doc .signatures .returns-desc dd {
+  float: left;
+  padding: 0;
+  margin-left: 2em;
+  font-style: normal;
+}
+
+#main .doc .signatures .arguments-desc dd .arguments-desc {
+  margin-bottom: 2em;
+}
+
+#main .doc .signatures .arguments-desc .title,
+#main .doc .signatures .returns-desc .title,
+#main .doc .signatures .arguments-desc dd > .types,
+#main .doc .signatures .arguments-desc dd > .optional {
+  font-size: 0.875em;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #888;
+  border: none;
+}
+
+#main .doc .signatures .arguments-desc .title:before,
+#main .doc .signatures .returns-desc .title:before {
+  content: '// ';
+}
+
+#main .doc .signatures .arguments {
+  margin: 0 1ex;
+}
+
+#main .doc .signatures .arguments .arguments {
+  color: #93a1a1;
+}
+
+#main .doc .signatures .returns > span {
+  margin: 0 1ex;
+}
+
+/* type colors */
+.arguments a,
+.returns a,
+.arguments-desc a,
+.returns-desc a {
+  color: inherit;
+}
+
+.arguments a,
+.arguments span,
+.returns a,
+.arguments-desc dt,
+.returns-desc dt {
+  color: #b58900;
+}
+
+.signatures .name {
+  color: #C1C5C5;
+}
+
+.signatures .this,
+.signatures .Object,
+.signatures .Array {
+  color: #cb4b16;
+}
+
+.signatures .Function {
+  color: #268bd2;
+}
+
+.signatures .String {
+  color: #2aa198;
+}
+
+.signatures .false,
+.signatures .true,
+.signatures .void,
+.signatures .Boolean,
+.signatures .Number,
+.signatures .Infinity,
+.signatures .RegExp,
+.signatures .NaN {
+  color: #859900 !important
+}
+
+/* optional */
+.signatures .optional {
+  font-size: inherit;
+  margin: 0 1ex;
+}
+
+.signatures .optional:before {
+  content: '[';
+}
+
+.signatures .optional:after {
+  content: ']';
+}

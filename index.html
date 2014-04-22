@@ -1,0 +1,223 @@
+---
+layout: default
+title: PhysicsJS
+---
+
+<!-- <div class="welcome">
+    <div id="welcome">
+        <h1>Physics<span class="js">JS</span></h1>
+        <p class="tagline">A modular, extendable, and easy-to-use physics engine for javascript</p>
+    </div>
+
+    <h2>Features</h2>
+
+    <div class="row">
+        <div class="col">
+            <ul>
+                <li>Use as an <strong>AMD Module (requireJS)</strong>, or <strong>global namespace</strong>.</li>
+                <li><strong>Modular</strong>! Only load what you need. The core library is only 31k minified.</li>
+                <li><strong>Extendable</strong>! Don't like the collision detection algorithm? Replace it with your own!</li>
+                <li>Not tied to a specific renderer. Display it in <strong>DOM</strong>, <strong>HTML5 Canvas</strong>, or whatever...</li>
+            </ul>
+        </div>
+        <div class="col">
+            <ul>
+                <li>Easy! It's a library <strong>written IN javascript</strong>... not C compiled into javascript. The syntax is familiar for javascript developers.</li>
+                <li>Extensions to support <strong>points</strong>, <strong>circles</strong>, <strong>rectangles</strong>, and arbitrary <strong>convex polygons</strong>.</li>
+                <li>Extensions to support <strong>constant gravity</strong>, <strong>newtonian gravity</strong>, <strong>collisions</strong>, and <strong>verlet constraints</strong>, and more...</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Demos</h2>
+    <p>Check out the <a href="./examples">demo page</a> for some sweet examples of what you can do.</p>
+</div>
+
+<canvas id="intro-viewport">
+</canvas> -->
+
+<div id="demo-area">
+<textarea class="demo" data-fold="6,0">
+//
+// PhysicsJS
+// A modular, extendable, and easy-to-use physics engine for javascript
+//
+// Use the select box in the top right to see more examples!
+//
+Physics(function (world) {
+
+    var viewWidth = window.innerWidth
+        ,viewHeight = window.innerHeight
+        // center of the window
+        ,center = Physics.vector(viewWidth, viewHeight).mult(0.5)
+        // bounds of the window
+        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+        ,attractor
+        ,edgeBounce
+        ,renderer
+        ;
+
+    // create a renderer
+    renderer = Physics.renderer('canvas', {
+        el: 'viewport'
+        ,width: viewWidth
+        ,height: viewHeight
+    });
+
+    // add the renderer
+    world.add(renderer);
+    // render on each step
+    world.on('step', function () {
+        world.render();
+    });
+
+    // attract bodies to a point
+    attractor = Physics.behavior('attractor', {
+        pos: center
+        ,strength: .1
+        ,order: 1
+    });
+
+    // constrain objects to these bounds
+    edgeBounce = Physics.behavior('edge-collision-detection', {
+        aabb: viewportBounds
+        ,restitution: 0.2
+        ,cof: 0.8
+    });
+
+    // resize events
+    window.addEventListener('resize', function () {
+
+        viewWidth = window.innerWidth;
+        viewHeight = window.innerHeight;
+
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // update the boundaries
+        edgeBounce.setAABB(viewportBounds);
+
+    }, true);
+
+    // move the attractor position to match the mouse coords
+    renderer.el.addEventListener('mousemove', function( e ){
+        attractor.position({ x: e.pageX, y: e.pageY });
+    });
+
+    // some fun colors
+    var colors = [
+        '#b58900',
+        '#cb4b16',
+        '#dc322f',
+        '#d33682',
+        '#6c71c4',
+        '#268bd2',
+        '#2aa198',
+        '#859900'
+    ];
+    // create some bodies
+    var l = 10;
+    var bodies = [];
+    var v = Physics.vector(0, 300);
+    var b, r;
+
+    while ( l-- ) {
+        r = (20 + Math.random()*30)|0;
+        b = Physics.body('circle', {
+            radius: r
+            ,mass: r
+            ,x: v.x + center.x
+            ,y: v.y + center.y
+            ,vx: v.perp().mult(0.0001).x
+            ,vx: v.y
+            ,styles: {
+                fillStyle: colors[ l % colors.length ]
+            }
+        });
+        bodies.push(b);
+        v.perp(true)
+            .mult(10000)
+            .rotate(l / 3);
+    }
+
+    // add things to the world
+    world.add( bodies );
+    world.add([
+        Physics.behavior('newtonian', {
+            strength: 0.005
+            ,min: 10
+        })
+        ,Physics.behavior('body-impulse-response')
+        ,edgeBounce
+        ,attractor
+    ]);
+
+    // subscribe to ticker to advance the simulation
+    Physics.util.ticker.on(function( time ) {
+        world.step( time );
+    });
+
+    // start the ticker
+    Physics.util.ticker.start();
+});
+
+// go ahead... expand the code and play around...
+</textarea>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script>
+jQuery(function( $ ){
+    var editor = window.CodeEditors[0];
+    var $changer = $('<select>');
+    var idx;
+    var demos = {
+        'Simple': './demos/simple.js'
+        ,'Newtonian Orbit': './demos/newtonian.js'
+        ,'Newton\'s Revenge': './demos/newton-gravity.js'
+        ,'Supermarket Catastrophy': './demos/supermarket-catastrophy.js'
+        ,'Mixed Shapes': './demos/mixed-shapes.js'
+        ,'Basket of Verlet Constraints': './demos/basket.js'
+        ,'Tearable Cloth': './demos/cloth.js'
+        ,'Fruitcake on Wheels': './demos/fruitcake.js'
+        ,'Autumn Leaves': './demos/autumn-leaves.js'
+        ,'Bullet Time': './demos/bullet-time.js'
+        ,'Intro': 'intro'
+    };
+    $.each(demos, function( key, src ){
+        $changer.append('<option value="'+src+'">'+key+'</option>');
+    });
+    $changer.val('intro');
+    $('#demo-area .controls').prepend( $changer );
+
+    var introText = editor.getValue();
+
+    function update( content ){
+        editor.setValue( content );
+        $('#demo-area .ctrl-run').trigger('click');
+    }
+
+    $(document).on('change', '.controls select', function(){
+        var $this = $(this);
+        var src = $this.val();
+        var idx = $.inArray( $this.children('[value="'+src+'"]')[0], $this.children() );
+        window.location.hash = '#demo-'+idx;
+
+        if ( src !== 'intro' ){
+            $.get(src, function( content ){
+                update( content );
+            }, 'text');
+        } else {
+            update( introText );
+        }
+    });
+
+    idx = window.location.hash.replace('#demo-', '')|0;
+    if ( idx ){
+        $changer.val( $changer.children().eq(idx).val() )
+            .trigger('change')
+            ;
+    }
+});
+</script>

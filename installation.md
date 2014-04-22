@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Installation | PhysicsJS
+title: Getting Started | PhysicsJS
 ---
 
-# Installation
+# Getting Started
 
 You can use PhysicsJS as an [AMD module](http://requirejs.org/docs/whyamd.html) (requireJS), a CommonJS module, or a regular browser global.
 
@@ -21,7 +21,7 @@ require.config({
         {
           name: 'physicsjs',
           location: 'path/to/physicsjs',
-          main: 'physicsjs-0.5.1.min'
+          main: 'physicsjs-VERSION.min'
         }
     ],
     //...
@@ -35,7 +35,7 @@ require([
     'physicsjs',
     'physicsjs/bodies/circle' // will mix into the PhysicsJS library
 ], function( Physics ){
-    
+
     // do something fun with circles!
 });
 {% endhighlight %}
@@ -79,7 +79,7 @@ all non-core functionality.
 the correct file.
 
 {% highlight js %}
-var Physics = require('./path/to/physicsjs/physicsjs-full-0.5.1');
+var Physics = require('./path/to/physicsjs/physicsjs-full-VERSION');
 
 Physics(function(world){
   // code...
