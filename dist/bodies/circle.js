@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -16,11 +16,29 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /**
-     * Circle body definition
-     * @module bodies/circle
+    /*
      * @requires geometries/circle
      */
+    /** 
+     * class CircleBody < Body
+     *
+     * Physics.body('circle')
+     *
+     * The circle body has a circular shape.
+     *
+     * Additional options include:
+     * - radius: the radius
+     *
+     * Example:
+     *
+     * ```javascript
+     * var round = Physics.body('circle', {
+     *     x: 30,
+     *     y: 20,
+     *     radius: 5
+     * });
+     * ```
+     **/
     Physics.body('circle', function( parent ){
     
         var defaults = {
@@ -29,11 +47,7 @@
     
         return {
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration options
-             * @return {void}
-             */
+            // extended
             init: function( options ){
     
                 // call parent init method
@@ -48,10 +62,7 @@
                 this.recalc();
             },
     
-            /**
-             * Recalculate properties. Call when body physical properties are changed.
-             * @return {this}
-             */
+            // extended
             recalc: function(){
                 parent.recalc.call(this);
                 // moment of inertia

@@ -6175,7 +6175,7 @@
               "related_to": "Physics.aabb",
               "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
               "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-              "line": 322,
+              "line": 316,
               "aliases": [],
               "children": [],
               "file": "src/core/body.js",
@@ -6466,7 +6466,7 @@
               ],
               "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
               "short_description": "Recalculate properties.\n",
-              "line": 341,
+              "line": 335,
               "aliases": [],
               "children": [],
               "file": "src/core/body.js",
@@ -6751,7 +6751,7 @@
           "related_to": "Physics.aabb",
           "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
           "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-          "line": 322,
+          "line": 316,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -7042,7 +7042,7 @@
           ],
           "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
           "short_description": "Recalculate properties.\n",
-          "line": 341,
+          "line": 335,
           "aliases": [],
           "children": [],
           "file": "src/core/body.js",
@@ -7739,7 +7739,7 @@
       "related_to": "Physics.aabb",
       "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
       "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-      "line": 322,
+      "line": 316,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -7763,7 +7763,7 @@
       ],
       "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
       "short_description": "Recalculate properties.\n",
-      "line": 341,
+      "line": 335,
       "aliases": [],
       "children": [],
       "file": "src/core/body.js",
@@ -11419,7 +11419,7 @@
               ],
               "description": "Create a view for the specified geometry.\n\nThe view is used to render the body. It is a cached version\nof the body that gets moved and rotated according to the simulation.\n\nThe styles are used to modify the appearance of the view.\nThey depend on the renderer.\n\nOverride this when creating renderers.",
               "short_description": "Create a view for the specified geometry.\n",
-              "line": 146,
+              "line": 148,
               "aliases": [],
               "children": [],
               "file": "src/core/renderer.js",
@@ -11469,7 +11469,7 @@
               ],
               "description": "Draw specified body using specified view.\n\nOverride this when creating renderers.",
               "short_description": "Draw specified body using specified view.\n",
-              "line": 190,
+              "line": 192,
               "aliases": [],
               "children": [],
               "file": "src/core/renderer.js",
@@ -11505,7 +11505,7 @@
               ],
               "description": "Draw the meta data.\n\nThe meta data will look like this:\n\n```javascript\nmeta = {\n    fps: 60, // the frames per second\n    ipf: 4 // the number of iterations per frame\n};\n```\n\nOverride this when creating renderers.",
               "short_description": "Draw the meta data.\n",
-              "line": 173,
+              "line": 175,
               "aliases": [],
               "children": [],
               "file": "src/core/renderer.js",
@@ -12680,7 +12680,7 @@
                   ],
                   "description": "Event callback to attach a node to the viewport",
                   "short_description": "Event callback to attach a node to the viewport",
-                  "line": 209,
+                  "line": 193,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -12731,7 +12731,7 @@
                   "internal": true,
                   "description": "Set dom element style properties for a circle.",
                   "short_description": "Set dom element style properties for a circle.",
-                  "line": 121,
+                  "line": 105,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -12774,7 +12774,7 @@
                   ],
                   "description": "Event callback to detach a node from the DOM",
                   "short_description": "Event callback to detach a node from the DOM",
-                  "line": 188,
+                  "line": 172,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -12825,7 +12825,7 @@
                   "internal": true,
                   "description": "Set dom element style properties for a rectangle.",
                   "short_description": "Set dom element style properties for a rectangle.",
-                  "line": 138,
+                  "line": 122,
                   "aliases": [],
                   "children": [],
                   "file": "src/renderers/dom.js",
@@ -13370,7 +13370,7 @@
           ],
           "description": "Create a view for the specified geometry.\n\nThe view is used to render the body. It is a cached version\nof the body that gets moved and rotated according to the simulation.\n\nThe styles are used to modify the appearance of the view.\nThey depend on the renderer.\n\nOverride this when creating renderers.",
           "short_description": "Create a view for the specified geometry.\n",
-          "line": 146,
+          "line": 148,
           "aliases": [],
           "children": [],
           "file": "src/core/renderer.js",
@@ -13420,7 +13420,7 @@
           ],
           "description": "Draw specified body using specified view.\n\nOverride this when creating renderers.",
           "short_description": "Draw specified body using specified view.\n",
-          "line": 190,
+          "line": 192,
           "aliases": [],
           "children": [],
           "file": "src/core/renderer.js",
@@ -13456,7 +13456,7 @@
           ],
           "description": "Draw the meta data.\n\nThe meta data will look like this:\n\n```javascript\nmeta = {\n    fps: 60, // the frames per second\n    ipf: 4 // the number of iterations per frame\n};\n```\n\nOverride this when creating renderers.",
           "short_description": "Draw the meta data.\n",
-          "line": 173,
+          "line": 175,
           "aliases": [],
           "children": [],
           "file": "src/core/renderer.js",
@@ -14631,7 +14631,7 @@
               ],
               "description": "Event callback to attach a node to the viewport",
               "short_description": "Event callback to attach a node to the viewport",
-              "line": 209,
+              "line": 193,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -14682,7 +14682,7 @@
               "internal": true,
               "description": "Set dom element style properties for a circle.",
               "short_description": "Set dom element style properties for a circle.",
-              "line": 121,
+              "line": 105,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -14725,7 +14725,7 @@
               ],
               "description": "Event callback to detach a node from the DOM",
               "short_description": "Event callback to detach a node from the DOM",
-              "line": 188,
+              "line": 172,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -14776,7 +14776,7 @@
               "internal": true,
               "description": "Set dom element style properties for a rectangle.",
               "short_description": "Set dom element style properties for a rectangle.",
-              "line": 138,
+              "line": 122,
               "aliases": [],
               "children": [],
               "file": "src/renderers/dom.js",
@@ -15438,7 +15438,7 @@
       ],
       "description": "Create a view for the specified geometry.\n\nThe view is used to render the body. It is a cached version\nof the body that gets moved and rotated according to the simulation.\n\nThe styles are used to modify the appearance of the view.\nThey depend on the renderer.\n\nOverride this when creating renderers.",
       "short_description": "Create a view for the specified geometry.\n",
-      "line": 146,
+      "line": 148,
       "aliases": [],
       "children": [],
       "file": "src/core/renderer.js",
@@ -15474,7 +15474,7 @@
       ],
       "description": "Draw the meta data.\n\nThe meta data will look like this:\n\n```javascript\nmeta = {\n    fps: 60, // the frames per second\n    ipf: 4 // the number of iterations per frame\n};\n```\n\nOverride this when creating renderers.",
       "short_description": "Draw the meta data.\n",
-      "line": 173,
+      "line": 175,
       "aliases": [],
       "children": [],
       "file": "src/core/renderer.js",
@@ -15524,7 +15524,7 @@
       ],
       "description": "Draw specified body using specified view.\n\nOverride this when creating renderers.",
       "short_description": "Draw specified body using specified view.\n",
-      "line": 190,
+      "line": 192,
       "aliases": [],
       "children": [],
       "file": "src/core/renderer.js",
@@ -15577,7 +15577,7 @@
           "chainable": true,
           "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
           "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-          "line": 183,
+          "line": 185,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15619,7 +15619,7 @@
           "chainable": true,
           "description": "Add a behavior to the world",
           "short_description": "Add a behavior to the world",
-          "line": 430,
+          "line": 432,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15661,7 +15661,7 @@
           "chainable": true,
           "description": "Add a body to the world",
           "short_description": "Add a body to the world",
-          "line": 498,
+          "line": 500,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15680,7 +15680,7 @@
           ],
           "description": "Destroy the world.\n(Bwahahahahaha!)",
           "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-          "line": 712,
+          "line": 766,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15762,7 +15762,7 @@
           "related_to": "Physics.query",
           "description": "Find all matching bodies based on query rules.",
           "short_description": "Find all matching bodies based on query rules.",
-          "line": 587,
+          "line": 589,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15850,7 +15850,7 @@
           "related_to": "Physics.query",
           "description": "Find first matching body based on query rules.",
           "short_description": "Find first matching body based on query rules.",
-          "line": 569,
+          "line": 571,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15880,7 +15880,7 @@
           ],
           "description": "Get copied list of behaviors in the world",
           "short_description": "Get copied list of behaviors in the world",
-          "line": 455,
+          "line": 457,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15910,7 +15910,7 @@
           ],
           "description": "Get copied list of bodies in the world",
           "short_description": "Get copied list of bodies in the world",
-          "line": 523,
+          "line": 525,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -15959,7 +15959,7 @@
           "chainable": true,
           "description": "Determine if a thing has been added to world.",
           "short_description": "Determine if a thing has been added to world.",
-          "line": 284,
+          "line": 286,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16082,7 +16082,7 @@
           "chainable": true,
           "description": "Get or Set the integrator",
           "short_description": "Get or Set the integrator",
-          "line": 330,
+          "line": 332,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16112,7 +16112,7 @@
           ],
           "description": "Determine if world is paused.",
           "short_description": "Determine if world is paused.",
-          "line": 701,
+          "line": 755,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16149,7 +16149,7 @@
           "internal": true,
           "description": "Do a single iteration.",
           "short_description": "Do a single iteration.",
-          "line": 602,
+          "line": 604,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16197,7 +16197,7 @@
           ],
           "description": "Set config options. Also access options by `.options.<option>`.",
           "short_description": "Set config options. Also access options by `.options.<option>`.",
-          "line": 175,
+          "line": 177,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16222,7 +16222,7 @@
           "chainable": true,
           "description": "Pause the world (step calls do nothing).",
           "short_description": "Pause the world (step calls do nothing).",
-          "line": 676,
+          "line": 730,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16266,7 +16266,7 @@
           "chainable": true,
           "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
           "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-          "line": 231,
+          "line": 233,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16308,7 +16308,7 @@
           "chainable": true,
           "description": "Remove a behavior from the world",
           "short_description": "Remove a behavior from the world",
-          "line": 467,
+          "line": 469,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16350,7 +16350,7 @@
           "chainable": true,
           "description": "Remove a body from the world",
           "short_description": "Remove a body from the world",
-          "line": 535,
+          "line": 537,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16375,7 +16375,7 @@
           "chainable": true,
           "description": "Render current world state using the renderer",
           "short_description": "Render current world state using the renderer",
-          "line": 656,
+          "line": 710,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16433,7 +16433,7 @@
           "chainable": true,
           "description": "Get or Set the renderer",
           "short_description": "Get or Set the renderer",
-          "line": 370,
+          "line": 372,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16450,10 +16450,11 @@
               "arguments": [
                 {
                   "name": "now",
+                  "optional": true,
                   "types": [
                     "Number"
                   ],
-                  "description": " now Current unix timestamp\n\n     "
+                  "description": " Current unix timestamp\n\n     "
                 }
               ],
               "returns": [
@@ -16469,13 +16470,13 @@
               "types": [
                 "Number"
               ],
-              "description": " now Current unix timestamp\n\n     "
+              "description": " Current unix timestamp\n\n     "
             }
           ],
           "chainable": true,
-          "description": "Do a single step.",
-          "short_description": "Do a single step.",
-          "line": 613,
+          "description": "Step the world up to specified time or do one step if no time is specified.",
+          "short_description": "Step the world up to specified time or do one step if no time is specified.",
+          "line": 615,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16485,7 +16486,7 @@
           "outFile": "world.html#Physics.world.prototype.step"
         },
         {
-          "id": "Physics.world#timeStep",
+          "id": "Physics.world#timestep",
           "type": "instance method",
           "signatures": [
             {
@@ -16531,16 +16532,16 @@
             }
           ],
           "chainable": true,
-          "description": "Get or Set the time step",
-          "short_description": "Get or Set the time step",
-          "line": 410,
+          "description": "Get or Set the timestep",
+          "short_description": "Get or Set the timestep",
+          "line": 412,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
-          "name": "timeStep",
+          "name": "timestep",
           "name_prefix": "Physics.world#",
-          "path": "Physics.world.prototype.timeStep",
-          "outFile": "world.html#Physics.world.prototype.timeStep"
+          "path": "Physics.world.prototype.timestep",
+          "outFile": "world.html#Physics.world.prototype.timestep"
         },
         {
           "id": "Physics.world#unpause",
@@ -16558,7 +16559,7 @@
           "chainable": true,
           "description": "Unpause the world (step calls continue as usual).",
           "short_description": "Unpause the world (step calls continue as usual).",
-          "line": 688,
+          "line": 742,
           "aliases": [],
           "children": [],
           "file": "src/core/world.js",
@@ -16566,6 +16567,51 @@
           "name_prefix": "Physics.world#",
           "path": "Physics.world.prototype.unpause",
           "outFile": "world.html#Physics.world.prototype.unpause"
+        },
+        {
+          "id": "Physics.world#warp",
+          "type": "instance method",
+          "signatures": [
+            {
+              "arguments": [
+                {
+                  "name": "warp",
+                  "optional": true,
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The time warp factor\n\n     "
+                }
+              ],
+              "returns": [
+                {
+                  "type": "this"
+                },
+                {
+                  "type": "Number"
+                }
+              ]
+            }
+          ],
+          "arguments": [
+            {
+              "name": "warp",
+              "types": [
+                "Number"
+              ],
+              "description": " The time warp factor\n\n     "
+            }
+          ],
+          "description": "Speed up or slow down the iteration by this factor.\n\nExample:\n```javascript\n// slow motion... 10x slower\nworld.warp( 0.01 );\n```",
+          "short_description": "Speed up or slow down the iteration by this factor.\n",
+          "line": 695,
+          "aliases": [],
+          "children": [],
+          "file": "src/core/world.js",
+          "name": "warp",
+          "name_prefix": "Physics.world#",
+          "path": "Physics.world.prototype.warp",
+          "outFile": "world.html#Physics.world.prototype.warp"
         },
         {
           "id": "new Physics.world",
@@ -16642,7 +16688,7 @@
             }
           ],
           "alias_of": "Physics",
-          "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 160,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
+          "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 120,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
           "short_description": "World Constructor.\n",
           "line": 105,
           "aliases": [],
@@ -16736,7 +16782,7 @@
         }
       ],
       "alias_of": "Physics",
-      "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 160,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
+      "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 120,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
       "short_description": "World Constructor.\n",
       "line": 105,
       "aliases": [],
@@ -16851,7 +16897,7 @@
       ],
       "description": "Set config options. Also access options by `.options.<option>`.",
       "short_description": "Set config options. Also access options by `.options.<option>`.",
-      "line": 175,
+      "line": 177,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -16895,7 +16941,7 @@
       "chainable": true,
       "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
       "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-      "line": 183,
+      "line": 185,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -16939,7 +16985,7 @@
       "chainable": true,
       "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
       "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-      "line": 231,
+      "line": 233,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -16988,7 +17034,7 @@
       "chainable": true,
       "description": "Determine if a thing has been added to world.",
       "short_description": "Determine if a thing has been added to world.",
-      "line": 284,
+      "line": 286,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17046,7 +17092,7 @@
       "chainable": true,
       "description": "Get or Set the integrator",
       "short_description": "Get or Set the integrator",
-      "line": 330,
+      "line": 332,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17104,7 +17150,7 @@
       "chainable": true,
       "description": "Get or Set the renderer",
       "short_description": "Get or Set the renderer",
-      "line": 370,
+      "line": 372,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17113,8 +17159,8 @@
       "path": "Physics.world.prototype.renderer",
       "outFile": "world.html#Physics.world.prototype.renderer"
     },
-    "Physics.world#timeStep": {
-      "id": "Physics.world#timeStep",
+    "Physics.world#timestep": {
+      "id": "Physics.world#timestep",
       "type": "instance method",
       "signatures": [
         {
@@ -17160,16 +17206,16 @@
         }
       ],
       "chainable": true,
-      "description": "Get or Set the time step",
-      "short_description": "Get or Set the time step",
-      "line": 410,
+      "description": "Get or Set the timestep",
+      "short_description": "Get or Set the timestep",
+      "line": 412,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
-      "name": "timeStep",
+      "name": "timestep",
       "name_prefix": "Physics.world#",
-      "path": "Physics.world.prototype.timeStep",
-      "outFile": "world.html#Physics.world.prototype.timeStep"
+      "path": "Physics.world.prototype.timestep",
+      "outFile": "world.html#Physics.world.prototype.timestep"
     },
     "Physics.world#addBehavior": {
       "id": "Physics.world#addBehavior",
@@ -17204,7 +17250,7 @@
       "chainable": true,
       "description": "Add a behavior to the world",
       "short_description": "Add a behavior to the world",
-      "line": 430,
+      "line": 432,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17234,7 +17280,7 @@
       ],
       "description": "Get copied list of behaviors in the world",
       "short_description": "Get copied list of behaviors in the world",
-      "line": 455,
+      "line": 457,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17276,7 +17322,7 @@
       "chainable": true,
       "description": "Remove a behavior from the world",
       "short_description": "Remove a behavior from the world",
-      "line": 467,
+      "line": 469,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17318,7 +17364,7 @@
       "chainable": true,
       "description": "Add a body to the world",
       "short_description": "Add a body to the world",
-      "line": 498,
+      "line": 500,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17348,7 +17394,7 @@
       ],
       "description": "Get copied list of bodies in the world",
       "short_description": "Get copied list of bodies in the world",
-      "line": 523,
+      "line": 525,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17390,7 +17436,7 @@
       "chainable": true,
       "description": "Remove a body from the world",
       "short_description": "Remove a body from the world",
-      "line": 535,
+      "line": 537,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17478,7 +17524,7 @@
       "related_to": "Physics.query",
       "description": "Find first matching body based on query rules.",
       "short_description": "Find first matching body based on query rules.",
-      "line": 569,
+      "line": 571,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17560,7 +17606,7 @@
       "related_to": "Physics.query",
       "description": "Find all matching bodies based on query rules.",
       "short_description": "Find all matching bodies based on query rules.",
-      "line": 587,
+      "line": 589,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17597,7 +17643,7 @@
       "internal": true,
       "description": "Do a single iteration.",
       "short_description": "Do a single iteration.",
-      "line": 602,
+      "line": 604,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17614,10 +17660,11 @@
           "arguments": [
             {
               "name": "now",
+              "optional": true,
               "types": [
                 "Number"
               ],
-              "description": " now Current unix timestamp\n\n     "
+              "description": " Current unix timestamp\n\n     "
             }
           ],
           "returns": [
@@ -17633,13 +17680,13 @@
           "types": [
             "Number"
           ],
-          "description": " now Current unix timestamp\n\n     "
+          "description": " Current unix timestamp\n\n     "
         }
       ],
       "chainable": true,
-      "description": "Do a single step.",
-      "short_description": "Do a single step.",
-      "line": 613,
+      "description": "Step the world up to specified time or do one step if no time is specified.",
+      "short_description": "Step the world up to specified time or do one step if no time is specified.",
+      "line": 615,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17647,6 +17694,51 @@
       "name_prefix": "Physics.world#",
       "path": "Physics.world.prototype.step",
       "outFile": "world.html#Physics.world.prototype.step"
+    },
+    "Physics.world#warp": {
+      "id": "Physics.world#warp",
+      "type": "instance method",
+      "signatures": [
+        {
+          "arguments": [
+            {
+              "name": "warp",
+              "optional": true,
+              "types": [
+                "Number"
+              ],
+              "description": " The time warp factor\n\n     "
+            }
+          ],
+          "returns": [
+            {
+              "type": "this"
+            },
+            {
+              "type": "Number"
+            }
+          ]
+        }
+      ],
+      "arguments": [
+        {
+          "name": "warp",
+          "types": [
+            "Number"
+          ],
+          "description": " The time warp factor\n\n     "
+        }
+      ],
+      "description": "Speed up or slow down the iteration by this factor.\n\nExample:\n```javascript\n// slow motion... 10x slower\nworld.warp( 0.01 );\n```",
+      "short_description": "Speed up or slow down the iteration by this factor.\n",
+      "line": 695,
+      "aliases": [],
+      "children": [],
+      "file": "src/core/world.js",
+      "name": "warp",
+      "name_prefix": "Physics.world#",
+      "path": "Physics.world.prototype.warp",
+      "outFile": "world.html#Physics.world.prototype.warp"
     },
     "Physics.world#render": {
       "id": "Physics.world#render",
@@ -17664,7 +17756,7 @@
       "chainable": true,
       "description": "Render current world state using the renderer",
       "short_description": "Render current world state using the renderer",
-      "line": 656,
+      "line": 710,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17689,7 +17781,7 @@
       "chainable": true,
       "description": "Pause the world (step calls do nothing).",
       "short_description": "Pause the world (step calls do nothing).",
-      "line": 676,
+      "line": 730,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17714,7 +17806,7 @@
       "chainable": true,
       "description": "Unpause the world (step calls continue as usual).",
       "short_description": "Unpause the world (step calls continue as usual).",
-      "line": 688,
+      "line": 742,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17744,7 +17836,7 @@
       ],
       "description": "Determine if world is paused.",
       "short_description": "Determine if world is paused.",
-      "line": 701,
+      "line": 755,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -17763,7 +17855,7 @@
       ],
       "description": "Destroy the world.\n(Bwahahahahaha!)",
       "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-      "line": 712,
+      "line": 766,
       "aliases": [],
       "children": [],
       "file": "src/core/world.js",
@@ -20144,7 +20236,7 @@
                   "related_to": "Physics.aabb",
                   "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
                   "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-                  "line": 322,
+                  "line": 316,
                   "aliases": [],
                   "children": [],
                   "file": "src/core/body.js",
@@ -20435,7 +20527,7 @@
                   ],
                   "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
                   "short_description": "Recalculate properties.\n",
-                  "line": 341,
+                  "line": 335,
                   "aliases": [],
                   "children": [],
                   "file": "src/core/body.js",
@@ -22258,7 +22350,7 @@
                   ],
                   "description": "Create a view for the specified geometry.\n\nThe view is used to render the body. It is a cached version\nof the body that gets moved and rotated according to the simulation.\n\nThe styles are used to modify the appearance of the view.\nThey depend on the renderer.\n\nOverride this when creating renderers.",
                   "short_description": "Create a view for the specified geometry.\n",
-                  "line": 146,
+                  "line": 148,
                   "aliases": [],
                   "children": [],
                   "file": "src/core/renderer.js",
@@ -22308,7 +22400,7 @@
                   ],
                   "description": "Draw specified body using specified view.\n\nOverride this when creating renderers.",
                   "short_description": "Draw specified body using specified view.\n",
-                  "line": 190,
+                  "line": 192,
                   "aliases": [],
                   "children": [],
                   "file": "src/core/renderer.js",
@@ -22344,7 +22436,7 @@
                   ],
                   "description": "Draw the meta data.\n\nThe meta data will look like this:\n\n```javascript\nmeta = {\n    fps: 60, // the frames per second\n    ipf: 4 // the number of iterations per frame\n};\n```\n\nOverride this when creating renderers.",
                   "short_description": "Draw the meta data.\n",
-                  "line": 173,
+                  "line": 175,
                   "aliases": [],
                   "children": [],
                   "file": "src/core/renderer.js",
@@ -23519,7 +23611,7 @@
                       ],
                       "description": "Event callback to attach a node to the viewport",
                       "short_description": "Event callback to attach a node to the viewport",
-                      "line": 209,
+                      "line": 193,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -23570,7 +23662,7 @@
                       "internal": true,
                       "description": "Set dom element style properties for a circle.",
                       "short_description": "Set dom element style properties for a circle.",
-                      "line": 121,
+                      "line": 105,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -23613,7 +23705,7 @@
                       ],
                       "description": "Event callback to detach a node from the DOM",
                       "short_description": "Event callback to detach a node from the DOM",
-                      "line": 188,
+                      "line": 172,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -23664,7 +23756,7 @@
                       "internal": true,
                       "description": "Set dom element style properties for a rectangle.",
                       "short_description": "Set dom element style properties for a rectangle.",
-                      "line": 138,
+                      "line": 122,
                       "aliases": [],
                       "children": [],
                       "file": "src/renderers/dom.js",
@@ -24624,9 +24716,9 @@
         {
           "id": "Physics.util",
           "type": "namespace",
-          "description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-          "short_description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-          "line": 48,
+          "description": "Namespace for utility functions.",
+          "short_description": "Namespace for utility functions.",
+          "line": 47,
           "aliases": [],
           "children": [
             {
@@ -26159,7 +26251,7 @@
                   ],
                   "description": "Determine if ticker is currently running.",
                   "short_description": "Determine if ticker is currently running.",
-                  "line": 92,
+                  "line": 100,
                   "aliases": [],
                   "children": [],
                   "file": "src/util/ticker.js",
@@ -26200,7 +26292,7 @@
                   ],
                   "description": "Unsubscribe a callback from the ticker.",
                   "short_description": "Unsubscribe a callback from the ticker.",
-                  "line": 80,
+                  "line": 88,
                   "aliases": [],
                   "children": [],
                   "file": "src/util/ticker.js",
@@ -26258,7 +26350,7 @@
                   ],
                   "description": "Subscribe a callback to the ticker.",
                   "short_description": "Subscribe a callback to the ticker.",
-                  "line": 68,
+                  "line": 76,
                   "aliases": [],
                   "children": [],
                   "file": "src/util/ticker.js",
@@ -26282,7 +26374,7 @@
                   ],
                   "description": "Start the ticker",
                   "short_description": "Start the ticker",
-                  "line": 43,
+                  "line": 51,
                   "aliases": [],
                   "children": [],
                   "file": "src/util/ticker.js",
@@ -26306,7 +26398,7 @@
                   ],
                   "description": "Stop the ticker",
                   "short_description": "Stop the ticker",
-                  "line": 55,
+                  "line": 63,
                   "aliases": [],
                   "children": [],
                   "file": "src/util/ticker.js",
@@ -28031,7 +28123,7 @@
               "chainable": true,
               "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
               "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-              "line": 183,
+              "line": 185,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28073,7 +28165,7 @@
               "chainable": true,
               "description": "Add a behavior to the world",
               "short_description": "Add a behavior to the world",
-              "line": 430,
+              "line": 432,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28115,7 +28207,7 @@
               "chainable": true,
               "description": "Add a body to the world",
               "short_description": "Add a body to the world",
-              "line": 498,
+              "line": 500,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28134,7 +28226,7 @@
               ],
               "description": "Destroy the world.\n(Bwahahahahaha!)",
               "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-              "line": 712,
+              "line": 766,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28216,7 +28308,7 @@
               "related_to": "Physics.query",
               "description": "Find all matching bodies based on query rules.",
               "short_description": "Find all matching bodies based on query rules.",
-              "line": 587,
+              "line": 589,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28304,7 +28396,7 @@
               "related_to": "Physics.query",
               "description": "Find first matching body based on query rules.",
               "short_description": "Find first matching body based on query rules.",
-              "line": 569,
+              "line": 571,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28334,7 +28426,7 @@
               ],
               "description": "Get copied list of behaviors in the world",
               "short_description": "Get copied list of behaviors in the world",
-              "line": 455,
+              "line": 457,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28364,7 +28456,7 @@
               ],
               "description": "Get copied list of bodies in the world",
               "short_description": "Get copied list of bodies in the world",
-              "line": 523,
+              "line": 525,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28413,7 +28505,7 @@
               "chainable": true,
               "description": "Determine if a thing has been added to world.",
               "short_description": "Determine if a thing has been added to world.",
-              "line": 284,
+              "line": 286,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28536,7 +28628,7 @@
               "chainable": true,
               "description": "Get or Set the integrator",
               "short_description": "Get or Set the integrator",
-              "line": 330,
+              "line": 332,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28566,7 +28658,7 @@
               ],
               "description": "Determine if world is paused.",
               "short_description": "Determine if world is paused.",
-              "line": 701,
+              "line": 755,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28603,7 +28695,7 @@
               "internal": true,
               "description": "Do a single iteration.",
               "short_description": "Do a single iteration.",
-              "line": 602,
+              "line": 604,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28651,7 +28743,7 @@
               ],
               "description": "Set config options. Also access options by `.options.<option>`.",
               "short_description": "Set config options. Also access options by `.options.<option>`.",
-              "line": 175,
+              "line": 177,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28676,7 +28768,7 @@
               "chainable": true,
               "description": "Pause the world (step calls do nothing).",
               "short_description": "Pause the world (step calls do nothing).",
-              "line": 676,
+              "line": 730,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28720,7 +28812,7 @@
               "chainable": true,
               "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
               "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-              "line": 231,
+              "line": 233,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28762,7 +28854,7 @@
               "chainable": true,
               "description": "Remove a behavior from the world",
               "short_description": "Remove a behavior from the world",
-              "line": 467,
+              "line": 469,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28804,7 +28896,7 @@
               "chainable": true,
               "description": "Remove a body from the world",
               "short_description": "Remove a body from the world",
-              "line": 535,
+              "line": 537,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28829,7 +28921,7 @@
               "chainable": true,
               "description": "Render current world state using the renderer",
               "short_description": "Render current world state using the renderer",
-              "line": 656,
+              "line": 710,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28887,7 +28979,7 @@
               "chainable": true,
               "description": "Get or Set the renderer",
               "short_description": "Get or Set the renderer",
-              "line": 370,
+              "line": 372,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28904,10 +28996,11 @@
                   "arguments": [
                     {
                       "name": "now",
+                      "optional": true,
                       "types": [
                         "Number"
                       ],
-                      "description": " now Current unix timestamp\n\n     "
+                      "description": " Current unix timestamp\n\n     "
                     }
                   ],
                   "returns": [
@@ -28923,13 +29016,13 @@
                   "types": [
                     "Number"
                   ],
-                  "description": " now Current unix timestamp\n\n     "
+                  "description": " Current unix timestamp\n\n     "
                 }
               ],
               "chainable": true,
-              "description": "Do a single step.",
-              "short_description": "Do a single step.",
-              "line": 613,
+              "description": "Step the world up to specified time or do one step if no time is specified.",
+              "short_description": "Step the world up to specified time or do one step if no time is specified.",
+              "line": 615,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -28939,7 +29032,7 @@
               "outFile": "world.html#Physics.world.prototype.step"
             },
             {
-              "id": "Physics.world#timeStep",
+              "id": "Physics.world#timestep",
               "type": "instance method",
               "signatures": [
                 {
@@ -28985,16 +29078,16 @@
                 }
               ],
               "chainable": true,
-              "description": "Get or Set the time step",
-              "short_description": "Get or Set the time step",
-              "line": 410,
+              "description": "Get or Set the timestep",
+              "short_description": "Get or Set the timestep",
+              "line": 412,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
-              "name": "timeStep",
+              "name": "timestep",
               "name_prefix": "Physics.world#",
-              "path": "Physics.world.prototype.timeStep",
-              "outFile": "world.html#Physics.world.prototype.timeStep"
+              "path": "Physics.world.prototype.timestep",
+              "outFile": "world.html#Physics.world.prototype.timestep"
             },
             {
               "id": "Physics.world#unpause",
@@ -29012,7 +29105,7 @@
               "chainable": true,
               "description": "Unpause the world (step calls continue as usual).",
               "short_description": "Unpause the world (step calls continue as usual).",
-              "line": 688,
+              "line": 742,
               "aliases": [],
               "children": [],
               "file": "src/core/world.js",
@@ -29020,6 +29113,51 @@
               "name_prefix": "Physics.world#",
               "path": "Physics.world.prototype.unpause",
               "outFile": "world.html#Physics.world.prototype.unpause"
+            },
+            {
+              "id": "Physics.world#warp",
+              "type": "instance method",
+              "signatures": [
+                {
+                  "arguments": [
+                    {
+                      "name": "warp",
+                      "optional": true,
+                      "types": [
+                        "Number"
+                      ],
+                      "description": " The time warp factor\n\n     "
+                    }
+                  ],
+                  "returns": [
+                    {
+                      "type": "this"
+                    },
+                    {
+                      "type": "Number"
+                    }
+                  ]
+                }
+              ],
+              "arguments": [
+                {
+                  "name": "warp",
+                  "types": [
+                    "Number"
+                  ],
+                  "description": " The time warp factor\n\n     "
+                }
+              ],
+              "description": "Speed up or slow down the iteration by this factor.\n\nExample:\n```javascript\n// slow motion... 10x slower\nworld.warp( 0.01 );\n```",
+              "short_description": "Speed up or slow down the iteration by this factor.\n",
+              "line": 695,
+              "aliases": [],
+              "children": [],
+              "file": "src/core/world.js",
+              "name": "warp",
+              "name_prefix": "Physics.world#",
+              "path": "Physics.world.prototype.warp",
+              "outFile": "world.html#Physics.world.prototype.warp"
             },
             {
               "id": "new Physics.world",
@@ -29096,7 +29234,7 @@
                 }
               ],
               "alias_of": "Physics",
-              "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 160,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
+              "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 120,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
               "short_description": "World Constructor.\n",
               "line": 105,
               "aliases": [],
@@ -29124,9 +29262,9 @@
     "Physics.util": {
       "id": "Physics.util",
       "type": "namespace",
-      "description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-      "short_description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-      "line": 48,
+      "description": "Namespace for utility functions.",
+      "short_description": "Namespace for utility functions.",
+      "line": 47,
       "aliases": [],
       "children": [
         {
@@ -30659,7 +30797,7 @@
               ],
               "description": "Determine if ticker is currently running.",
               "short_description": "Determine if ticker is currently running.",
-              "line": 92,
+              "line": 100,
               "aliases": [],
               "children": [],
               "file": "src/util/ticker.js",
@@ -30700,7 +30838,7 @@
               ],
               "description": "Unsubscribe a callback from the ticker.",
               "short_description": "Unsubscribe a callback from the ticker.",
-              "line": 80,
+              "line": 88,
               "aliases": [],
               "children": [],
               "file": "src/util/ticker.js",
@@ -30758,7 +30896,7 @@
               ],
               "description": "Subscribe a callback to the ticker.",
               "short_description": "Subscribe a callback to the ticker.",
-              "line": 68,
+              "line": 76,
               "aliases": [],
               "children": [],
               "file": "src/util/ticker.js",
@@ -30782,7 +30920,7 @@
               ],
               "description": "Start the ticker",
               "short_description": "Start the ticker",
-              "line": 43,
+              "line": 51,
               "aliases": [],
               "children": [],
               "file": "src/util/ticker.js",
@@ -30806,7 +30944,7 @@
               ],
               "description": "Stop the ticker",
               "short_description": "Stop the ticker",
-              "line": 55,
+              "line": 63,
               "aliases": [],
               "children": [],
               "file": "src/util/ticker.js",
@@ -37517,7 +37655,7 @@
           ],
           "description": "Event callback to attach a node to the viewport",
           "short_description": "Event callback to attach a node to the viewport",
-          "line": 209,
+          "line": 193,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -37568,7 +37706,7 @@
           "internal": true,
           "description": "Set dom element style properties for a circle.",
           "short_description": "Set dom element style properties for a circle.",
-          "line": 121,
+          "line": 105,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -37611,7 +37749,7 @@
           ],
           "description": "Event callback to detach a node from the DOM",
           "short_description": "Event callback to detach a node from the DOM",
-          "line": 188,
+          "line": 172,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -37662,7 +37800,7 @@
           "internal": true,
           "description": "Set dom element style properties for a rectangle.",
           "short_description": "Set dom element style properties for a rectangle.",
-          "line": 138,
+          "line": 122,
           "aliases": [],
           "children": [],
           "file": "src/renderers/dom.js",
@@ -37720,7 +37858,7 @@
       "internal": true,
       "description": "Set dom element style properties for a circle.",
       "short_description": "Set dom element style properties for a circle.",
-      "line": 121,
+      "line": 105,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -37771,7 +37909,7 @@
       "internal": true,
       "description": "Set dom element style properties for a rectangle.",
       "short_description": "Set dom element style properties for a rectangle.",
-      "line": 138,
+      "line": 122,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -37814,7 +37952,7 @@
       ],
       "description": "Event callback to detach a node from the DOM",
       "short_description": "Event callback to detach a node from the DOM",
-      "line": 188,
+      "line": 172,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -37857,7 +37995,7 @@
       ],
       "description": "Event callback to attach a node to the viewport",
       "short_description": "Event callback to attach a node to the viewport",
-      "line": 209,
+      "line": 193,
       "aliases": [],
       "children": [],
       "file": "src/renderers/dom.js",
@@ -41375,7 +41513,7 @@
           ],
           "description": "Determine if ticker is currently running.",
           "short_description": "Determine if ticker is currently running.",
-          "line": 92,
+          "line": 100,
           "aliases": [],
           "children": [],
           "file": "src/util/ticker.js",
@@ -41416,7 +41554,7 @@
           ],
           "description": "Unsubscribe a callback from the ticker.",
           "short_description": "Unsubscribe a callback from the ticker.",
-          "line": 80,
+          "line": 88,
           "aliases": [],
           "children": [],
           "file": "src/util/ticker.js",
@@ -41474,7 +41612,7 @@
           ],
           "description": "Subscribe a callback to the ticker.",
           "short_description": "Subscribe a callback to the ticker.",
-          "line": 68,
+          "line": 76,
           "aliases": [],
           "children": [],
           "file": "src/util/ticker.js",
@@ -41498,7 +41636,7 @@
           ],
           "description": "Start the ticker",
           "short_description": "Start the ticker",
-          "line": 43,
+          "line": 51,
           "aliases": [],
           "children": [],
           "file": "src/util/ticker.js",
@@ -41522,7 +41660,7 @@
           ],
           "description": "Stop the ticker",
           "short_description": "Stop the ticker",
-          "line": 55,
+          "line": 63,
           "aliases": [],
           "children": [],
           "file": "src/util/ticker.js",
@@ -41554,7 +41692,7 @@
       ],
       "description": "Start the ticker",
       "short_description": "Start the ticker",
-      "line": 43,
+      "line": 51,
       "aliases": [],
       "children": [],
       "file": "src/util/ticker.js",
@@ -41578,7 +41716,7 @@
       ],
       "description": "Stop the ticker",
       "short_description": "Stop the ticker",
-      "line": 55,
+      "line": 63,
       "aliases": [],
       "children": [],
       "file": "src/util/ticker.js",
@@ -41636,7 +41774,7 @@
       ],
       "description": "Subscribe a callback to the ticker.",
       "short_description": "Subscribe a callback to the ticker.",
-      "line": 68,
+      "line": 76,
       "aliases": [],
       "children": [],
       "file": "src/util/ticker.js",
@@ -41677,7 +41815,7 @@
       ],
       "description": "Unsubscribe a callback from the ticker.",
       "short_description": "Unsubscribe a callback from the ticker.",
-      "line": 80,
+      "line": 88,
       "aliases": [],
       "children": [],
       "file": "src/util/ticker.js",
@@ -41707,7 +41845,7 @@
       ],
       "description": "Determine if ticker is currently running.",
       "short_description": "Determine if ticker is currently running.",
-      "line": 92,
+      "line": 100,
       "aliases": [],
       "children": [],
       "file": "src/util/ticker.js",
@@ -44212,7 +44350,7 @@
                     "related_to": "Physics.aabb",
                     "description": "Get the Axis aligned bounding box for the body in its current position and rotation",
                     "short_description": "Get the Axis aligned bounding box for the body in its current position and rotation",
-                    "line": 322,
+                    "line": 316,
                     "aliases": [],
                     "children": [],
                     "file": "src/core/body.js",
@@ -44503,7 +44641,7 @@
                     ],
                     "description": "Recalculate properties.\n\nIntended to be overridden by subclasses. Call when body physical properties are changed.",
                     "short_description": "Recalculate properties.\n",
-                    "line": 341,
+                    "line": 335,
                     "aliases": [],
                     "children": [],
                     "file": "src/core/body.js",
@@ -46326,7 +46464,7 @@
                     ],
                     "description": "Create a view for the specified geometry.\n\nThe view is used to render the body. It is a cached version\nof the body that gets moved and rotated according to the simulation.\n\nThe styles are used to modify the appearance of the view.\nThey depend on the renderer.\n\nOverride this when creating renderers.",
                     "short_description": "Create a view for the specified geometry.\n",
-                    "line": 146,
+                    "line": 148,
                     "aliases": [],
                     "children": [],
                     "file": "src/core/renderer.js",
@@ -46376,7 +46514,7 @@
                     ],
                     "description": "Draw specified body using specified view.\n\nOverride this when creating renderers.",
                     "short_description": "Draw specified body using specified view.\n",
-                    "line": 190,
+                    "line": 192,
                     "aliases": [],
                     "children": [],
                     "file": "src/core/renderer.js",
@@ -46412,7 +46550,7 @@
                     ],
                     "description": "Draw the meta data.\n\nThe meta data will look like this:\n\n```javascript\nmeta = {\n    fps: 60, // the frames per second\n    ipf: 4 // the number of iterations per frame\n};\n```\n\nOverride this when creating renderers.",
                     "short_description": "Draw the meta data.\n",
-                    "line": 173,
+                    "line": 175,
                     "aliases": [],
                     "children": [],
                     "file": "src/core/renderer.js",
@@ -47587,7 +47725,7 @@
                         ],
                         "description": "Event callback to attach a node to the viewport",
                         "short_description": "Event callback to attach a node to the viewport",
-                        "line": 209,
+                        "line": 193,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -47638,7 +47776,7 @@
                         "internal": true,
                         "description": "Set dom element style properties for a circle.",
                         "short_description": "Set dom element style properties for a circle.",
-                        "line": 121,
+                        "line": 105,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -47681,7 +47819,7 @@
                         ],
                         "description": "Event callback to detach a node from the DOM",
                         "short_description": "Event callback to detach a node from the DOM",
-                        "line": 188,
+                        "line": 172,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -47732,7 +47870,7 @@
                         "internal": true,
                         "description": "Set dom element style properties for a rectangle.",
                         "short_description": "Set dom element style properties for a rectangle.",
-                        "line": 138,
+                        "line": 122,
                         "aliases": [],
                         "children": [],
                         "file": "src/renderers/dom.js",
@@ -48692,9 +48830,9 @@
           {
             "id": "Physics.util",
             "type": "namespace",
-            "description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-            "short_description": "Namespace for utility functions. It contains a subset of\nthe [lodash API](http://lodash.com/docs).",
-            "line": 48,
+            "description": "Namespace for utility functions.",
+            "short_description": "Namespace for utility functions.",
+            "line": 47,
             "aliases": [],
             "children": [
               {
@@ -50227,7 +50365,7 @@
                     ],
                     "description": "Determine if ticker is currently running.",
                     "short_description": "Determine if ticker is currently running.",
-                    "line": 92,
+                    "line": 100,
                     "aliases": [],
                     "children": [],
                     "file": "src/util/ticker.js",
@@ -50268,7 +50406,7 @@
                     ],
                     "description": "Unsubscribe a callback from the ticker.",
                     "short_description": "Unsubscribe a callback from the ticker.",
-                    "line": 80,
+                    "line": 88,
                     "aliases": [],
                     "children": [],
                     "file": "src/util/ticker.js",
@@ -50326,7 +50464,7 @@
                     ],
                     "description": "Subscribe a callback to the ticker.",
                     "short_description": "Subscribe a callback to the ticker.",
-                    "line": 68,
+                    "line": 76,
                     "aliases": [],
                     "children": [],
                     "file": "src/util/ticker.js",
@@ -50350,7 +50488,7 @@
                     ],
                     "description": "Start the ticker",
                     "short_description": "Start the ticker",
-                    "line": 43,
+                    "line": 51,
                     "aliases": [],
                     "children": [],
                     "file": "src/util/ticker.js",
@@ -50374,7 +50512,7 @@
                     ],
                     "description": "Stop the ticker",
                     "short_description": "Stop the ticker",
-                    "line": 55,
+                    "line": 63,
                     "aliases": [],
                     "children": [],
                     "file": "src/util/ticker.js",
@@ -52099,7 +52237,7 @@
                 "chainable": true,
                 "description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
                 "short_description": "Multipurpose add method. Add one or many bodies, behaviors, integrators, renderers...",
-                "line": 183,
+                "line": 185,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52141,7 +52279,7 @@
                 "chainable": true,
                 "description": "Add a behavior to the world",
                 "short_description": "Add a behavior to the world",
-                "line": 430,
+                "line": 432,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52183,7 +52321,7 @@
                 "chainable": true,
                 "description": "Add a body to the world",
                 "short_description": "Add a body to the world",
-                "line": 498,
+                "line": 500,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52202,7 +52340,7 @@
                 ],
                 "description": "Destroy the world.\n(Bwahahahahaha!)",
                 "short_description": "Destroy the world.\n(Bwahahahahaha!)",
-                "line": 712,
+                "line": 766,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52284,7 +52422,7 @@
                 "related_to": "Physics.query",
                 "description": "Find all matching bodies based on query rules.",
                 "short_description": "Find all matching bodies based on query rules.",
-                "line": 587,
+                "line": 589,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52372,7 +52510,7 @@
                 "related_to": "Physics.query",
                 "description": "Find first matching body based on query rules.",
                 "short_description": "Find first matching body based on query rules.",
-                "line": 569,
+                "line": 571,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52402,7 +52540,7 @@
                 ],
                 "description": "Get copied list of behaviors in the world",
                 "short_description": "Get copied list of behaviors in the world",
-                "line": 455,
+                "line": 457,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52432,7 +52570,7 @@
                 ],
                 "description": "Get copied list of bodies in the world",
                 "short_description": "Get copied list of bodies in the world",
-                "line": 523,
+                "line": 525,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52481,7 +52619,7 @@
                 "chainable": true,
                 "description": "Determine if a thing has been added to world.",
                 "short_description": "Determine if a thing has been added to world.",
-                "line": 284,
+                "line": 286,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52604,7 +52742,7 @@
                 "chainable": true,
                 "description": "Get or Set the integrator",
                 "short_description": "Get or Set the integrator",
-                "line": 330,
+                "line": 332,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52634,7 +52772,7 @@
                 ],
                 "description": "Determine if world is paused.",
                 "short_description": "Determine if world is paused.",
-                "line": 701,
+                "line": 755,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52671,7 +52809,7 @@
                 "internal": true,
                 "description": "Do a single iteration.",
                 "short_description": "Do a single iteration.",
-                "line": 602,
+                "line": 604,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52719,7 +52857,7 @@
                 ],
                 "description": "Set config options. Also access options by `.options.<option>`.",
                 "short_description": "Set config options. Also access options by `.options.<option>`.",
-                "line": 175,
+                "line": 177,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52744,7 +52882,7 @@
                 "chainable": true,
                 "description": "Pause the world (step calls do nothing).",
                 "short_description": "Pause the world (step calls do nothing).",
-                "line": 676,
+                "line": 730,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52788,7 +52926,7 @@
                 "chainable": true,
                 "description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
                 "short_description": "Multipurpose remove method. Remove one or many bodies, behaviors, integrators, renderers...",
-                "line": 231,
+                "line": 233,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52830,7 +52968,7 @@
                 "chainable": true,
                 "description": "Remove a behavior from the world",
                 "short_description": "Remove a behavior from the world",
-                "line": 467,
+                "line": 469,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52872,7 +53010,7 @@
                 "chainable": true,
                 "description": "Remove a body from the world",
                 "short_description": "Remove a body from the world",
-                "line": 535,
+                "line": 537,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52897,7 +53035,7 @@
                 "chainable": true,
                 "description": "Render current world state using the renderer",
                 "short_description": "Render current world state using the renderer",
-                "line": 656,
+                "line": 710,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52955,7 +53093,7 @@
                 "chainable": true,
                 "description": "Get or Set the renderer",
                 "short_description": "Get or Set the renderer",
-                "line": 370,
+                "line": 372,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -52972,10 +53110,11 @@
                     "arguments": [
                       {
                         "name": "now",
+                        "optional": true,
                         "types": [
                           "Number"
                         ],
-                        "description": " now Current unix timestamp\n\n     "
+                        "description": " Current unix timestamp\n\n     "
                       }
                     ],
                     "returns": [
@@ -52991,13 +53130,13 @@
                     "types": [
                       "Number"
                     ],
-                    "description": " now Current unix timestamp\n\n     "
+                    "description": " Current unix timestamp\n\n     "
                   }
                 ],
                 "chainable": true,
-                "description": "Do a single step.",
-                "short_description": "Do a single step.",
-                "line": 613,
+                "description": "Step the world up to specified time or do one step if no time is specified.",
+                "short_description": "Step the world up to specified time or do one step if no time is specified.",
+                "line": 615,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -53007,7 +53146,7 @@
                 "outFile": "world.html#Physics.world.prototype.step"
               },
               {
-                "id": "Physics.world#timeStep",
+                "id": "Physics.world#timestep",
                 "type": "instance method",
                 "signatures": [
                   {
@@ -53053,16 +53192,16 @@
                   }
                 ],
                 "chainable": true,
-                "description": "Get or Set the time step",
-                "short_description": "Get or Set the time step",
-                "line": 410,
+                "description": "Get or Set the timestep",
+                "short_description": "Get or Set the timestep",
+                "line": 412,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
-                "name": "timeStep",
+                "name": "timestep",
                 "name_prefix": "Physics.world#",
-                "path": "Physics.world.prototype.timeStep",
-                "outFile": "world.html#Physics.world.prototype.timeStep"
+                "path": "Physics.world.prototype.timestep",
+                "outFile": "world.html#Physics.world.prototype.timestep"
               },
               {
                 "id": "Physics.world#unpause",
@@ -53080,7 +53219,7 @@
                 "chainable": true,
                 "description": "Unpause the world (step calls continue as usual).",
                 "short_description": "Unpause the world (step calls continue as usual).",
-                "line": 688,
+                "line": 742,
                 "aliases": [],
                 "children": [],
                 "file": "src/core/world.js",
@@ -53088,6 +53227,51 @@
                 "name_prefix": "Physics.world#",
                 "path": "Physics.world.prototype.unpause",
                 "outFile": "world.html#Physics.world.prototype.unpause"
+              },
+              {
+                "id": "Physics.world#warp",
+                "type": "instance method",
+                "signatures": [
+                  {
+                    "arguments": [
+                      {
+                        "name": "warp",
+                        "optional": true,
+                        "types": [
+                          "Number"
+                        ],
+                        "description": " The time warp factor\n\n     "
+                      }
+                    ],
+                    "returns": [
+                      {
+                        "type": "this"
+                      },
+                      {
+                        "type": "Number"
+                      }
+                    ]
+                  }
+                ],
+                "arguments": [
+                  {
+                    "name": "warp",
+                    "types": [
+                      "Number"
+                    ],
+                    "description": " The time warp factor\n\n     "
+                  }
+                ],
+                "description": "Speed up or slow down the iteration by this factor.\n\nExample:\n```javascript\n// slow motion... 10x slower\nworld.warp( 0.01 );\n```",
+                "short_description": "Speed up or slow down the iteration by this factor.\n",
+                "line": 695,
+                "aliases": [],
+                "children": [],
+                "file": "src/core/world.js",
+                "name": "warp",
+                "name_prefix": "Physics.world#",
+                "path": "Physics.world.prototype.warp",
+                "outFile": "world.html#Physics.world.prototype.warp"
               },
               {
                 "id": "new Physics.world",
@@ -53164,7 +53348,7 @@
                   }
                 ],
                 "alias_of": "Physics",
-                "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 160,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
+                "description": "World Constructor.\n\nUse [[Physics]] to create worlds.\n\nConfiguration options and defaults:\n\n```javascript\n{\n    // default timestep\n    timestep: 1000.0 / 120,\n    // maximum number of iterations per step\n    maxIPF: 16,\n    // default integrator\n    integrator: 'verlet'\n}\n```\n\nIf called with an array of functions, and any functions\nreturn a [promise-like object](http://promises-aplus.github.io/promises-spec/),\neach remaining callback will be called only when that promise is resolved.\n\nExample:\n\n```javascript\n// hypothetical resources need to be loaded...\nPhysics( cfg, [\n    function( world ){\n        var dfd = $.Deferred()\n            ,images = []\n            ,toLoad = myImages.length\n            ,callback = function(){\n                toLoad--;\n                // wait for all images to be loaded\n                if ( toLoad <= 0 ){\n                    dfd.resolve();\n                }\n            }\n            ;\n\n        // load images\n        $.each(myImages, function( src ){\n            var img = new Image();\n            img.onload = callback;\n            img.src = src;\n        });\n\n        return dfd.promise();\n    },\n    function( world ){\n        // won't be executed until images are loaded\n        // initialize world... etc...\n    }\n]);\n```",
                 "short_description": "World Constructor.\n",
                 "line": 105,
                 "aliases": [],
@@ -53262,7 +53446,7 @@
         "type": "section",
         "description": "This section contains miscellaneous functionality.",
         "short_description": "This section contains miscellaneous functionality.",
-        "line": 55,
+        "line": 54,
         "aliases": [],
         "children": [
           {

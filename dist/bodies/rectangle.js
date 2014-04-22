@@ -8,50 +8,45 @@
  */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['physicsjs','../geometries/convex-polygon'], factory);
+        define(['physicsjs','../geometries/rectangle'], factory);
     } else if (typeof exports === 'object') {
-        module.exports = factory.apply(root, ['physicsjs','../geometries/convex-polygon'].map(require));
+        module.exports = factory.apply(root, ['physicsjs','../geometries/rectangle'].map(require));
     } else {
         factory.call(root, root.Physics);
     }
 }(this, function (Physics) {
     'use strict';
     /*
-     * @requires geometries/convex-polygon
+     * @requires geometries/rectangle
      */
-     /** 
-      * class ConvexPolygonBody < Body
+     /**
+      * class RectangleBody < Body
       *
-      * Physics.body('convex-polygon')
+      * Physics.body('rectangle')
       *
-      * Body for convex polygons. The position of the body is the centroid of the polygon.
+      * Body for rectangles. The position of the body is the centroid of the rectangle.
       *
       * Additional config options:
-      * 
-      * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
+      *
+      * - width: The width
+      * - height: The height
       *
       * Example:
       *
       * ```javascript
-      * var pentagon = Physics.body('convex-polygon', {
-      *     // place the centroid of the polygon at (300, 200)
+      * var rect = Physics.body('rectangle', {
+      *     // place the centroid of the rectangle at (300, 200)
       *     x: 300,
       *     y: 200,
-      *     // the centroid is automatically calculated and used to position the shape
-      *     vertices: [
-      *         { x: 0, y: -30 },
-      *         { x: -29, y: -9 },
-      *         { x: -18, y: 24 },
-      *         { x: 18, y: 24 },
-      *         { x: 29, y: -9 }
-      *     ]
+      *     width: 30,
+      *     height: 40
       * });
       * ```
       **/
-    Physics.body('convex-polygon', function( parent ){
+    Physics.body('rectangle', function( parent ){
     
         var defaults = {
-            
+    
         };
     
         return {
@@ -64,8 +59,9 @@
     
                 options = Physics.util.extend({}, defaults, options);
     
-                this.geometry = Physics.geometry('convex-polygon', {
-                    vertices: options.vertices
+                this.geometry = Physics.geometry('rectangle', {
+                    width: options.width,
+                    height: options.height
                 });
     
                 this.recalc();
@@ -73,13 +69,15 @@
     
             // extended
             recalc: function(){
+                var w = this.geometry.width;
+                var h = this.geometry.height;
                 parent.recalc.call(this);
                 // moment of inertia
-                this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
+                this.moi = ( w*w + h*h ) * this.mass / 12;
             }
         };
     });
     
-    // end module: bodies/convex-polygon.js
+    // end module: bodies/rectangle.js
     return Physics;
 }));// UMD

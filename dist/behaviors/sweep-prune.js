@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -17,18 +17,22 @@
 }(this, function (Physics) {
     'use strict';
     /**
-     * Sweep and Prune implementation for broad phase collision detection
-     * @module behaviors/sweep-prune
-     */
+     * class SweepPruneBehavior < Behavior
+     *
+     * `Physics.behavior('sweep-prune')`.
+     *
+     * Sweep and Prune implementation for broad phase collision detection.
+     *
+     * This massively improves the speed of collision detection. It's set up to always be used with [[BodyCollisionDetection]], and [[BodyImpulseResponse]].
+     *
+     * Additional options include:
+     * - channel: The channel to publish collision candidates to. (default: `collisions:candidates`)
+     **/
     Physics.behavior('sweep-prune', function( parent ){
     
-        var PUBSUB_CANDIDATES = 'collisions:candidates';
         var uid = 1;
     
-        /**
-         * Get a unique numeric id for internal use
-         * @return {Number} Unique id
-         */
+        // Get a unique numeric id for internal use
         var getUniqueId = function getUniqueId(){
     
             return uid++;
@@ -36,94 +40,76 @@
     
         // add z: 2 to get this to work in 3D
         var dof = { x: 0, y: 1 }; // degrees of freedom
+        // change to "3" to get it to work in 3D
+        var maxDof = 2;
     
-        /**
-         * return hash for a pair of ids
-         * @param  {Number} id1 First id
-         * @param  {Number} id2 Second id
-         * @return {Number}     Hash id
-         */
-        function pairHash( id1, id2 ){
+        var pairHash = Physics.util.pairHash;
     
-            if ( id1 === id2 ){
-    
-                return false;
-            }
-    
-            // valid for values < 2^16
-            return id1 > id2? 
-                (id1 << 16) | (id2 & 0xFFFF) : 
-                (id2 << 16) | (id1 & 0xFFFF)
-                ;
-        }
-        
         return {
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration object
-             * @return {void}
-             */
+            // extended
             init: function( options ){
     
-                parent.init.call(this, options);
+                parent.init.call( this );
+                this.options.defaults({
+                    channel: 'collisions:candidates' //default channel
+                });
+                this.options( options );
+    
+                this.encounters = [];
+                this.candidates = [];
     
                 this.clear();
             },
     
             /**
+             * SweepPruneBehavior#clear()
+             *
              * Refresh tracking data
-             * @return {void}
-             */
+             **/
             clear: function(){
     
                 this.tracked = [];
                 this.pairs = []; // pairs selected as candidate collisions by broad phase
-                this.intervalLists = {}; // stores lists of aabb projection intervals to be sorted
-                
+                this.intervalLists = []; // stores lists of aabb projection intervals to be sorted
+    
                 // init intervalLists
-                for ( var xyz in dof ){
+                for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
                     this.intervalLists[ xyz ] = [];
                 }
             },
     
-            /**
-             * Connect to world. Automatically called when added to world by the setWorld method
-             * @param  {Object} world The world to connect to
-             * @return {void}
-             */
+            // extended
             connect: function( world ){
     
-                world.subscribe( 'add:body', this.trackBody, this );
-                world.subscribe( 'remove:body', this.untrackBody, this );
-                world.subscribe( 'integrate:velocities', this.sweep, this );
+                world.on( 'add:body', this.trackBody, this );
+                world.on( 'remove:body', this.untrackBody, this );
+                world.on( 'integrate:velocities', this.sweep, this );
     
                 // add current bodies
                 var bodies = world.getBodies();
                 for ( var i = 0, l = bodies.length; i < l; ++i ){
-                    
+    
                     this.trackBody({ body: bodies[ i ] });
                 }
             },
     
-            /**
-             * Disconnect from world
-             * @param  {Object} world The world to disconnect from
-             * @return {void}
-             */
+            // extended
             disconnect: function( world ){
     
-                world.unsubscribe( 'add:body', this.trackBody );
-                world.unsubscribe( 'remove:body', this.untrackBody );
-                world.unsubscribe( 'integrate:velocities', this.sweep );
+                world.off( 'add:body', this.trackBody );
+                world.off( 'remove:body', this.untrackBody );
+                world.off( 'integrate:velocities', this.sweep );
                 this.clear();
             },
     
-            /**
+            /** internal
+             * SweepPruneBehavior#broadPhase() -> Array
+             * + (Array): The candidate data of overlapping aabbs
+             *
              * Execute the broad phase and get candidate collisions
-             * @return {Array} List of candidates
-             */
+             **/
             broadPhase: function(){
     
                 this.updateIntervals();
@@ -131,10 +117,11 @@
                 return this.checkOverlaps();
             },
     
-            /**
+            /** internal
+             * SweepPruneBehavior#sortIntervalLists()
+             *
              * Simple insertion sort for each axis
-             * @return {void}
-             */
+             **/
             sortIntervalLists: function(){
     
                 var list
@@ -149,13 +136,13 @@
                     ;
     
                 // for each axis...
-                for ( var xyz in dof ){
+                for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
                     // get the intervals for that axis
                     list = this.intervalLists[ xyz ];
                     i = 0;
                     len = list.length;
-                    axis = dof[ xyz ];
+                    axis = xyz;
     
                     // for each interval bound...
                     while ( (++i) < len ){
@@ -169,11 +156,11 @@
                         leftVal = left && left.val.get( axis );
     
                         // while others are greater than bound...
-                        while ( 
-                            hole > 0 && 
+                        while (
+                            hole > 0 &&
                             (
                                 leftVal > boundVal ||
-                                // if it's an equality, only move it over if 
+                                // if it's an equality, only move it over if
                                 // the hole was created by a minimum
                                 // and the previous is a maximum
                                 // so that we detect contacts also
@@ -195,13 +182,15 @@
                 }
             },
     
-            /**
+            /** internal
+             * SweepPruneBehavior#getPair( tr1, tr2, doCreate ) -> Object
+             * - tr1 (Object): First tracker
+             * - tr2 (Object): Second tracker
+             * - doCreate (Boolean): Create if not found
+             * + (Object): Pair object or null if not found
+             *
              * Get a pair object for the tracker objects
-             * @param  {Object} tr1      First tracker
-             * @param  {Object} tr2      Second tracker
-             * @param  {Boolean} doCreate Create if not already found
-             * @return {Mixed}          Pair object or null if not found
-             */
+             **/
             getPair: function(tr1, tr2, doCreate){
     
                 var hash = pairHash( tr1.id, tr2.id );
@@ -221,17 +210,59 @@
                     c = this.pairs[ hash ] = {
                         bodyA: tr1.body,
                         bodyB: tr2.body,
-                        flag: 0
+                        flag: 1
                     };
                 }
     
                 return c;
             },
     
-            /**
+            // getPair: function(tr1, tr2, doCreate){
+    
+            //     var hash = Math.min(tr1.id, tr2.id) // = pairHash( tr1.id, tr2.id )
+            //         ,other = Math.max(tr1.id, tr2.id)
+            //         ,first
+            //         ,c
+            //         ;
+    
+            //     if ( hash === false ){
+            //         return null;
+            //     }
+    
+            //     first = this.pairs[ hash ];
+    
+            //     if ( !first ){
+            //         if ( !doCreate ){
+            //             return null;
+            //         }
+    
+            //         first = this.pairs[ hash ] = [];
+            //     }
+    
+            //     c = first[ other ];
+    
+            //     if ( !c ){
+    
+            //         if ( !doCreate ){
+            //             return null;
+            //         }
+    
+            //         c = first[ other ] = {
+            //             bodyA: tr1.body,
+            //             bodyB: tr2.body,
+            //             flag: 1
+            //         };
+            //     }
+    
+            //     return c;
+            // },
+    
+            /** internal
+             * SweepPruneBehavior#checkOverlaps() -> Array
+             * + (Array): List of candidate collisions
+             *
              * Check each axis for overlaps of bodies AABBs
-             * @return {Array} List of candidate collisions 
-             */
+             **/
             checkOverlaps: function(){
     
                 var isX
@@ -245,24 +276,24 @@
                     ,j
                     ,c
                     // determine which axis is the last we need to check
-                    ,collisionFlag = ( dof.z || dof.y || dof.x )
-                    ,encounters = []
+                    ,collisionFlag = 1 << (dof.z + 1) << (dof.y + 1) << (dof.x + 1)
+                    ,encounters = this.encounters
                     ,enclen = 0
-                    ,candidates = []
+                    ,candidates = this.candidates
                     ;
     
-                for ( var xyz in dof ){
+                encounters.length = candidates.length = 0;
+    
+                for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
                     // is the x coord
-                    isX = (xyz === 'x');
+                    isX = (xyz === 0);
                     // get the interval list for this axis
                     list = this.intervalLists[ xyz ];
-                    i = -1;
-                    len = list.length;
     
                     // for each interval bound
-                    while ( (++i) < len ){
-                        
+                    for ( i = 0, len = list.length; i < len; i++ ){
+    
                         bound = list[ i ];
                         tr1 = bound.tracker;
     
@@ -272,7 +303,7 @@
     
                             j = enclen;
     
-                            while ( (--j) >= 0 ){
+                            for ( j = enclen - 1; j >= 0; j-- ){
     
                                 tr2 = encounters[ j ];
     
@@ -282,7 +313,7 @@
                                     // remove the interval from the encounters list
                                     // faster than .splice()
                                     if ( j < enclen - 1 ) {
-                                        
+    
                                         encounters[ j ] = encounters.pop();
     
                                     } else {
@@ -300,13 +331,17 @@
                                     c = this.getPair( tr1, tr2, isX );
     
                                     if ( c ){
-                                        
-                                        // if it's the x axis, set the flag
-                                        // to = 1.
-                                        // if not, increment the flag by one.
-                                        c.flag = isX? 0 : c.flag + 1;
     
-                                        // c.flag will equal collisionFlag 
+                                        if ( c.flag > collisionFlag ){
+                                            c.flag = 1;
+                                        }
+    
+                                        // if it's greater than the axis index, set the flag
+                                        // to = 0.
+                                        // if not, increment the flag by one.
+                                        c.flag = c.flag << (xyz + 1);
+    
+                                        // c.flag will equal collisionFlag
                                         // if we've incremented the flag
                                         // enough that all axes are overlapping
                                         if ( c.flag === collisionFlag ){
@@ -333,17 +368,19 @@
                 return candidates;
             },
     
-            /**
+            /** internal
+             * SweepPruneBehavior#updateIntervals()
+             *
              * Update position intervals on each axis
-             * @return {[type]} [description]
-             */
+             **/
             updateIntervals: function(){
     
                 var tr
                     ,intr
                     ,scratch = Physics.scratchpad()
                     ,pos = scratch.vector()
-                    ,aabb = scratch.vector()
+                    ,aabb
+                    ,span = scratch.vector()
                     ,list = this.tracked
                     ,i = list.length
                     ;
@@ -354,22 +391,24 @@
                     tr = list[ i ];
                     intr = tr.interval;
                     pos.clone( tr.body.state.pos );
-                    aabb.clone( tr.body.aabb() );
+                    aabb = tr.body.aabb();
+                    span.set( aabb.hw, aabb.hh );
     
-                    // copy the position (plus or minus) the aabb bounds
+                    // copy the position (plus or minus) the aabb half-dimensions
                     // into the min/max intervals
-                    intr.min.val.clone( pos ).vsub( aabb );
-                    intr.max.val.clone( pos ).vadd( aabb );
+                    intr.min.val.clone( pos ).vsub( span );
+                    intr.max.val.clone( pos ).vadd( span );
                 }
     
                 scratch.done();
             },
     
-            /**
-             * Add body to list of those tracked by sweep and prune
-             * @param  {Object} data Event data
-             * @return {void}
-             */
+            /** internal
+             * SweepPruneBehavior#trackBody( data )
+             * - data (Object): Event data
+             *
+             * Event callback to add body to list of those tracked by sweep and prune
+             **/
             trackBody: function( data ){
     
                 var body = data.body
@@ -396,18 +435,19 @@
     
                 tracker.interval = intr;
                 this.tracked.push( tracker );
-                
-                for ( var xyz in dof ){
+    
+                for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
                     this.intervalLists[ xyz ].push( intr.min, intr.max );
                 }
             },
     
-            /**
-             * Remove body from list of those tracked
-             * @param  {Object} data Event data
-             * @return {void}
-             */
+            /** internal
+             * SweepPruneBehavior#untrackBody( data )
+             * - data (Object): Event data
+             *
+             * Event callback to remove body from list of those tracked
+             **/
             untrackBody: function( data ){
     
                 var body = data.body
@@ -421,19 +461,19 @@
                 for ( var i = 0, l = trackedList.length; i < l; ++i ){
     
                     tracker = trackedList[ i ];
-                    
+    
                     if ( tracker.body === body ){
     
                         // remove the tracker at this index
                         trackedList.splice(i, 1);
     
-                        for ( var xyz in dof ){
+                        for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
                             count = 0;
                             list = this.intervalLists[ xyz ];
     
                             for ( var j = 0, m = list.length; j < m; ++j ){
-                                    
+    
                                 minmax = list[ j ];
     
                                 if ( minmax === tracker.interval.min || minmax === tracker.interval.max ){
@@ -454,34 +494,33 @@
     
                         break;
                     }
-                }            
+                }
             },
     
-            /**
-             * Sweep and publish event if any candidate collisions are found
-             * @param  {Object} data Event data
-             * @return {void}
-             */
+            /** internal
+             * SweepPruneBehavior#sweep( data )
+             * - data (Object): Event data
+             *
+             * Event callback to sweep and publish event if any candidate collisions are found
+             **/
             sweep: function( data ){
     
                 var self = this
-                    ,bodies = data.bodies
-                    ,dt = data.dt
                     ,candidates
                     ;
     
                 candidates = self.broadPhase();
-                
+    
                 if ( candidates.length ){
     
-                    this._world.publish({
-                        topic: PUBSUB_CANDIDATES,
+                    this._world.emit( this.options.channel, {
                         candidates: candidates
                     });
                 }
             }
         };
     });
+    
     // end module: behaviors/sweep-prune.js
     return Physics;
 }));// UMD
