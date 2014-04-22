@@ -673,9 +673,9 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x - v.x * t;
-            y = pos.y + offset.y - v.y * t;
-            ang = body.state.angular.pos - body.state.angular.vel * t;
+            x = pos.x + offset.x + v.x * t;
+            y = pos.y + offset.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );

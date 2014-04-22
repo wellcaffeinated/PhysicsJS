@@ -161,14 +161,22 @@ Physics.renderer('pixi', function( parent ){
          * Draw a PIXI.DisplayObject to the stage.
          **/
         drawBody: function( body, view ){
-            // Draw a body here
-            var x = body.state.pos.x;
-            var y = body.state.pos.y;
-            var angle = body.state.angular.pos;
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,t = this._interpolateTime || 0
+                ,x
+                ,y
+                ,ang
+                ;
+
+            // interpolate positions
+            x = pos.x + offset.x + v.x * t;
+            y = pos.y + offset.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
 
             view.position.x = x;
             view.position.y = y;
-            view.rotation = angle;
+            view.rotation = ang;
         },
 
         // extended
