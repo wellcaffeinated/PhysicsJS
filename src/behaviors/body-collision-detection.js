@@ -1,60 +1,97 @@
 /**
- * Body collision detection
- * @module behaviors/body-collision-detection
- */
+ * class BodyCollisionDetectionBehavior < Behavior
+ *
+ * `Physics.behavior('body-collision-detection')`.
+ *
+ * Detect collisions of bodies.
+ *
+ * Publishes collision events to the world as a group of detected collisions per iteration.
+ *
+ * The event data will have a `.collisions` property that is an array of collisions of the form:
+ *
+ * ```javascript
+ * {
+ *     bodyA: // the first body
+ *     bodyB: // the second body
+ *     norm: // the normal vector (Vectorish)
+ *     mtv: // the minimum transit vector. (the direction and length needed to extract bodyB from bodyA)
+ *     pos: // the collision point
+ *     overlap: // the amount bodyA overlaps bodyB
+ * }
+ * ```
+ *
+ * Additional options include:
+ * - check: channel to listen to for collision candidates (default: `collisions:candidates`). set to `true` to force check every pair of bodies in the world
+ * - channel: channel to publish events to (default: `collisions:detected`)
+ **/
 Physics.behavior('body-collision-detection', function( parent ){
 
-    var PUBSUB_CANDIDATES = 'collisions:candidates';
-    var PUBSUB_COLLISION = 'collisions:detected';
+    var supportFnStack = [];
 
-    /**
+    /*
+     * getSupportFn( bodyA, bodyB ) -> Function
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Function): The support function
+     *
      * Get a general support function for use with GJK algorithm
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Function}       The support function
      */
     var getSupportFn = function getSupportFn( bodyA, bodyB ){
 
-        var fn;
+        var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
+            ,fn = supportFnStack[ hash ]
+            ;
 
-        fn = function( searchDir ){
+        if ( !fn ){
+            fn = supportFnStack[ hash ] = function( searchDir ){
 
-            var scratch = Physics.scratchpad()
-                ,tA = scratch.transform().setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos )
-                ,tB = scratch.transform().setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos )
-                ,vA = scratch.vector()
-                ,vB = scratch.vector()
-                ,method = fn.useCore? 'getFarthestCorePoint' : 'getFarthestHullPoint'
-                ,marginA = fn.marginA
-                ,marginB = fn.marginB
-                ,ret
-                ;
+                var scratch = Physics.scratchpad()
+                    ,tA = fn.tA
+                    ,tB = fn.tB
+                    ,vA = scratch.vector()
+                    ,vB = scratch.vector()
+                    ,marginA = fn.marginA
+                    ,marginB = fn.marginB
+                    ;
 
-            vA = bodyA.geometry[ method ]( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-            vB = bodyB.geometry[ method ]( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                if ( fn.useCore ){
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                } else {
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+                }
 
-            searchDir.negate().rotate( tB );
+                searchDir.negate().rotate( tB );
 
-            ret = {
-                a: vA.values(),
-                b: vB.values(),
-                pt: vA.vsub( vB ).values() 
+                return scratch.done({
+                    a: vA.values(),
+                    b: vB.values(),
+                    pt: vA.vsub( vB ).values()
+                });
             };
-            scratch.done();
-            return ret;
-        };
+
+            fn.tA = Physics.transform();
+            fn.tB = Physics.transform();
+        }
 
         fn.useCore = false;
         fn.margin = 0;
+        fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
+        fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+        fn.bodyA = bodyA;
+        fn.bodyB = bodyB;
 
         return fn;
     };
 
-    /**
+    /*
+     * checkGJK( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
      * Use GJK algorithm to check arbitrary bodies for collisions
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Object}       Collision result
      */
     var checkGJK = function checkGJK( bodyA, bodyB ){
 
@@ -66,9 +103,9 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,support
             ,collision = false
             ,aabbA = bodyA.aabb()
-            ,dimA = Math.min( aabbA.halfWidth, aabbA.halfHeight )
+            ,dimA = Math.min( aabbA.hw, aabbA.hh )
             ,aabbB = bodyB.aabb()
-            ,dimB = Math.min( aabbB.halfWidth, aabbB.halfHeight )
+            ,dimB = Math.min( aabbB.hw, aabbB.hh )
             ;
 
         // just check the overlap first
@@ -101,9 +138,8 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             if ( result.overlap || result.maxIterationsReached ){
-                scratch.done();
                 // This implementation can't deal with a core overlap yet
-                return false;
+                return scratch.done(false);
             }
 
             // calc overlap
@@ -116,15 +152,16 @@ Physics.behavior('body-collision-detection', function( parent ){
             collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
         }
 
-        scratch.done();
-        return collision;
+        return scratch.done( collision );
     };
 
-    /**
-     * Check two circles for collisions
-     * @param  {Object} bodyA First circle
-     * @param  {Object} bodyB Second circle
-     * @return {Object}       Collision result
+    /*
+     * checkCircles( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
+     * Check two circles for collisions.
      */
     var checkCircles = function checkCircles( bodyA, bodyB ){
 
@@ -134,7 +171,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,overlap
             ,collision = false
             ;
-        
+
         d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
@@ -161,18 +198,27 @@ Physics.behavior('body-collision-detection', function( parent ){
                 overlap: -overlap
             };
         }
-    
-        scratch.done();
-        return collision;
+
+        return scratch.done( collision );
     };
 
-    /**
+    /*
+     * checkPair( bodyA, bodyB ) -> Object
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Object): Collision result
+     *
      * Check a pair for collisions
-     * @param  {Object} bodyA First body
-     * @param  {Object} bodyB Second body
-     * @return {Object}       Collision result
      */
     var checkPair = function checkPair( bodyA, bodyB ){
+
+        // filter out bodies that don't collide with each other
+        if (
+            ( bodyA.treatment === 'static' || bodyA.treatment === 'kinematic' ) &&
+            ( bodyB.treatment === 'static' || bodyB.treatment === 'kinematic' )
+        ){
+            return false;
+        }
 
         if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
 
@@ -186,99 +232,99 @@ Physics.behavior('body-collision-detection', function( parent ){
 
     var defaults = {
 
-        // force check every pair of bodies in the world
-        checkAll: false
+        // channel to listen to for collision candidates
+        // set to "true" to force check every pair of bodies in the world
+        check: 'collisions:candidates',
+
+        // channel to publish events to
+        channel: 'collisions:detected'
     };
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
-            parent.init.call(this, options);
-
-            this.options = Physics.util.extend({}, this.options, defaults, options);
+            parent.init.call( this );
+            this.options.defaults( defaults );
+            this.options( options );
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
-            if ( this.options.checkAll ){
+            if ( this.options.check === true ){
 
-                world.subscribe( 'integrate:velocities', this.checkAll, this );
+                world.on( 'integrate:velocities', this.checkAll, this );
 
             } else {
 
-                world.subscribe( PUBSUB_CANDIDATES, this.check, this );
+                world.on( this.options.check, this.check, this );
             }
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
-            if ( this.options.checkAll ){
+            if ( this.options.check === true ){
 
-                world.unsubscribe( 'integrate:velocities', this.checkAll );
+                world.off( 'integrate:velocities', this.checkAll );
 
             } else {
 
-                world.unsubscribe( PUBSUB_CANDIDATES, this.check );
+                world.off( this.options.check, this.check );
             }
         },
 
-        /**
-         * Check pairs of objects that have been flagged by broad phase for possible collisions.
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyCollisionDetectionBehavior#check( data )
+         * - data (Object): The event data
+         *
+         * Event callback to check pairs of objects that have been flagged by broad phase for possible collisions.
+         **/
         check: function( data ){
 
             var candidates = data.candidates
                 ,pair
+                ,targets = this.getTargets()
                 ,collisions = []
                 ,ret
                 ;
 
             for ( var i = 0, l = candidates.length; i < l; ++i ){
-                
+
                 pair = candidates[ i ];
 
-                ret = checkPair( pair.bodyA, pair.bodyB );
+                if ( targets === this._world._bodies ||
+                    // only check if the members are targeted by this behavior
+                    (Physics.util.indexOf( targets, pair.bodyA ) > -1) &&
+                    (Physics.util.indexOf( targets, pair.bodyB ) > -1)
+                ){
+                    ret = checkPair( pair.bodyA, pair.bodyB );
 
-                if ( ret ){
-                    collisions.push( ret );
+                    if ( ret ){
+                        collisions.push( ret );
+                    }
                 }
             }
 
             if ( collisions.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                this._world.emit( this.options.channel, {
                     collisions: collisions
                 });
             }
         },
 
-        /**
-         * Check all pairs of objects in the list for collisions
-         * @param  {Object} data Event data
-         * @return {void}
-         */
+        /** internal
+         * BodyCollisionDetectionBehavior#checkAll( data )
+         * - data (Object): The event data
+         *
+         * Event callback to check all pairs of objects in the list for collisions
+         **/
         checkAll: function( data ){
 
-            var bodies = data.bodies
+            var bodies = this.getTargets()
                 ,dt = data.dt
                 ,bodyA
                 ,bodyB
@@ -287,29 +333,24 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
-                
+
                 bodyA = bodies[ j ];
 
                 for ( var i = j + 1; i < l; i++ ){
 
                     bodyB = bodies[ i ];
 
-                    // don't detect two fixed bodies
-                    if ( !bodyA.fixed || !bodyB.fixed ){
-                        
-                        ret = checkPair( bodyA, bodyB );
+                    ret = checkPair( bodyA, bodyB );
 
-                        if ( ret ){
-                            collisions.push( ret );
-                        }
+                    if ( ret ){
+                        collisions.push( ret );
                     }
                 }
             }
 
             if ( collisions.length ){
 
-                this._world.publish({
-                    topic: PUBSUB_COLLISION,
+                this._world.emit( this.options.channel, {
                     collisions: collisions
                 });
             }

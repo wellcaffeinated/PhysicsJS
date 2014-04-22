@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -19,24 +19,22 @@
     Physics.integrator('improved-euler', function( parent ){
     
         return {
+            /** 
+             * class ImprovedEuler < Integrator
+             *
+             * `Physics.integrator('improved-euler')`.
+             *
+             * The improved euler integrator.
+             **/
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration options
-             * @return {void}
-             */
+            // extended
             init: function( options ){
     
                 // call parent init
                 parent.init.call(this, options);
             },
-    
-            /**
-             * Velocity integration
-             * @param  {Array} bodies Array of bodies to integrate
-             * @param  {Number} dt     Timestep size
-             * @return {void}
-             */
+     
+            // extended
             integrateVelocities: function( bodies, dt ){
     
                 // half the timestep squared
@@ -51,7 +49,7 @@
                     state = body.state;
     
                     // only integrate if the body isn't fixed
-                    if ( !body.fixed ){
+                    if ( body.treatment !== 'static' ){
     
                         // Inspired from https://github.com/soulwire/Coffee-Physics
                         // @licence MIT
@@ -101,12 +99,7 @@
                 }
             },
     
-            /**
-             * Position integration
-             * @param  {Array} bodies Array of bodies to integrate
-             * @param  {Number} dt     Timestep size
-             * @return {void}
-             */
+            // extended
             integratePositions: function( bodies, dt ){
     
                 // half the timestep squared
@@ -126,7 +119,7 @@
                     state = body.state;
     
                     // only integrate if the body isn't fixed
-                    if ( !body.fixed ){
+                    if ( body.treatment !== 'static' ){
     
     
                         // Store previous location.

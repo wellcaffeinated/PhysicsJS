@@ -1,6 +1,6 @@
 {
   "name": "PhysicsJS",
-  "version": "0.5.4",
+  "version": "0.6.0",
   "author": "Jasper Palfree <jasper@wellcaffeinated.net>",
   "description": "A modular, extendable, and easy-to-use physics engine for javascript",
   "contributors": [
@@ -11,9 +11,13 @@
     {
       "name": "Tom W Hall",
       "url": "http://booleanoperations.co.nz"
+    },
+    {
+      "name": "Nathan Gallagher",
+      "url": "http://twitter.com/bluerex_ca"
     }
   ],
-  "main": "./dist/physicsjs-full-0.5.4.js",
+  "main": "./dist/physicsjs-full-0.6.0.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:wellcaffeinated/PhysicsJS.git"
@@ -33,9 +37,13 @@
     "grunt-contrib-copy": "0.x.x",
     "grunt-contrib-jshint": "0.x.x",
     "grunt-contrib-watch": "~0.3.1",
-    "grunt-lodash": "~0.3.0",
     "grunt-template-jasmine-requirejs": "~0.1.1",
-    "grunt-contrib-requirejs": "~0.4.1"
+    "grunt-contrib-requirejs": "~0.4.1",
+    "panino": "~2.2.6",
+    "jade": "~1.3.0",
+    "marked": "~0.3.2",
+    "synchronize": "~0.7.0",
+    "pygmentize-bundled": "~2.1.0"
   },
   "bundledDependencies": [],
   "license": "MIT"

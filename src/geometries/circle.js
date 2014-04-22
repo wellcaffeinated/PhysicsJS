@@ -1,7 +1,23 @@
-/**
- * Circle geometry
- * @module geometries/circle
- */
+/** 
+ * class CircleGeometry < Geometry
+ *
+ * Physics.geometry('circle')
+ *
+ * The circle geometry has a circular shape.
+ *
+ * Additional options include:
+ * - radius: the radius
+ *
+ * Example:
+ *
+ * ```javascript
+ * var round = Physics.body('circle', {
+ *     x: 30,
+ *     y: 20,
+ *     radius: 5
+ * });
+ * ```
+ **/
 Physics.geometry('circle', function( parent ){
 
     var defaults = {
@@ -11,50 +27,39 @@ Physics.geometry('circle', function( parent ){
 
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Configuration options
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
+            var self = this;
             // call parent init method
             parent.init.call(this, options);
 
-            options = Physics.util.extend({}, defaults, options);
-            this.radius = options.radius;
+            this.options.defaults( defaults );
+            this.options.onChange(function( opts ){
+                this.radius = opts.radius;
+            });
+            this.options( options );
+
             this._aabb = Physics.aabb();
+            this.radius = this.options.radius;
         },
                 
-        /**
-         * Get axis-aligned bounding box for this object (rotated by angle if specified).
-         * @param  {Number} angle (optional) The angle to rotate the geometry.
-         * @return {Object}       Bounding box values
-         */
+        // extended
         aabb: function( angle ){
 
             var r = this.radius
-                ,aabb = this._aabb
                 ;
 
             // circles are symetric... so angle has no effect
-            if ( aabb.halfWidth() === r ){
-                // don't recalculate
-                return aabb.get();
+            if ( this._aabb.hw !== r ){
+                // recalculate
+                this._aabb = Physics.aabb( -r, -r, r, r );
             }
 
-            return aabb.set( -r, -r, r, r ).get();
+            return Physics.aabb.clone( this._aabb );
         },
 
-        /**
-         * Get farthest point on the hull of this geometry
-         * along the direction vector "dir"
-         * returns local coordinates
-         * replaces result if provided
-         * @param {Vector} dir Direction to look
-         * @param {Vector} result (optional) A vector to write result to
-         * @return {Vector} The farthest hull point in local coordinates
-         */
+        // extended
         getFarthestHullPoint: function( dir, result ){
 
             result = result || Physics.vector();
@@ -62,15 +67,7 @@ Physics.geometry('circle', function( parent ){
             return result.clone( dir ).normalize().mult( this.radius );
         },
 
-        /**
-         * Get farthest point on the core of this geometry
-         * along the direction vector "dir"
-         * returns local coordinates
-         * replaces result if provided
-         * @param {Vector} dir Direction to look
-         * @param {Vector} result (optional) A vector to write result to
-         * @return {Vector} The farthest core point in local coordinates
-         */
+        // extended
         getFarthestCorePoint: function( dir, result, margin ){
 
             result = result || Physics.vector();

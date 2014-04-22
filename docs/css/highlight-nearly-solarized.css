@@ -1,0 +1,123 @@
+/* line 3, highlight-nearly-solarized.scss */
+.highlight {
+  /* Literal.String.Regex */
+  /* Literal.String.Symbol */
+}
+/* line 6, highlight-nearly-solarized.scss */
+.highlight,
+.highlight .nx {
+  color: #7a7a7a;
+}
+/* line 10, highlight-nearly-solarized.scss */
+.highlight .p {
+  color: #cb4b16;
+}
+/* line 16, highlight-nearly-solarized.scss */
+.highlight .ne,
+.highlight .err,
+.highlight .gr {
+  color: #dc322f;
+}
+/* line 20, highlight-nearly-solarized.scss */
+.highlight .o {
+  color: #859900;
+}
+/* line 25, highlight-nearly-solarized.scss */
+.highlight .go {
+  color: #5c5c5c;
+}
+/* line 26, highlight-nearly-solarized.scss */
+.highlight .gp {
+  color: #6e6e6e;
+}
+/* line 27, highlight-nearly-solarized.scss */
+.highlight .gs {
+  font-weight: bold;
+}
+/* line 28, highlight-nearly-solarized.scss */
+.highlight .gu {
+  color: #7a7a7a;
+}
+/* line 29, highlight-nearly-solarized.scss */
+.highlight .gt {
+  color: #dc322f;
+}
+/* line 40, highlight-nearly-solarized.scss */
+.highlight .gd,
+.highlight .ge,
+.highlight .gi,
+.highlight .k,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kt {
+  color: #859900;
+}
+/* line 45, highlight-nearly-solarized.scss */
+.highlight .no,
+.highlight .kc {
+  color: #b58900;
+}
+/* line 51, highlight-nearly-solarized.scss */
+.highlight .c,
+.highlight .cm,
+.highlight .c1 {
+  color: #4d4d4d;
+}
+/* line 58, highlight-nearly-solarized.scss */
+.highlight .bp,
+.highlight .gh,
+.highlight .cp,
+.highlight .cs {
+  color: #5c5c5c;
+}
+/* line 67, highlight-nearly-solarized.scss */
+.highlight .m,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .il,
+.highlight .mo {
+  color: #2aa198;
+}
+/* line 75, highlight-nearly-solarized.scss */
+.highlight .na,
+.highlight .nb,
+.highlight .nc,
+.highlight .nd,
+.highlight .ni {
+  color: #268bd2;
+}
+/* line 86, highlight-nearly-solarized.scss */
+.highlight .nl,
+.highlight .nn,
+.highlight .nt,
+.highlight .nv,
+.highlight .nf,
+.highlight .vc,
+.highlight .vg,
+.highlight .vi {
+  color: #268bd2;
+}
+/* line 100, highlight-nearly-solarized.scss */
+.highlight .s,
+.highlight .sb,
+.highlight .sc,
+.highlight .sd,
+.highlight .s2,
+.highlight .se,
+.highlight .sh,
+.highlight .si,
+.highlight .sx,
+.highlight .s1 {
+  color: #6c71c4;
+}
+/* line 105, highlight-nearly-solarized.scss */
+.highlight .sr {
+  color: #6c71c4;
+}
+/* line 107, highlight-nearly-solarized.scss */
+.highlight .ss {
+  color: #2aa198;
+}

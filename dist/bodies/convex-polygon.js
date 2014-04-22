@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -16,11 +16,38 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /**
-     * Convex Polygon Body
-     * @module bodies/convex-polygon
+    /*
      * @requires geometries/convex-polygon
      */
+     /** 
+      * class ConvexPolygonBody < Body
+      *
+      * Physics.body('convex-polygon')
+      *
+      * Body for convex polygons. The position of the body is the centroid of the polygon.
+      *
+      * Additional config options:
+      * 
+      * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
+      *
+      * Example:
+      *
+      * ```javascript
+      * var pentagon = Physics.body('convex-polygon', {
+      *     // place the centroid of the polygon at (300, 200)
+      *     x: 300,
+      *     y: 200,
+      *     // the centroid is automatically calculated and used to position the shape
+      *     vertices: [
+      *         { x: 0, y: -30 },
+      *         { x: -29, y: -9 },
+      *         { x: -18, y: 24 },
+      *         { x: 18, y: 24 },
+      *         { x: 29, y: -9 }
+      *     ]
+      * });
+      * ```
+      **/
     Physics.body('convex-polygon', function( parent ){
     
         var defaults = {
@@ -29,11 +56,7 @@
     
         return {
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration options
-             * @return {void}
-             */
+            // extended
             init: function( options ){
     
                 // call parent init method
@@ -48,10 +71,7 @@
                 this.recalc();
             },
     
-            /**
-             * Recalculate properties. Call when body physical properties are changed.
-             * @return {this}
-             */
+            // extended
             recalc: function(){
                 parent.recalc.call(this);
                 // moment of inertia

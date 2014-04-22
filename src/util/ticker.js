@@ -1,54 +1,65 @@
 /**
- * The Ticker singleton for easily binding callbacks to requestAnimationFrame
- */
+ * class Physics.util.ticker
+ *
+ * The Ticker _singleton_ for easily binding callbacks to animation loops (requestAnimationFrame).
+ *
+ * Requires window.requestAnimationFrame... so polyfill it if you need to.
+ **/
 (function(window){
-        
-    var lastTime = 0
-        ,active = false
-        ,listeners = []
+
+    var active = false
+        ,ps = Physics.util.pubsub()
+        ,perf = window.performance
         ;
 
-    /**
-     * Publish a tick to subscribed callbacks
-     * @private
-     * @param  {Number} time The current time
-     * @return {void}
-     */
-    function step( time ){
+    function now(){
+        // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+        return (perf && perf.now) ?
+            (perf.now() + perf.timing.navigationStart) :
+            Date.now();
+    }
 
-        var fns = listeners;
+    /*
+     * step( time )
+     * - time (Number): The current time
+     *
+     * Publish a tick to subscribed callbacks
+     */
+    function step(){
+
+        var time;
 
         if (!active){
             return;
         }
 
-        window.requestAnimationFrame( step );
-        
-        for ( var i = 0, l = fns.length; i < l; ++i ){
-            
-            fns[ i ]( time, time - lastTime );
+        time = now();
+
+        if (!time){
+            return;
         }
 
-        lastTime = time;
+        window.requestAnimationFrame( step );
+        ps.emit( 'tick', time );
     }
 
     /**
+     * Physics.util.ticker.start() -> this
+     *
      * Start the ticker
-     * @return {this}
-     */
+     **/
     function start(){
-        
-        lastTime = (new Date()).getTime();
+
         active = true;
         step();
-
         return this;
     }
 
     /**
+     * Physics.util.ticker.stop() -> this
+     *
      * Stop the ticker
-     * @return {this}
-     */
+     **/
     function stop(){
 
         active = false;
@@ -56,55 +67,36 @@
     }
 
     /**
-     * Subscribe a callback to the ticker
-     * @param  {Function} listener The callback function
-     * @return {this}
-     */
-    function subscribe( listener ){
+     * Physics.util.ticker.on( listener( time ) ) -> this
+     * - listener (Function): The callback function
+     * - time (Number): The current timestamp
+     *
+     * Subscribe a callback to the ticker.
+     **/
+    function on( listener ){
 
-        // if function and not already in listeners...
-        if ( typeof listener === 'function' ){
-
-            for ( var i = 0, l = listeners.length; i < l; ++i ){
-                
-                if (listener === listeners[ i ]){
-                    return this;
-                }
-            }
-
-            // add it
-            listeners.push( listener );
-        }
-        
+        ps.on('tick', listener);
         return this;
     }
 
     /**
-     * Unsubscribe a callback from the ticker
-     * @param  {Function} listener Original callback added
-     * @return {this}
-     */
-    function unsubscribe( listener ){
+     * Physics.util.ticker.off( listener ) -> this
+     * - listener (Function): The callback function previously bound
+     *
+     * Unsubscribe a callback from the ticker.
+     **/
+    function off( listener ){
 
-        var fns = listeners;
-
-        for ( var i = 0, l = fns.length; i < l; ++i ){
-            
-            if ( fns[ i ] === listener ){
-
-                // remove it
-                fns.splice( i, 1 );
-                return this;
-            }
-        }
-
+        ps.off('tick', listener);
         return this;
     }
 
     /**
-     * Determine if ticker is currently running
-     * @return {Boolean} True if running
-     */
+     * Physics.util.ticker.isActive() -> Boolean
+     * + (Boolean): `true` if running, `false` otherwise.
+     *
+     * Determine if ticker is currently running.
+     **/
     function isActive(){
 
         return !!active;
@@ -112,10 +104,11 @@
 
     // API
     Physics.util.ticker = {
+        now: now,
         start: start,
         stop: stop,
-        subscribe: subscribe,
-        unsubscribe: unsubscribe,
+        on: on,
+        off: off,
         isActive: isActive
     };
 

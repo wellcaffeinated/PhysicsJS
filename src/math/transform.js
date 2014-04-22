@@ -1,16 +1,21 @@
 (function(){
     
     /**
+     * class Physics.transform
+     * 
      * Vector Transformations class for rotating and translating vectors
-     * @class Transform
-     */
+     **/
 
     /**
+     * new Physics.transform( [vect, angle, origin] )
+     * new Physics.transform( transform )
+     * - vect (Vectorish): Translation vector
+     * - transform (Physics.transform): Transform to copy
+     * - angle (Number): Angle (radians) to use for rotation
+     * - origin (Vectorish): Origin of the rotation
+     * 
      * Transform Constructor / Factory
-     * @param {Physics.vector|Physics.transform} vect (optional) vector to use for translation or a transform to copy
-     * @param {Number} angle (optional) Angle (radians) to use for rotation
-     * @param {Vectorish} origin (optional) Origin of the rotation
-     */
+     **/
     var Transform = function Transform( vect, angle, origin ) {
 
         if (!(this instanceof Transform)){
@@ -34,9 +39,11 @@
     };
 
     /**
-     * Set the translation portion of the transform
-     * @param {Physics.vector} vect
-     */
+     * Physics.transform#setTranslation( vect ) -> this
+     * - vect (Vectorish): The translation vector
+     * 
+     * Set the translation portion of the transform.
+     **/
     Transform.prototype.setTranslation = function( vect ){
 
         this.v.clone( vect );
@@ -44,10 +51,12 @@
     };
 
     /**
+     * Physics.transform#setRotation( angle[, origin ] ) -> this
+     * - angle (Number): Angle (radians) to use for rotation
+     * - origin (Vectorish): Origin of the rotation
+     *
      * Set the rotation portion of the transform
-     * @param {Number} angle
-     * @param {Vectorish} origin (optional) Origin of the rotation
-     */
+     **/
     Transform.prototype.setRotation = function( angle, origin ){
 
         this.cosA = Math.cos( angle );
@@ -63,10 +72,13 @@
     };
 
     /**
+     * Physics.transform#clone( [transform] ) -> this|Physics.transform
+     * - transform (Physics.transform): Transform to copy
+     * + (this): For chaining
+     * + (Physics.transform): New copy of `this` if none is specified as an argument
+     * 
      * Clone another transform. Or clone self into new transform.
-     * @param  {Physics.transform} t (optional) the transform to clone
-     * @return {Physics.transform|this}
-     */
+     **/
     Transform.prototype.clone = function( t ){
 
         if ( t ){

@@ -1,6 +1,10 @@
 /**
- * A pathetically simple dom renderer
- */
+ * class DomRenderer < Renderer
+ *
+ * Physics.renderer('dom')
+ *
+ * Renderer that manipulates DOM elements according to the physics simulation. Very primative...
+ **/
 Physics.renderer('dom', function( proto ){
 
     if ( !document ){
@@ -59,29 +63,9 @@ Physics.renderer('dom', function( proto ){
         ,drawBody
         ;
 
-    // determine which drawBody method we can use
-    if (cssTransform){
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style[cssTransform] = 'translate('+pos.get(0)+'px,'+pos.get(1)+'px) rotate('+body.state.angular.pos+'rad)';
-        };
-    } else {
-        drawBody = function( body, view ){
-
-            var pos = body.state.pos;
-            view.style.left = pos.get(0) + px;
-            view.style.top = pos.get(1) + px;
-        };
-    }
-
     return {
 
-        /**
-         * Initialization
-         * @param  {Object} options Config options passed by initializer
-         * @return {void}
-         */
+        // extended
         init: function( options ){
 
             // call proto init
@@ -111,27 +95,41 @@ Physics.renderer('dom', function( proto ){
             }
         },
 
-        /**
-         * Set dom element style properties for a circle
-         * @param  {HTMLElement} el       The element
-         * @param  {Geometry} geometry The body's geometry
-         * @return {void}
-         */
+        /** internal
+         * DomRenderer#circleProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a circle.
+         **/
         circleProperties: function( el, geometry ){
 
             var aabb = geometry.aabb();
 
-            el.style.width = (aabb.halfWidth * 2) + px;
-            el.style.height = (aabb.halfHeight * 2) + px;
-            el.style.marginLeft = (-aabb.halfWidth) + px;
-            el.style.marginTop = (-aabb.halfHeight) + px;
+            el.style.width = (aabb.hw * 2) + px;
+            el.style.height = (aabb.hh * 2) + px;
+            el.style.marginLeft = (-aabb.hw) + px;
+            el.style.marginTop = (-aabb.hh) + px;
         },
 
-        /**
-         * Create a dom element for the specified geometry
-         * @param  {Geometry} geometry The body's geometry
-         * @return {HTMLElement}          The element
-         */
+        /** internal
+         * DomRenderer#rectangleProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a rectangle.
+         **/
+        rectangleProperties: function( el, geometry ){
+
+            var aabb = geometry.aabb();
+
+            el.style.width = (aabb.hw * 2) + px;
+            el.style.height = (aabb.hh * 2) + px;
+            el.style.marginLeft = (-aabb.hw) + px;
+            el.style.marginTop = (-aabb.hh) + px;
+        },
+
+        // extended
         createView: function( geometry ){
 
             var el = newEl()
@@ -139,45 +137,38 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             el.className = classpfx + geometry.name;
-            el.style.position = 'absolute';            
+            el.style.position = 'absolute';
             el.style.top = '0px';
             el.style.left = '0px';
-            
+
             if (this[ fn ]){
                 this[ fn ](el, geometry);
             }
-            
+
             this.el.appendChild( el );
             return el;
         },
 
-        /**
-         * Connect to world. Automatically called when added to world by the setWorld method
-         * @param  {Object} world The world to connect to
-         * @return {void}
-         */
+        // extended
         connect: function( world ){
 
-            world.subscribe( 'add:body', this.attach, this );
-            world.subscribe( 'remove:body', this.detach, this );
+            world.on( 'add:body', this.attach, this );
+            world.on( 'remove:body', this.detach, this );
         },
 
-        /**
-         * Disconnect from world
-         * @param  {Object} world The world to disconnect from
-         * @return {void}
-         */
+        // extended
         disconnect: function( world ){
 
-            world.unsubscribe( 'add:body', this.attach );
-            world.unsubscribe( 'remove:body', this.detach );
+            world.off( 'add:body', this.attach );
+            world.off( 'remove:body', this.detach );
         },
 
         /**
-         * Detach a node from the DOM
-         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
-         * @return {self}
-         */
+         * DomRenderer#detach( data ) -> this
+         * - data (HTMLElement|Object): DOM node or event data (`data.body`)
+         *
+         * Event callback to detach a node from the DOM
+         **/
         detach: function( data ){
 
             // interpred data as either dom node or event data
@@ -194,10 +185,11 @@ Physics.renderer('dom', function( proto ){
         },
 
         /**
-         * Attach a node to the viewport
-         * @param  {HTMLElement|Object} data DOM node or event data (data.body)
-         * @return {self}
-         */
+         * DomRenderer#attach( data ) -> this
+         * - data (HTMLElement|Object): DOM node or event data (`data.body`)
+         *
+         * Event callback to attach a node to the viewport
+         **/
         attach: function( data ){
 
             // interpred data as either dom node or event data
@@ -212,23 +204,29 @@ Physics.renderer('dom', function( proto ){
             return this;
         },
 
-        /**
-         * Draw the meta data
-         * @param  {Object} meta The meta data
-         * @return {void}
-         */
+        // extended
         drawMeta: function( meta ){
 
             this.els.fps.innerHTML = meta.fps.toFixed(2);
             this.els.ipf.innerHTML = meta.ipf;
         },
 
-        /**
-         * Update dom element to reflect body's current state
-         * @param  {Body} body The body to draw
-         * @param  {HTMLElement} view The view for that body
-         * @return {void}
-         */
-        drawBody: drawBody
+        // extended
+        drawBody: function( body, view ){
+
+            var pos = body.state.pos
+                ,v = body.state.vel
+                ,x
+                ,y
+                ,ang
+                ,t = this._interpolateTime
+                ;
+
+            // interpolate positions
+            x = pos.x + v.x * t;
+            y = pos.y + v.y * t;
+            ang = body.state.angular.pos + body.state.angular.vel * t;
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+        }
     };
 });

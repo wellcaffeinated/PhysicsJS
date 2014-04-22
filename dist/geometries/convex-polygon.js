@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -17,9 +17,31 @@
 }(this, function (Physics) {
     'use strict';
     /**
-     * Convex polygon geometry
-     * @module geometries/convex-polygon
-     */
+     * class ConvexPolygonGeometry < Geometry
+     *
+     * Physics.geometry('convex-polygon')
+     *
+     * Geometry for convex polygons.
+     *
+     * Additional config options:
+     *
+     * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
+     *
+     * Example:
+     *
+     * ```javascript
+     * var pentagon = Physics.geometry('convex-polygon', {
+     *     // the centroid is automatically calculated and used to position the shape
+     *     vertices: [
+     *         { x: 0, y: -30 },
+     *         { x: -29, y: -9 },
+     *         { x: -18, y: 24 },
+     *         { x: 18, y: 24 },
+     *         { x: 29, y: -9 }
+     *     ]
+     * });
+     * ```
+     **/
     Physics.geometry('convex-polygon', function( parent ){
     
         var ERROR_NOT_CONVEX = 'Error: The vertices specified do not match that of a _convex_ polygon.';
@@ -30,25 +52,30 @@
     
         return {
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration options
-             * @return {void}
-             */
+            // extended
             init: function( options ){
+    
+                var self = this;
     
                 // call parent init method
                 parent.init.call(this, options);
-                options = Physics.util.extend({}, defaults, options);
     
-                this.setVertices( options.vertices || [] );
+                this.options.defaults( defaults );
+                this.options.onChange(function( opts ){
+                    self.setVertices( opts.vertices || [] );
+                });
+                this.options( options );
+    
+                self.setVertices( this.options.vertices || [] );
+    
             },
     
             /**
-             * Set the vertices of the polygon shape. Vertices will be converted to be relative to the calculated centroid
-             * @param {Array} hull The hull definition. Array of vectorish objects
-             * @return {self}
-             */
+             * ConvexPolygonGeometry#setVertices( hull ) -> this
+             * - hull (Array): Vertices represented by an array of [[Vectorish]] objects, in either clockwise or counterclockwise order
+             *
+             * Set the vertices of this polygon.
+             **/
             setVertices: function( hull ){
     
                 var scratch = Physics.scratchpad()
@@ -66,7 +93,7 @@
                 // translate each vertex so that the centroid is at the origin
                 // then add the vertex as a vector to this.vertices
                 for ( var i = 0, l = hull.length; i < l; ++i ){
-                    
+    
                     verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
                 }
     
@@ -76,23 +103,19 @@
                 scratch.done();
                 return this;
             },
-            
-            /**
-             * Get axis-aligned bounding box for this object (rotated by angle if specified).
-             * @param  {Number} angle (optional) The angle to rotate the geometry.
-             * @return {Object}       Bounding box values
-             */
+    
+            // extended
             aabb: function( angle ){
     
                 if (!angle && this._aabb){
-                    return this._aabb.get();
+                    return Physics.aabb.clone( this._aabb );
                 }
     
                 var scratch = Physics.scratchpad()
                     ,p = scratch.vector()
                     ,trans = scratch.transform().setRotation( angle || 0 )
-                    ,xaxis = scratch.vector().clone(Physics.vector.axis[0]).rotateInv( trans )
-                    ,yaxis = scratch.vector().clone(Physics.vector.axis[1]).rotateInv( trans )
+                    ,xaxis = scratch.vector().set( 1, 0 ).rotateInv( trans )
+                    ,yaxis = scratch.vector().set( 0, 1 ).rotateInv( trans )
                     ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
                     ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
                     ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
@@ -100,25 +123,19 @@
                     ,aabb
                     ;
     
-                aabb = new Physics.aabb( xmin, ymin, xmax, ymax );
+                aabb = Physics.aabb( xmin, ymin, xmax, ymax );
     
                 if (!angle){
-                    this._aabb = aabb;
+                    // if we don't have an angle specified (or it's zero)
+                    // then we can cache this result
+                    this._aabb = Physics.aabb.clone( aabb );
                 }
     
                 scratch.done();
-                return aabb.get();
+                return aabb;
             },
     
-            /**
-             * Get farthest point on the hull of this geometry
-             * along the direction vector "dir"
-             * returns local coordinates
-             * replaces result if provided
-             * @param {Vector} dir Direction to look
-             * @param {Vector} result (optional) A vector to write result to
-             * @return {Vector} The farthest hull point in local coordinates
-             */
+            // extended
             getFarthestHullPoint: function( dir, result, data ){
     
                 var verts = this.vertices
@@ -151,7 +168,7 @@
     
                 if ( val >= prev ){
                     // go up
-                    // search until the next dot product 
+                    // search until the next dot product
                     // is less than the previous
                     while ( i < l && val >= prev ){
                         prev = val;
@@ -185,19 +202,11 @@
                     if ( data ){
                         data.idx = idx;
                     }
-                    return result.clone( verts[ idx ] );                
+                    return result.clone( verts[ idx ] );
                 }
             },
     
-            /**
-             * Get farthest point on the core of this geometry
-             * along the direction vector "dir"
-             * returns local coordinates
-             * replaces result if provided
-             * @param {Vector} dir Direction to look
-             * @param {Vector} result (optional) A vector to write result to
-             * @return {Vector} The farthest core point in local coordinates
-             */
+            // extended
             getFarthestCorePoint: function( dir, result, margin ){
     
                 var norm
@@ -214,10 +223,10 @@
                 result = this.getFarthestHullPoint( dir, result, data );
     
                 // get normalized directions to next and previous vertices
-                next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( !sign );
-                prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( sign );
+                next.clone( verts[ (data.idx + 1) % l ] ).vsub( result ).normalize().perp( sign );
+                prev.clone( verts[ (data.idx - 1 + l) % l ] ).vsub( result ).normalize().perp( !sign );
     
-                // get the magnitude of a vector from the result vertex 
+                // get the magnitude of a vector from the result vertex
                 // that splits down the middle
                 // creating a margin of "m" to each edge
                 mag = margin / (1 + next.dot(prev));

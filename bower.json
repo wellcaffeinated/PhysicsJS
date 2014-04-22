@@ -1,0 +1,34 @@
+{
+  "name": "PhysicsJS",
+  "version": "0.6.0",
+  "homepage": "http://wellcaffeinated.net/PhysicsJS",
+  "authors": [
+    "Jasper Palfree <well.caffeinated@gmail.com>"
+  ],
+  "description": "A modular, extendable, and easy-to-use physics engine for javascript",
+  "main": "dist/physicsjs-full-0.6.0.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "physics",
+    "engine",
+    "simulation"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "editor",
+    "lib",
+    "src",
+    "jshint.json",
+    "gruntfile.js",
+    "package.json"
+  ]
+}

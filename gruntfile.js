@@ -37,10 +37,16 @@ module.exports = function(grunt) {
 
         sources : [
             'src/intro.js',
-            'lib/lodash.js',
-            'src/util/*.js',
             'src/math/*.js',
 
+            'src/util/noconflict.js',
+            'src/util/decorator.js',
+            'src/util/helpers.js',
+            'src/util/scratchpad.js',
+            'src/util/pubsub.js',
+            'src/util/ticker.js',
+
+            'src/core/query.js',
             'src/core/behavior.js',
             'src/core/body.js',
             'src/core/geometry.js',
@@ -54,7 +60,8 @@ module.exports = function(grunt) {
 
             // default geometry
             'src/geometries/point.js',
-            
+            'src/bodies/point.js',
+
             'src/outro.js'
         ],
 
@@ -62,6 +69,7 @@ module.exports = function(grunt) {
             'src/geometries/*.js',
             '!src/geometries/point.js',
             'src/bodies/*.js',
+            '!src/bodies/point.js',
             'src/behaviors/*.js',
             'src/integrators/*.js',
             '!src/integrators/verlet.js',
@@ -105,7 +113,7 @@ module.exports = function(grunt) {
 
     // remove the exclusions. we want it to match all files.
     for ( var i = 0, l = config.sourcesFull.length; i < l; ++i ){
-        
+
         if (config.sourcesFull[ i ].charAt(0) === '!'){
             config.sourcesFull.splice( i, 1 );
             i--;
@@ -135,7 +143,7 @@ module.exports = function(grunt) {
             deps: deps
         };
 
-        return grunt.template.process(config.banner, config) + 
+        return grunt.template.process(config.banner, config) +
             grunt.template.process(config.extensionWrapper, {data: data});
     }
 
@@ -213,7 +221,7 @@ module.exports = function(grunt) {
         },
         watch: {
           files: 'src/**/*.js',
-          tasks: [ 'dev' ]
+          tasks: [ 'watchdev' ]
         },
         uglify : {
             options : { mangle : true, banner: config.banner },
@@ -304,43 +312,14 @@ module.exports = function(grunt) {
             },
             source : 'src/*/*.js'
         },
-        lodash: {
-            mixer: {
-                // output location
-                dest: 'lib/lodash.js',
+        docs: {
+            api: {
+                dest: 'docs/',
+                src: ['src/**/*.js'],
                 options: {
-                    // modifiers for prepared builds
-                    // backbone, legacy, modern, mobile, strict, underscore
-                    // modifier: 'backbone',
-                    // modularize: true,
-                    // category: ['collections', 'functions'],
-                    exports: ['none'],
-                    iife: '(function(window){%output%;lodash.extend(Physics.util, lodash);}(this));',
-                    include: ['isObject', 'isFunction', 'isArray', 'isPlainObject', 'uniqueId', 'each', 'random', 'extend', 'clone', 'throttle', 'bind', 'sortedIndex', 'shuffle'],
-                    
-                    // minus: ['result', 'shuffle'],
-                    // plus: ['random', 'template'],
-                    // template: './*.jst',
-                    // settings: '{interpolate:/\\{\\{([\\s\\S]+?)\\}\\}/g}',
-                    // moduleId: 'underscore',
-                    // with or without the --
-                    // these are the only tested options,
-                    // as the others don't make sense to use here
-                    flags: [
-                        // '--stdout',
-                        // 'debug',
-                        '--minify',
-                        // 'source-map'
-                    ]//,
-                    // with or without the -
-                    // these are the only tested options,
-                    // as the others don't make sense to use here
-                    // shortFlags: [
-                    //   'c',
-                    //   '-d',
-                    //   'm',
-                    //   '-p'
-                    // ]
+                    template: 'docs/layout.jade',
+                    debugFile: 'docs/debug.json',
+                    fileRoot: 'https://github.com/wellcaffeinated/PhysicsJS/tree/master/'
                 }
             }
         }
@@ -349,13 +328,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-lodash');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-jasmine-node');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-requirejs');
+
+    require('./lib/gendoc.js')(grunt);
 
     // build a js file with an array containing the modules path name
     grunt.registerTask('jasmine-module-list', function(){
@@ -373,16 +353,17 @@ module.exports = function(grunt) {
     // Run `grunt watch` to create a dev build whenever a file is changed
 
     // create a build for development
-    grunt.registerTask('dev', ['clean:dev', 'lodash', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
+    grunt.registerTask('dev', ['clean:dev', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
+    grunt.registerTask('watchdev', ['clean:dev', 'concat:dev', 'concat:devFull', 'copy:modulesDev']);
     grunt.registerTask('testDev', ['jshint', 'jasmine-module-list', 'jasmine:dev', 'jasmine:devRequireJS']);
 
     // tests on dist code
     grunt.registerTask('testDist', ['jasmine-module-list', 'jasmine:dist', 'jasmine:distRequireJS', 'requirejs', 'jasmine:distRequireJSBuild', 'clean:test', 'jasmine_node']);
 
     // create a distribution build
-    grunt.registerTask('dist', ['clean:dist', 'lodash', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
+    grunt.registerTask('dist', ['clean:dist', 'concat:dist', 'concat:distFull', 'copy:modules', 'copy:examples', 'jshint', 'uglify', 'testDist']);
 
     // Default task.
     grunt.registerTask('default', ['dev', 'testDev']);
-    
+
 };

@@ -1,9 +1,3 @@
-/**
- * Gilbert–Johnson–Keerthi object collison algorithm
- * For general information about GJK see: 
- *  - http://www.codezealot.org/archives/88
- *  - http://mollyrocket.com/849
- */
 (function(){
 
     // the algorithm doesn't always converge for curved shapes.
@@ -33,24 +27,25 @@
 
             // dir = AB = B - A
             dir.clone( ptB ).vsub( ptA );
-            // if (left handed coordinate system) 
-            // A cross AB < 0 then get perpendicular clockwise
-            return dir.perp( (ptA.cross( dir ) < 0) );
+            // if (left handed coordinate system)
+            // A cross AB < 0 then get perpendicular counterclockwise
+            return dir.perp( (ptA.cross( dir ) > 0) );
         }
     };
 
-    /**
+    /** hide
+     * getClosestPoints( simplex ) -> Object
+     * - simplex (Array): The simplex
+     *
      * Figure out the closest points on the original objects
      * from the last two entries of the simplex
-     * @param  {Array} simplex
-     * @return {Object}
-     */
+     **/
     var getClosestPoints = function getClosestPoints( simplex ){
 
         // see http://www.codezealot.org/archives/153
         // for algorithm details
 
-        // we know that the position of the last point 
+        // we know that the position of the last point
         // is very close to the previous. (by nature of the distance test)
         // this won't give great results for the closest
         // points algorithm, so let's use the previous two
@@ -69,12 +64,11 @@
 
             // oh.. it's a zero vector. So A and B are both the closest.
             // just use one of them
-            scratch.done();
-            return {
+            return scratch.done({
 
                 a: last.a,
                 b: last.b
-            };
+            });
         }
 
         lambdaB = - L.dot( A ) / L.normSq();
@@ -83,42 +77,60 @@
         if ( lambdaA <= 0 ){
             // woops.. that means the closest simplex point
             // isn't on the line it's point B itself
-            scratch.done();
-            return {
+            return scratch.done({
                 a: prev.a,
                 b: prev.b
-            };
+            });
         } else if ( lambdaB <= 0 ){
             // vice versa
-            scratch.done();
-            return {
+            return scratch.done({
                 a: last.a,
                 b: last.b
-            };
+            });
         }
 
         // guess we'd better do the math now...
-        var ret = {
+        return scratch.done({
             // a closest = lambdaA * Aa + lambdaB * Ba
             a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
             // b closest = lambdaA * Ab + lambdaB * Bb
             b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
-        };
-
-        scratch.done();
-        return ret;
+        });
     };
 
     /**
+     * Physics.gjk( support(axis)[, seed, checkOverlapOnly, debugFn] ) -> Object
+     * - support (Function): The support function. Must return an object containing
+       the witness points (`.a`, `.b`) and the support point (`.pt`).
+       Recommended to use simple objects.
+       Eg:
+       ```javascript
+       return {
+            a: { x: 1, y:2 },
+            b: { x: 3, y: 4 },
+            pt: { x: 2, y: 2 }
+       };
+       ```
+     * - axis (Physics.vector): The axis to search
+     * - seed (Physics.vector): The starting direction for the simplex (defaults to x-axis)
+     * - checkOverlapOnly (Boolean): only check whether there is an overlap, don't calculate the depth
+     * - debugFn (Function): For debugging. Called at every iteration with the current simplex.
+     *
      * Implementation agnostic GJK function.
-     * @param  {Function} support The support function. Must return an object containing 
-     *                            the witness points (.a, .b) and the support point (.pt).
-     *                            Recommended to use simple objects. Eg: return { a: {x: 1, y:2}, b: {x: 3, y: 4}, pt: {x: 2, y: 2} }
-     *                            Signature: function(<Physics.vector> axis).
-     *                            axis: The axis to use
-     * @param {Physics.vector} seed The starting direction for the simplex
-     * @return {Object} The algorithm information containing properties: .overlap (bool), and .simplex (Array)
-     */
+     *
+     * Gilbert–Johnson–Keerthi object collison algorithm
+     * For general information about GJK see:
+     * - [www.codezealot.org/archives/88](http://www.codezealot.org/archives/88)
+     * - [mollyrocket.com/849](http://mollyrocket.com/849)
+     *
+     * The algorithm information returned:
+     * ```javascript
+     * {
+     *     overlap: Boolean,
+     *     simplex: [] // array containing simplex points as simple x/y objects
+     * }
+     * ```
+     **/
     var gjk = function gjk( support, seed, checkOverlapOnly, debugFn ){
 
         var overlap = false
@@ -168,7 +180,7 @@
                 overlap = true;
                 break;
             }
-            
+
             // check if the last point we added actually passed the origin
             if ( !noOverlap && last.dot( dir ) <= 0.0 ) {
                 // if the point added last was not past the origin in the direction of d
@@ -213,11 +225,11 @@
                 // the norm is the same as distance(origin, a)
                 // use norm squared to avoid the sqrt operations
                 if (lastlast.normSq() < v1.clone(simplex[ 0 ].pt).normSq()) {
-                    
+
                     simplex.shift();
 
                 } else {
-                    
+
                     simplex.splice(1, 1);
                 }
 
@@ -240,7 +252,7 @@
                 // normals and checking dot products. Since we're in 2D
                 // we can be clever...
                 sign = ab.cross( ac ) > 0;
-                
+
                 if ( sign ^ (last.cross( ab ) > 0) ){
 
                     // ok... so there's an XOR here... don't freak out
@@ -256,28 +268,28 @@
                     // if we haven't deduced that we've enclosed the origin
                     // then we know which way to look...
                     // morph the ab vector into its outward facing normal
-                    ab.perp( sign );
-                    
+                    ab.perp( !sign );
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                     // if we get to this if, then it means we can continue to look along
                     // the other outward normal direction (ACperp)
                     // if we don't see the origin... then we must have it enclosed
                 } else if ( sign ^ (ac.cross( last ) > 0) ){
-                    // then the origin is along the outward facing normal 
+                    // then the origin is along the outward facing normal
                     // of AC; (ACperp)
 
                     // point B is dead to us now...
                     simplex.splice(1, 1);
 
-                    ac.perp( !sign );
-                    
+                    ac.perp( sign );
+
                     // swap
                     dir.swap( ab );
-                    
+
                     // continue...
 
                 } else {

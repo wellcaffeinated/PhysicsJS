@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.5.4 - 2014-02-03
+ * PhysicsJS v0.6.0 - 2014-04-22
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -16,47 +16,54 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /**
-     * Newtonian attraction between bodies (inverse square law)
-     * @module behaviors/newtonian
-     */
+    /** 
+     * class NewtonianBehavior < Behavior
+     *
+     * `Physics.behavior('newtonian')`.
+     *
+     * Newtonian attraction between bodies (inverse square law).
+     *
+     * Additional options include:
+     * - strength: The strength of the interaction between bodies. (default: `1`)
+     * - max: The maximum distance between bodies at which to apply the behavior. (default: `false`... infinite)
+     * - min: The minimum distance between bodies at which to apply the behavior. (default: `false`... autocalculate)
+     **/
     Physics.behavior('newtonian', function( parent ){
     
         var defaults = {
     
-            strength: 1
+            strength: 1,
+            // max distance to apply it to
+            max: false, // infinite
+            // min distance to apply it to
+            min: false // auto calc
         };
     
         return {
     
-            /**
-             * Initialization
-             * @param  {Object} options Configuration object
-             * @return {void}
-             */
+            // extended
             init: function( options ){
     
+                var self = this;
                 // call parent init method
-                parent.init.call(this, options);
-    
-                options = Physics.util.extend({}, defaults, options);
-    
-                this.strength = options.strength;
-                this.tolerance = options.tolerance || 100 * this.strength;
+                parent.init.call( this );
+                this.options.defaults( defaults );
+                this.options.onChange(function( opts ){
+                    self._maxDistSq = opts.max === false ? Infinity : opts.max * opts.max;
+                    self._minDistSq = opts.min ? opts.min * opts.min : 100 * opts.strength;
+                });
+                this.options( options );
             },
             
-            /**
-             * Apply newtonian acceleration between all bodies
-             * @param  {Object} data Event data
-             * @return {void}
-             */
+            // extended
             behave: function( data ){
     
-                var bodies = data.bodies
+                var bodies = this.getTargets()
                     ,body
                     ,other
-                    ,strength = this.strength
-                    ,tolerance = this.tolerance
+                    ,strength = this.options.strength
+                    ,minDistSq = this._minDistSq
+                    ,maxDistSq = this._maxDistSq
                     ,scratch = Physics.scratchpad()
                     ,pos = scratch.vector()
                     ,normsq
@@ -76,7 +83,7 @@
                         // get the square distance
                         normsq = pos.normSq();
     
-                        if (normsq > tolerance){
+                        if (normsq > minDistSq && normsq < maxDistSq){
     
                             g = strength / normsq;
     
