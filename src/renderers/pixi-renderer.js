@@ -281,7 +281,7 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
-        createView: function( geometry ){
+        createView: function( geometry, styles ){
 
             var view = null
                 ,aabb = geometry.aabb()
@@ -292,7 +292,7 @@ Physics.renderer('pixi', function( parent ){
                 ,name = geometry.name
                 ;
 
-            var styles = styles || this.options.styles[ name ];
+            styles = styles || this.options.styles[ name ];
 
             x += styles.lineWidth | 0;
             y += styles.lineWidth | 0;
