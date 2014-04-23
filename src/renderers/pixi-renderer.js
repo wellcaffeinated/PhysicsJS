@@ -294,9 +294,6 @@ Physics.renderer('pixi', function( parent ){
 
             styles = styles || this.options.styles[ name ];
 
-            x += styles.lineWidth | 0;
-            y += styles.lineWidth | 0;
-
             if (name === 'circle'){
 
                 view = this.createCircle(x, y, geometry.radius, styles);
@@ -309,7 +306,7 @@ Physics.renderer('pixi', function( parent ){
             if (styles.angleIndicator){
 
                 view.beginFill(styles.angleIndicator);
-                view.moveTo((x / 2), (5 + styles.lineWidth));
+                view.moveTo(geometry.radius * 2, geometry.radius);
                 view.lineTo((x / 2) + (geometry.radius / 2), geometry.radius);
                 // Center the graphics to the circle
                 view.endFill();
