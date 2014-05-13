@@ -264,7 +264,8 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,candidates = this.candidates
                 ;
 
-            encounters.length = candidates.length = 0;
+            Physics.util.clearArray( encounters );
+            Physics.util.clearArray( candidates );
 
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
