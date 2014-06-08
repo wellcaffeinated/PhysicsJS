@@ -9,7 +9,7 @@
         // Browser globals (root is window)
         root.Physics = factory.call(root);
     }
-}(this, function () {
+}(window, function () {
 
 'use strict';
 
