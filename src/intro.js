@@ -9,7 +9,7 @@
         // Browser globals (root is window)
         root.Physics = factory.call(root);
     }
-}(window, function () {
+}(typeof window !== 'undefined' ? window : this, function () {
 
 'use strict';
 
