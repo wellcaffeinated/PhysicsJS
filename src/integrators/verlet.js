@@ -21,7 +21,7 @@ Physics.integrator('verlet', function( parent ){
          *
          * `Physics.integrator('verlet')`.
          *
-         * The improved euler integrator.
+         * The verlet integrator.
          **/
 
         // extended
