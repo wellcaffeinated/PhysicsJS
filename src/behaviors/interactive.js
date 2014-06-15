@@ -114,6 +114,8 @@ Physics.behavior('interactive', function( parent ){
                     ,body
                     ;
 
+                time = Physics.util.ticker.now();
+
                 if ( self._world ){
                     body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
