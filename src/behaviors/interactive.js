@@ -131,6 +131,7 @@ Physics.behavior('interactive', function( parent ){
                         self.body = body;
                         // remember the mouse offset
                         self.mousePos.clone( pos );
+                        self.mousePosOld.clone( pos );
                         self.offset.clone( pos ).vsub( body.state.pos );
 
                         pos.body = body;
