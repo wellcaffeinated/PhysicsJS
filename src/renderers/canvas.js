@@ -680,7 +680,7 @@ Physics.renderer('canvas', function( proto ){
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
-            ctx.drawImage(view, -view.width/2, -view.height/2);
+            ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
             ctx.restore();
 
             if ( this.options.debug ){
