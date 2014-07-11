@@ -140,7 +140,7 @@ Custom bodies can also be created and bodies can be extended.
 
 ### Behaviors (or Behaviours)
 
-[Read more about Behaviors on the wiki](wiki-behaviors).
+[Read more about Behaviors on the wiki][wiki-behaviors].
 
 Behaviors (or Behaviours) are the "how" of a physics simulation. They are rules applied
 to the world that act on bodies during every timestep to simulate specific physical laws.
@@ -177,7 +177,7 @@ Custom behaviors can also be created and behaviors can be extended.
 
 ### Renderers
 
-[Read more about Renderers on the wiki](wiki-renderers).
+[Read more about Renderers on the wiki][wiki-renderers].
 
 Renderers are the user's viewport into the simulation. At this stage, renderers
 are primitive and their capabilities limited. [Simple renderers exist for DOM and
@@ -230,7 +230,7 @@ Custom renderers can be created and renderers can be extended.
 
 ### Integrators
 
-[Read more about Integrators on the wiki](wiki-integrators).
+[Read more about Integrators on the wiki][wiki-integrators].
 
 An integrator is the mathematical workhorse of a simulation. An integrator
 will [numerically integrate](http://en.wikipedia.org/wiki/Numerical_integration)
