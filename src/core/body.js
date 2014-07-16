@@ -227,7 +227,7 @@
                  **/
 
                 /** related to: Physics.renderer
-                 * Body#style
+                 * Body#styles
                  *
                  * The styles the renderer should use for creating the view.
                  *
