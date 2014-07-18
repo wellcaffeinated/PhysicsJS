@@ -363,6 +363,7 @@ Physics.renderer('canvas', function( proto ){
 
                 if ( layer.options.follow ){
                     offset.vsub( layer.options.follow.state.pos );
+                    offset.sub( layer.options.follow.state.vel.get(0)*t, layer.options.follow.state.vel.get(1)*t );
                 }
 
                 if ( clear !== false ){
