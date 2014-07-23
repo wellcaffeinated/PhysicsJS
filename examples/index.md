@@ -17,7 +17,7 @@ title: PhysicsJS Examples
 
 * [MinuteLabs.io](http://minutelabs.io) - Their physics simulations use PhysicsJS
 * [Colors](http://physics.meteor.com/) - a game by Jussi Rytkönen
-* [Asteroid Mining Game](http://killfall.github.io/asteroid-prospector/)
+* [Asteroid Mining Game](http://www.ape-mining.com/)
 
 <script>
 if (window.location.hash.match(/demo-/)){
