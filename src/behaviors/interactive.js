@@ -10,9 +10,12 @@
  * Additional options include:
  * - el: The element of the renderer. What you input as the `el` for the renderer.
  * - moveThrottle: The min time between move events (default: `10`).
+ * - inertion: Whether apply inertion after object releasing or not.
+ * - type: "translate" or "rotate".
  * - minVel: The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
  * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
- *
+ * - minAngVel: The minimum velocity clamp for rotation (default: `0`).
+ * - maxAngVel: The maximum velocity clamp for rotation (default: `5`).
  * The behavior also triggers the following events on the world:
  * ```javascript
  * // a body has been grabbed
@@ -50,11 +53,22 @@ Physics.behavior('interactive', function( parent ){
             el: null,
             // time between move events
             moveThrottle: 1000 / 100 | 0,
+            // inertion after release
+            inertion: true,
+            // interaction type
+            type: "translate",
             // minimum velocity clamp
             minVel: { x: -5, y: -5 },
             // maximum velocity clamp
-            maxVel: { x: 5, y: 5 }
+            maxVel: { x: 5, y: 5 },
+            // minimum angular velocity clamp
+            minAngVel: 0,
+            // maximum angular velocity clamp
+            maxAngVel: 5,
+            // special treatment for grabbed body
+            specialTreatment: "kinematic",
         }
+
         ,getElementOffset = function( el ){
             var curleft = 0
                 ,curtop = 0
@@ -88,7 +102,6 @@ Physics.behavior('interactive', function( parent ){
         init: function( options ){
 
             var self = this
-                ,prevTreatment
                 ,time
                 ;
 
@@ -109,52 +122,33 @@ Physics.behavior('interactive', function( parent ){
             }
 
             // init events
-            var grab = function grab( e ){
-                var pos = getCoords( e )
-                    ,body
-                    ;
-
-                time = Physics.util.ticker.now();
-
-                if ( self._world ){
-                    body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
-
-                    if ( body ){
-                        // we're trying to grab a body
-
-                        // fix the body in place
-                        prevTreatment = body.treatment;
-                        body.treatment = 'kinematic';
-                        body.state.vel.zero();
-                        body.state.angular.vel = 0;
-                        // remember the currently grabbed body
-                        self.body = body;
-                        // remember the mouse offset
-                        self.mousePos.clone( pos );
-                        self.mousePosOld.clone( pos );
-                        self.offset.clone( pos ).vsub( body.state.pos );
-
-                        pos.body = body;
-                        self._world.emit('interact:grab', pos);
-
-                    } else {
-
-                        self._world.emit('interact:poke', pos);
-                    }
+            this.grab = function grab( e ){
+                if ( !self._world ){
+                    return;
                 }
+
+                var pos = getCoords( e );
+                var body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
+                self.grabBody(pos, body);
             };
 
-            var move = Physics.util.throttle(function move( e ){
-                var pos = getCoords( e )
-                    ,state
-                    ;
+            this.move = Physics.util.throttle(function move( e ){
+                if ( !self._world ){
+                    return;
+                }
+                var pos = getCoords( e );
 
-                if ( self.body ){
+                if ( self.body && self._targets === null || self._targets.indexOf(self.body) !== -1 ){
                     time = Physics.util.ticker.now();
 
                     self.mousePosOld.clone( self.mousePos );
                     // get new mouse position
                     self.mousePos.set(pos.x, pos.y);
+
+                    self.body.state.vel.zero();
+                    self.body.state.angular.vel = 0;
+                    self.body.state.acc.zero();
+                    self.body.state.angular.acc = 0;
 
                     pos.body = self.body;
                 }
@@ -163,39 +157,79 @@ Physics.behavior('interactive', function( parent ){
 
             }, self.options.moveThrottle);
 
-            var release = function release( e ){
-                var pos = getCoords( e )
-                    ,body
-                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
-                    ;
+            this.release = function release( e ){
+                if ( !self._world ){
+                    return;
+                }
+
+                var pos = getCoords( e );
+                var dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle);
 
                 // get new mouse position
                 self.mousePos.set(pos.x, pos.y);
 
                 // release the body
-                if (self.body){
-                    self.body.treatment = prevTreatment;
+                if ( self.body && self._targets === null || self._targets.indexOf(self.body) !== -1 ){
+                    self.body.treatment = self.prevTreatment;
                     // calculate the release velocity
-                    self.body.state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
-                    // make sure it's not too big
-                    self.body.state.vel.clamp( self.options.minVel, self.options.maxVel );
+                    var state = self.body.state;
+                    if ( self.options.inertion ){
+                        if ( self.options.type === "translate" ){
+                            state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
+                            // make sure it's not too big
+                            state.vel.clamp( self.options.minVel, self.options.maxVel );
+                        } else if ( self.options.type === "rotate" ){
+                            var vec = self.mousePos.clone().vsub( self.mousePosOld );
+                            var grabPos = self.offset.clone().rotate( state.angular.pos );
+                            var angle = Math.atan2( vec.y, vec.x ) - Math.atan2( grabPos.y, grabPos.x );
+                            state.angular.vel = angle / dt;
+                            // make sure it's not too big
+                            if ( state.angular.vel > self.options.maxAngVel ) {
+                                state.angular.vel = self.options.maxAngVel;
+                            } else if ( state.angular.vel < self.options.minAngVel ) {
+                                state.angular.vel = self.options.minAngVel;
+                            }
+                        }
+                    } else {
+                        state.vel.zero();
+                        state.angular.vel = 0;
+                        state.acc.zero();
+                        state.angular.acc = 0;
+                    }
+
+
                     self.body = false;
                 }
 
-                if ( self._world ){
-
-                    self._world.emit('interact:release', pos);
-                }
+                self._world.emit('interact:release', pos);
             };
+        },
 
-            this.el.addEventListener('mousedown', grab);
-            this.el.addEventListener('touchstart', grab);
+        grabBody: function( pos, body ){
+            var self = this;
+            if ( body && self._targets === null || self._targets.indexOf(body) !== -1 ){
+                // we're trying to grab a body
 
-            this.el.addEventListener('mousemove', move);
-            this.el.addEventListener('touchmove', move);
+                // fix the body in place
+                self.prevTreatment = body.treatment;
+                body.treatment = self.options.specialTreatment;
+                // remember the currently grabbed body
+                self.body = body;
+                self.body.state.vel.zero();
+                self.body.state.angular.vel = 0;
+                self.body.state.acc.zero();
+                self.body.state.angular.acc = 0;
+                // remember the mouse offset
+                self.mousePos.clone( pos );
+                self.offset.clone( pos ).vsub( body.state.pos );
 
-            this.el.addEventListener('mouseup', release);
-            this.el.addEventListener('touchend', release);
+                pos.body = body;
+                self._world.emit('interact:grab', pos);
+
+            } else {
+
+                self._world.emit('interact:poke', pos);
+            }
         },
 
         // extended
@@ -203,6 +237,14 @@ Physics.behavior('interactive', function( parent ){
 
             // subscribe the .behave() method to the position integration step
             world.on('integrate:positions', this.behave, this);
+            this.el.addEventListener('mousedown', this.grab);
+            this.el.addEventListener('touchstart', this.grab);
+
+            this.el.addEventListener('mousemove', this.move);
+            this.el.addEventListener('touchmove', this.move);
+
+            this.el.addEventListener('mouseup', this.release);
+            this.el.addEventListener('touchend', this.release);
         },
 
         // extended
@@ -210,6 +252,14 @@ Physics.behavior('interactive', function( parent ){
 
             // unsubscribe when disconnected
             world.off('integrate:positions', this.behave);
+            this.el.removeEventListener('mousedown', this.grab);
+            this.el.removeEventListener('touchstart', this.grab);
+
+            this.el.removeEventListener('mousemove', this.move);
+            this.el.removeEventListener('touchmove', this.move);
+
+            this.el.removeEventListener('mouseup', this.release);
+            this.el.removeEventListener('touchend', this.release);
         },
 
         // extended
@@ -220,12 +270,19 @@ Physics.behavior('interactive', function( parent ){
                 ,dt = Math.max(data.dt, self.options.moveThrottle)
                 ;
 
-            if ( self.body ){
+            if ( self.body && self._targets === null || self._targets.indexOf(self.body) !== -1 ){
 
                 // if we have a body, we need to move it the the new mouse position.
                 // we'll do this by adjusting the velocity so it gets there at the next step
                 state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
+                if ( self.options.type === "translate" ){
+                    state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
+                } else if ( self.options.type === "rotate" ){
+                    var vec = self.mousePos.clone().vsub( state.pos );
+                    var grabPos = self.offset.clone().rotate( state.angular.pos );
+                    var angle = Math.atan2( vec.y, vec.x ) - Math.atan2( grabPos.y, grabPos.x );
+                    state.angular.vel = angle / dt;
+                }
             }
         }
     };
