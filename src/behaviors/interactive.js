@@ -130,7 +130,7 @@ Physics.behavior('interactive', function( parent ){
                 if ( self._world ){
                     var body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
-                    self.grabBody(e, body);
+                    self.grabBody(pos, body);
                 }
             };
 
@@ -206,10 +206,9 @@ Physics.behavior('interactive', function( parent ){
             };
         },
 
-        grabBody: function( e, body ){
+        grabBody: function( pos, body ){
             var self = this;
             if ( body && self._targets === null || self._targets.indexOf(body) !== -1 ){
-                var pos = getCoords( e );
                 // we're trying to grab a body
 
                 // fix the body in place
@@ -231,7 +230,7 @@ Physics.behavior('interactive', function( parent ){
 
             } else {
 
-                self._world.emit('interact:poke', getCoords( e ));
+                self._world.emit('interact:poke', pos);
             }
         },
 
