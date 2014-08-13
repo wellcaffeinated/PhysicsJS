@@ -16,6 +16,7 @@
  * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
  * - minAngVel: The minimum velocity clamp for rotation (default: `0`).
  * - maxAngVel: The maximum velocity clamp for rotation (default: `5`).
+ *
  * The behavior also triggers the following events on the world:
  * ```javascript
  * // a body has been grabbed
@@ -120,10 +121,8 @@ Physics.behavior('interactive', function( parent ){
             }
 
             // init events
-            var grab = function grab( e ){
-                var pos = getCoords( e )
-                    ,body
-                    ;
+            this.grab = function grab( e ){
+                var pos = getCoords( e );
 
                 if ( self._world ){
                     var body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
@@ -132,7 +131,7 @@ Physics.behavior('interactive', function( parent ){
                 }
             };
 
-            var move = Physics.util.throttle(function move( e ){
+            this.move = Physics.util.throttle(function move( e ){
                 var pos = getCoords( e )
                     ,state
                     ;
@@ -151,9 +150,8 @@ Physics.behavior('interactive', function( parent ){
 
             }, self.options.moveThrottle);
 
-            var release = function release( e ){
+            this.release = function release( e ){
                 var pos = getCoords( e )
-                    ,body
                     ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
                     ;
 
@@ -193,18 +191,9 @@ Physics.behavior('interactive', function( parent ){
 
                 if ( self._world ){
 
-                    self._world.emit('interact:release', pos);
+                    self._world.emit('interact:release', getCoords( e ));
                 }
             };
-
-            this.el.addEventListener('mousedown', grab);
-            this.el.addEventListener('touchstart', grab);
-
-            this.el.addEventListener('mousemove', move);
-            this.el.addEventListener('touchmove', move);
-
-            this.el.addEventListener('mouseup', release);
-            this.el.addEventListener('touchend', release);
         },
 
         grabBody: function( e, body ){
@@ -230,7 +219,7 @@ Physics.behavior('interactive', function( parent ){
 
             } else {
 
-                self._world.emit('interact:poke', pos);
+                self._world.emit('interact:poke', getCoords( e ));
             }
         },
 
@@ -239,6 +228,15 @@ Physics.behavior('interactive', function( parent ){
 
             // subscribe the .behave() method to the position integration step
             world.on('integrate:positions', this.behave, this);
+
+            this.el.addEventListener('mousedown', this.grab);
+            this.el.addEventListener('touchstart', this.grab);
+
+            this.el.addEventListener('mousemove', this.move);
+            this.el.addEventListener('touchmove', this.move);
+
+            this.el.addEventListener('mouseup', this.release);
+            this.el.addEventListener('touchend', this.release);
         },
 
         // extended
@@ -246,6 +244,15 @@ Physics.behavior('interactive', function( parent ){
 
             // unsubscribe when disconnected
             world.off('integrate:positions', this.behave);
+
+            this.el.removeEventListener('mousedown', this.grab);
+            this.el.removeEventListener('touchstart', this.grab);
+
+            this.el.removeEventListener('mousemove', this.move);
+            this.el.removeEventListener('touchmove', this.move);
+
+            this.el.removeEventListener('mouseup', this.release);
+            this.el.removeEventListener('touchend', this.release);
         },
 
         // extended
