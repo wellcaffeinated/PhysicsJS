@@ -12,6 +12,7 @@
  * - moveThrottle: The min time between move events (default: `10`).
  * - inertion: Whether apply inertion after object releasing or not.
  * - type: "translate" or "rotate".
+ * - specialTreatment: special treatment for grabbed object
  * - minVel: The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
  * - maxVel: The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
  * - minAngVel: The minimum velocity clamp for rotation (default: `0`).
@@ -65,7 +66,9 @@ Physics.behavior('interactive', function( parent ){
             // minimum angular velocity clamp
             minAngVel: 0,
             // maximum angular velocity clamp
-            maxAngVel: 5
+            maxAngVel: 5,
+            // special treatment for grabbed object
+            specialTreatment: "kinematic",
         }
 
         ,getElementOffset = function( el ){
@@ -143,6 +146,11 @@ Physics.behavior('interactive', function( parent ){
                     // get new mouse position
                     self.mousePos.set(pos.x, pos.y);
 
+                    self.body.state.vel.zero();
+                    self.body.state.angular.vel = 0;
+                    self.body.state.acc.zero();
+                    self.body.state.angular.acc = 0;
+
                     pos.body = self.body;
                 }
 
@@ -183,6 +191,8 @@ Physics.behavior('interactive', function( parent ){
                     } else {
                         state.vel.zero();
                         state.angular.vel = 0;
+                        state.acc.zero();
+                        state.angular.acc = 0;
                     }
 
 
@@ -204,9 +214,11 @@ Physics.behavior('interactive', function( parent ){
 
                 // fix the body in place
                 self.prevTreatment = body.treatment;
-                body.treatment = 'kinematic';
+                body.treatment = self.options.specialTreatment;
                 body.state.vel.zero();
                 body.state.angular.vel = 0;
+                body.state.acc.zero();
+                body.state.angular.acc = 0;
                 // remember the currently grabbed body
                 self.body = body;
                 // remember the mouse offset
