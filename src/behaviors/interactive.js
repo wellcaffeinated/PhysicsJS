@@ -251,7 +251,9 @@ Physics.behavior('interactive', function( parent ){
                         delete self.contactPointsOld[touchId];
                         delete self.offsets[touchId];
                         delete self.bodies[touchId];
-                        delete body.isGrabbed;
+                        if (body) {
+                          delete body.isGrabbed;
+                        }
                     }
                     
                 }
