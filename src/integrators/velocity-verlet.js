@@ -1,4 +1,4 @@
-Physics.integrator('verlet', function( parent ){
+Physics.integrator('velocity-verlet', function( parent ){
 
     // for this integrator we need to know if the object has been integrated before
     // so let's add a mixin to bodies
@@ -17,11 +17,11 @@ Physics.integrator('verlet', function( parent ){
 
     return {
         /**
-         * class Verlet < Integrator
+         * class VelocityVerlet < Integrator
          *
-         * `Physics.integrator('verlet')`.
+         * `Physics.integrator('velocity-verlet')`.
          *
-         * The verlet integrator.
+         * The velocity-verlet integrator.
          **/
 
         // extended
@@ -39,8 +39,6 @@ Physics.integrator('verlet', function( parent ){
                 ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
-                ,prevDt = this.prevDt || dt
-                ,dtMul = (dtdt + dt * prevDt) * 0.5
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -51,24 +49,17 @@ Physics.integrator('verlet', function( parent ){
                 // only integrate if the body isn't static
                 if ( body.treatment !== 'static' ){
 
-                    // Inspired from https://github.com/soulwire/Coffee-Physics
-                    // @licence MIT
-                    //
-                    // v = x - ox
-                    // x = x + (v + a * dt * dt)
+                    // v = v_prev + 0.5 * (a_prev + a) * dt
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
 
                     // use the velocity in vel if the velocity has been changed manually
-                    if (state.vel.equals( state.old.vel ) && body.started()){
+                    if ( !body.started() ){
 
-                        // Get velocity by subtracting old position from curr position
-                        state.vel.clone( state.pos ).vsub( state.old.pos );
-
-                    } else {
-
-                        state.old.pos.clone( state.pos ).vsub( state.vel );
-                        // so we need to scale the value by dt so it
-                        // complies with other integration methods
-                        state.vel.mult( dt );
+                        // Set old vals on first integration
+                        state.old.acc.clone( state.acc );
+                        state.old.acc.mult( dt );
+                        state.old.vel.clone( state.vel ).vsub( state.old.acc );
+                        state.old.acc.mult( 1/dt );
                     }
 
                     // Apply "air resistance".
@@ -78,14 +69,8 @@ Physics.integrator('verlet', function( parent ){
                     }
 
                     // Apply acceleration
-                    // v += a * dt * dt
-                    state.vel.vadd( state.acc.mult( dtMul ) );
-
-                    // normalize velocity
-                    state.vel.mult( 1/dt );
-
-                    // store calculated velocity
-                    state.old.vel.clone( state.vel );
+                    // v += 0.5 * (a_prev + a) * dt
+                    state.vel.vadd( state.old.acc.vadd( state.acc ).mult( 0.5 * dt ) );
 
                     // Reset accel
                     state.acc.zero();
@@ -94,19 +79,14 @@ Physics.integrator('verlet', function( parent ){
                     // Angular components
                     //
 
-                    if (state.angular.vel === state.old.angular.vel && body.started()){
+                    if ( !body.started() ){
 
-                        state.angular.vel = (state.angular.pos - state.old.angular.pos);
-
-                    } else {
-
-                        state.old.angular.pos = state.angular.pos - state.angular.vel;
-                        state.angular.vel *= dt;
+                        // Set old vals on first integration
+                        state.old.angular.acc = state.angular.acc;
+                        state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
                     }
 
-                    state.angular.vel += state.angular.acc * dtMul;
-                    state.angular.vel /= dt;
-                    state.old.angular.vel = state.angular.vel;
+                    state.angular.vel += 0.5 * (state.angular.acc + state.old.angular.acc) * dtdt;
                     state.angular.acc = 0;
 
                     body.started( true );
@@ -128,8 +108,6 @@ Physics.integrator('verlet', function( parent ){
             var dtdt = dt * dt
                 ,body = null
                 ,state
-                ,prevDt = this.prevDt || dt
-                ,dtcorr = dt/prevDt
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -140,38 +118,38 @@ Physics.integrator('verlet', function( parent ){
                 // only integrate if the body isn't static
                 if ( body.treatment !== 'static' ){
 
-                    // so we need to scale the value by dt so it
-                    // complies with other integration methods
-                    state.vel.mult( dt * dtcorr );
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
 
                     // Store old position.
                     // xold = x
                     state.old.pos.clone( state.pos );
 
-                    state.pos.vadd( state.vel );
-
-                    // normalize velocity
-                    state.vel.mult( 1/dt );
+                    state.old.vel.mult( dt );
+                    state.old.acc.mult( 0.5 * dtdt )
+                    state.pos.vadd( state.old.vel ).vadd( state.old.acc );
 
                     // store calculated velocity
                     state.old.vel.clone( state.vel );
+
+                    // store old acc
+                    state.old.acc.clone( state.acc );
+
+                    // Reset accel
+                    state.acc.zero();
 
                     //
                     // Angular components
                     //
 
 
-                    state.angular.vel *= dt * dtcorr;
-
                     state.old.angular.pos = state.angular.pos;
 
-                    state.angular.pos += state.angular.vel;
-                    state.angular.vel /= dt;
+                    state.angular.pos += state.angular.vel * dt + 0.5 * state.old.angular.acc * dtdt;
                     state.old.angular.vel = state.angular.vel;
+                    state.old.angular.acc = state.angular.acc;
+                    state.angular.acc = 0;
                 }
             }
-
-            this.prevDt = dt;
         }
     };
 });
