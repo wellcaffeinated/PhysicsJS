@@ -1,4 +1,4 @@
-Physics.integrator('velocity-verlet', function( parent ){
+Physics.integrator('velocity-verlet-alt', function( parent ){
 
     // for this integrator we need to know if the object has been integrated before
     // so let's add a mixin to bodies
@@ -31,41 +31,6 @@ Physics.integrator('velocity-verlet', function( parent ){
             parent.init.call(this, options);
         },
 
-        /**
-         * Integrator#integrate( bodies, dt ) -> this
-         * - bodies (Array): List of bodies to integrate
-         * - dt (Number): Timestep size
-         *
-         * Integrate bodies by timestep.
-         *
-         * Will emit `integrate:velocities` and `integrate:positions`
-         * events on the world.
-         **/
-        integrate: function( bodies, dt ){
-
-            var world = this._world;
-
-            this.integratePositions( bodies, dt );
-
-            if ( world ){
-                world.emit('integrate:positions', {
-                    bodies: bodies,
-                    dt: dt
-                });
-            }
-
-            this.integrateVelocities( bodies, dt );
-
-            if ( world ){
-                world.emit('integrate:velocities', {
-                    bodies: bodies,
-                    dt: dt
-                });
-            }
-
-            return this;
-        },
-
         // extended
         integrateVelocities: function( bodies, dt ){
 
@@ -87,6 +52,16 @@ Physics.integrator('velocity-verlet', function( parent ){
                     // v = v_prev + 0.5 * (a_prev + a) * dt
                     // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
 
+                    // use the velocity in vel if the velocity has been changed manually
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.acc.clone( state.acc );
+                        state.old.acc.mult( dt );
+                        state.old.vel.clone( state.vel ).vsub( state.old.acc );
+                        state.old.acc.mult( 1/dt );
+                    }
+
                     // Apply "air resistance".
                     if ( drag ){
 
@@ -95,22 +70,23 @@ Physics.integrator('velocity-verlet', function( parent ){
 
                     // Apply acceleration
                     // v += 0.5 * (a_prev + a) * dt
-                    state.old.vel.clone( state.vel );
                     state.vel.vadd( state.old.acc.vadd( state.acc ).mult( 0.5 * dt ) );
 
                     // Reset accel
-                    state.old.acc.clone( state.acc );
-                    state.acc.zero();
+                    // state.acc.zero();
 
                     //
                     // Angular components
                     //
 
-                    state.old.angular.vel = state.angular.vel;
-                    state.old.angular.acc = state.angular.acc;
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.angular.acc = state.angular.acc;
+                        state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
+                    }
 
                     state.angular.vel += 0.5 * (state.angular.acc + state.old.angular.acc) * dt;
-
                     state.angular.acc = 0;
 
                     body.started( true );
@@ -144,16 +120,6 @@ Physics.integrator('velocity-verlet', function( parent ){
 
                     // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
 
-                    // use the velocity in vel if the velocity has been changed manually
-                    if ( !body.started() ){
-
-                        // Set old vals on first integration
-                        state.old.acc.clone( state.acc );
-                        state.old.acc.mult( dt );
-                        state.old.vel.clone( state.vel ).vsub( state.old.acc );
-                        state.old.acc.mult( 1/dt );
-                    }
-
                     // Store old position.
                     // xold = x
                     state.old.pos.clone( state.pos );
@@ -162,24 +128,24 @@ Physics.integrator('velocity-verlet', function( parent ){
                     state.old.acc.mult( 0.5 * dtdt );
                     state.pos.vadd( state.old.vel ).vadd( state.old.acc );
 
-                    // revert
-                    state.old.vel.mult( 1/dt );
-                    state.old.acc.mult( 2 / dtdt );
+                    // store calculated velocity
+                    state.old.vel.clone( state.vel );
+
+                    // store old acc
+                    state.old.acc.clone( state.acc );
+
+                    // Reset accel
+                    state.acc.zero();
 
                     //
                     // Angular components
                     //
-
-                    if ( !body.started() ){
-
-                        // Set old vals on first integration
-                        state.old.angular.acc = state.angular.acc;
-                        state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
-                    }
-                    
                     state.old.angular.pos = state.angular.pos;
 
                     state.angular.pos += state.angular.vel * dt + 0.5 * state.old.angular.acc * dtdt;
+                    state.old.angular.vel = state.angular.vel;
+                    state.old.angular.acc = state.angular.acc;
+                    state.angular.acc = 0;
                 }
             }
         }
