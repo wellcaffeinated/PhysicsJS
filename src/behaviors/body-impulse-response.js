@@ -66,24 +66,6 @@ Physics.behavior('body-impulse-response', function( parent ){
                 return;
             }
 
-            if ( fixedA ){
-
-                // extract bodies
-                bodyB.state.pos.vadd( mtv );
-
-            } else if ( fixedB ){
-
-                // extract bodies
-                bodyA.state.pos.vsub( mtv );
-
-            } else {
-
-                // extract bodies
-                mtv.mult( 0.5 );
-                bodyA.state.pos.vsub( mtv );
-                bodyB.state.pos.vadd( mtv );
-            }
-
             // inverse masses and moments of inertia.
             // give fixed bodies infinite mass and moi
             var invMoiA = fixedA ? 0 : 1 / bodyA.moi
@@ -127,6 +109,26 @@ Physics.behavior('body-impulse-response', function( parent ){
             if (vproj >= 0){
                 scratch.done();
                 return;
+            }
+
+            if ( contact ){
+                if ( fixedA ){
+
+                    // extract bodies
+                    bodyB.state.pos.vadd( mtv );
+
+                } else if ( fixedB ){
+
+                    // extract bodies
+                    bodyA.state.pos.vsub( mtv );
+
+                } else {
+
+                    // extract bodies
+                    mtv.mult( 0.5 );
+                    bodyA.state.pos.vsub( mtv );
+                    bodyB.state.pos.vadd( mtv );
+                }
             }
 
             invMoiA = invMoiA === Infinity ? 0 : invMoiA;
@@ -237,7 +239,8 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.bodyB,
                     col.norm,
                     col.pos,
-                    col.mtv
+                    col.mtv,
+                    col.collidedPreviously
                 );
             }
         }

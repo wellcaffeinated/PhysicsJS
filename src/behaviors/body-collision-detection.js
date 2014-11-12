@@ -289,6 +289,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,targets = this.getTargets()
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var i = 0, l = candidates.length; i < l; ++i ){
@@ -303,10 +307,16 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ret = checkPair( pair.bodyA, pair.bodyB );
 
                     if ( ret ){
+                        hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
@@ -330,6 +340,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,bodyB
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
@@ -343,10 +357,16 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ret = checkPair( bodyA, bodyB );
 
                     if ( ret ){
+                        hash = pairHash( bodyA.uid, bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
