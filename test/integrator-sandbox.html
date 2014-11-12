@@ -84,7 +84,7 @@
 					world.render();
 				});
 
-				world.add( Physics.integrator('verlet') );
+				world.add( Physics.integrator('velocity-verlet') );
 
 				// constrain objects to these bounds
 				edgeBounce = Physics.behavior('edge-collision-detection', {

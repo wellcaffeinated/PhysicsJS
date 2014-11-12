@@ -81,7 +81,7 @@ Physics.integrator('verlet', function( parent ){
                     // v += a * dt * dt
                     state.vel.vadd( state.acc.mult( dtMul ) );
 
-                    // normalize velocity
+                    // restore velocity
                     state.vel.mult( 1/dt );
 
                     // store calculated velocity
@@ -150,8 +150,8 @@ Physics.integrator('verlet', function( parent ){
 
                     state.pos.vadd( state.vel );
 
-                    // normalize velocity
-                    state.vel.mult( 1/dt );
+                    // restore velocity
+                    state.vel.mult( 1 / (dt * dtcorr) );
 
                     // store calculated velocity
                     state.old.vel.clone( state.vel );
@@ -166,7 +166,7 @@ Physics.integrator('verlet', function( parent ){
                     state.old.angular.pos = state.angular.pos;
 
                     state.angular.pos += state.angular.vel;
-                    state.angular.vel /= dt;
+                    state.angular.vel /= dt * dtcorr;
                     state.old.angular.vel = state.angular.vel;
                 }
             }
