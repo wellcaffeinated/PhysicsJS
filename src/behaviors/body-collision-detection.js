@@ -193,8 +193,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyA: bodyA,
                 bodyB: bodyB,
                 norm: d.normalize().values(),
-                mtv: d.mult( -overlap ).values(),
-                pos: d.normalize().mult( bodyA.geometry.radius ).values(),
+                pos: d.mult( bodyA.geometry.radius ).values(),
+                mtv: d.mult( -overlap/bodyA.geometry.radius ).values(),
                 overlap: -overlap
             };
         }
