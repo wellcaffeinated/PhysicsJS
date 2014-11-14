@@ -143,13 +143,18 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             // calc overlap
-            overlap = Math.max(0, (support.marginA + support.marginB) - result.distance);
+            overlap = (support.marginA + support.marginB) - result.distance;
+
+            if ( overlap <= 0 ){
+                return scratch.done(false);
+            }
+
             collision.overlap = overlap;
             // @TODO: for now, just let the normal be the mtv
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
             collision.mtv = d.mult( overlap ).values();
             // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
         }
 
         return scratch.done( collision );
