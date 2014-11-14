@@ -654,6 +654,8 @@
             // the target time for the world time to step to
             target = time + worldDiff - dt;
 
+            this.emit('beforeStep');
+
             if ( time <= target ){
 
                 while ( time <= target ){
