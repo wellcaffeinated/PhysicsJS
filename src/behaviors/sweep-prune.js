@@ -196,6 +196,10 @@ Physics.behavior('sweep-prune', function( parent ){
                 };
             }
 
+            if ( doCreate){
+                c.flag = 1;
+            }
+
             return c;
         },
 
@@ -314,10 +318,6 @@ Physics.behavior('sweep-prune', function( parent ){
                                 c = this.getPair( tr1, tr2, isX );
 
                                 if ( c ){
-
-                                    if ( c.flag > collisionFlag ){
-                                        c.flag = 1;
-                                    }
 
                                     // if it's greater than the axis index, set the flag
                                     // to = 0.
