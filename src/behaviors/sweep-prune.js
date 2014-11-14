@@ -360,10 +360,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             var tr
                 ,intr
-                ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
                 ,aabb
-                ,span = scratch.vector()
                 ,list = this.tracked
                 ,i = list.length
                 ;
@@ -373,17 +370,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                 tr = list[ i ];
                 intr = tr.interval;
-                pos.clone( tr.body.state.pos );
                 aabb = tr.body.aabb();
-                span.set( aabb.hw, aabb.hh );
 
                 // copy the position (plus or minus) the aabb half-dimensions
                 // into the min/max intervals
-                intr.min.val.clone( pos ).vsub( span );
-                intr.max.val.clone( pos ).vadd( span );
+                intr.min.val.clone( aabb ).sub( aabb.hw, aabb.hh );
+                intr.max.val.clone( aabb ).add( aabb.hw, aabb.hh );
             }
-
-            scratch.done();
         },
 
         /** internal
