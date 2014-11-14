@@ -46,6 +46,7 @@
 
             var debugEl = document.getElementById('debug');
             var doDebug = false;
+            var sp;
 
             function debug(){
                 var lines = Array.prototype.join.call(arguments, '<br/>');
@@ -105,7 +106,7 @@
 
                 world.add([
 
-                    Physics.behavior('sweep-prune')
+                    sp = Physics.behavior('sweep-prune')
                     ,Physics.behavior('body-collision-detection', {
                         checkAll: false
                     })
@@ -142,7 +143,7 @@
                     }
                 });
 
-                document.addEventListener('mousemove', function( e ){
+                document.addEventListener('mousemove', Physics.util.throttle(function( e ){
                     var pos;
 
                     if ( grab ){
@@ -153,7 +154,7 @@
 
                         world.step();
                     }
-                });
+                }, 1000/60));
 
                 document.addEventListener('mouseup', function(){
 
@@ -204,7 +205,7 @@
 
                 var polygons = [
                     {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
-                    {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] }
+                    {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], angle: Math.PI  }
                 ];
 
                 for(var i = 0;i < polygons.length;i++){
@@ -213,7 +214,8 @@
                           x: polygons[i].x,
                           y: polygons[i].y,
                           vertices: polygons[i].v,
-                          
+                          angle: polygons[i].angle,
+
                           styles: bodyStyles
                         })
                     );
@@ -261,17 +263,71 @@
                     }
                 }
 
-                world.on('collisions:candidates', function(){
+                var intervalStyles = {
+                    min: { strokeStyle: 'rgba( 0, 0, 200, 0.3 )', lineWidth: 2, fillStyle: 'transparent' }
+                    ,max: { strokeStyle: 'rgba( 200, 0, 0, 0.3 )', lineWidth: 2, fillStyle: 'transparent' }
+                };
+
+                function drawInterval( intr ){
+                    var ctx = layer.ctx;
+                    var scratch = Physics.scratchpad();
+                    var from = scratch.vector().set( intr.val.x, 0 );
+                    var to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y );
+
+                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
+                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
+
+                    from.set( 0, intr.val.y );
+                    to.set( intr.tracker.body.state.pos.x, intr.val.y );
+
+                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
+                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
+
+                    scratch.done();
+                }
+
+                var colsDetected, candidatesDetected;
+
+                world.on('beforeStep', function(){
                     // clear
                     layer.el.width = layer.el.width;
+
+                    candidatesDetected = false;
+                    colsDetected = false;
+                });
+
+                world.on('collisions:candidates', function( data ){
+
+                    candidatesDetected = data.candidates;
+
                 }, this, 100);
+
 
                 world.on('collisions:detected', function( data ){
                     var cols = data.collisions;
 
+                    colsDetected = cols;
+
                     for ( var i = 0, l = cols.length; i < l; i++ ){
                         drawContact( cols[i] );
                     }
+                });
+
+                world.on('step', function(){
+
+                    var intr;
+                    for ( var xy = 0; xy < 2; xy++ ){
+                        intr = sp.intervalLists[ xy ];
+                        for ( var i = 0, l = intr.length; i < l; i++ ){
+
+                            drawInterval( intr[ i ] );
+                        }
+                    }
+
+                    debug(
+                        'candidates: ' + ((candidatesDetected && candidatesDetected.length)|0),
+                        'collisions: ' + ((colsDetected && colsDetected.length)|0)
+                    );
                 });
 
                 world.step();
