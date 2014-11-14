@@ -115,46 +115,64 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         if ( result.overlap ){
 
-            // there is a collision. let's do more work.
-            collision = {
-                bodyA: bodyA,
-                bodyB: bodyB
-            };
+            var origAngle = bodyA.state.angular.pos;
+            var smallAng = 0.0001;
+            var ret = [];
+            bodyA.state.angular.pos += 1.5 * smallAng;
 
-            // first get the min distance of between core objects
-            support.useCore = true;
-            support.marginA = 0;
-            support.marginB = 0;
+            do {
 
-            while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
-                if ( support.marginA < dimA ){
-                    support.marginA += 1;
+                bodyA.state.angular.pos -= smallAng;
+                support.tA.setRotation( bodyA.state.angular.pos );
+
+                // there is a collision. let's do more work.
+                collision = {
+                    bodyA: bodyA,
+                    bodyB: bodyB
+                };
+
+                // first get the min distance of between core objects
+                support.useCore = true;
+                support.marginA = 0;
+                support.marginB = 0;
+                result.overlap = true;
+
+                while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
+                    if ( support.marginA < dimA ){
+                        support.marginA += 1;
+                    }
+                    if ( support.marginB < dimB ){
+                        support.marginB += 1;
+                    }
+
+                    result = Physics.gjk(support, d);
                 }
-                if ( support.marginB < dimB ){
-                    support.marginB += 1;
+
+                if ( result.overlap || result.maxIterationsReached ){
+                    // This implementation can't deal with a core overlap yet
+                    continue;
+                    // return scratch.done(false);
                 }
 
-                result = Physics.gjk(support, d);
-            }
+                // calc overlap
+                overlap = (support.marginA + support.marginB) - result.distance;
 
-            if ( result.overlap || result.maxIterationsReached ){
-                // This implementation can't deal with a core overlap yet
-                return scratch.done(false);
-            }
+                if ( overlap > 0 ){
 
-            // calc overlap
-            overlap = (support.marginA + support.marginB) - result.distance;
+                    collision.overlap = overlap;
+                    // @TODO: for now, just let the normal be the mtv
+                    collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+                    collision.mtv = d.mult( overlap ).values();
+                    // get a corresponding hull point for one of the core points.. relative to body A
+                    collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
 
-            if ( overlap <= 0 ){
-                return scratch.done(false);
-            }
+                    ret.push( collision );
+                }
 
-            collision.overlap = overlap;
-            // @TODO: for now, just let the normal be the mtv
-            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
-            collision.mtv = d.mult( overlap ).values();
-            // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            } while ( bodyA.state.angular.pos > origAngle );
+
+            bodyA.state.angular.pos = origAngle;
+            return scratch.done( ret );
         }
 
         return scratch.done( collision );
@@ -314,9 +332,18 @@ Physics.behavior('body-collision-detection', function( parent ){
                     if ( ret ){
                         hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
                         contactList[ hash ] = true;
-                        ret.collidedPreviously = prevContacts[ hash ];
 
-                        collisions.push( ret );
+                        if ( ret instanceof Array ){
+                            for ( var j = 0; j < 2; j++ ){
+                                if ( ret[j] ){
+                                    ret[j].collidedPreviously = prevContacts[ hash ];
+                                    collisions.push( ret[j] );
+                                }
+                            }
+                        } else {
+                            ret.collidedPreviously = prevContacts[ hash ];
+                            collisions.push( ret );
+                        }
                     }
                 }
             }
@@ -364,9 +391,18 @@ Physics.behavior('body-collision-detection', function( parent ){
                     if ( ret ){
                         hash = pairHash( bodyA.uid, bodyB.uid );
                         contactList[ hash ] = true;
-                        ret.collidedPreviously = prevContacts[ hash ];
 
-                        collisions.push( ret );
+                        if ( ret instanceof Array ){
+                            for ( var j = 0; j < 2; j++ ){
+                                if ( ret[j] ){
+                                    ret[j].collidedPreviously = prevContacts[ hash ];
+                                    collisions.push( ret[j] );
+                                }
+                            }
+                        } else {
+                            ret.collidedPreviously = prevContacts[ hash ];
+                            collisions.push( ret );
+                        }
                     }
                 }
             }
