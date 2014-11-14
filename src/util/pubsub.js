@@ -1,5 +1,7 @@
 (function(){
 
+    var defaultPriority = 1;
+
     function getPriority( val ){
         return val._priority_;
     }
@@ -67,12 +69,12 @@
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
 
-            } else if (!priority) {
+            } else if ( priority === undefined ) {
 
                 priority = scope;
             }
 
-            fn._priority_ = priority;
+            fn._priority_ = priority === undefined ? defaultPriority : priority;
 
             idx = Physics.util.sortedIndex( listeners, fn, getPriority );
 
