@@ -102,7 +102,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,impulse
                 ,sign
                 ,max
-                ,inContact = false
+                ,inContact = contact
                 ;
 
             // if moving away from each other... don't bother.
