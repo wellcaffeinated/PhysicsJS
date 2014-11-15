@@ -99,6 +99,16 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
  * });
  * ```
  **/
+// deep copy callback to extend deeper into options
+var deepCopyFn = function( a, b ){
+
+    if ( Physics.util.isPlainObject( b ) ){
+
+        return Physics.util.extend({}, a, b, deepCopyFn );
+    }
+
+    return b !== undefined ? b : a;
+};
 Physics.util.options = function( def, target ){
 
     var _def = {}
@@ -107,9 +117,9 @@ Physics.util.options = function( def, target ){
         ;
 
     // set options
-    fn = function fn( options ){
+    fn = function fn( options, deep ){
 
-        Physics.util.extend(target, options, null);
+        Physics.util.extend(target, options, deep ? deepCopyFn : null);
         for ( var i = 0, l = callbacks.length; i < l; ++i ){
             callbacks[ i ]( target );
         }
@@ -117,9 +127,9 @@ Physics.util.options = function( def, target ){
     };
 
     // add defaults
-    fn.defaults = function defaults( def ){
-        Physics.util.extend( _def, def );
-        Physics.util.defaults( target, _def );
+    fn.defaults = function defaults( def, deep ){
+        Physics.util.extend( _def, def, deep ? deepCopyFn : null );
+        Physics.util.defaults( target, _def, deep ? deepCopyFn : null );
         return _def;
     };
 
