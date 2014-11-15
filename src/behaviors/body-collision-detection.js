@@ -143,13 +143,18 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             // calc overlap
-            overlap = Math.max(0, (support.marginA + support.marginB) - result.distance);
+            overlap = (support.marginA + support.marginB) - result.distance;
+
+            if ( overlap <= 0 ){
+                return scratch.done(false);
+            }
+
             collision.overlap = overlap;
             // @TODO: for now, just let the normal be the mtv
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
             collision.mtv = d.mult( overlap ).values();
             // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
         }
 
         return scratch.done( collision );
@@ -193,8 +198,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyA: bodyA,
                 bodyB: bodyB,
                 norm: d.normalize().values(),
-                mtv: d.mult( -overlap ).values(),
-                pos: d.normalize().mult( bodyA.geometry.radius ).values(),
+                pos: d.mult( bodyA.geometry.radius ).values(),
+                mtv: d.mult( -overlap/bodyA.geometry.radius ).values(),
                 overlap: -overlap
             };
         }
@@ -289,6 +294,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,targets = this.getTargets()
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var i = 0, l = candidates.length; i < l; ++i ){
@@ -303,10 +312,16 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ret = checkPair( pair.bodyA, pair.bodyB );
 
                     if ( ret ){
+                        hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
@@ -330,6 +345,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,bodyB
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
@@ -343,10 +362,16 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ret = checkPair( bodyA, bodyB );
 
                     if ( ret ){
+                        hash = pairHash( bodyA.uid, bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 

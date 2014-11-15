@@ -7,7 +7,7 @@
  **/
 (function(window){
 
-    var active = false
+    var active = true
         ,ps = Physics.util.pubsub()
         ,perf = window.performance
         ;
@@ -29,6 +29,8 @@
 
         var time;
 
+        window.requestAnimationFrame( step );
+
         if (!active){
             return;
         }
@@ -39,9 +41,11 @@
             return;
         }
 
-        window.requestAnimationFrame( step );
         ps.emit( 'tick', time );
     }
+
+    // start stepping
+    step();
 
     /**
      * Physics.util.ticker.start() -> this
@@ -51,7 +55,6 @@
     function start(){
 
         active = true;
-        step();
         return this;
     }
 

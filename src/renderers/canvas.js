@@ -363,6 +363,7 @@ Physics.renderer('canvas', function( proto ){
 
                 if ( layer.options.follow ){
                     offset.vsub( layer.options.follow.state.pos );
+                    offset.sub( layer.options.follow.state.vel.get(0)*t, layer.options.follow.state.vel.get(1)*t );
                 }
 
                 if ( clear !== false ){
@@ -680,7 +681,7 @@ Physics.renderer('canvas', function( proto ){
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
-            ctx.drawImage(view, -view.width/2, -view.height/2);
+            ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
             ctx.restore();
 
             if ( this.options.debug ){

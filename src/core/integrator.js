@@ -13,7 +13,7 @@
      * - name (String): The name of the integrator to create
      * - options (Object): The configuration for that integrator ( depends on integrator ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // drag applied during integration
@@ -39,28 +39,29 @@
         /** internal
          * Integrator#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
-            
+
             /** related to: Physics.util.options
              * Integrator#options( options ) -> Object
              * - options (Object): The options to set as an object
              * + (Object): The options
-             * 
-             * Set options on this instance. 
-             * 
+             *
+             * Set options on this instance.
+             *
              * Access options directly from the options object.
-             * 
+             *
              * Example:
              *
              * ```javascript
              * this.options.someOption;
              * ```
-             * 
+             *
              **/
             this.options = Physics.util.options( defaults );
+            this.options( options );
         },
 
         /**
@@ -90,7 +91,7 @@
          * Integrator#integrate( bodies, dt ) -> this
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Integrate bodies by timestep.
          *
          * Will emit `integrate:velocities` and `integrate:positions`
@@ -101,7 +102,7 @@
             var world = this._world;
 
             this.integrateVelocities( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:velocities', {
                     bodies: bodies,
@@ -110,7 +111,7 @@
             }
 
             this.integratePositions( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:positions', {
                     bodies: bodies,
@@ -124,7 +125,7 @@
         /**
          * Integrator#connect( world )
          * - world (Physics.world): The world to connect to
-         * 
+         *
          * Connect to a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -135,7 +136,7 @@
         /**
          * Integrator#disconnect( world )
          * - world (Physics.world): The world to disconnect from
-         * 
+         *
          * Disconnect from a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -147,7 +148,7 @@
          * Integrator#integrateVelocities( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the velocities.
          *
          * Should be overridden when creating integrators.
@@ -161,11 +162,11 @@
          * Integrator#integratePositions( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the positions.
          *
          * Called after [[Integrator#integrateVelocities]].
-         * 
+         *
          * Should be overridden when creating integrators.
          **/
         integratePositions: function( bodies, dt ){

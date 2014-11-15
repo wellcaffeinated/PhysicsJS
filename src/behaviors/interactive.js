@@ -114,6 +114,8 @@ Physics.behavior('interactive', function( parent ){
                     ,body
                     ;
 
+                time = Physics.util.ticker.now();
+
                 if ( self._world ){
                     body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
@@ -129,6 +131,7 @@ Physics.behavior('interactive', function( parent ){
                         self.body = body;
                         // remember the mouse offset
                         self.mousePos.clone( pos );
+                        self.mousePosOld.clone( pos );
                         self.offset.clone( pos ).vsub( body.state.pos );
 
                         pos.body = body;

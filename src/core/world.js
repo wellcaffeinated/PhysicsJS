@@ -413,7 +413,7 @@
 
             if ( dt ){
 
-                this._dt = dt;
+                this._dt = +dt.toPrecision(4); // only keep 4 decimal places of precision otherwise we get rounding errors
                 // calculate the maximum jump in time over which to do iterations
                 this._maxJump = dt * this.options.maxIPF;
 
@@ -653,6 +653,8 @@
 
             // the target time for the world time to step to
             target = time + worldDiff - dt;
+
+            this.emit('beforeStep');
 
             if ( time <= target ){
 

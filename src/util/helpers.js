@@ -21,6 +21,23 @@ Physics.util.indexOf = function indexOf(arr, value) {
     return -1;
 };
 
+
+// http://jsperf.com/array-destroy/87
+/**
+ * Physics.util.clearArray( arr ) -> Array
+ * - arr (Array): The array to clear
+ * + (Array): The array passed in
+ *
+ * Quickly clear an array.
+ **/
+Physics.util.clearArray = function clearArray(arr){
+    var l = arr.length;
+    while( l-- ){
+        arr.pop();
+    }
+    return arr;
+};
+
 /**
  * Physics.util.throttle( fn, delay ) -> Function
  * - fn (Function): The function to throttle
@@ -43,7 +60,7 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
             }
         }
         ;
-        
+
     scope = scope || null;
 
     return function(){
@@ -260,7 +277,7 @@ var maxPoolSize = 40;
 var keyPrefix = +new Date() + '';
 
 function releaseArray(array) {
-  array.length = 0;
+  Physics.util.clearArray( array );
   if (arrayPool.length < maxPoolSize) {
     arrayPool.push(array);
   }

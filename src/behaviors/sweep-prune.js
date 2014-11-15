@@ -196,6 +196,10 @@ Physics.behavior('sweep-prune', function( parent ){
                 };
             }
 
+            if ( doCreate){
+                c.flag = 1;
+            }
+
             return c;
         },
 
@@ -264,7 +268,8 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,candidates = this.candidates
                 ;
 
-            encounters.length = candidates.length = 0;
+            Physics.util.clearArray( encounters );
+            Physics.util.clearArray( candidates );
 
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
@@ -314,10 +319,6 @@ Physics.behavior('sweep-prune', function( parent ){
 
                                 if ( c ){
 
-                                    if ( c.flag > collisionFlag ){
-                                        c.flag = 1;
-                                    }
-
                                     // if it's greater than the axis index, set the flag
                                     // to = 0.
                                     // if not, increment the flag by one.
@@ -359,10 +360,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             var tr
                 ,intr
-                ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
                 ,aabb
-                ,span = scratch.vector()
                 ,list = this.tracked
                 ,i = list.length
                 ;
@@ -372,17 +370,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                 tr = list[ i ];
                 intr = tr.interval;
-                pos.clone( tr.body.state.pos );
                 aabb = tr.body.aabb();
-                span.set( aabb.hw, aabb.hh );
 
                 // copy the position (plus or minus) the aabb half-dimensions
                 // into the min/max intervals
-                intr.min.val.clone( pos ).vsub( span );
-                intr.max.val.clone( pos ).vadd( span );
+                intr.min.val.clone( aabb ).sub( aabb.hw, aabb.hh );
+                intr.max.val.clone( aabb ).add( aabb.hw, aabb.hh );
             }
-
-            scratch.done();
         },
 
         /** internal
