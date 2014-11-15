@@ -107,17 +107,32 @@
 
 				}, true);
 
-				world.add( Physics.body('circle', {
-					x: viewWidth/2,
+				// world.add( Physics.body('circle', {
+				// 	x: viewWidth/2,
+				// 	y: viewHeight - 20,//+100,
+				// 	radius: 20,
+				// 	width: 40,
+				// 	height: 40,
+				// 	mass: 1.4,
+				// 	//cof: 0,
+				// 	vy: -0.2,
+				// 	// vx: 0.1,
+				// 	restitution: 1,
+				// 	styles: { fillStyle: 'red' }
+				// }));
+
+				world.add( Physics.body('rectangle', {
+					x: viewWidth/4,
 					y: viewHeight - 20,//+100,
 					radius: 20,
 					width: 40,
 					height: 40,
 					mass: 1.4,
-					//cof: 0,
+					// cof: 0,
 					vy: -0.2,
 					// vx: 0.1,
-					restitution: 1,
+					angle: 0.1,
+					restitution: 0.8,
 					styles: { fillStyle: 'red' }
 				}));
 
@@ -173,7 +188,7 @@
 					var sx = 1;
 					var sy = 300;
 					// console.log(center.angle(ball.state.pos))
-					var x = sx * center.dist(ball.state.pos) * (center.angle(ball.state.pos) > 0 ? 1 : -1);
+					var x = sx * (center.y - ball.state.pos.y);// * (center.angle(ball.state.pos) > 0 ? 1 : -1);
 					var y = sy * ball.state.vel.norm() * (ball.state.vel.angle() > 0 ? 1 : -1);
 					// console.log(x, y)
 					renderer.drawCircle(x + center.x, y + center.y, 0.5, '#f66', this.ctx);

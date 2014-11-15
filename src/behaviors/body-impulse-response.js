@@ -73,7 +73,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,invMassA = fixedA ? 0 : 1 / bodyA.mass
                 ,invMassB = fixedB ? 0 : 1 / bodyB.mass
                 // coefficient of restitution between bodies
-                ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
+                ,cor = bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
                 // normal vector
@@ -105,13 +105,11 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,inContact = contact
                 ;
 
-            // if moving away from each other... don't bother.
-            if (vproj >= 0){
-                scratch.done();
-                return;
-            }
-
             if ( contact ){
+                if ( mtv.normSq() < 1 ){
+                    mtv.mult( 0.5 );
+                }
+
                 if ( fixedA ){
 
                     // extract bodies
@@ -129,6 +127,12 @@ Physics.behavior('body-impulse-response', function( parent ){
                     bodyA.state.pos.vsub( mtv );
                     bodyB.state.pos.vadd( mtv );
                 }
+            }
+
+            // if moving away from each other... don't bother.
+            if (vproj >= 0){
+                scratch.done();
+                return;
             }
 
             invMoiA = invMoiA === Infinity ? 0 : invMoiA;
@@ -177,21 +181,15 @@ Physics.behavior('body-impulse-response', function( parent ){
                 // allowed amount
 
                 // maximum impulse allowed by kinetic friction
-                max = vreg / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
+                max = Math.abs(vreg) / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
+                // the sign of vreg ( plus or minus 1 )
+                sign = vreg < 0 ? -1 : 1;
 
-                if (!inContact){
-                    // the sign of vreg ( plus or minus 1 )
-                    sign = vreg < 0 ? -1 : 1;
-
-                    // get impulse due to friction
-                    impulse *= sign * cof;
-                    // make sure the impulse isn't giving the system energy
-                    impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-
-                } else {
-
-                    impulse = max;
-                }
+                // get impulse due to friction
+                impulse = cof * Math.abs( impulse );
+                // constrain the impulse within the "friction cone" ( max < mu * impulse)
+                impulse = Math.min( impulse, max );
+                impulse *= sign;
 
                 if ( fixedA ){
 
