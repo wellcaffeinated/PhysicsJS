@@ -16,64 +16,36 @@
 
             .pjs-meta {
                 position: absolute;
-                bottom: 0;
-                right: 0;
-                font-size: 20px;
+                top: 1em;
+                right: 1em;
+                font-size: 16px;
                 font-family: monospace;
             }
 
-            #debug {
-                position: absolute;
-                top: 2em;
-                left: 2em;
-                background: rgba( 255, 255, 255, 0.4 );
-                color: #333;
-
-                font-size: 14px;
-                line-height: 1.3;
-                font-family: monospace;
-            }
         </style>
     </head>
     <body>
-        <div id="debug"></div>
         <script src="../lib/pixi.js"></script>
+        <script src="../lib/dat.gui.js"></script>
         <script src="../_working/physicsjs/physicsjs-full.js"></script>
         <script>
 
             var viewWidth = parent.innerWidth
                 ,viewHeight = parent.innerHeight;
 
-            var debugEl = document.getElementById('debug');
-            var doDebug = false;
-            var sp;
-
-            function debug(){
-                var lines = Array.prototype.join.call(arguments, '<br/>');
-                debugEl.innerHTML = lines;
-            }
+            var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
 
             function setup(world) {
 
-                var renderer = Physics.renderer('canvas', {
+                var renderer = Physics.renderer('debug', {
                         el: 'viewport',
                         width: viewWidth,
                         height: viewHeight,
                         meta: true,
-                        // debug:true,
                         styles: {
-                            'circle': {
-                                strokeStyle: 'grey',
-                                lineWidth: 1,
-                                fillStyle: 'black',
-                                angleIndicator: 'white'
-                            },
-                            'convex-polygon': {
-                                strokeStyle: 'grey',
-                                lineWidth: 1,
-                                fillStyle: 'black',
-                                angleIndicator: 'none'
-                            }
+                            'circle': bodyStyles
+                            ,'rectangle': bodyStyles
+                            ,'convex-polygon': bodyStyles
                         }
                     })
                     ,edgeBounce
@@ -106,7 +78,7 @@
 
                 world.add([
 
-                    sp = Physics.behavior('sweep-prune')
+                    Physics.behavior('sweep-prune')
                     ,Physics.behavior('body-collision-detection', {
                         checkAll: false
                     })
@@ -120,6 +92,10 @@
                 //
                 //     world.step(time);
                 // });
+
+                setInterval(function(){
+                    world.step();
+                }, 500);
             }
 
             function initEvents( world ){
@@ -162,18 +138,9 @@
                     world.step();
                 });
 
-                document.addEventListener('keydown', function( e ){
-                    if ( e.keyCode === 13 ){
-                        doDebug = true;
-                        world.step();
-                        doDebug = false;
-                    }
-                });
             }
 
             function addBodies( world ){
-
-                var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2 };
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,
@@ -185,22 +152,20 @@
                     //cof: 0,
                     //vy: -0.2,
                     // vx: 0.1,
-                    restitution: 1,
-                    styles: bodyStyles
+                    restitution: 1
                 }));
 
                 world.add( Physics.body('circle', {
-                	x: viewWidth/2,
-                	y: viewHeight - 100,//+100,
-                	radius: 20,
-                	width: 40,
-                	height: 40,
-                	mass: 1.4,
-                	//cof: 0,
-                	//vy: -0.2,
-                	// vx: 0.1,
-                	restitution: 1,
-                	styles: bodyStyles
+                    x: viewWidth/2,
+                    y: viewHeight - 100,//+100,
+                    radius: 20,
+                    width: 40,
+                    height: 40,
+                    mass: 1.4,
+                    //cof: 0,
+                    //vy: -0.2,
+                    // vx: 0.1,
+                    restitution: 0.9
                 }));
 
                 var polygons = [
@@ -216,121 +181,33 @@
                           vertices: polygons[i].v,
                           angle: polygons[i].angle,
 
-                          styles: bodyStyles
+                          restitution: 0.5,
+                          cof: 1
                         })
                     );
                 }
-            }
 
+                var rectangles = [
+                    { x: 100, y: 60, w: 50, h: 20, mass: 1 }
+                    ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
+                    ,{ x: 500, y: 100, w: 150, h: 300, mass: 3 }
+                ];
 
-            function setupRenderer( world ){
+                for(var i = 0;i < rectangles.length;i++){
+                    world.add(
+                        Physics.body('rectangle', {
+                          x: rectangles[i].x,
+                          y: rectangles[i].y,
+                          width: rectangles[i].w,
+                          height: rectangles[i].h,
+                          angle: rectangles[i].angle,
+                          mass: rectangles[i].mass,
 
-                var renderer = world.renderer();
-                var styles = {
-                    lineWidth: 2
-                    ,strokeStyle: 'red'
-                };
-
-                var firstPoint = {
-                    fillStyle: 'green'
-                };
-                var secondPoint = {
-                    fillStyle: 'blue'
-                };
-
-                var layer = renderer.addLayer('contacts', null, {
-                    zIndex: 2
-                });
-
-                layer.render = function(){};
-
-                function drawContact( c ){
-                    var ctx = layer.ctx;
-                    var from = Physics.vector( c.pos ).vadd( c.bodyA.state.pos );
-                    var to = Physics.vector( from ).vsub( Physics.vector(c.mtv) )
-
-                    renderer.drawLine( from, to, styles, ctx );
-                    renderer.drawCircle( from.x, from.y, 2, firstPoint, ctx );
-                    renderer.drawCircle( to.x, to.y, 2, secondPoint, ctx );
-
-                    if ( doDebug ){
-                        var pad = 100;
-                        ctx.fillStyle = '#333';
-                        ctx.strokeWidth = 1;
-                        ctx.font = '14px monospace';
-                        ctx.fillText('pos: (' + c.pos.x.toFixed(0) + ', ' + c.pos.y.toFixed(0) + ')', from.x + pad, from.y );
-                        ctx.fillText('mtv: (' + c.mtv.x.toFixed(0) + ', ' + c.mtv.y.toFixed(0) + ')', from.x + pad, from.y + 16 );
-                    }
-                }
-
-                var intervalStyles = {
-                    min: { strokeStyle: 'rgba( 0, 0, 200, 0.1 )', lineWidth: 2, fillStyle: 'transparent' }
-                    ,max: { strokeStyle: 'rgba( 200, 0, 0, 0.1 )', lineWidth: 2, fillStyle: 'transparent' }
-                };
-
-                function drawInterval( intr ){
-                    var ctx = layer.ctx;
-                    var scratch = Physics.scratchpad();
-                    var from = scratch.vector().set( intr.val.x, 0 );
-                    var to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y );
-
-                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-
-                    from.set( 0, intr.val.y );
-                    to.set( intr.tracker.body.state.pos.x, intr.val.y );
-
-                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-
-                    scratch.done();
-                }
-
-                var colsDetected, candidatesDetected;
-
-                world.on('beforeStep', function(){
-                    // clear
-                    layer.el.width = layer.el.width;
-
-                    candidatesDetected = false;
-                    colsDetected = false;
-                });
-
-                world.on('collisions:candidates', function( data ){
-
-                    candidatesDetected = data.candidates;
-
-                }, this, 100);
-
-
-                world.on('collisions:detected', function( data ){
-                    var cols = data.collisions;
-
-                    colsDetected = cols;
-
-                    for ( var i = 0, l = cols.length; i < l; i++ ){
-                        drawContact( cols[i] );
-                    }
-                });
-
-                world.on('step', function(){
-
-                    var intr;
-                    for ( var xy = 0; xy < 2; xy++ ){
-                        intr = sp.intervalLists[ xy ];
-                        for ( var i = 0, l = intr.length; i < l; i++ ){
-
-                            drawInterval( intr[ i ] );
-                        }
-                    }
-
-                    debug(
-                        'candidates: ' + ((candidatesDetected && candidatesDetected.length)|0),
-                        'collisions: ' + ((colsDetected && colsDetected.length)|0)
+                          restitution: 0.6,
+                          cof: 1
+                        })
                     );
-                });
-
-                world.step();
+                }
             }
 
 
@@ -338,7 +215,6 @@
                 setup
                 ,addBodies
                 ,initEvents
-                ,setupRenderer
             ]);
 
         </script>

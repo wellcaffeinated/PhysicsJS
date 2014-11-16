@@ -96,6 +96,11 @@ Physics.behavior('sweep-prune', function( parent ){
 
             this.updateIntervals();
             this.sortIntervalLists();
+
+            if ( this._world ){
+                this._world.emit('sweep-prune:intervals', this.intervalLists);
+            }
+
             return this.checkOverlaps();
         },
 

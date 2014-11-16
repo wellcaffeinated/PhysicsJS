@@ -53,12 +53,21 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         // draw aabbs of bodies for debugging
         drawAABB: true,
         drawRealPosition: false,
+        drawIntervals: false,
+        drawContacts: false,
 
-        //colors
+        // *** colors
         // color of the aabbs
         aabbColor: 'rgba(0, 0, 255, 0.1)',
         // styles used to draw the image of the body at its true non-interpolated position
-        realBodyStyle: 'rgba(255, 0, 0, 0.5)'
+        realBodyStyle: 'rgba(255, 0, 0, 0.5)',
+        // colors for intervals
+        intervalMinColor: 'rgba( 0, 0, 200, 0.1 )',
+        intervalMaxColor: 'rgba( 200, 0, 0, 0.1 )',
+
+        // contacts
+        mtvColor: '#c00',
+        contactColor: '#0c0'
     };
 
     return {
@@ -73,6 +82,129 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             this.options.defaults( defaults, true );
             this.options( options, true );
+
+            // init debug layer
+            this.addLayer('debug', null, {
+                zIndex: 2
+            });
+
+            this.layer('debug').render = function(){
+
+                var intr, i, l, cols, xy;
+
+                this.el.width = this.el.width;
+
+                if ( self.options.drawIntervals && self._intervals ){
+                    for ( xy = 0; xy < 2; xy++ ){
+                        intr = self._intervals[ xy ];
+                        for ( i = 0, l = intr.length; i < l; i++ ){
+
+                            self.drawInterval( intr[ i ], this.ctx );
+                        }
+                    }
+                }
+
+                if ( self.options.drawContacts && self._collisions ){
+                    cols = self._collisions;
+                    for ( i = 0, l = cols.length; i < l; i++ ){
+                        self.drawContact( cols[ i ], this.ctx );
+                    }
+                }
+            };
+
+            if ( window.dat ){
+                this.initGui();
+            }
+        },
+
+        connect: function( world ){
+
+            world.on('sweep-prune:intervals', this.storeIntervals, this );
+            world.on('collisions:detected', this.storeCollisions, this );
+            world.on('render', this.reset, this);
+        },
+
+        disconnect: function( world ){
+
+            world.off('sweep-prune:intervals', this.storeIntervals );
+            world.off('collisions:detected', this.storeCollisions );
+            world.off('render', this.reset);
+        },
+
+        storeIntervals: function( intervals ){
+
+            this._intervals = intervals;
+        },
+
+        storeCollisions: function( data ){
+
+            this._collisions = data.collisions;
+        },
+
+        reset: function(){
+
+            this._intervals = false;
+            this._collisions = false;
+        },
+
+        drawInterval: function( intr, ctx ){
+
+            var scratch = Physics.scratchpad()
+                ,opts = this.options
+                ,from = scratch.vector().set( intr.val.x, 0 )
+                ,to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y )
+                ;
+
+            this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+
+            from.set( 0, intr.val.y );
+            to.set( intr.tracker.body.state.pos.x, intr.val.y );
+
+            this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+
+            scratch.done();
+        },
+
+        drawContact: function( c, ctx ){
+
+            var scratch = Physics.scratchpad()
+                ,from = scratch.vector().clone( c.pos ).vadd( c.bodyA.state.pos )
+                ,to = scratch.vector().clone( from ).vsub( scratch.vector().clone( c.mtv ) )
+                ,opts = this.options
+                ;
+
+            this.drawLine( from, to, opts.mtvColor, ctx );
+            this.drawCircle( from.x, from.y, 2, opts.contactColor, ctx );
+
+            scratch.done();
+        },
+
+        initGui: function(){
+
+            var gui = new window.dat.GUI({ autoPlace: false })
+                ,el = document.getElementById('my-gui-container')
+                ,op = this.options
+                ;
+
+            gui.add( op, 'drawAABB' );
+            gui.add( op, 'drawRealPosition' );
+            gui.add( op, 'drawIntervals' );
+            gui.add( op, 'drawContacts' );
+
+            gui.addColor( op, 'aabbColor' );
+            gui.addColor( op, 'realBodyStyle' );
+            gui.addColor( op, 'intervalMinColor' );
+            gui.addColor( op, 'intervalMaxColor' );
+            gui.addColor( op, 'mtvColor' );
+            gui.addColor( op, 'contactColor' );
+
+            gui.domElement.style.zIndex = '100';
+            gui.domElement.style.position = 'absolute';
+            gui.domElement.style.top = '0';
+            gui.domElement.style.left = '0';
+            this.el.parentNode.appendChild( gui.domElement );
         },
 
         drawBody: function( body, view, ctx, offset ){

@@ -21,22 +21,9 @@
                 font-size: 16px;
                 font-family: monospace;
             }
-
-            #debug {
-                position: absolute;
-                top: 2em;
-                left: 2em;
-                background: rgba( 255, 255, 255, 0.4 );
-                color: #333;
-
-                font-size: 14px;
-                line-height: 1.3;
-                font-family: monospace;
-            }
         </style>
     </head>
     <body>
-        <div id="debug"></div>
         <script src="../lib/pixi.js"></script>
         <script src="../lib/dat.gui.js"></script>
         <script src="../_working/physicsjs/physicsjs-full.js"></script>
@@ -45,15 +32,7 @@
             var viewWidth = parent.innerWidth
                 ,viewHeight = parent.innerHeight;
 
-            var debugEl = document.getElementById('debug');
-            var doDebug = false;
-            var sp;
             var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
-
-            function debug(){
-                var lines = Array.prototype.join.call(arguments, '<br/>');
-                debugEl.innerHTML = lines;
-            }
 
             function setup(world) {
 
@@ -62,7 +41,6 @@
                         width: viewWidth,
                         height: viewHeight,
                         meta: true,
-                        drawRealPosition: true,
                         styles: {
                             'circle': bodyStyles
                             ,'rectangle': bodyStyles
@@ -105,7 +83,7 @@
 
                 world.add([
                     edgeBounce
-                    ,sp = Physics.behavior('sweep-prune')
+                    ,Physics.behavior('sweep-prune')
                     ,Physics.behavior('body-collision-detection', {
                         checkAll: false
                     })
@@ -162,19 +140,9 @@
                     grab = false;
                     world.step();
                 });
-
-                document.addEventListener('keydown', function( e ){
-                    if ( e.keyCode === 13 ){
-                        doDebug = true;
-                        world.step();
-                        doDebug = false;
-                    }
-                });
             }
 
             function addBodies( world ){
-
-
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,
@@ -245,122 +213,10 @@
             }
 
 
-            function setupRenderer( world ){
-
-                var renderer = world.renderer();
-                var styles = {
-                    lineWidth: 2
-                    ,strokeStyle: 'red'
-                };
-
-                var firstPoint = {
-                    fillStyle: 'green'
-                };
-                var secondPoint = {
-                    fillStyle: 'blue'
-                };
-
-                var layer = renderer.addLayer('contacts', null, {
-                    zIndex: 2
-                });
-
-                layer.render = function(){};
-
-                function drawContact( c ){
-                    var ctx = layer.ctx;
-                    var from = Physics.vector( c.pos ).vadd( c.bodyA.state.pos );
-                    var to = Physics.vector( from ).vsub( Physics.vector(c.mtv) )
-
-                    renderer.drawLine( from, to, styles, ctx );
-                    renderer.drawCircle( from.x, from.y, 2, firstPoint, ctx );
-                    renderer.drawCircle( to.x, to.y, 2, secondPoint, ctx );
-
-                    if ( doDebug ){
-                        var pad = 100;
-                        ctx.fillStyle = '#333';
-                        ctx.strokeWidth = 1;
-                        ctx.font = '14px monospace';
-                        ctx.fillText('pos: (' + c.pos.x.toFixed(0) + ', ' + c.pos.y.toFixed(0) + ')', from.x + pad, from.y );
-                        ctx.fillText('mtv: (' + c.mtv.x.toFixed(0) + ', ' + c.mtv.y.toFixed(0) + ')', from.x + pad, from.y + 16 );
-                    }
-                }
-
-                var intervalStyles = {
-                    min: { strokeStyle: 'rgba( 0, 0, 200, 0.1 )', lineWidth: 2, fillStyle: 'transparent' }
-                    ,max: { strokeStyle: 'rgba( 200, 0, 0, 0.1 )', lineWidth: 2, fillStyle: 'transparent' }
-                };
-
-                function drawInterval( intr ){
-                    var ctx = layer.ctx;
-                    var scratch = Physics.scratchpad();
-                    var from = scratch.vector().set( intr.val.x, 0 );
-                    var to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y );
-
-                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-
-                    from.set( 0, intr.val.y );
-                    to.set( intr.tracker.body.state.pos.x, intr.val.y );
-
-                    renderer.drawLine( from, to, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-                    renderer.drawCircle( from.x, from.y, 4, intervalStyles[ intr.type ? 'max' : 'min' ], ctx );
-
-                    scratch.done();
-                }
-
-                var colsDetected, candidatesDetected;
-
-                world.on('beforeStep', function(){
-                    // clear
-                    layer.el.width = layer.el.width;
-
-                    candidatesDetected = false;
-                    colsDetected = false;
-                });
-
-                world.on('collisions:candidates', function( data ){
-
-                    candidatesDetected = data.candidates;
-
-                }, this, 100);
-
-
-                world.on('collisions:detected', function( data ){
-                    var cols = data.collisions;
-
-                    colsDetected = cols;
-
-                    for ( var i = 0, l = cols.length; i < l; i++ ){
-                        drawContact( cols[i] );
-                    }
-                });
-
-                world.on('step', function(){
-
-                    var intr;
-                    for ( var xy = 0; xy < 2; xy++ ){
-                        intr = sp.intervalLists[ xy ];
-                        for ( var i = 0, l = intr.length; i < l; i++ ){
-
-                            drawInterval( intr[ i ] );
-                        }
-                    }
-
-                    debug(
-                        'candidates: ' + ((candidatesDetected && candidatesDetected.length)|0),
-                        'collisions: ' + ((colsDetected && colsDetected.length)|0)
-                    );
-                });
-
-                world.step();
-            }
-
-
             Physics({ timestep: 6, maxIPF: 24 }, [
                 setup
                 ,addBodies
                 //,initEvents
-                ,setupRenderer
             ]);
 
         </script>
