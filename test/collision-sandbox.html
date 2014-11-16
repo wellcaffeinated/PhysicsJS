@@ -16,9 +16,9 @@
 
             .pjs-meta {
                 position: absolute;
-                bottom: 0;
-                right: 0;
-                font-size: 20px;
+                top: 1em;
+                right: 1em;
+                font-size: 16px;
                 font-family: monospace;
             }
 
@@ -38,6 +38,7 @@
     <body>
         <div id="debug"></div>
         <script src="../lib/pixi.js"></script>
+        <script src="../lib/dat.gui.js"></script>
         <script src="../_working/physicsjs/physicsjs-full.js"></script>
         <script>
 
@@ -47,6 +48,7 @@
             var debugEl = document.getElementById('debug');
             var doDebug = false;
             var sp;
+            var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
 
             function debug(){
                 var lines = Array.prototype.join.call(arguments, '<br/>');
@@ -55,25 +57,16 @@
 
             function setup(world) {
 
-                var renderer = Physics.renderer('canvas', {
+                var renderer = Physics.renderer('debug', {
                         el: 'viewport',
                         width: viewWidth,
                         height: viewHeight,
                         meta: true,
-                        // debug:true,
+                        drawRealPosition: true,
                         styles: {
-                            'circle': {
-                                strokeStyle: 'grey',
-                                lineWidth: 1,
-                                fillStyle: 'black',
-                                angleIndicator: 'white'
-                            },
-                            'convex-polygon': {
-                                strokeStyle: 'grey',
-                                lineWidth: 1,
-                                fillStyle: 'black',
-                                angleIndicator: 'none'
-                            }
+                            'circle': bodyStyles
+                            ,'rectangle': bodyStyles
+                            ,'convex-polygon': bodyStyles
                         }
                     })
                     ,edgeBounce
@@ -181,7 +174,7 @@
 
             function addBodies( world ){
 
-                var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
+
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,
@@ -193,8 +186,7 @@
                     //cof: 0,
                     //vy: -0.2,
                     // vx: 0.1,
-                    restitution: 1,
-                    styles: bodyStyles
+                    restitution: 1
                 }));
 
                 world.add( Physics.body('circle', {
@@ -207,8 +199,7 @@
                 	//cof: 0,
                 	//vy: -0.2,
                 	// vx: 0.1,
-                	restitution: 0.9,
-                	styles: bodyStyles
+                	restitution: 0.9
                 }));
 
                 var polygons = [
@@ -224,7 +215,6 @@
                           vertices: polygons[i].v,
                           angle: polygons[i].angle,
 
-                          styles: bodyStyles,
                           restitution: 0.5,
                           cof: 1
                         })
@@ -247,7 +237,6 @@
                           angle: rectangles[i].angle,
                           mass: rectangles[i].mass,
 
-                          styles: bodyStyles,
                           restitution: 0.6,
                           cof: 1
                         })
