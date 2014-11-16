@@ -56,7 +56,8 @@
             var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
                 ;
 
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options(defaults);
+            this.options( options );
 
             this.el = el ? el : document.body;
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );

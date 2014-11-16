@@ -77,17 +77,6 @@ Physics.renderer('pixi', function( parent ){
         }
     };
 
-    // deep copy callback to extend deeper into options
-    var deep = function( a, b ){
-
-        if ( Physics.util.isPlainObject( b ) ){
-
-            return Physics.util.extend({}, a, b, deep );
-        }
-
-        return b !== undefined ? b : a;
-    };
-
     return {
 
         // extended
@@ -101,8 +90,11 @@ Physics.renderer('pixi', function( parent ){
             parent.init.call(this, options);
 
             // further options
-            this.options = Physics.util.extend({}, defaults, this.options, deep);
-            this.options.offset = Physics.vector( this.options.offset );
+            this.options.defaults( defaults, true );
+            this.options.onChange(function(){
+                self.options.offset = Physics.vector( self.options.offset );
+            });
+            this.options( options, true );
 
             // Hook in PIXI stage here
             this.stage = new PIXI.Stage(this.options.styles.color);
