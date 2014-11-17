@@ -86,7 +86,7 @@ describe("Adding and Removing things from world", function() {
 
     it("should add an array of items", function() {
 
-        world.add([ 
+        world.add([
             circle,
             square,
             sweepPrune,
@@ -103,7 +103,7 @@ describe("Adding and Removing things from world", function() {
 
     it("should remove an array of items", function() {
 
-        world.remove([ 
+        world.remove([
             circle,
             square,
             sweepPrune,
@@ -118,9 +118,15 @@ describe("Adding and Removing things from world", function() {
         expect( callbacks.removedBehaviors.calls.length ).toEqual( 2 );
     });
 
+    it("should behave nicely for empty arrays", function() {
+
+        world.add([]);
+        world.remove([]);
+    });
+
     it("should not allow duplicates", function() {
 
-        world.add([ 
+        world.add([
             circle,
             circle,
             square,

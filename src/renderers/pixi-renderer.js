@@ -82,6 +82,8 @@ Physics.renderer('pixi', function( parent ){
         // extended
         init: function( options ){
 
+            var self = this;
+
             if (typeof PIXI === 'undefined') {
                 throw "PIXI obj not present - cannot continue ";
             }

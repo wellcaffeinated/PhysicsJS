@@ -340,6 +340,7 @@ Physics.renderer('canvas', function( proto ){
                     ,view
                     ,i
                     ,l = bodies.length
+                    ,t = self._interpolateTime
                     ,stack = (l || layer.id !== 'main') ? bodies : self._world._bodies
                     ;
 
