@@ -186,7 +186,7 @@
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -234,7 +234,7 @@
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
