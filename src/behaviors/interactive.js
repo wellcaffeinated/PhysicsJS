@@ -5,7 +5,7 @@
  *
  * User interaction helper.
  *
- * Used to get mouse/touch events and add a mouse grab interaction.
+ * Used to get mouse/touch events and add grab interactions.
  *
  * Additional options include:
  * - el: The element of the renderer. What you input as the `el` for the renderer.
@@ -26,17 +26,21 @@
  *     data.x; // the x coord
  *     data.y; // the y coord
  * });
+ * // when a mouse or pointer moves
  * world.on('interact:move', function( data ){
  *     data.x; // the x coord
  *     data.y; // the y coord
- *     data.body; // the body that was grabbed (if applicable)
+ *     data.body; // the grabbed body that was moved (if applicable)
  * });
  * // when the viewport is released (mouseup, touchend)
  * world.on('interact:release', function( data ){
  *     data.x; // the x coord
  *     data.y; // the y coord
+ *     data.body; // the body that was grabbed (if applicable)
  * });
  * ```
+ *
+ * The behavior also sets body.isGrabbed = true for any grabbed bodies while they are grabbed.
  **/
 Physics.behavior('interactive', function( parent ){
 
@@ -69,18 +73,6 @@ Physics.behavior('interactive', function( parent ){
 
             return { left: curleft, top: curtop };
         }
-        ,getCoords = function( e ){
-            var offset = getElementOffset( e.target )
-                ,obj = ( e.changedTouches && e.changedTouches[0] ) || e
-                ,x = obj.pageX - offset.left
-                ,y = obj.pageY - offset.top
-                ;
-
-            return {
-                x: x
-                ,y: y
-            };
-        }
         ;
 
     return {
@@ -98,9 +90,10 @@ Physics.behavior('interactive', function( parent ){
             this.options( options );
 
             // vars
-            this.mousePos = new Physics.vector();
-            this.mousePosOld = new Physics.vector();
-            this.offset = new Physics.vector();
+            this.bodies = {};
+            this.contactPoints = {};
+            this.contactPointsOld = {};
+            this.offsets = {};
 
             this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el;
 
@@ -109,93 +102,182 @@ Physics.behavior('interactive', function( parent ){
             }
 
             // init events
+            // when there are multiple touchdowns, grab is usually called separately for each,
+            // but we loop through e.changedTouches just in case
             var grab = function grab( e ){
-                var pos = getCoords( e )
+                var pos
                     ,body
+                    ,touchId
+                    ,touch
+                    ,offset
                     ;
 
-                time = Physics.util.ticker.now();
-
                 if ( self._world ){
-                    body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
-                    if ( body ){
-                        // we're trying to grab a body
+                    // Adjust for PointerEvent and older browsers
+                    if (!e.changedTouches) {
+                        e.changedTouches = [];
+                        e.changedTouches.push(e);
+                    }
 
-                        // fix the body in place
-                        prevTreatment = body.treatment;
-                        body.treatment = 'kinematic';
-                        body.state.vel.zero();
-                        body.state.angular.vel = 0;
-                        // remember the currently grabbed body
-                        self.body = body;
-                        // remember the mouse offset
-                        self.mousePos.clone( pos );
-                        self.mousePosOld.clone( pos );
-                        self.offset.clone( pos ).vsub( body.state.pos );
+                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
+                        offset = getElementOffset( e.target );
+                        touch = e.changedTouches[touchIndex];
+                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
-                        pos.body = body;
-                        self._world.emit('interact:grab', pos);
+                        if ( body ){
+                            // we're trying to grab a body
 
-                    } else {
+                            // fix the body in place
+                            prevTreatment = body.treatment;
+                            body.treatment = 'kinematic';
+                            body.state.vel.zero();
+                            body.state.angular.vel = 0;
+                            body.isGrabbed = true;
+                            // remember the currently grabbed bodies
+                            self.bodies[touchId] = body;
+                            // remember the click/touch offset
+                            self.contactPoints[touchId] = self.contactPoints[touchId] || new Physics.vector();
+                            self.contactPoints[touchId].clone( pos );
 
-                        self._world.emit('interact:poke', pos);
+                            self.offsets[touchId] = self.offsets[touchId] || new Physics.vector();
+                            self.offsets[touchId].clone( pos ).vsub( body.state.pos );
+                            // init contactPointsOld here, too, so we don't have to do it in "move"
+                            self.contactPointsOld[touchId] = self.contactPointsOld[touchId] || new Physics.vector();
+
+                            pos.body = body;
+                            self._world.emit('interact:grab', pos);
+
+                        } else {
+
+                            self._world.emit('interact:poke', pos);
+                        }
                     }
                 }
             };
 
+            // when there are multiple touchdowns, move is called once
+            // and e.changedTouches will have one or more touches in it
             var move = Physics.util.throttle(function move( e ){
-                var pos = getCoords( e )
+                var pos
                     ,state
-                    ;
-
-                if ( self.body ){
-                    time = Physics.util.ticker.now();
-
-                    self.mousePosOld.clone( self.mousePos );
-                    // get new mouse position
-                    self.mousePos.set(pos.x, pos.y);
-
-                    pos.body = self.body;
-                }
-
-                self._world.emit('interact:move', pos);
-
-            }, self.options.moveThrottle);
-
-            var release = function release( e ){
-                var pos = getCoords( e )
                     ,body
-                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
+                    ,touchId
+                    ,touch
+                    ,offset
                     ;
-
-                // get new mouse position
-                self.mousePos.set(pos.x, pos.y);
-
-                // release the body
-                if (self.body){
-                    self.body.treatment = prevTreatment;
-                    // calculate the release velocity
-                    self.body.state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
-                    // make sure it's not too big
-                    self.body.state.vel.clamp( self.options.minVel, self.options.maxVel );
-                    self.body = false;
-                }
 
                 if ( self._world ){
 
-                    self._world.emit('interact:release', pos);
+                    // Adjust for PointerEvent and older browsers
+                    if (!e.changedTouches) {
+                        e.changedTouches = [];
+                        e.changedTouches.push(e);
+                    }
+
+                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
+                        offset = getElementOffset( e.target );
+                        touch = e.changedTouches[touchIndex];
+                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        body = self.bodies[touchId];
+                        
+                        if ( body ){
+                            time = Physics.util.ticker.now();
+
+                            // set old mouse position
+                            self.contactPointsOld[touchId].clone( self.contactPoints[touchId] );
+                            // get new mouse position
+                            self.contactPoints[touchId].set(pos.x, pos.y);
+
+                            pos.body = body;
+                        }
+
+                        self._world.emit('interact:move', pos);
+                    }
+                }
+
+            }, self.options.moveThrottle);
+
+            // when there are multiple touchups, release is called once
+            // and e.changedTouches will have one or more touches in it
+            var release = function release( e ){
+                var pos
+                    ,body
+                    ,touchId
+                    ,touch
+                    ,offset
+                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
+                    ;
+
+                if ( self._world ){
+
+                    // Adjust for PointerEvent and older browsers
+                    if (!e.changedTouches) {
+                        e.changedTouches = [];
+                        e.changedTouches.push(e);
+                    }
+
+                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
+                        offset = getElementOffset( e.target );
+                        touch = e.changedTouches[touchIndex];
+                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        body = self.bodies[touchId];
+
+                        // release the body
+                        if (body){
+                            // get new mouse position
+                            self.contactPoints[touchId].set(pos.x, pos.y);
+
+                            body.treatment = prevTreatment;
+                            // calculate the release velocity
+                            body.state.vel.clone( self.contactPoints[touchId] ).vsub( self.contactPointsOld[touchId] ).mult( 1 / dt );
+                            // make sure it's not too big
+                            body.state.vel.clamp( self.options.minVel, self.options.maxVel );
+
+                            body.isGrabbed = false;
+                            pos.body = body;
+                        }
+
+                        // emit before we delete the vars in case
+                        // the listeners need the body
+                        self._world.emit('interact:release', pos);
+
+                        // remove vars
+                        delete self.contactPoints[touchId];
+                        delete self.contactPointsOld[touchId];
+                        delete self.offsets[touchId];
+                        delete self.bodies[touchId];
+                        if (body) {
+                          delete body.isGrabbed;
+                        }
+                    }
+                    
                 }
             };
 
-            this.el.addEventListener('mousedown', grab);
-            this.el.addEventListener('touchstart', grab);
+            if (window.PointerEvent) {
 
-            this.el.addEventListener('mousemove', move);
-            this.el.addEventListener('touchmove', move);
+                this.el.addEventListener('pointerdown', grab);
+                this.el.addEventListener('pointermove', move);
+                this.el.addEventListener('pointerup', release);
 
-            this.el.addEventListener('mouseup', release);
-            this.el.addEventListener('touchend', release);
+            } else {
+
+                this.el.addEventListener('mousedown', grab);
+                this.el.addEventListener('touchstart', grab);
+
+                this.el.addEventListener('mousemove', move);
+                this.el.addEventListener('touchmove', move);
+
+                this.el.addEventListener('mouseup', release);
+                this.el.addEventListener('touchend', release);
+
+            }
+
         },
 
         // extended
@@ -218,14 +300,15 @@ Physics.behavior('interactive', function( parent ){
             var self = this
                 ,state
                 ,dt = Math.max(data.dt, self.options.moveThrottle)
+                ,body
                 ;
 
-            if ( self.body ){
-
-                // if we have a body, we need to move it the the new mouse position.
-                // we'll do this by adjusting the velocity so it gets there at the next step
-                state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
+            // if we have one or more bodies grabbed, we need to move them to the new mouse/finger positions.
+            // we'll do this by adjusting the velocity so they get there at the next step
+            for (var touchId in self.bodies) {
+                body = self.bodies[touchId];
+                state = body.state;
+                state.vel.clone( self.contactPoints[touchId] ).vsub( self.offsets[touchId] ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };
