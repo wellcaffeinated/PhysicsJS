@@ -122,6 +122,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             world.on('sweep-prune:intervals', this.storeIntervals, this );
             world.on('collisions:detected', this.storeCollisions, this );
             world.on('render', this.reset, this);
+
+            this.updateGui();
         },
 
         disconnect: function( world ){
@@ -183,28 +185,77 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
         initGui: function(){
 
-            var gui = new window.dat.GUI({ autoPlace: false })
+            var self = this
+                ,gui = this.gui = new window.dat.GUI({ autoPlace: false })
                 ,el = document.getElementById('my-gui-container')
                 ,op = this.options
+                ,getset
+                ,f
                 ;
 
-            gui.add( op, 'drawAABB' );
-            gui.add( op, 'drawRealPosition' );
-            gui.add( op, 'drawIntervals' );
-            gui.add( op, 'drawContacts' );
+            getset = {
+                get timestep(){
+                    return self._world ? self._world.timestep() : 6;
+                }
+                ,set timestep( dt ){
+                    if ( self._world ) {
+                        self._world.timestep( dt );
+                    }
+                }
+                ,get maxIPF(){
+                    return self._world ? self._world.options.maxIPF : 16;
+                }
+                ,set maxIPF( m ){
+                    if ( self._world ){
+                        self._world.options({ maxIPF: m });
+                    }
+                }
+            };
 
-            gui.addColor( op, 'aabbColor' );
-            gui.addColor( op, 'realBodyStyle' );
-            gui.addColor( op, 'intervalMinColor' );
-            gui.addColor( op, 'intervalMaxColor' );
-            gui.addColor( op, 'mtvColor' );
-            gui.addColor( op, 'contactColor' );
+            function pauseWorld(){
+                if ( self._world ){
+                    if ( self._world.isPaused() ){
+                        self._world.unpause();
+                    } else {
+                        self._world.pause();
+                    }
+                }
+            }
+
+            f = gui.addFolder( 'General' );
+            f.add( getset, 'timestep', 1, 20).step( 1 );
+            f.add( getset, 'maxIPF', 1, 100).step( 1 );
+            f.add( { pause: pauseWorld }, 'pause');
+            f.open();
+
+            f = gui.addFolder( 'Draw Options' );
+            f.add( op, 'drawAABB' );
+            f.add( op, 'drawRealPosition' );
+            f.add( op, 'drawIntervals' );
+            f.add( op, 'drawContacts' );
+            f.open();
+
+            f = gui.addFolder( 'Colors' );
+            f.addColor( op, 'aabbColor' );
+            f.addColor( op, 'realBodyStyle' );
+            f.addColor( op, 'intervalMinColor' );
+            f.addColor( op, 'intervalMaxColor' );
+            f.addColor( op, 'mtvColor' );
+            f.addColor( op, 'contactColor' );
 
             gui.domElement.style.zIndex = '100';
             gui.domElement.style.position = 'absolute';
             gui.domElement.style.top = '0';
             gui.domElement.style.left = '0';
             this.el.parentNode.appendChild( gui.domElement );
+        },
+
+        updateGui: function(){
+            var gui = this.gui;
+            // Iterate over all controllers
+            for (var i in gui.__controllers) {
+                gui.__controllers[i].updateDisplay();
+            }
         },
 
         drawBody: function( body, view, ctx, offset ){
