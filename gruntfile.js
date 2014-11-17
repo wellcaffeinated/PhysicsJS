@@ -239,13 +239,14 @@ module.exports = function(grunt) {
             dev : {
                 src : config.devFull,
                 options : {
+                    helpers: 'lib/raf.js',
                     specs : 'test/spec/*.spec.js',
                     template : 'test/grunt.tmpl'
                 }
             },
             devRequireJS : {
                 options : {
-                    helpers: 'test/requirejs.spec.helper.js',
+                    helpers: ['lib/raf.js', 'test/requirejs.spec.helper.js'],
                     specs : 'test/requirejs.spec.js',
                     template : require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
@@ -265,13 +266,14 @@ module.exports = function(grunt) {
             dist : {
                 src : config.distFull,
                 options : {
+                    helpers: 'lib/raf.js',
                     specs : 'test/spec/*.spec.js',
                     template : 'test/grunt.tmpl'
                 }
             },
             distRequireJS : {
                 options : {
-                    helpers: 'test/requirejs.spec.helper.js',
+                    helpers: ['lib/raf.js', 'test/requirejs.spec.helper.js'],
                     specs : 'test/requirejs.spec.js',
                     template : require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
@@ -281,6 +283,7 @@ module.exports = function(grunt) {
             },
             distRequireJSBuild : {
                 options : {
+                    helpers: 'lib/raf.js',
                     specs : 'test/requirejs.build.spec.js',
                     template : require('grunt-template-jasmine-requirejs'),
                     templateOptions: {
