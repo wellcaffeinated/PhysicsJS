@@ -146,7 +146,7 @@
      * Get a test function to match any body who's aabb intersects point
      **/
     var $at = function $at( point ){
-        point = Physics.vector( point );
+        point = new Physics.vector( point );
         return function( body ){
             var aabb = body.aabb();
             return Physics.aabb.contains( aabb, point );

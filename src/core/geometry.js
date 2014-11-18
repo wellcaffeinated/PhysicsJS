@@ -81,7 +81,7 @@
          **/
         getFarthestHullPoint: function( dir, result ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );
@@ -103,7 +103,7 @@
          **/
         getFarthestCorePoint: function( dir, result, margin ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );

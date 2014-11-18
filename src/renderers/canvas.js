@@ -101,7 +101,7 @@ Physics.renderer('canvas', function( proto ){
             // further options
             this.options.defaults( defaults, true );
             this.options.onChange(function(){
-                self.options.offset = Physics.vector( self.options.offset );
+                self.options.offset = new Physics.vector( self.options.offset );
             });
             this.options( options, true );
 

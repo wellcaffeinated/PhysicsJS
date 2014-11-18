@@ -215,7 +215,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     var scratch = Physics.scratchpad()
         ,prev = scratch.vector()
         ,next = scratch.vector()
-        ,ret = Physics.vector()
+        ,ret = new Physics.vector()
         ,tmp
         ,l = hull.length
         ;
@@ -223,14 +223,14 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     if ( l < 2 ){
         // it must be a point
         scratch.done();
-        return Physics.vector( hull[0] );
+        return new Physics.vector( hull[0] );
     }
 
     if ( l === 2 ){
         // it's a line
         // get the midpoint
         scratch.done();
-        return Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
+        return new Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
     }
 
     prev.clone( hull[ l - 1 ] );
@@ -275,7 +275,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     lambdaB = - L.dot( A ) / L.normSq();
@@ -285,15 +285,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
-        return Physics.vector( linePt2 );
+        return new Physics.vector( linePt2 );
     } else if ( lambdaB <= 0 ){
         // vice versa
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     // guess we'd better do the math now...
-    p = Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
+    p = new Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
     scratch.done();
     return p;
 };

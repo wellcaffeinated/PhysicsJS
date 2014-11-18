@@ -402,13 +402,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                     min: {
                         type: false, //min
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     },
 
                     max: {
                         type: true, //max
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     }
                 }

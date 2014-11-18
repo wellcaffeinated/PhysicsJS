@@ -62,7 +62,7 @@ Physics.geometry('circle', function( parent ){
         // extended
         getFarthestHullPoint: function( dir, result ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             return result.clone( dir ).normalize().mult( this.radius );
         },
@@ -70,7 +70,7 @@ Physics.geometry('circle', function( parent ){
         // extended
         getFarthestCorePoint: function( dir, result, margin ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // we can use the center of the circle as the core object
             // because we can project a point to the hull in any direction
