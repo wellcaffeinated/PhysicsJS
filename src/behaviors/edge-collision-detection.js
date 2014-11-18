@@ -214,7 +214,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'integrate:velocities', this.checkAll );
+            world.off( 'integrate:velocities', this.checkAll, this );
         },
 
         /** internal

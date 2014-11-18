@@ -128,9 +128,9 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
         disconnect: function( world ){
 
-            world.off('sweep-prune:intervals', this.storeIntervals );
-            world.off('collisions:detected', this.storeCollisions );
-            world.off('render', this.reset);
+            world.off('sweep-prune:intervals', this.storeIntervals, this );
+            world.off('collisions:detected', this.storeCollisions, this );
+            world.off('render', this.reset, this);
         },
 
         storeIntervals: function( intervals ){

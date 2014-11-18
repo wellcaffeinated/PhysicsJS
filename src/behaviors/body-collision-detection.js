@@ -273,11 +273,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( this.options.check === true ){
 
-                world.off( 'integrate:velocities', this.checkAll );
+                world.off( 'integrate:velocities', this.checkAll, this );
 
             } else {
 
-                world.off( this.options.check, this.check );
+                world.off( this.options.check, this.check, this );
             }
         },
 

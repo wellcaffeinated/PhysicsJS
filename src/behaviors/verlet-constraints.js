@@ -49,7 +49,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off('integrate:positions', this.resolve);
+            world.off('integrate:positions', this.resolve, this);
         },
 
         /**

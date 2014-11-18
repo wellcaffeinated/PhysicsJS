@@ -159,8 +159,8 @@ Physics.renderer('dom', function( proto ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'add:body', this.attach );
-            world.off( 'remove:body', this.detach );
+            world.off( 'add:body', this.attach, this );
+            world.off( 'remove:body', this.detach, this );
         },
 
         /**

@@ -209,7 +209,7 @@ Physics.behavior('interactive', function( parent ){
         disconnect: function( world ){
 
             // unsubscribe when disconnected
-            world.off('integrate:positions', this.behave);
+            world.off('integrate:positions', this.behave, this);
         },
 
         // extended

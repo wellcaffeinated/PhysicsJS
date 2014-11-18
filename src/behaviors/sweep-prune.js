@@ -80,9 +80,9 @@ Physics.behavior('sweep-prune', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'add:body', this.trackBody );
-            world.off( 'remove:body', this.untrackBody );
-            world.off( 'integrate:velocities', this.sweep );
+            world.off( 'add:body', this.trackBody, this );
+            world.off( 'remove:body', this.untrackBody, this );
+            world.off( 'integrate:velocities', this.sweep, this );
             this.clear();
         },
 

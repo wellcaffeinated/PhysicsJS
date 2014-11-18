@@ -46,7 +46,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( this.options.check, this.respond );
+            world.off( this.options.check, this.respond, this );
         },
 
         /** internal
