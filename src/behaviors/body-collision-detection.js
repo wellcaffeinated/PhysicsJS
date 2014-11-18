@@ -71,8 +71,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 });
             };
 
-            fn.tA = Physics.transform();
-            fn.tB = Physics.transform();
+            fn.tA = new Physics.transform();
+            fn.tB = new Physics.transform();
         }
 
         fn.useCore = false;
