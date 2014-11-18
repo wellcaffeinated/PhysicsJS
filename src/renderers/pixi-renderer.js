@@ -105,17 +105,30 @@ Physics.renderer('pixi', function( parent ){
             this.options.offset = Physics.vector( this.options.offset );
 
             // Hook in PIXI stage here
-            this.stage = new PIXI.Stage(this.options.styles.color);
-            this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+            if (this.options.styles.color == 'transparent') {
+                this.stage = new PIXI.Stage();
+                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, null, true);
+            } else {
+                this.stage = new PIXI.Stage(this.options.styles.color);
+                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+            }
 
             // Create empty meta object for use later
             this.meta = {};
 
             // add the renderer view element to the DOM according to its type
             if ( this.el.nodeName === 'CANVAS' ){
-                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, this.el);
+                if (this.options.styles.color == 'transparent') {
+                	this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, this.el, true);
+                } else {
+                	this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, this.el);
+                }
             } else {
-                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+                if (this.options.styles.color == 'transparent') {
+                    this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, null, true);
+                } else {
+                    this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+                }
 
                 if ( this.el !== null ) {
                     this.el.appendChild(this.renderer.view);
@@ -281,7 +294,7 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
-        createView: function( geometry ){
+        createView: function( geometry, styles ){
 
             var view = null
                 ,aabb = geometry.aabb()
@@ -292,10 +305,7 @@ Physics.renderer('pixi', function( parent ){
                 ,name = geometry.name
                 ;
 
-            var styles = styles || this.options.styles[ name ];
-
-            x += styles.lineWidth | 0;
-            y += styles.lineWidth | 0;
+            styles = styles || this.options.styles[ name ];
 
             if (name === 'circle'){
 
@@ -309,7 +319,7 @@ Physics.renderer('pixi', function( parent ){
             if (styles.angleIndicator){
 
                 view.beginFill(styles.angleIndicator);
-                view.moveTo((x / 2), (5 + styles.lineWidth));
+                view.moveTo(geometry.radius * 2, geometry.radius);
                 view.lineTo((x / 2) + (geometry.radius / 2), geometry.radius);
                 // Center the graphics to the circle
                 view.endFill();
