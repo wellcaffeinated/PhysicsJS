@@ -322,7 +322,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                 // if it's the x axis, create a pair
                                 c = this.getPair( tr1, tr2, isX );
 
-                                if ( c ){
+                                if ( c && c.flag < collisionFlag ){
 
                                     // if it's greater than the axis index, set the flag
                                     // to = 0.
