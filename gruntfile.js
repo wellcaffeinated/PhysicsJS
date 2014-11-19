@@ -129,10 +129,18 @@ module.exports = function(grunt) {
         var deps = ['physicsjs'];
         var l = path.split('/').length;
         var pfx = l > 0 ? (new Array( l )).join('../') : './';
-        src.replace(/@requires\s([\w-_\/]+)/g, function( match, dep ){
+        src.replace(/@requires\s([\w-_\/]+(\.js)?)/g, function( match, dep ){
 
-            // just get the dependency
-            deps.push( pfx + dep );
+            var i = dep.indexOf('.js');
+            
+            if ( i > -1 ){
+                // must be a 3rd party dep
+                dep = dep.substr( 0, i );
+                deps.push( dep );
+            } else {
+                // just get the dependency
+                deps.push( pfx + dep );
+            }
             // no effect
             return match;
         });
