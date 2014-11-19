@@ -91,8 +91,8 @@ Physics.behavior('interactive', function( parent ){
 
             // vars
             this.bodies = {};
-            this.contactPoints = {};
-            this.contactPointsOld = {};
+            this.touchPoints = {};
+            this.touchPointsOld = {};
             this.offsets = {};
 
             this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el;
@@ -110,22 +110,24 @@ Physics.behavior('interactive', function( parent ){
                     ,touchId
                     ,touch
                     ,offset
+                    ,touchIndex
+                    ,l
                     ;
 
                 if ( self._world ){
 
                     // Adjust for PointerEvent and older browsers
-                    if (!e.changedTouches) {
-                        e.changedTouches = [];
-                        e.changedTouches.push(e);
+                    if ( !e.changedTouches ) {
+                        e.changedTouches = [ e ];
                     }
 
-                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
-                        offset = getElementOffset( e.target );
+                    offset = getElementOffset( e.target );
+
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         touch = e.changedTouches[touchIndex];
-                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
                         touchId = touch.identifier || touch.pointerId || "mouse";
-                        body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        body = self._world.findOne({ $at: new Physics.vector( pos ) });
 
                         if ( body ){
                             // we're trying to grab a body
@@ -139,13 +141,13 @@ Physics.behavior('interactive', function( parent ){
                             // remember the currently grabbed bodies
                             self.bodies[touchId] = body;
                             // remember the click/touch offset
-                            self.contactPoints[touchId] = self.contactPoints[touchId] || new Physics.vector();
-                            self.contactPoints[touchId].clone( pos );
+                            self.touchPoints[touchId] = self.touchPoints[touchId] || new Physics.vector();
+                            self.touchPoints[touchId].clone( pos );
 
                             self.offsets[touchId] = self.offsets[touchId] || new Physics.vector();
                             self.offsets[touchId].clone( pos ).vsub( body.state.pos );
-                            // init contactPointsOld here, too, so we don't have to do it in "move"
-                            self.contactPointsOld[touchId] = self.contactPointsOld[touchId] || new Physics.vector();
+                            // init touchPointsOld here, too, so we don't have to do it in "move"
+                            self.touchPointsOld[touchId] = self.touchPointsOld[touchId] || new Physics.vector();
 
                             pos.body = body;
                             self._world.emit('interact:grab', pos);
@@ -167,30 +169,32 @@ Physics.behavior('interactive', function( parent ){
                     ,touchId
                     ,touch
                     ,offset
+                    ,touchIndex
+                    ,l
                     ;
 
                 if ( self._world ){
 
                     // Adjust for PointerEvent and older browsers
-                    if (!e.changedTouches) {
-                        e.changedTouches = [];
-                        e.changedTouches.push(e);
+                    if ( !e.changedTouches ) {
+                        e.changedTouches = [ e ];
                     }
 
-                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
-                        offset = getElementOffset( e.target );
+                    offset = getElementOffset( e.target );
+
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         touch = e.changedTouches[touchIndex];
-                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
                         touchId = touch.identifier || touch.pointerId || "mouse";
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
                         body = self.bodies[touchId];
-                        
+
                         if ( body ){
                             time = Physics.util.ticker.now();
 
                             // set old mouse position
-                            self.contactPointsOld[touchId].clone( self.contactPoints[touchId] );
+                            self.touchPointsOld[touchId].clone( self.touchPoints[touchId] );
                             // get new mouse position
-                            self.contactPoints[touchId].set(pos.x, pos.y);
+                            self.touchPoints[touchId].set(pos.x, pos.y);
 
                             pos.body = body;
                         }
@@ -210,6 +214,8 @@ Physics.behavior('interactive', function( parent ){
                     ,touch
                     ,offset
                     ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
+                    ,touchIndex
+                    ,l
                     ;
 
                 if ( self._world ){
@@ -220,21 +226,21 @@ Physics.behavior('interactive', function( parent ){
                         e.changedTouches.push(e);
                     }
 
-                    for (var touchIndex = 0; touchIndex < e.changedTouches.length; touchIndex++) {
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         offset = getElementOffset( e.target );
                         touch = e.changedTouches[touchIndex];
-                        pos = {x: touch.pageX - offset.left, y: touch.pageY - offset.top};
                         touchId = touch.identifier || touch.pointerId || "mouse";
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
                         body = self.bodies[touchId];
 
                         // release the body
-                        if (body){
+                        if ( body ){
                             // get new mouse position
-                            self.contactPoints[touchId].set(pos.x, pos.y);
+                            self.touchPoints[touchId].set(pos.x, pos.y);
 
                             body.treatment = prevTreatment;
                             // calculate the release velocity
-                            body.state.vel.clone( self.contactPoints[touchId] ).vsub( self.contactPointsOld[touchId] ).mult( 1 / dt );
+                            body.state.vel.clone( self.touchPoints[touchId] ).vsub( self.touchPointsOld[touchId] ).mult( 1 / dt );
                             // make sure it's not too big
                             body.state.vel.clamp( self.options.minVel, self.options.maxVel );
 
@@ -247,19 +253,19 @@ Physics.behavior('interactive', function( parent ){
                         self._world.emit('interact:release', pos);
 
                         // remove vars
-                        delete self.contactPoints[touchId];
-                        delete self.contactPointsOld[touchId];
+                        delete self.touchPoints[touchId];
+                        delete self.touchPointsOld[touchId];
                         delete self.offsets[touchId];
                         delete self.bodies[touchId];
-                        if (body) {
-                          delete body.isGrabbed;
+
+                        if ( body ) {
+                            delete body.isGrabbed;
                         }
                     }
-                    
                 }
             };
 
-            if (window.PointerEvent) {
+            if ( window.PointerEvent ) {
 
                 this.el.addEventListener('pointerdown', grab);
                 this.el.addEventListener('pointermove', move);
@@ -305,10 +311,10 @@ Physics.behavior('interactive', function( parent ){
 
             // if we have one or more bodies grabbed, we need to move them to the new mouse/finger positions.
             // we'll do this by adjusting the velocity so they get there at the next step
-            for (var touchId in self.bodies) {
+            for ( var touchId in self.bodies ) {
                 body = self.bodies[touchId];
                 state = body.state;
-                state.vel.clone( self.contactPoints[touchId] ).vsub( self.offsets[touchId] ).vsub( state.pos ).mult( 1 / dt );
+                state.vel.clone( self.touchPoints[touchId] ).vsub( self.offsets[touchId] ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };
