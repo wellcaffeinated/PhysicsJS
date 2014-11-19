@@ -80,7 +80,7 @@
                     edgeBounce.setAABB(viewportBounds);
 
                 }, true);
-
+                var intr;
                 world.add([
                     edgeBounce
                     ,Physics.behavior('sweep-prune')
@@ -92,8 +92,21 @@
                     // add gravity
                     ,Physics.behavior('constant-acceleration')
                     // ,Physics.behavior('newtonian')
-                    ,Physics.behavior('interactive', {el: renderer.el.parentNode})
+                    ,intr = Physics.behavior('interactive', {el: renderer.el.parentNode})
                 ]);
+
+                renderer.gui.add({
+                    get interaction(){
+                        return world.has(intr);
+                    }
+                    ,set interaction( val ){
+                        if ( val ){
+                            world.add(intr);
+                        } else {
+                            world.remove(intr);
+                        }
+                    }
+                }, 'interaction');
 
                 Physics.util.ticker.on(function (time, dt) {
 

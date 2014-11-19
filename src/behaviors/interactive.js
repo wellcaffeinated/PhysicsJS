@@ -101,7 +101,7 @@ Physics.behavior('interactive', function( parent ){
             // init events
             // when there are multiple touchdowns, grab is usually called separately for each,
             // but we loop through e.changedTouches just in case
-            var grab = function grab( e ){
+            self.grab = function grab( e ){
                 var pos
                     ,body
                     ,touchId
@@ -165,7 +165,7 @@ Physics.behavior('interactive', function( parent ){
 
             // when there are multiple touchdowns, move is called once
             // and e.changedTouches will have one or more touches in it
-            var move = Physics.util.throttle(function move( e ){
+            self.move = Physics.util.throttle(function move( e ){
                 var pos
                     ,state
                     ,body
@@ -212,7 +212,7 @@ Physics.behavior('interactive', function( parent ){
 
             // when there are multiple touchups, release is called once
             // and e.changedTouches will have one or more touches in it
-            var release = function release( e ){
+            self.release = function release( e ){
                 var pos
                     ,body
                     ,touchId
@@ -265,26 +265,6 @@ Physics.behavior('interactive', function( parent ){
                     }
                 }
             };
-
-            if ( window.PointerEvent ) {
-
-                this.el.addEventListener('pointerdown', grab);
-                window.addEventListener('pointermove', move);
-                window.addEventListener('pointerup', release);
-
-            } else {
-
-                this.el.addEventListener('mousedown', grab);
-                this.el.addEventListener('touchstart', grab);
-
-                window.addEventListener('mousemove', move);
-                window.addEventListener('touchmove', move);
-
-                window.addEventListener('mouseup', release);
-                window.addEventListener('touchend', release);
-
-            }
-
         },
 
         // extended
@@ -292,6 +272,25 @@ Physics.behavior('interactive', function( parent ){
 
             // subscribe the .behave() method to the position integration step
             world.on('integrate:positions', this.behave, this);
+
+            if ( window.PointerEvent ) {
+
+                this.el.addEventListener('pointerdown', this.grab);
+                window.addEventListener('pointermove', this.move);
+                window.addEventListener('pointerup', this.release);
+
+            } else {
+
+                this.el.addEventListener('mousedown', this.grab);
+                this.el.addEventListener('touchstart', this.grab);
+
+                window.addEventListener('mousemove', this.move);
+                window.addEventListener('touchmove', this.move);
+
+                window.addEventListener('mouseup', this.release);
+                window.addEventListener('touchend', this.release);
+
+            }
         },
 
         // extended
@@ -299,6 +298,25 @@ Physics.behavior('interactive', function( parent ){
 
             // unsubscribe when disconnected
             world.off('integrate:positions', this.behave, this);
+
+            if ( window.PointerEvent ) {
+
+                this.el.removeEventListener('pointerdown', this.grab);
+                window.removeEventListener('pointermove', this.move);
+                window.removeEventListener('pointerup', this.release);
+
+            } else {
+
+                this.el.removeEventListener('mousedown', this.grab);
+                this.el.removeEventListener('touchstart', this.grab);
+
+                window.removeEventListener('mousemove', this.move);
+                window.removeEventListener('touchmove', this.move);
+
+                window.removeEventListener('mouseup', this.release);
+                window.removeEventListener('touchend', this.release);
+
+            }
         },
 
         // extended
