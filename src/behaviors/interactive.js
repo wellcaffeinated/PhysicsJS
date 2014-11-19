@@ -80,7 +80,6 @@ Physics.behavior('interactive', function( parent ){
         init: function( options ){
 
             var self = this
-                ,prevTreatment
                 ,time
                 ;
 
@@ -91,6 +90,7 @@ Physics.behavior('interactive', function( parent ){
 
             // vars
             this.bodyData = {};
+            this.bodyDataByUID = {};
 
             this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el;
 
@@ -131,14 +131,16 @@ Physics.behavior('interactive', function( parent ){
                             // we're trying to grab a body
 
                             // fix the body in place
-                            prevTreatment = body.treatment;
-                            body.treatment = 'kinematic';
                             body.state.vel.zero();
                             body.state.angular.vel = 0;
                             body.isGrabbed = true;
                             // remember the currently grabbed bodies
                             data = self.bodyData[touchId] || {};
                             data.body = body;
+                            // if we're grabbing the same body twice we don't want to remember the wrong treatment.
+                            data.treatment = self.bodyDataByUID[ body.uid ] ? self.bodyDataByUID[ body.uid ].treatment : body.treatment;
+                            // change its treatment but remember its old treatment
+                            body.treatment = 'kinematic';
                             // remember the click/touch offset
                             data.pos = data.pos || new Physics.vector();
                             data.pos.clone( pos );
@@ -150,6 +152,7 @@ Physics.behavior('interactive', function( parent ){
 
                             pos.body = body;
                             self.bodyData[touchId] = data;
+                            self.bodyDataByUID[ body.uid ] = data;
                             self._world.emit('interact:grab', pos);
 
                         } else {
@@ -181,7 +184,7 @@ Physics.behavior('interactive', function( parent ){
                         e.changedTouches = [ e ];
                     }
 
-                    offset = getElementOffset( e.target );
+                    offset = getElementOffset( self.el );
 
                     for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         touch = e.changedTouches[touchIndex];
@@ -229,7 +232,7 @@ Physics.behavior('interactive', function( parent ){
                     }
 
                     for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
-                        offset = getElementOffset( e.target );
+                        offset = getElementOffset( self.el );
                         touch = e.changedTouches[touchIndex];
                         touchId = touch.identifier || touch.pointerId || "mouse";
                         pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
@@ -241,7 +244,7 @@ Physics.behavior('interactive', function( parent ){
                             // get new mouse position
                             data.pos.clone( pos );
 
-                            body.treatment = prevTreatment;
+                            body.treatment = data.treatment;
                             // calculate the release velocity
                             body.state.vel.clone( data.pos ).vsub( data.oldPos ).mult( 1 / dt );
                             // make sure it's not too big
@@ -266,19 +269,19 @@ Physics.behavior('interactive', function( parent ){
             if ( window.PointerEvent ) {
 
                 this.el.addEventListener('pointerdown', grab);
-                this.el.addEventListener('pointermove', move);
-                this.el.addEventListener('pointerup', release);
+                window.addEventListener('pointermove', move);
+                window.addEventListener('pointerup', release);
 
             } else {
 
                 this.el.addEventListener('mousedown', grab);
                 this.el.addEventListener('touchstart', grab);
 
-                this.el.addEventListener('mousemove', move);
-                this.el.addEventListener('touchmove', move);
+                window.addEventListener('mousemove', move);
+                window.addEventListener('touchmove', move);
 
-                this.el.addEventListener('mouseup', release);
-                this.el.addEventListener('touchend', release);
+                window.addEventListener('mouseup', release);
+                window.addEventListener('touchend', release);
 
             }
 
