@@ -91,6 +91,9 @@ module.exports = function(grunt) {
                 main: 'physicsjs-'+pkg.version
             }
         ],
+        paths: {
+            'pixi': '../lib/pixi'
+        },
         optimize: 'none',
         name: '../' + config.rjsHelper.replace(/\.js$/, ''),
         out: 'test/physicsjs-built.js'
@@ -132,7 +135,7 @@ module.exports = function(grunt) {
         src.replace(/@requires\s([\w-_\/]+(\.js)?)/g, function( match, dep ){
 
             var i = dep.indexOf('.js');
-            
+
             if ( i > -1 ){
                 // must be a 3rd party dep
                 dep = dep.substr( 0, i );
@@ -266,7 +269,10 @@ module.exports = function(grunt) {
                                     location: 'physicsjs',
                                     main: 'physicsjs'
                                 }
-                            ]
+                            ],
+                            paths: {
+                                'pixi': '../lib/pixi'
+                            }
                         }
                     }
                 }
@@ -298,7 +304,8 @@ module.exports = function(grunt) {
                         requireConfig: {
                             baseUrl: './',
                             paths: {
-                                'bundle': config.distRequireJS.out.replace(/\.js$/, '')
+                                'bundle': config.distRequireJS.out.replace(/\.js$/, ''),
+                                'pixi': 'lib/pixi'
                             }
                         }
                     }
