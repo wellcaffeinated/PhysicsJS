@@ -64,6 +64,8 @@ Physics.renderer('canvas', function( proto ){
         // default styles of drawn objects
         styles: {
 
+            'point': colors.blue,
+
             'circle' : {
                 strokeStyle: colors.blue,
                 lineWidth: 1,
@@ -592,7 +594,7 @@ Physics.renderer('canvas', function( proto ){
                 ,name = geometry.name
                 ;
 
-            styles = styles || this.options.styles[ name ] || {};
+            styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
 
             // must want an image
             if ( styles.src ){
@@ -628,6 +630,10 @@ Physics.renderer('canvas', function( proto ){
             } else if (name === 'rectangle'){
 
                 this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
+            } else {
+
+                // assume it's a point
+                this.drawCircle(0, 0, 1, styles, hiddenCtx);
             }
 
             if (styles.angleIndicator){

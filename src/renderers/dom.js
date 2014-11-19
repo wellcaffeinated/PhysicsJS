@@ -51,6 +51,7 @@ Physics.renderer('dom', function( proto ){
     var classpfx = 'pjs-'
         ,px = 'px'
         ,cssTransform = pfx('transform')
+        ,borderRadius = pfx('borderRadius')
         ;
 
     var newEl = function( node, content ){
@@ -96,6 +97,22 @@ Physics.renderer('dom', function( proto ){
         },
 
         /** internal
+         * DomRenderer#pointProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a point.
+         **/
+        pointProperties: function( el, geometry ){
+
+            el.style.width = '2px';
+            el.style.height = '2px';
+            el.style.marginLeft = '-1px';
+            el.style.marginTop = '-1px';
+            el.style[ borderRadius ] = '50%';
+        },
+
+        /** internal
          * DomRenderer#circleProperties( el, geometry )
          * - el (HTMLElement): The element
          * - geometry (Geometry): The body's geometry
@@ -110,6 +127,7 @@ Physics.renderer('dom', function( proto ){
             el.style.height = (aabb.hh * 2) + px;
             el.style.marginLeft = (-aabb.hw) + px;
             el.style.marginTop = (-aabb.hh) + px;
+            el.style[ borderRadius ] = '50%';
         },
 
         /** internal
