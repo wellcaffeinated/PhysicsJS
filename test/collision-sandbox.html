@@ -33,7 +33,7 @@
                 ,viewHeight = parent.innerHeight;
 
             var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
-
+            var intr;
             function setup(world) {
 
                 var renderer = Physics.renderer('debug', {
@@ -80,7 +80,7 @@
                     edgeBounce.setAABB(viewportBounds);
 
                 }, true);
-                var intr;
+
                 world.add([
                     edgeBounce
                     ,Physics.behavior('sweep-prune')

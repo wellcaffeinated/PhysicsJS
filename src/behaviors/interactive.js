@@ -125,7 +125,7 @@ Physics.behavior('interactive', function( parent ){
                         touch = e.changedTouches[touchIndex];
                         touchId = touch.identifier || touch.pointerId || "mouse";
                         pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
-                        body = self._world.findOne({ $at: new Physics.vector( pos ) });
+                        body = self._world.findOne({ $at: new Physics.vector( pos ), $in: self.getTargets() });
 
                         if ( body ){
                             // we're trying to grab a body
