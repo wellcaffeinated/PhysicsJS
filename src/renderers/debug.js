@@ -17,6 +17,7 @@
  * - drawRealPosition: whether or not to draw the non-interpolated position of bodies. (default: `false`)
  * - drawIntervals: whether or not to draw the broadphase (sweep-prune) intervals. (default: `false`)
  * - drawContacts: whether or not to draw contact points. (default: `false`)
+ * - drawSleepState: whether or not to highlight sleeping bodies. (default: `false`)
  * - aabbColor: the color of AABBs
  * - realBodyStyle: styles used to draw the image of the body at its true non-interpolated position
  * - intervalMinColor: color of interval minima
@@ -64,6 +65,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawRealPosition: false,
         drawIntervals: false,
         drawContacts: false,
+        drawSleepState: false,
 
         // *** colors
         // color of the aabbs
@@ -242,6 +244,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f.add( op, 'drawRealPosition' );
             f.add( op, 'drawIntervals' );
             f.add( op, 'drawContacts' );
+            f.add( op, 'drawSleepState' );
             f.open();
 
             f = gui.addFolder( 'Colors' );
@@ -305,6 +308,18 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.translate(pos.x + offset.x, pos.y + offset.y);
                 ctx.rotate(body.state.angular.pos);
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
+                ctx.restore();
+            }
+
+            if ( this.options.drawSleepState && body.sleep() ){
+                aabb = aabb || body.aabb();
+                body._sleepView = body._sleepView || this.createView(body.geometry, 'rgba(100,100,100,0.3)');
+                ctx.save();
+                ctx.globalCompositeOperation = 'color';
+                ctx.translate( x, y );
+                ctx.rotate( ang );
+                ctx.drawImage(body._sleepView, -view.width/2, -view.height/2, view.width, view.height);
+                // ctx.globalCompositeOperation = '';
                 ctx.restore();
             }
         }

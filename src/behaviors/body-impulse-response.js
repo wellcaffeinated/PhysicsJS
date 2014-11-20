@@ -222,6 +222,10 @@ Physics.behavior('body-impulse-response', function( parent ){
                 }
             }
 
+            // wake up bodies if necessary
+            bodyA.sleepCheck();
+            bodyB.sleepCheck();
+
             scratch.done();
         },
 

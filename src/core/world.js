@@ -143,6 +143,8 @@
             this._paused = false;
             this._warp = 1;
             this._time = 0;
+            this.sleepSpeedLimit = 0.01;
+            this.sleepTimeLimit = 1000;
 
             // set options
             this.options = Physics.util.options( defaults );

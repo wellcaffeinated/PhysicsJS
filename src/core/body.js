@@ -235,6 +235,52 @@
                  **/
         },
 
+        sleep: function( dt ){
+
+            if ( dt === true ){
+                // force sleep
+                this.asleep = true;
+
+            } else if ( dt === false ){
+                // force wakup
+                this.asleep = false;
+                this.sleepIdleTime = 0;
+
+            } else if ( dt && !this.asleep ) {
+
+                this.sleepCheck( dt );
+            }
+
+            return this.asleep;
+        },
+
+        sleepCheck: function( dt ){
+
+            var limit
+                ,v
+                ,aabb
+                ;
+
+            dt = dt || 0;
+            // check velocity
+            limit = this.sleepSpeedLimit || (this._world && this._world.sleepSpeedLimit) || 0;
+            aabb = this.aabb();
+            v = this.state.vel.norm() + Math.abs(Math.max(aabb.hw, aabb.hh) * this.state.angular.vel);
+
+            if ( v <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (this._world && this._world.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
+
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleepIdleTime = 0;
+                this.asleep = false;
+            }
+        },
+
         /**
          * Body#setWorld( world ) -> this
          * - world (Object): The world (or null)
@@ -293,7 +339,7 @@
 
             // if no point at which to apply the force... apply at center of mass
             if ( p && this.moi ){
-                
+
                 // apply torques
                 state = this.state;
                 r.clone( p );
