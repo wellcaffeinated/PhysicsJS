@@ -18,6 +18,7 @@
  * - drawIntervals: whether or not to draw the broadphase (sweep-prune) intervals. (default: `false`)
  * - drawContacts: whether or not to draw contact points. (default: `false`)
  * - drawSleepState: whether or not to highlight sleeping bodies. (default: `false`)
+ * - drawBodyState: whether or not to show body position and velocity. (default: `false`)
  * - aabbColor: the color of AABBs
  * - realBodyStyle: styles used to draw the image of the body at its true non-interpolated position
  * - intervalMinColor: color of interval minima
@@ -55,6 +56,10 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         return {};
     }
 
+    function format( num ){
+        return (num >= 0 ? ' ' : '') + num.toPrecision(2);
+    }
+
     var defaults = {
 
         // the element to place meta data into
@@ -66,6 +71,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawIntervals: false,
         drawContacts: false,
         drawSleepState: false,
+        drawBodyState: false,
 
         // *** colors
         // color of the aabbs
@@ -221,6 +227,22 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                         self._world.options({ maxIPF: m });
                     }
                 }
+                ,get sleepTimeLimit(){
+                    return self._world ? self._world.sleepTimeLimit : 1000;
+                }
+                ,set sleepTimeLimit( t ){
+                    if ( self._world ){
+                        self._world.sleepTimeLimit = t;
+                    }
+                }
+                ,get sleepSpeedLimit(){
+                    return self._world ? self._world.sleepSpeedLimit : 0.01;
+                }
+                ,set sleepSpeedLimit( t ){
+                    if ( self._world ){
+                        self._world.sleepSpeedLimit = t;
+                    }
+                }
             };
 
             function pauseWorld(){
@@ -236,6 +258,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f = gui.addFolder( 'General' );
             f.add( getset, 'timestep', 1, 20).step( 1 );
             f.add( getset, 'maxIPF', 1, 100).step( 1 );
+            f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
+            f.add( getset, 'sleepSpeedLimit', 0.001, 0.1);
             f.add( { pause: pauseWorld }, 'pause');
             f.open();
 
@@ -245,6 +269,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f.add( op, 'drawIntervals' );
             f.add( op, 'drawContacts' );
             f.add( op, 'drawSleepState' );
+            f.add( op, 'drawBodyState' );
             f.open();
 
             f = gui.addFolder( 'Colors' );
@@ -321,6 +346,17 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.drawImage(body._sleepView, -view.width/2, -view.height/2, view.width, view.height);
                 // ctx.globalCompositeOperation = '';
                 ctx.restore();
+            }
+
+            if ( this.options.drawBodyState ){
+                ctx.strokeStyle = 'black';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 4;
+                ctx.font = '12px monospace';
+                ctx.strokeText('r: ('+x.toFixed(0)+', '+y.toFixed(0)+')', x, y-8);
+                ctx.strokeText('v: ('+format(v.x)+', '+format(v.y)+')', x, y+12);
+                ctx.shadowBlur = 0;
+                ctx.shadowColor = '';
             }
         }
     };

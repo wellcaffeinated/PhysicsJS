@@ -124,6 +124,9 @@
                 }
             };
 
+            this._sleepMeanVel = new vector();
+            this._sleepMeanK = 0;
+
             // cleanup
             delete this.x;
             delete this.y;
@@ -244,6 +247,8 @@
             } else if ( dt === false ){
                 // force wakup
                 this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepMeanVel.zero();
                 this.sleepIdleTime = 0;
 
             } else if ( dt && !this.asleep ) {
@@ -258,14 +263,22 @@
 
             var limit
                 ,v
+                ,d
+                ,r
                 ,aabb
+                ,scratch = Physics.scratchpad()
+                ,diff = scratch.vector()
                 ;
 
             dt = dt || 0;
             // check velocity
             limit = this.sleepSpeedLimit || (this._world && this._world.sleepSpeedLimit) || 0;
             aabb = this.aabb();
-            v = this.state.vel.norm() + Math.abs(Math.max(aabb.hw, aabb.hh) * this.state.angular.vel);
+            r = Math.max(aabb.hw, aabb.hh);
+            this._sleepMeanK++;
+            diff.clone( this.state.vel ).vsub( this._sleepMeanVel ).mult( 1 / this._sleepMeanK );
+            this._sleepMeanVel.vadd( diff );
+            v = this._sleepMeanVel.norm() + Math.abs(r * this.state.angular.vel);
 
             if ( v <= limit ){
                 // check idle time
@@ -277,8 +290,12 @@
                 }
             } else {
                 this.sleepIdleTime = 0;
+                this._sleepMeanK = 0;
+                this._sleepMeanVel.zero();
                 this.asleep = false;
             }
+
+            scratch.done();
         },
 
         /**

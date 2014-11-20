@@ -208,13 +208,13 @@ Physics.behavior('edge-collision-detection', function( parent ){
         // extended
         connect: function( world ){
 
-            world.on( 'integrate:velocities', this.checkAll, this );
+            world.on( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         // extended
         disconnect: function( world ){
 
-            world.off( 'integrate:velocities', this.checkAll, this );
+            world.off( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         /** internal

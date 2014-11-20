@@ -123,18 +123,22 @@ Physics.behavior('body-impulse-response', function( parent ){
 
                     // extract bodies
                     bodyB.state.pos.vadd( mtv );
+                    bodyB.state.old.pos.vadd( mtv );
 
                 } else if ( fixedB ){
 
                     // extract bodies
                     bodyA.state.pos.vsub( mtv );
+                    bodyA.state.old.pos.vsub( mtv );
 
                 } else {
 
                     // extract bodies
                     mtv.mult( 0.5 );
                     bodyA.state.pos.vsub( mtv );
+                    bodyA.state.old.pos.vsub( mtv );
                     bodyB.state.pos.vadd( mtv );
+                    bodyB.state.old.pos.vadd( mtv );
                 }
             }
 
@@ -223,8 +227,12 @@ Physics.behavior('body-impulse-response', function( parent ){
             }
 
             // wake up bodies if necessary
-            bodyA.sleepCheck();
-            bodyB.sleepCheck();
+            if ( bodyA.sleep() ){
+                bodyA.sleepCheck();
+            }
+            if ( bodyB.sleep() ){
+                bodyB.sleepCheck();
+            }
 
             scratch.done();
         },
