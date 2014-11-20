@@ -151,6 +151,7 @@ Physics.behavior('interactive', function( parent ){
                             data.offset.clone( pos ).vsub( body.state.pos );
                             // init touchPointsOld here, too, so we don't have to do it in "move"
                             data.oldPos = data.oldPos || new Physics.vector();
+                            data.oldPos.clone( pos );
 
                             pos.body = body;
                             self.bodyData[touchId] = data;
