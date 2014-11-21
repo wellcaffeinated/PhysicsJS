@@ -79,9 +79,7 @@ Physics.behavior('interactive', function( parent ){
         // extended
         init: function( options ){
 
-            var self = this
-                ,time
-                ;
+            var self = this;
 
             // call parent init method
             parent.init.call( this );
@@ -137,6 +135,8 @@ Physics.behavior('interactive', function( parent ){
                             // remember the currently grabbed bodies
                             data = self.bodyData[touchId] || {};
                             data.body = body;
+                            data.time = Physics.util.ticker.now();
+
                             // if we're grabbing the same body twice we don't want to remember the wrong treatment.
                             data.treatment = self.bodyDataByUID[ body.uid ] ? self.bodyDataByUID[ body.uid ].treatment : body.treatment;
                             // change its treatment but remember its old treatment
@@ -195,7 +195,7 @@ Physics.behavior('interactive', function( parent ){
 
                         if ( data ){
                             body = data.body;
-                            time = Physics.util.ticker.now();
+                            data.time = Physics.util.ticker.now();
 
                             // set old mouse position
                             data.oldPos.clone( data.pos );
@@ -220,7 +220,7 @@ Physics.behavior('interactive', function( parent ){
                     ,touch
                     ,offset
                     ,data
-                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
+                    ,dt
                     ,touchIndex
                     ,l
                     ;
@@ -245,6 +245,7 @@ Physics.behavior('interactive', function( parent ){
                             // get new mouse position
                             data.pos.clone( pos );
 
+                            dt = Math.max(Physics.util.ticker.now() - data.time, self.options.moveThrottle);
                             body.treatment = data.treatment;
                             // calculate the release velocity
                             body.state.vel.clone( data.pos ).vsub( data.oldPos ).mult( 1 / dt );
