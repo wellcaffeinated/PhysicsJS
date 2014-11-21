@@ -173,7 +173,14 @@ Physics.behavior('body-impulse-response', function( parent ){
                 bodyA.state.angular.vel += impulse * invMoiA * rAreg;
             }
 
-            // inContact = (impulse < 0.004);
+            // recalculate vreg
+            vAB.clone( bodyB.state.vel )
+                    .vadd( tmp.clone(rB).perp().mult( bodyB.state.angular.vel ) )
+                    .vsub( bodyA.state.vel )
+                    .vsub( tmp.clone(rA).perp().mult( bodyA.state.angular.vel ) )
+                    ;
+
+            vreg = vAB.proj( perp );
 
             // if we have friction and a relative velocity perpendicular to the normal
             if ( cof && vreg ){
