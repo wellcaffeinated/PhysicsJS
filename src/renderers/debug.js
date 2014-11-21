@@ -219,6 +219,14 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                         self._world.timestep( dt );
                     }
                 }
+                ,get warp(){
+                    return self._world ? self._world.warp() : 1;
+                }
+                ,set warp( w ){
+                    if ( self._world ) {
+                        self._world.warp( w );
+                    }
+                }
                 ,get maxIPF(){
                     return self._world ? self._world.options.maxIPF : 16;
                 }
@@ -258,6 +266,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f = gui.addFolder( 'General' );
             f.add( getset, 'timestep', 1, 20).step( 1 );
             f.add( getset, 'maxIPF', 1, 100).step( 1 );
+            f.add( getset, 'warp', 0.01, 2);
             f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
             f.add( getset, 'sleepSpeedLimit', 0.001, 0.1);
             f.add( { pause: pauseWorld }, 'pause');

@@ -10,6 +10,7 @@
  * - mtvThreshold: apply partial extraction of bodies if the minimum transit vector is less than this value ( default: `1`)
  *   this will depend on your simulation characteristic length scale
  * - bodyExtractDropoff: every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1). Helps with stablizing contacts. (default: `0.5`)
+ * - forceWakeupAboveOverlapThreshold: force bodies to wake up if the overlap is above mtvThreshold ( default: `true` )
  **/
 Physics.behavior('body-impulse-response', function( parent ){
 
@@ -22,6 +23,8 @@ Physics.behavior('body-impulse-response', function( parent ){
         // every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1)
         // helps with stablizing contacts.
         ,bodyExtractDropoff: 0.5
+        // force bodies to wake up if the overlap is above mtvThreshold
+        ,forceWakeupAboveOverlapThreshold: true
     };
 
     return {
@@ -117,6 +120,10 @@ Physics.behavior('body-impulse-response', function( parent ){
             if ( contact ){
                 if ( mtv.normSq() < this.options.mtvThreshold ){
                     mtv.mult( this.options.bodyExtractDropoff );
+                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                    // wake up bodies if necessary
+                    bodyA.sleep( false );
+                    bodyB.sleep( false );
                 }
 
                 if ( fixedA ){
