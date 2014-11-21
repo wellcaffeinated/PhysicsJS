@@ -236,7 +236,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                     }
                 }
                 ,get sleepTimeLimit(){
-                    return self._world ? self._world.sleepTimeLimit : 1000;
+                    return self._world ? self._world.sleepTimeLimit : 500;
                 }
                 ,set sleepTimeLimit( t ){
                     if ( self._world ){
@@ -249,6 +249,14 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ,set sleepSpeedLimit( t ){
                     if ( self._world ){
                         self._world.sleepSpeedLimit = t;
+                    }
+                }
+                ,get sleepVarianceLimit(){
+                    return self._world ? self._world.sleepVarianceLimit : 2;
+                }
+                ,set sleepVarianceLimit( t ){
+                    if ( self._world ){
+                        self._world.sleepVarianceLimit = t;
                     }
                 }
             };
@@ -268,7 +276,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f.add( getset, 'maxIPF', 1, 100).step( 1 );
             f.add( getset, 'warp', 0.01, 2);
             f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
-            f.add( getset, 'sleepSpeedLimit', 0.001, 0.1);
+            f.add( getset, 'sleepSpeedLimit', 0.001, 1);
+            f.add( getset, 'sleepVarianceLimit', 0.01, 100);
             f.add( { pause: pauseWorld }, 'pause');
             f.open();
 

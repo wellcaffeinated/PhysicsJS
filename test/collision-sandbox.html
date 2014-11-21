@@ -87,21 +87,20 @@
 
                 }, true);
 
+                var imp, acc;
                 world.add([
                     edgeBounce
                     ,Physics.behavior('sweep-prune')
-                    ,Physics.behavior('body-collision-detection', {
-                        checkAll: false
-                    })
+                    ,Physics.behavior('body-collision-detection')
 
-                    ,Physics.behavior('body-impulse-response')
+                    ,imp = Physics.behavior('body-impulse-response')
                     // add gravity
-                    ,Physics.behavior('constant-acceleration')
+                    ,acc = Physics.behavior('constant-acceleration')
                     // ,Physics.behavior('newtonian')
                     ,intr = Physics.behavior('interactive', {el: renderer.el.parentNode})
                 ]);
 
-                renderer.gui.add({
+                var opts = {
                     get interaction(){
                         return world.has(intr);
                     }
@@ -112,7 +111,16 @@
                             world.remove(intr);
                         }
                     }
-                }, 'interaction');
+                    ,get gravity(){
+                        return acc._acc.y;
+                    }
+                    ,set gravity( val ){
+                        acc.setAcceleration({ x: 0, y: val });
+                    }
+                };
+                renderer.gui.add(opts, 'interaction');
+                renderer.gui.add(imp.options, 'forceWakeupAboveOverlapThreshold');
+                renderer.gui.add(opts, 'gravity', -0.001, 0.001);
 
                 Physics.util.ticker.on(function (time, dt) {
 
@@ -222,7 +230,7 @@
                 	y: viewHeight - 100,//+100,
                 	radius: 20,
                 	mass: 1.4,
-                	//cof: 0,
+                	// cof: 0.1,
                 	//vy: -0.2,
                 	// vx: 0.1,
                 	restitution: 0.9

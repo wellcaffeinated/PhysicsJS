@@ -17,6 +17,44 @@
         view: null
     };
 
+    // Running average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean
+    // s is current std deviation
+    // v is value to push
+    function pushRunningAvg( k, m, s, v ){
+
+        var x = v - m;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m += x / k;
+        s += x * (v - m)
+    }
+
+    // Running vector average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean (vector)
+    // s is current std deviation (vector)
+    // v is vector to push
+    function pushRunningVectorAvg( k, m, s, v ){
+        var invK = 1/k
+            ,x = v.get(0) - m.get(0)
+            ,y = v.get(1) - m.get(1)
+            ;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m.add( x * invK, y * invK );
+
+        x *= v.get(0) - m.get(0);
+        y *= v.get(1) - m.get(1);
+
+        s.add( x, y );
+    }
+
     var uidGen = 1;
 
     /** related to: Physics.util.decorator
@@ -124,7 +162,10 @@
                 }
             };
 
-            this._sleepMeanVel = new vector();
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
             this._sleepMeanK = 0;
 
             // cleanup
@@ -248,7 +289,10 @@
                 // force wakup
                 this.asleep = false;
                 this._sleepMeanK = 0;
-                this._sleepMeanVel.zero();
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
                 this.sleepIdleTime = 0;
 
             } else if ( dt && !this.asleep ) {
@@ -268,17 +312,29 @@
                 ,aabb
                 ,scratch = Physics.scratchpad()
                 ,diff = scratch.vector()
+                ,diff2 = scratch.vector()
                 ;
 
             dt = dt || 0;
-            // check velocity
-            limit = this.sleepSpeedLimit || (this._world && this._world.sleepSpeedLimit) || 0;
-            aabb = this.aabb();
+            aabb = this.geometry.aabb();
             r = Math.max(aabb.hw, aabb.hh);
+
+            if ( this.asleep ){
+                // check velocity
+                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
+                limit = this.sleepSpeedLimit || (this._world && this._world.sleepSpeedLimit) || 0;
+
+                if ( v >= limit ){
+                    this.sleep( false );
+                    return scratch.done();
+                }
+            }
+
             this._sleepMeanK++;
-            diff.clone( this.state.vel ).vsub( this._sleepMeanVel ).mult( 1 / this._sleepMeanK );
-            this._sleepMeanVel.vadd( diff );
-            v = this._sleepMeanVel.norm() + Math.abs(r * this.state.angular.vel);
+            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
+            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
+            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            limit = this.sleepVarianceLimit || (this._world && this._world.sleepVarianceLimit) || 0;
 
             if ( v <= limit ){
                 // check idle time
@@ -289,10 +345,7 @@
                     this.asleep = true;
                 }
             } else {
-                this.sleepIdleTime = 0;
-                this._sleepMeanK = 0;
-                this._sleepMeanVel.zero();
-                this.asleep = false;
+                this.sleep( false );
             }
 
             scratch.done();
