@@ -30,7 +30,7 @@
         // Mk = Mk-1+ (xk – Mk-1)/k
         // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
         m += x / k;
-        s += x * (v - m)
+        s += x * (v - m);
     }
 
     // Running vector average
