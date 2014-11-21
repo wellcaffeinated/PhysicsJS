@@ -162,6 +162,7 @@
                 }
             };
 
+            // private storage for sleeping
             this._sleepAngPosMean = 0;
             this._sleepAngPosVariance = 0;
             this._sleepPosMean = new vector();
@@ -279,6 +280,15 @@
                  **/
         },
 
+        /**
+         * Body#sleep( [dt] ) -> Boolean
+         * - dt (Number): Time to advance the idle time
+         * - dt (Boolean): If `true`, the body will be forced to sleep. If `false`, the body will be forced to awake.
+         *
+         * Get and/or set whether the body is asleep.
+         *
+         * If called with a time (in ms), the time will be added to the idle time and sleep conditions will be checked.
+         **/
         sleep: function( dt ){
 
             if ( dt === true ){
@@ -303,7 +313,22 @@
             return this.asleep;
         },
 
+        /**
+         * Body#sleepCheck( [dt] )
+         * - dt (Number): Time to advance the idle time
+         *
+         * Check if the body should be sleeping.
+         *
+         * Call with no arguments if some event could possibly wake up the body. This will force the body to recheck.
+         **/
         sleepCheck: function( dt ){
+
+            var opts = this._world && this._world.options;
+
+            // if sleeping disabled. stop.
+            if ( this.sleepDisabled || (opts && opts.sleepDisabled) ){
+                return;
+            }
 
             var limit
                 ,v
@@ -322,7 +347,7 @@
             if ( this.asleep ){
                 // check velocity
                 v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
-                limit = this.sleepSpeedLimit || (this._world && this._world.sleepSpeedLimit) || 0;
+                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
 
                 if ( v >= limit ){
                     this.sleep( false );
@@ -334,11 +359,11 @@
             pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
             pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
             v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
-            limit = this.sleepVarianceLimit || (this._world && this._world.sleepVarianceLimit) || 0;
+            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
 
             if ( v <= limit ){
                 // check idle time
-                limit = this.sleepTimeLimit || (this._world && this._world.sleepTimeLimit) || 0;
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
                 this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
 
                 if ( this.sleepIdleTime > limit ){

@@ -35,7 +35,16 @@
         webworker: false, // NOT YET IMPLEMENTED
 
         // default integrator
-        integrator: 'verlet'
+        integrator: 'verlet',
+
+        // is sleeping disabled?
+        sleepDisabled: false,
+        // speed at which bodies wake up
+        sleepSpeedLimit: 0.1,
+        // variance in position below which bodies fall asleep
+        sleepVarianceLimit: 2,
+        // time (ms) before sleepy bodies fall asleep
+        sleepTimeLimit: 500
     };
 
     // begin world definitions
@@ -55,12 +64,22 @@
      *
      * ```javascript
      * {
-     *     // default timestep
-     *     timestep: 1000.0 / 120,
-     *     // maximum number of iterations per step
-     *     maxIPF: 16,
-     *     // default integrator
-     *     integrator: 'verlet'
+     *  // default timestep
+     *  timestep: 1000.0 / 120,
+     *  // maximum number of iterations per step
+     *  maxIPF: 16,
+     *
+     *  // default integrator
+     *  integrator: 'verlet',
+     *
+     *  // is sleeping disabled?
+     *  sleepDisabled: false,
+     *  // speed at which bodies wake up
+     *  sleepSpeedLimit: 0.1,
+     *  // variance in position below which bodies fall asleep
+     *  sleepVarianceLimit: 2,
+     *  // time (ms) before sleepy bodies fall asleep
+     *  sleepTimeLimit: 500
      * }
      * ```
      *
@@ -143,9 +162,6 @@
             this._paused = false;
             this._warp = 1;
             this._time = 0;
-            this.sleepSpeedLimit = 0.1;
-            this.sleepVarianceLimit = 2;
-            this.sleepTimeLimit = 500;
 
             // set options
             this.options = Physics.util.options( defaults );
@@ -424,6 +440,22 @@
             }
 
             return this._dt;
+        },
+
+        /** chainable
+         * Physics.world#wakeUpAll() -> this
+         * + (this): for chaining
+         *
+         * Wake up all bodies in world.
+         **/
+        wakeUpAll: function(){
+            var i = 0
+                ,l = this._bodies.length
+                ;
+
+            for ( i = 0; i < l; i++ ){
+                this._bodies[ i ].sleep( false );
+            }
         },
 
         /** chainable

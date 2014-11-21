@@ -235,28 +235,49 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                         self._world.options({ maxIPF: m });
                     }
                 }
+                ,get sleepDisabled(){
+                    return self._world ? self._world.options.sleepDisabled : false;
+                }
+                ,set sleepDisabled( t ){
+                    if ( self._world ){
+                        self._world.options.sleepDisabled = t;
+                        if ( t ){
+                            self._world.wakeUpAll();
+                        }
+                    }
+                }
                 ,get sleepTimeLimit(){
-                    return self._world ? self._world.sleepTimeLimit : 500;
+                    return self._world ? self._world.options.sleepTimeLimit : 500;
                 }
                 ,set sleepTimeLimit( t ){
                     if ( self._world ){
-                        self._world.sleepTimeLimit = t;
+                        self._world.options.sleepTimeLimit = t;
                     }
                 }
                 ,get sleepSpeedLimit(){
-                    return self._world ? self._world.sleepSpeedLimit : 0.01;
+                    return self._world ? self._world.options.sleepSpeedLimit : 0.01;
                 }
                 ,set sleepSpeedLimit( t ){
                     if ( self._world ){
-                        self._world.sleepSpeedLimit = t;
+                        self._world.options.sleepSpeedLimit = t;
                     }
                 }
                 ,get sleepVarianceLimit(){
-                    return self._world ? self._world.sleepVarianceLimit : 2;
+                    return self._world ? self._world.options.sleepVarianceLimit : 2;
                 }
                 ,set sleepVarianceLimit( t ){
                     if ( self._world ){
-                        self._world.sleepVarianceLimit = t;
+                        self._world.options.sleepVarianceLimit = t;
+                    }
+                }
+                ,get integrator(){
+                    return self._world ? self._world.integrator().name : 'verlet';
+                }
+                ,set integrator( t ){
+                    var intr;
+                    if ( self._world ){
+                        intr = self._world.integrator();
+                        self._world.integrator( Physics.integrator(t, intr.options) );
                     }
                 }
             };
@@ -272,9 +293,11 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
 
             f = gui.addFolder( 'General' );
+            f.add( getset, 'integrator', [ 'improved-euler', 'verlet', 'velocity-verlet' ]);
             f.add( getset, 'timestep', 1, 20).step( 1 );
             f.add( getset, 'maxIPF', 1, 100).step( 1 );
             f.add( getset, 'warp', 0.01, 2);
+            f.add( getset, 'sleepDisabled');
             f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
             f.add( getset, 'sleepSpeedLimit', 0.001, 1);
             f.add( getset, 'sleepVarianceLimit', 0.01, 100);
