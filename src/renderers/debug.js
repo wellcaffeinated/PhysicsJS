@@ -17,6 +17,8 @@
  * - drawRealPosition: whether or not to draw the non-interpolated position of bodies. (default: `false`)
  * - drawIntervals: whether or not to draw the broadphase (sweep-prune) intervals. (default: `false`)
  * - drawContacts: whether or not to draw contact points. (default: `false`)
+ * - drawSleepState: whether or not to highlight sleeping bodies. (default: `false`)
+ * - drawBodyState: whether or not to show body position and velocity. (default: `false`)
  * - aabbColor: the color of AABBs
  * - realBodyStyle: styles used to draw the image of the body at its true non-interpolated position
  * - intervalMinColor: color of interval minima
@@ -54,6 +56,10 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         return {};
     }
 
+    function format( num ){
+        return (num >= 0 ? ' ' : '') + num.toPrecision(2);
+    }
+
     var defaults = {
 
         // the element to place meta data into
@@ -64,6 +70,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawRealPosition: false,
         drawIntervals: false,
         drawContacts: false,
+        drawSleepState: false,
+        drawBodyState: false,
 
         // *** colors
         // color of the aabbs
@@ -211,12 +219,65 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                         self._world.timestep( dt );
                     }
                 }
+                ,get warp(){
+                    return self._world ? self._world.warp() : 1;
+                }
+                ,set warp( w ){
+                    if ( self._world ) {
+                        self._world.warp( w );
+                    }
+                }
                 ,get maxIPF(){
                     return self._world ? self._world.options.maxIPF : 16;
                 }
                 ,set maxIPF( m ){
                     if ( self._world ){
                         self._world.options({ maxIPF: m });
+                    }
+                }
+                ,get sleepDisabled(){
+                    return self._world ? self._world.options.sleepDisabled : false;
+                }
+                ,set sleepDisabled( t ){
+                    if ( self._world ){
+                        self._world.options.sleepDisabled = t;
+                        if ( t ){
+                            self._world.wakeUpAll();
+                        }
+                    }
+                }
+                ,get sleepTimeLimit(){
+                    return self._world ? self._world.options.sleepTimeLimit : 500;
+                }
+                ,set sleepTimeLimit( t ){
+                    if ( self._world ){
+                        self._world.options.sleepTimeLimit = t;
+                    }
+                }
+                ,get sleepSpeedLimit(){
+                    return self._world ? self._world.options.sleepSpeedLimit : 0.01;
+                }
+                ,set sleepSpeedLimit( t ){
+                    if ( self._world ){
+                        self._world.options.sleepSpeedLimit = t;
+                    }
+                }
+                ,get sleepVarianceLimit(){
+                    return self._world ? self._world.options.sleepVarianceLimit : 2;
+                }
+                ,set sleepVarianceLimit( t ){
+                    if ( self._world ){
+                        self._world.options.sleepVarianceLimit = t;
+                    }
+                }
+                ,get integrator(){
+                    return self._world ? self._world.integrator().name : 'verlet';
+                }
+                ,set integrator( t ){
+                    var intr;
+                    if ( self._world ){
+                        intr = self._world.integrator();
+                        self._world.integrator( Physics.integrator(t, intr.options) );
                     }
                 }
             };
@@ -232,8 +293,14 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
 
             f = gui.addFolder( 'General' );
+            f.add( getset, 'integrator', [ 'improved-euler', 'verlet', 'velocity-verlet' ]);
             f.add( getset, 'timestep', 1, 20).step( 1 );
             f.add( getset, 'maxIPF', 1, 100).step( 1 );
+            f.add( getset, 'warp', 0.01, 2);
+            f.add( getset, 'sleepDisabled');
+            f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
+            f.add( getset, 'sleepSpeedLimit', 0.001, 1);
+            f.add( getset, 'sleepVarianceLimit', 0.01, 100);
             f.add( { pause: pauseWorld }, 'pause');
             f.open();
 
@@ -242,6 +309,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             f.add( op, 'drawRealPosition' );
             f.add( op, 'drawIntervals' );
             f.add( op, 'drawContacts' );
+            f.add( op, 'drawSleepState' );
+            f.add( op, 'drawBodyState' );
             f.open();
 
             f = gui.addFolder( 'Colors' );
@@ -306,6 +375,29 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.rotate(body.state.angular.pos);
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();
+            }
+
+            if ( this.options.drawSleepState && body.sleep() ){
+                aabb = aabb || body.aabb();
+                body._sleepView = body._sleepView || this.createView(body.geometry, 'rgba(100,100,100,0.3)');
+                ctx.save();
+                ctx.globalCompositeOperation = 'color';
+                ctx.translate( x, y );
+                ctx.rotate( ang );
+                ctx.drawImage(body._sleepView, -view.width/2, -view.height/2, view.width, view.height);
+                // ctx.globalCompositeOperation = '';
+                ctx.restore();
+            }
+
+            if ( this.options.drawBodyState ){
+                ctx.strokeStyle = 'black';
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 4;
+                ctx.font = '12px monospace';
+                ctx.strokeText('r: ('+x.toFixed(0)+', '+y.toFixed(0)+')', x, y-8);
+                ctx.strokeText('v: ('+format(v.x)+', '+format(v.y)+')', x, y+12);
+                ctx.shadowBlur = 0;
+                ctx.shadowColor = '';
             }
         }
     };

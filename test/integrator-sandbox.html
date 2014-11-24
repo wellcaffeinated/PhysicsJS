@@ -162,7 +162,7 @@
 				var center = Physics.vector({x: viewWidth/2, y: viewHeight/2 });
 
 				world.add([
-					Physics.behavior('spring', { k: 0.00001, center: center, body: ball }),
+					// Physics.behavior('spring', { k: 0.00001, center: center, body: ball }),
 					Physics.behavior('body-collision-detection', {
 						checkAll: false
 					}),

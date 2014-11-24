@@ -17,6 +17,44 @@
         view: null
     };
 
+    // Running average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean
+    // s is current std deviation
+    // v is value to push
+    function pushRunningAvg( k, m, s, v ){
+
+        var x = v - m;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m += x / k;
+        s += x * (v - m);
+    }
+
+    // Running vector average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean (vector)
+    // s is current std deviation (vector)
+    // v is vector to push
+    function pushRunningVectorAvg( k, m, s, v ){
+        var invK = 1/k
+            ,x = v.get(0) - m.get(0)
+            ,y = v.get(1) - m.get(1)
+            ;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m.add( x * invK, y * invK );
+
+        x *= v.get(0) - m.get(0);
+        y *= v.get(1) - m.get(1);
+
+        s.add( x, y );
+    }
+
     var uidGen = 1;
 
     /** related to: Physics.util.decorator
@@ -123,6 +161,13 @@
                     }
                 }
             };
+
+            // private storage for sleeping
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
 
             // cleanup
             delete this.x;
@@ -236,6 +281,102 @@
         },
 
         /**
+         * Body#sleep( [dt] ) -> Boolean
+         * - dt (Number): Time to advance the idle time
+         * - dt (Boolean): If `true`, the body will be forced to sleep. If `false`, the body will be forced to awake.
+         *
+         * Get and/or set whether the body is asleep.
+         *
+         * If called with a time (in ms), the time will be added to the idle time and sleep conditions will be checked.
+         **/
+        sleep: function( dt ){
+
+            if ( dt === true ){
+                // force sleep
+                this.asleep = true;
+
+            } else if ( dt === false ){
+                // force wakup
+                this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
+                this.sleepIdleTime = 0;
+
+            } else if ( dt && !this.asleep ) {
+
+                this.sleepCheck( dt );
+            }
+
+            return this.asleep;
+        },
+
+        /**
+         * Body#sleepCheck( [dt] )
+         * - dt (Number): Time to advance the idle time
+         *
+         * Check if the body should be sleeping.
+         *
+         * Call with no arguments if some event could possibly wake up the body. This will force the body to recheck.
+         **/
+        sleepCheck: function( dt ){
+
+            var opts = this._world && this._world.options;
+
+            // if sleeping disabled. stop.
+            if ( this.sleepDisabled || (opts && opts.sleepDisabled) ){
+                return;
+            }
+
+            var limit
+                ,v
+                ,d
+                ,r
+                ,aabb
+                ,scratch = Physics.scratchpad()
+                ,diff = scratch.vector()
+                ,diff2 = scratch.vector()
+                ;
+
+            dt = dt || 0;
+            aabb = this.geometry.aabb();
+            r = Math.max(aabb.hw, aabb.hh);
+
+            if ( this.asleep ){
+                // check velocity
+                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
+                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
+
+                if ( v >= limit ){
+                    this.sleep( false );
+                    return scratch.done();
+                }
+            }
+
+            this._sleepMeanK++;
+            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
+            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
+            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
+
+            if ( v <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
+
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleep( false );
+            }
+
+            scratch.done();
+        },
+
+        /**
          * Body#setWorld( world ) -> this
          * - world (Object): The world (or null)
          *
@@ -293,7 +434,7 @@
 
             // if no point at which to apply the force... apply at center of mass
             if ( p && this.moi ){
-                
+
                 // apply torques
                 state = this.state;
                 r.clone( p );

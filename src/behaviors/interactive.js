@@ -135,6 +135,8 @@ Physics.behavior('interactive', function( parent ){
                             // remember the currently grabbed bodies
                             data = self.bodyData[touchId] || {};
                             data.body = body;
+                            // wake the body up
+                            body.sleep( false );
                             data.time = Physics.util.ticker.now();
 
                             // if we're grabbing the same body twice we don't want to remember the wrong treatment.
@@ -195,6 +197,9 @@ Physics.behavior('interactive', function( parent ){
 
                         if ( data ){
                             body = data.body;
+
+                            // wake the body up
+                            body.sleep( false );
                             data.time = Physics.util.ticker.now();
 
                             // set old mouse position
@@ -242,6 +247,8 @@ Physics.behavior('interactive', function( parent ){
                         // release the body
                         if ( data ){
                             body = data.body;
+                            // wake the body up
+                            body.sleep( false );
                             // get new mouse position
                             data.pos.clone( pos );
 

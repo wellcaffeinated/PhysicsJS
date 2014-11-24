@@ -67,7 +67,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.on( 'add:body', this.trackBody, this );
             world.on( 'remove:body', this.untrackBody, this );
-            world.on( 'integrate:velocities', this.sweep, this );
+            world.on( 'integrate:positions', this.sweep, this, 1 );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -82,7 +82,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.off( 'add:body', this.trackBody, this );
             world.off( 'remove:body', this.untrackBody, this );
-            world.off( 'integrate:velocities', this.sweep, this );
+            world.off( 'integrate:positions', this.sweep, this, 1 );
             this.clear();
         },
 

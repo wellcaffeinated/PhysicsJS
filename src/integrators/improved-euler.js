@@ -1,7 +1,7 @@
 Physics.integrator('improved-euler', function( parent ){
 
     return {
-        /** 
+        /**
          * class ImprovedEuler < Integrator
          *
          * `Physics.integrator('improved-euler')`.
@@ -15,7 +15,7 @@ Physics.integrator('improved-euler', function( parent ){
             // call parent init
             parent.init.call(this, options);
         },
- 
+
         // extended
         integrateVelocities: function( bodies, dt ){
 
@@ -31,15 +31,15 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
-                    // 
+                    //
                     // x += (v * dt) + (a * 0.5 * dt * dt)
                     // v += a * dt
 
-                    
+
                     // Scale force to mass.
                     // state.acc.mult( body.massInv );
 
@@ -65,7 +65,7 @@ Physics.integrator('improved-euler', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     state.old.angular.vel = state.angular.vel;
                     state.angular.vel += state.angular.acc * dt;
@@ -101,7 +101,7 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
 
                     // Store previous location.
@@ -119,7 +119,7 @@ Physics.integrator('improved-euler', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     state.old.angular.pos = state.angular.pos;
                     state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
@@ -132,4 +132,3 @@ Physics.integrator('improved-euler', function( parent ){
         }
     };
 });
-

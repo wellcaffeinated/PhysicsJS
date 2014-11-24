@@ -49,7 +49,7 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
@@ -138,7 +138,7 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
                     // so we need to scale the value by dt so it
                     // complies with other integration methods

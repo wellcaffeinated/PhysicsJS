@@ -82,7 +82,7 @@ Physics.integrator('velocity-verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
                     // v = v_prev + 0.5 * (a_prev + a) * dt
                     // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
@@ -140,7 +140,7 @@ Physics.integrator('velocity-verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
 
@@ -176,7 +176,7 @@ Physics.integrator('velocity-verlet', function( parent ){
                         state.old.angular.acc = state.angular.acc;
                         state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
                     }
-                    
+
                     state.old.angular.pos = state.angular.pos;
 
                     state.angular.pos += state.angular.vel * dt + 0.5 * state.old.angular.acc * dtdt;
