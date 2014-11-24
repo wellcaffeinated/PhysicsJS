@@ -277,7 +277,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                     var intr;
                     if ( self._world ){
                         intr = self._world.integrator();
-                        self._world.integrator( Physics.integrator(t, intr.options) );
+                        self._world.integrator( Physics.integrator(t, Physics.util.extend({}, intr, null)) );
                     }
                 }
             };
