@@ -78,7 +78,9 @@ Physics.behavior('body-collision-detection', function( parent ){
         fn.useCore = false;
         fn.margin = 0;
         fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
+        fn.tA.v.vadd( bodyA.offset );
         fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+        fn.tB.v.vadd( bodyB.offset );
         fn.bodyA = bodyA;
         fn.bodyB = bodyB;
 
@@ -110,7 +112,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         // just check the overlap first
         support = getSupportFn( bodyA, bodyB );
-        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+        d.clone( bodyA.state.pos ).vadd( bodyA.offset ).vsub( bodyB.state.pos ).vsub( bodyB.offset );
         result = Physics.gjk(support, d, true);
 
         if ( result.overlap ){
@@ -154,7 +156,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
             collision.mtv = d.mult( overlap ).values();
             // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).vsub( bodyA.offset ).values();
         }
 
         return scratch.done( collision );
@@ -177,7 +179,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,collision = false
             ;
 
-        d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
+        d.clone( bodyB.state.pos ).vadd( bodyB.offset ).vsub( bodyA.state.pos ).vsub( bodyA.offset );
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
         // hmm... they overlap exactly... choose a direction

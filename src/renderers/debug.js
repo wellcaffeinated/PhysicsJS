@@ -170,15 +170,17 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             var scratch = Physics.scratchpad()
                 ,opts = this.options
+                ,x = intr.tracker.body.state.pos.x + intr.tracker.body.offset.x
+                ,y = intr.tracker.body.state.pos.y + intr.tracker.body.offset.y
                 ,from = scratch.vector().set( intr.val.x, 0 )
-                ,to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y )
+                ,to = scratch.vector().set( intr.val.x, y )
                 ;
 
             this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
             this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
 
             from.set( 0, intr.val.y );
-            to.set( intr.tracker.body.state.pos.x, intr.val.y );
+            to.set( x, intr.val.y );
 
             this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
             this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
@@ -189,7 +191,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawContact: function( c, ctx ){
 
             var scratch = Physics.scratchpad()
-                ,from = scratch.vector().clone( c.pos ).vadd( c.bodyA.state.pos )
+                ,from = scratch.vector().clone( c.pos ).vadd( c.bodyA.state.pos ).vadd( c.bodyA.offset )
                 ,to = scratch.vector().clone( from ).vsub( scratch.vector().clone( c.mtv ) )
                 ,opts = this.options
                 ;
@@ -339,6 +341,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
+                ,os = body.offset
                 ,v = body.state.vel
                 ,t = this._interpolateTime || 0
                 ,x
@@ -351,14 +354,15 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos.x + os.x + offset.x + v.x * t;
+            y = pos.y + os.y + offset.y + v.y * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
             ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
+            this.drawCircle( -os.x, -os.y, 2, 'red' );
             ctx.restore();
 
             if ( this.options.drawAABB ){
@@ -371,7 +375,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 // draw the non-interpolated body position
                 body._debugView = body._debugView || this.createView(body.geometry, this.options.realBodyStyle);
                 ctx.save();
-                ctx.translate(pos.x + offset.x, pos.y + offset.y);
+                ctx.translate(pos.x + os.x + offset.x, pos.y + os.y + offset.y);
                 ctx.rotate(body.state.angular.pos);
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();
@@ -396,6 +400,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.font = '12px monospace';
                 ctx.strokeText('r: ('+x.toFixed(0)+', '+y.toFixed(0)+')', x, y-8);
                 ctx.strokeText('v: ('+format(v.x)+', '+format(v.y)+')', x, y+12);
+                ctx.strokeText('o: ('+format(os.x)+', '+format(os.y)+')', x, y+26);
                 ctx.shadowBlur = 0;
                 ctx.shadowColor = '';
             }

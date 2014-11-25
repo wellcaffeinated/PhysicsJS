@@ -664,6 +664,7 @@ Physics.renderer('canvas', function( proto ){
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
+                ,os = body.offset
                 ,v = body.state.vel
                 ,t = this._interpolateTime || 0
                 ,x
@@ -676,8 +677,8 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos.x + os.x + offset.x + v.x * t;
+            y = pos.y + ox.y + offset.y + v.y * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();

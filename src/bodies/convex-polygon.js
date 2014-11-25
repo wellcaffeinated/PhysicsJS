@@ -1,7 +1,7 @@
 /*
  * @requires geometries/convex-polygon
  */
- /** 
+ /**
   * class ConvexPolygonBody < Body
   *
   * Physics.body('convex-polygon')
@@ -9,7 +9,7 @@
   * Body for convex polygons. The position of the body is the centroid of the polygon.
   *
   * Additional config options:
-  * 
+  *
   * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
   *
   * Example:
@@ -33,7 +33,7 @@
 Physics.body('convex-polygon', function( parent ){
 
     var defaults = {
-        
+
     };
 
     return {
@@ -49,6 +49,9 @@ Physics.body('convex-polygon', function( parent ){
             this.geometry = Physics.geometry('convex-polygon', {
                 vertices: options.vertices
             });
+
+            // offset the centroid to match the polygon centroid
+            this.offset.vadd( Physics.geometry.getPolygonCentroid( options.vertices ) );
 
             this.recalc();
         },
