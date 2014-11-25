@@ -479,4 +479,35 @@
         }
     });
 
+    /**
+     * Body.getCOM( bodies[, com] ) -> Physics.vector
+     * - bodies (Array): The list of bodies
+     * - com (Physics.vector): The vector to put result into. A new vector will be created if not provided.
+     * + (Physics.vector): The center of mass position
+     *
+     * Get center of mass position from list of bodies.
+     **/
+    Physics.body.getCOM = function( bodies, com ){
+
+        var b
+            ,pos
+            ,i
+            ,l
+            ,M
+            ;
+
+        com = com || new Physics.vector();
+
+        for ( i = 0, l = bodies.length; i < l; i++ ){
+            b = bodies[ i ];
+            pos = b.state.pos;
+            com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+            M += b.mass;
+        }
+
+        com.mult( 1 / M );
+
+        return com;
+    };
+
 }());
