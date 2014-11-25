@@ -53,6 +53,11 @@ Physics.renderer('pixi', function( parent ){
             ,violet: '0x542437'
             ,blue: '0x53777A'
         }
+        ,fontStyles = {
+            font: "18px monospace",
+            fill: "black",
+            align: "left"
+        }
 
         ,defaults = {
 
@@ -395,11 +400,6 @@ Physics.renderer('pixi', function( parent ){
         drawMeta: function( meta ){
             if (!this.meta.loaded){
                 // define the font styles here
-                var fontStyles = {
-                    font: "18px Snippet",
-                    fill: "white",
-                    align: "left"
-                };
                 this.meta.fps = new PIXI.Text('FPS: ' + meta.fps.toFixed(2), fontStyles);
                 this.meta.fps.position.x = 15;
                 this.meta.fps.position.y = 5;
