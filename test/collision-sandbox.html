@@ -219,6 +219,7 @@
                     y: viewHeight - 20,//+100,
                     radius: 20,
                     mass: 1.4,
+                    offset: Physics.vector(10, 2),
                     //cof: 0,
                     //vy: -0.2,
                     // vx: 0.1,
@@ -237,7 +238,7 @@
                 }));
 
                 var polygons = [
-                    {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
+                    {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], offset: { x: 50, y: 100 } },
                     {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], angle: Math.PI  }
                 ];
 
@@ -248,7 +249,7 @@
                           y: polygons[i].y,
                           vertices: polygons[i].v,
                           angle: polygons[i].angle,
-
+                          offset: polygons[i].offset,
                           restitution: 1,
                           cof: 1
                         })
@@ -258,7 +259,7 @@
                 var rectangles = [
                     { x: 100, y: 60, w: 50, h: 20, mass: 1 }
                     ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
-                    ,{ x: 500, y: 100, w: 150, h: 300, mass: 3 }
+                    ,{ x: 500, y: 100, w: 150, h: 300, mass: 3, offset: {x: 100, y: 0} }
                 ];
 
                 for(var i = 0;i < rectangles.length;i++){
@@ -270,6 +271,7 @@
                           height: rectangles[i].h,
                           angle: rectangles[i].angle,
                           mass: rectangles[i].mass,
+                          offset: rectangles[i].offset,
 
                           restitution: 0.6,
                           cof: 1
@@ -281,8 +283,8 @@
 
             Physics({ timestep: 6, maxIPF: 24 }, [
                 setup
-                // ,addBodies
-                ,lotsOfCircles
+                ,addBodies
+                // ,lotsOfCircles
                 // ,lotsOfRects
                 //,initEvents
             ]);

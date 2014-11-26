@@ -80,10 +80,8 @@ Physics.geometry('convex-polygon', function( parent ){
             }
 
             this._area = Physics.geometry.getPolygonArea( verts );
-
             this._aabb = false;
-            scratch.done();
-            return this;
+            return scratch.done(this);
         },
 
         // extended

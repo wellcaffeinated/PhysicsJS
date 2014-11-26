@@ -102,6 +102,7 @@
          **/
         init: function( options ){
 
+            var self = this;
             var vector = Physics.vector;
 
             /** related to: Physics.util.options
@@ -122,6 +123,9 @@
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
+            this.options.onChange(function( opts ){
+                self.offset = new vector( opts.offset );
+            });
             this.options( options );
 
             /**
@@ -142,18 +146,18 @@
              * ```
              **/
             this.state = {
-                pos: vector( this.x, this.y ),
-                vel: vector( this.vx, this.vy ),
-                acc: vector(),
+                pos: new vector( this.x, this.y ),
+                vel: new vector( this.vx, this.vy ),
+                acc: new vector(),
                 angular: {
                     pos: this.angle || 0.0,
                     vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
-                    pos: vector(),
-                    vel: vector(),
-                    acc: vector(),
+                    pos: new vector(),
+                    vel: new vector(),
+                    acc: new vector(),
                     angular: {
                         pos: 0.0,
                         vel: 0.0,
@@ -201,6 +205,12 @@
              * Body#mass = 1.0
              *
              * The mass.
+             **/
+
+            /**
+             * Body#offset
+             *
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -448,6 +458,20 @@
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -457,13 +481,17 @@
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos.x;
-            aabb.y += this.state.pos.y;
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
         },
 
         /**

@@ -234,6 +234,7 @@ Physics.renderer('dom', function( proto ){
 
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,x
                 ,y
                 ,ang
@@ -241,10 +242,10 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
-            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad) translate('+os._[0]+'px,'+os._[1]+'px)';
         }
     };
 });

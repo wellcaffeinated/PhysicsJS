@@ -55,11 +55,11 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ;
 
                 if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).vadd( bodyA.offset ).transform( tA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).vadd( bodyB.offset ).transform( tB );
                 } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).vadd( bodyA.offset ).transform( tA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).vadd( bodyB.offset ).transform( tB );
                 }
 
                 searchDir.negate().rotate( tB );
@@ -77,8 +77,8 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         fn.useCore = false;
         fn.margin = 0;
-        fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
-        fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+        fn.tA.setRotation( bodyA.state.angular.pos ).setTranslation( bodyA.state.pos );
+        fn.tB.setRotation( bodyB.state.angular.pos ).setTranslation( bodyB.state.pos );
         fn.bodyA = bodyA;
         fn.bodyB = bodyB;
 
@@ -98,6 +98,7 @@ Physics.behavior('body-collision-detection', function( parent ){
         var scratch = Physics.scratchpad()
             ,d = scratch.vector()
             ,tmp = scratch.vector()
+            ,os = scratch.vector()
             ,overlap
             ,result
             ,support
@@ -110,7 +111,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         // just check the overlap first
         support = getSupportFn( bodyA, bodyB );
-        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+        d.clone( bodyA.state.pos )
+            .vadd( bodyA.getGlobalOffset( os ) )
+            .vsub( bodyB.state.pos )
+            .vsub( bodyB.getGlobalOffset( os ) )
+            ;
         result = Physics.gjk(support, d, true);
 
         if ( result.overlap ){
@@ -177,7 +182,11 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,collision = false
             ;
 
-        d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
+        d.clone( bodyB.state.pos )
+            .vadd( bodyB.getGlobalOffset( tmp ) )
+            .vsub( bodyA.state.pos )
+            .vsub( bodyA.getGlobalOffset( tmp ) ) // save offset for later
+            ;
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
         // hmm... they overlap exactly... choose a direction
@@ -186,20 +195,14 @@ Physics.behavior('body-collision-detection', function( parent ){
             d.set( 1, 0 );
         }
 
-        // if ( overlap > 0 ){
-        //     // check the future
-        //     d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
-        //     overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
-        // }
-
         if ( overlap <= 0 ){
 
             collision = {
                 bodyA: bodyA,
                 bodyB: bodyB,
                 norm: d.normalize().values(),
-                pos: d.mult( bodyA.geometry.radius ).values(),
-                mtv: d.mult( -overlap/bodyA.geometry.radius ).values(),
+                mtv: d.mult( -overlap ).values(),
+                pos: d.mult( -bodyA.geometry.radius/overlap ).vadd( tmp ).values(),
                 overlap: -overlap
             };
         }

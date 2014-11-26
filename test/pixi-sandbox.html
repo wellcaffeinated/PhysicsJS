@@ -14,6 +14,8 @@
 
             }
 
+            [class^="pjs"] {background: black;}
+
             .pjs-meta {
                 position: absolute;
                 top: 1em;
@@ -37,7 +39,7 @@
                 var a = (max - min);
                 return a * Math.random() + min;
             }
-            
+
             function setup(world) {
 
                 var renderer = Physics.renderer('pixi', {
@@ -207,6 +209,7 @@
                     y: viewHeight - 100,//+100,
                     radius: 20,
                     mass: 1.4,
+                    offset: Physics.vector(10, 2),
                     // cof: 0.1,
                     //vy: -0.2,
                     // vx: 0.1,
@@ -258,8 +261,8 @@
 
             Physics({ timestep: 6, maxIPF: 24 }, [
                 setup
-                // ,addBodies
-                ,lotsOfCircles
+                ,addBodies
+                // ,lotsOfCircles
                 // ,lotsOfRects
                 //,initEvents
             ]);
