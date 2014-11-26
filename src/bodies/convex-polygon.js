@@ -50,9 +50,6 @@ Physics.body('convex-polygon', function( parent ){
                 vertices: options.vertices
             });
 
-            // offset the centroid to match the polygon centroid
-            this.offset.vadd( Physics.geometry.getPolygonCentroid( options.vertices ) );
-
             this.recalc();
         },
 

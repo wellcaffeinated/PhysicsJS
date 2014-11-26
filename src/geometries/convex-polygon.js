@@ -60,22 +60,28 @@ Physics.geometry('convex-polygon', function( parent ){
          **/
         setVertices: function( hull ){
 
-            var verts = this.vertices = []
+            var scratch = Physics.scratchpad()
+                ,transl = scratch.transform()
+                ,verts = this.vertices = []
                 ;
 
             if ( !Physics.geometry.isPolygonConvex( hull ) ){
                 throw ERROR_NOT_CONVEX;
             }
 
-            // add the vertex as a vector to this.vertices
+            transl.setRotation( 0 );
+            transl.setTranslation( Physics.geometry.getPolygonCentroid( hull ).negate() );
+
+            // translate each vertex so that the centroid is at the origin
+            // then add the vertex as a vector to this.vertices
             for ( var i = 0, l = hull.length; i < l; ++i ){
 
-                verts.push( new Physics.vector( hull[ i ] ) );
+                verts.push( new Physics.vector( hull[ i ] ).translate( transl ) );
             }
 
             this._area = Physics.geometry.getPolygonArea( verts );
             this._aabb = false;
-            return this;
+            return scratch.done(this);
         },
 
         // extended
