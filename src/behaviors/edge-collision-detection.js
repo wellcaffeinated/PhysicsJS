@@ -27,6 +27,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         var overlap
             ,aabb = body.aabb()
             ,scratch = Physics.scratchpad()
+            ,offset = body.getGlobalOffset( scratch.vector() )
             ,trans = scratch.transform()
             ,dir = scratch.vector()
             ,result = scratch.vector()
@@ -53,7 +54,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -78,7 +79,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -103,7 +104,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: -overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -128,7 +129,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: -overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
