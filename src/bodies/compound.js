@@ -42,41 +42,121 @@ Physics.body('compound', function( parent ){
             // call parent init method
             parent.init.call(this, options);
 
+            this.mass = 0;
+            this.moi = 0;
+
             this.children = [];
             this.geometry = Physics.geometry('compound');
             this.addChildren( options.children );
         },
 
+        // extended
+        connect: function( world ){
+            // sanity check
+            if ( this.mass <= 0 ){
+                throw 'Can not add empty compound body to world.';
+            }
+        },
+
         addChild: function( body ){
 
-            this.children.push( body );
-            this.geometry.addChild( body.state.pos.x, body.state.pos.y, body.geometry );
-            this.recalc();
-
+            this.addChildren([ body ]);
             return this;
         },
 
-        addChildren: function( arr ){
+        addChildren: function( bodies ){
 
-            this.geometry.addChildren( arr );
+            var self = this
+                ,scratch = Physics.scratchpad()
+                ,com = scratch.vector().zero()
+                ,b
+                ,pos
+                ,i
+                ,l = bodies && bodies.length
+                ,M = 0
+                ;
+
+            if ( !l ){
+                return scratch.done( this );
+            }
+
+            for ( i = 0; i < l; i++ ){
+                b = bodies[ i ];
+                // remove body from world if applicable
+                if ( b._world ){
+                    b._world.remove( b );
+                }
+                // add child
+                this.children.push( b );
+                // add child to geometry
+                this.geometry.addChild( b.geometry, b.state.pos );
+                // calc com contribution
+                pos = b.state.pos;
+                com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+                M += b.mass;
+            }
+
+            // add mass
+            this.mass += M;
+            // com adjustment (assuming com is currently at (0,0) body coords)
+            com.mult( 1 / this.mass );
+
+            // all bodies need to move
+            for ( i = 0, l = this.children.length; i < l; i++ ){
+                b = this.children[ i ];
+                b.state.pos.vadd( com );
+            }
+
+            // shift everything back
+            this.offset.vsub( com );
+
+            // refresh view on next render
+
+            if ( this._world ){
+                this._world.one('render', function(){
+                    self.view = null;
+                });
+            }
             this.recalc();
 
-            return this;
+            return scratch.done( this );
         },
 
+        /**
+         * CompoundBody#clear() -> this
+         *
+         * Remove all children.
+         **/
         clear: function(){
+
+            this._aabb = null;
+            this.moi = 0;
+            this.mass = 0;
+            this.offset.zero();
             this.children = [];
             this.geometry.clear();
-            this.recalc();
 
             return this;
         },
 
         // extended
         recalc: function(){
+
             parent.recalc.call(this);
             // moment of inertia
-            this.moi = Physics.geometry.getPolygonMOI( this.geometry.vertices );
+            var b
+                ,moi = 0
+                ;
+
+            for ( var i = 0, l = this.children.length; i < l; i++ ) {
+                b = this.children[ i ];
+                b.recalc();
+                // parallel axis theorem
+                moi += b.moi + b.mass * b.state.pos.normSq();
+            }
+
+            this.moi = moi;
+            return this;
         }
     };
 });

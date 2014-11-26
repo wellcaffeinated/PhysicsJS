@@ -630,6 +630,35 @@ Physics.renderer('canvas', function( proto ){
             } else if (name === 'rectangle'){
 
                 this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
+
+            } else if (name === 'compound'){
+
+                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    name = ch.g.name;
+                    // translate
+                    hiddenCtx.translate(ch.pos.x, ch.pos.y);
+
+                    if (name === 'circle'){
+
+                        this.drawCircle(0, 0, ch.g.radius, styles, hiddenCtx);
+
+                    } else if (name === 'convex-polygon'){
+
+                        this.drawPolygon(ch.g.vertices, styles, hiddenCtx);
+
+                    } else if (name === 'rectangle'){
+
+                        this.drawRect(0, 0, ch.g.width, ch.g.height, styles, hiddenCtx);
+                    } else {
+
+                        // assume it's a point
+                        this.drawCircle(0, 0, 1, styles, hiddenCtx);
+                    }
+                    // untranslate
+                    hiddenCtx.translate(-ch.pos.x, -ch.pos.y);
+                }
+
             } else {
 
                 // assume it's a point
@@ -641,7 +670,7 @@ Physics.renderer('canvas', function( proto ){
                 hiddenCtx.beginPath();
                 this.setStyle( styles.angleIndicator, hiddenCtx );
                 hiddenCtx.moveTo(0, 0);
-                hiddenCtx.lineTo(hw, 0);
+                hiddenCtx.lineTo(hw - 2 * Math.abs(aabb.x), 0);
                 hiddenCtx.closePath();
                 hiddenCtx.stroke();
             }

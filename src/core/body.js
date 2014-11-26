@@ -516,17 +516,27 @@
      * Get center of mass position from list of bodies.
      **/
     Physics.body.getCOM = function( bodies, com ){
-
+        // @TODO add a test for this fn
         var b
             ,pos
             ,i
-            ,l
-            ,M
+            ,l = bodies && bodies.length
+            ,M = 0
             ;
 
         com = com || new Physics.vector();
 
-        for ( i = 0, l = bodies.length; i < l; i++ ){
+        if ( !l ){
+            return com.zero();
+        }
+
+        if ( l === 1 ){
+            return com.clone( bodies[0].state.pos );
+        }
+
+        com.zero();
+
+        for ( i = 0; i < l; i++ ){
             b = bodies[ i ];
             pos = b.state.pos;
             com.add( pos._[0] * b.mass, pos._[1] * b.mass );
