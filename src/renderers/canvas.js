@@ -677,13 +677,14 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + os.x + offset.x + v.x * t;
-            y = pos.y + ox.y + offset.y + v.y * t;
+            x = pos._[0] + offset.x + v._[0] * t;
+            y = pos._[1] + offset.y + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
+            ctx.translate( os._[0], os._[1] );
             ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
             ctx.restore();
         },

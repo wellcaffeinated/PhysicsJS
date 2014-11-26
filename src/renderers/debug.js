@@ -354,8 +354,8 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos._[0] + offset.x + v._[0] * t;
+            y = pos._[1] + offset.y + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
@@ -390,6 +390,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.globalCompositeOperation = 'color';
                 ctx.translate( x, y );
                 ctx.rotate( ang );
+                ctx.translate( os.x, os.y );
                 ctx.drawImage(body._sleepView, -view.width/2, -view.height/2, view.width, view.height);
                 // ctx.globalCompositeOperation = '';
                 ctx.restore();

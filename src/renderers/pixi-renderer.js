@@ -185,6 +185,7 @@ Physics.renderer('pixi', function( parent ){
         drawBody: function( body, view ){
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,t = this._interpolateTime || 0
                 ,x
                 ,y
@@ -192,12 +193,12 @@ Physics.renderer('pixi', function( parent ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
-            view.position.x = x;
-            view.position.y = y;
+            view.position.set( x, y );
+            view.pivot.set( -os._[0], -os._[1] );
             view.rotation = ang;
         },
 

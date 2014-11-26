@@ -210,7 +210,7 @@
             /**
              * Body#offset
              *
-             * The vector offsetting the true position of the body.
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -458,6 +458,13 @@
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
         getGlobalOffset: function( out ){
 
             out = out || new Physics.vector();
