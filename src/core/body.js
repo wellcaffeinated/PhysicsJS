@@ -458,6 +458,13 @@
             return this;
         },
 
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -467,13 +474,17 @@
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos._[0] + this.offset._[0];
-            aabb.y += this.state.pos._[1] + this.offset._[1];
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
         },
 
         /**

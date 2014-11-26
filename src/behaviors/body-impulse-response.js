@@ -98,9 +98,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                 // collision point from B's center
                 ,rB = scratch.vector().clone( point )
                     .vadd( bodyA.state.pos )
-                    .vadd( tmp.clone( bodyA.offset ).rotate( -bodyA.state.angular.pos ) )
                     .vsub( bodyB.state.pos )
-                    .vsub( tmp.clone( bodyB.offset ).rotate( -bodyB.state.angular.pos ) )
                 ,angVelA = bodyA.state.angular.vel
                 ,angVelB = bodyB.state.angular.vel
                 // relative velocity towards B at collision point

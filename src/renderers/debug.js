@@ -191,7 +191,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
         drawContact: function( c, ctx ){
 
             var scratch = Physics.scratchpad()
-                ,from = scratch.vector().clone( c.pos ).vadd( c.bodyA.state.pos ).vadd( c.bodyA.offset )
+                ,from = scratch.vector().clone( c.pos ).vadd( c.bodyA.state.pos )
                 ,to = scratch.vector().clone( from ).vsub( scratch.vector().clone( c.mtv ) )
                 ,opts = this.options
                 ;
@@ -354,15 +354,16 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + os.x + offset.x + v.x * t;
-            y = pos.y + os.y + offset.y + v.y * t;
+            x = pos.x + offset.x + v.x * t;
+            y = pos.y + offset.y + v.y * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
+            this.drawCircle( 0, 0, 2, 'red' );
+            ctx.translate( os.x, os.y );
             ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
-            this.drawCircle( -os.x, -os.y, 2, 'red' );
             ctx.restore();
 
             if ( this.options.drawAABB ){
@@ -375,8 +376,9 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 // draw the non-interpolated body position
                 body._debugView = body._debugView || this.createView(body.geometry, this.options.realBodyStyle);
                 ctx.save();
-                ctx.translate(pos.x + os.x + offset.x, pos.y + os.y + offset.y);
+                ctx.translate(pos.x + offset.x, pos.y + offset.y);
                 ctx.rotate(body.state.angular.pos);
+                ctx.translate( os.x, os.y );
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();
             }
