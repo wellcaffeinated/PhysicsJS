@@ -140,7 +140,7 @@
 
             }
 
-            function addBodies( world ){
+            function addBodies( world, P ){
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,
@@ -212,6 +212,29 @@
                         })
                     );
                 }
+
+                var thing = P.body('compound', {
+                    x: viewWidth/2 + 200
+                    ,y: viewHeight/2
+                    ,children: [
+                        P.body('circle', {
+                            x: 20
+                            ,y: 0
+                            ,radius: 20
+                            ,mass: 2
+                        })
+                        ,P.body('rectangle', {
+                            x: -30
+                            ,y: 0
+                            ,width: 60
+                            ,height: 60
+                            ,angle: Math.PI/4
+                            ,mass: 3
+                        })
+                    ]
+                });
+
+                world.add( thing );
             }
 
 

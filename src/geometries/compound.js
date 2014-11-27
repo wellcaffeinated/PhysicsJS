@@ -66,15 +66,17 @@ Physics.geometry('compound', function( parent ){
          * CompoundGeometry#addChild( geometry, pos ) -> this
          * - geometry (Geometry): The child to add.
          * - pos (Physics.vector): The position to add the child at.
+         * - angle (Number): The rotation angle
          *
          * Add a child at relative position.
          **/
-        addChild: function( geometry, pos ){
+        addChild: function( geometry, pos, angle ){
 
             this._aabb = null;
             this.children.push({
                 g: geometry
                 ,pos: new Physics.vector( pos )
+                ,angle: angle
             });
 
             return this;
@@ -108,9 +110,11 @@ Physics.geometry('compound', function( parent ){
                 ,pos = Physics.vector()
                 ;
 
+            angle = angle || 0;
+
             for ( var i = 0, l = this.children.length; i < l; i++ ) {
                 ch = this.children[ i ];
-                aabb = ch.g.aabb( angle );
+                aabb = ch.g.aabb( angle + ch.angle );
                 pos.clone( ch.pos );
                 if ( angle ){
                     pos.rotate( angle );
@@ -146,8 +150,8 @@ Physics.geometry('compound', function( parent ){
             // find the one with the largest projection along dir
             for ( i = 0; i < l; i++ ) {
                 ch = this.children[ i ];
-                ch.g.getFarthestHullPoint( dir, v );
-                len = v.vadd( ch.pos ).proj( dir );
+                ch.g.getFarthestHullPoint( dir.rotate(-ch.angle), v );
+                len = v.rotate(ch.angle).vadd( ch.pos ).proj( dir.rotate(ch.angle) );
 
                 if ( len > maxlen ){
                     maxlen = len;
@@ -175,8 +179,8 @@ Physics.geometry('compound', function( parent ){
             // find the one with the largest projection along dir
             for ( i = 0; i < l; i++ ) {
                 ch = this.children[ i ];
-                ch.g.getFarthestCorePoint( dir, v, margin );
-                len = v.vadd( ch.pos ).proj( dir );
+                ch.g.getFarthestCorePoint(dir.rotate(-ch.angle), v, margin );
+                len = v.rotate(ch.angle).vadd( ch.pos ).proj( dir.rotate(ch.angle) );
 
                 if ( len > maxlen ){
                     maxlen = len;

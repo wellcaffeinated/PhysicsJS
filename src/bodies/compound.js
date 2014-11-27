@@ -89,7 +89,7 @@ Physics.body('compound', function( parent ){
                 // add child
                 this.children.push( b );
                 // add child to geometry
-                this.geometry.addChild( b.geometry, b.state.pos );
+                this.geometry.addChild( b.geometry, b.state.pos, b.state.angular.pos );
                 // calc com contribution
                 pos = b.state.pos;
                 com.add( pos._[0] * b.mass, pos._[1] * b.mass );

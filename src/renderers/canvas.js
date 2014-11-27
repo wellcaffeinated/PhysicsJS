@@ -580,6 +580,80 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        /**
+         * CanvasRenderer#draw( geometry[, styles, ctx, offset] ) -> this
+         * - geometry (Geometry): The shape to draw
+         * - styles (Object): The styles configuration
+         * - ctx (Canvas2DContext): The canvas context
+         * - offset (Vectorish): The offset from center
+         *
+         * Draw a geometry to a context.
+         **/
+        draw: function( geometry, styles, ctx, offset ){
+
+            var name = geometry.name
+                ,x = +(offset && offset.x)
+                ,y = +(offset && offset.y)
+                ,w = geometry.aabb().hw
+                ;
+
+            ctx = ctx || this.ctx;
+            styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
+
+            ctx.save();
+            ctx.translate(x, y);
+
+            if (name === 'circle'){
+
+                this.drawCircle(0, 0, geometry.radius, styles, ctx);
+
+            } else if (name === 'convex-polygon'){
+
+                this.drawPolygon(geometry.vertices, styles, ctx);
+
+            } else if (name === 'rectangle'){
+
+                this.drawRect(0, 0, geometry.width, geometry.height, styles, ctx);
+
+            } else if (name === 'compound'){
+
+                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    
+                    // translate
+                    ctx.translate(ch.pos.x, ch.pos.y);
+                    // rotate
+                    ctx.rotate(ch.angle);
+
+                    this.draw( ch.g, styles, ctx );
+
+                    // unrotate
+                    ctx.rotate(-ch.angle);
+                    // untranslate
+                    ctx.translate(-ch.pos.x, -ch.pos.y);
+                }
+
+            } else {
+
+                // assume it's a point
+                this.drawCircle(0, 0, 1, styles, ctx);
+            }
+
+            if (name !== 'compound' && styles.angleIndicator){
+
+                ctx.beginPath();
+                this.setStyle( styles.angleIndicator, ctx );
+                ctx.moveTo(0, 0);
+                ctx.lineTo(w, 0);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            return this;
+        },
+
         // extended
         createView: function( geometry, styles ){
 
@@ -587,11 +661,9 @@ Physics.renderer('canvas', function( proto ){
                 ,aabb = geometry.aabb()
                 ,hw = aabb.hw + Math.abs(aabb.x)
                 ,hh = aabb.hh + Math.abs(aabb.y)
-                ,x = hw + 1
-                ,y = hh + 1
+                ,offset = { x: hw + 1, y: hh + 1 }
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
-                ,name = geometry.name
                 ;
 
             styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
@@ -609,73 +681,14 @@ Physics.renderer('canvas', function( proto ){
                 return view;
             }
 
-            x += styles.lineWidth | 0;
-            y += styles.lineWidth | 0;
+            offset.x += styles.lineWidth | 0;
+            offset.y += styles.lineWidth | 0;
 
-            // clear
+            // clear and resize
             hiddenCanvas.width = 2 * hw + 2 + (2 * styles.lineWidth|0);
             hiddenCanvas.height = 2 * hh + 2 + (2 * styles.lineWidth|0);
 
-            hiddenCtx.save();
-            hiddenCtx.translate(x, y);
-
-            if (name === 'circle'){
-
-                this.drawCircle(0, 0, geometry.radius, styles, hiddenCtx);
-
-            } else if (name === 'convex-polygon'){
-
-                this.drawPolygon(geometry.vertices, styles, hiddenCtx);
-
-            } else if (name === 'rectangle'){
-
-                this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
-
-            } else if (name === 'compound'){
-
-                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
-                    ch = geometry.children[ i ];
-                    name = ch.g.name;
-                    // translate
-                    hiddenCtx.translate(ch.pos.x, ch.pos.y);
-
-                    if (name === 'circle'){
-
-                        this.drawCircle(0, 0, ch.g.radius, styles, hiddenCtx);
-
-                    } else if (name === 'convex-polygon'){
-
-                        this.drawPolygon(ch.g.vertices, styles, hiddenCtx);
-
-                    } else if (name === 'rectangle'){
-
-                        this.drawRect(0, 0, ch.g.width, ch.g.height, styles, hiddenCtx);
-                    } else {
-
-                        // assume it's a point
-                        this.drawCircle(0, 0, 1, styles, hiddenCtx);
-                    }
-                    // untranslate
-                    hiddenCtx.translate(-ch.pos.x, -ch.pos.y);
-                }
-
-            } else {
-
-                // assume it's a point
-                this.drawCircle(0, 0, 1, styles, hiddenCtx);
-            }
-
-            if (styles.angleIndicator){
-
-                hiddenCtx.beginPath();
-                this.setStyle( styles.angleIndicator, hiddenCtx );
-                hiddenCtx.moveTo(0, 0);
-                hiddenCtx.lineTo(hw - 2 * Math.abs(aabb.x), 0);
-                hiddenCtx.closePath();
-                hiddenCtx.stroke();
-            }
-
-            hiddenCtx.restore();
+            this.draw( geometry, styles, hiddenCtx, offset );
 
             view = new Image( hiddenCanvas.width, hiddenCanvas.height );
             view.src = hiddenCanvas.toDataURL('image/png');
