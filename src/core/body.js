@@ -495,6 +495,28 @@
         },
 
         /**
+         * Body#toBodyCoords( v ) -> Physics.vector
+         * - v (Physics.vector): The vector to transform
+         * + (Physics.vector): The transformed vector
+         *
+         * Transform a vector into coordinates relative to this body.
+         **/
+        toBodyCoords: function( v ){
+            return v.vsub( this.state.pos ).rotate( -this.state.angular.pos );
+        },
+
+        /**
+          * Body#toWorldCoords( v ) -> Physics.vector
+          * - v (Physics.vector): The vector to transform
+          * + (Physics.vector): The transformed vector
+          *
+          * Transform a vector from body coordinates into world coordinates.
+          **/
+        toWorldCoords: function( v ){
+            return v.rotate( this.state.angular.pos ).vadd( this.state.pos );
+        },
+
+        /**
          * Body#recalc() -> this
          *
          * Recalculate properties.
