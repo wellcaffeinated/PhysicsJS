@@ -93,7 +93,7 @@ Physics.body('compound', function( parent ){
                     b.geometry,
                     new Physics.vector(b.offset)
                         .rotate(b.state.angular.pos)
-                        .vadd(b.state.pos), 
+                        .vadd(b.state.pos),
                     b.state.angular.pos
                 );
                 // calc com contribution
@@ -143,7 +143,7 @@ Physics.body('compound', function( parent ){
 
             this.geometry.clear();
 
-            for ( var i = 0, l = this.children.length; i < l; i++ ) {
+            for ( var i = 0, b, l = this.children.length; i < l; i++ ) {
                 b = this.children[ i ];
                 this.geometry.addChild( b.geometry, new Physics.vector(b.state.pos).vadd(b.offset), b.state.angular.pos );
             }

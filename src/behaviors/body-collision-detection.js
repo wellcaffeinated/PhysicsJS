@@ -285,7 +285,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                         ret.push( cols );
                     }
                 }
-                
+
                 // transform it back
                 ch.state.angular.pos -= compound.state.angular.pos;
                 ch.offset.vsub( oldPos );
@@ -440,10 +440,10 @@ Physics.behavior('body-collision-detection', function( parent ){
 
                     if ( ret instanceof Array ){
 
-                        for ( var j = 0, r, ll = ret.length; j < ll; j++ ){
-                            r = ret[j];
+                        for ( var k = 0, r, ll = ret.length; k < ll; k++ ){
+                            r = ret[k];
                             if ( r ){
-                                hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                                hash = pairHash( bodyA.uid, bodyB.uid );
                                 contactList[ hash ] = true;
                                 r.collidedPreviously = prevContacts[ hash ];
                                 collisions.push( r );
