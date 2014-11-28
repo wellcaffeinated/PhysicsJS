@@ -140,6 +140,32 @@
 
             }
 
+            function makeThing(x, y){
+                return Physics.body('compound', {
+                    x: x
+                    ,y: y
+                    ,offset: Physics.vector( -60, 0 )
+                    ,children: [
+                        Physics.body('circle', {
+                            x: 20
+                            ,y: 0
+                            ,radius: 30
+                            ,mass: 1
+                            // ,offset: Physics.vector( -50, 0 )
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -30
+                            ,y: 0
+                            ,width: 60
+                            ,height: 60
+                            ,angle: Math.PI/4
+                            ,mass: 1
+                            // ,offset: Physics.vector( -60, 0 )
+                        })
+                    ]
+                });
+            }
+
             function addBodies( world, P ){
 
                 world.add( Physics.body('circle', {
@@ -191,6 +217,10 @@
                     );
                 }
 
+
+                world.add( makeThing(400, 600) );
+                world.add( makeThing(400, 500) );
+
                 var rectangles = [
                     { x: 100, y: 60, w: 50, h: 20, mass: 1 }
                     ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
@@ -213,28 +243,7 @@
                     );
                 }
 
-                var thing = P.body('compound', {
-                    x: viewWidth/2 + 200
-                    ,y: viewHeight/2
-                    ,children: [
-                        P.body('circle', {
-                            x: 20
-                            ,y: 0
-                            ,radius: 20
-                            ,mass: 2
-                        })
-                        ,P.body('rectangle', {
-                            x: -30
-                            ,y: 0
-                            ,width: 60
-                            ,height: 60
-                            ,angle: Math.PI/4
-                            ,mass: 3
-                        })
-                    ]
-                });
 
-                world.add( thing );
             }
 
 

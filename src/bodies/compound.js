@@ -89,7 +89,7 @@ Physics.body('compound', function( parent ){
                 // add child
                 this.children.push( b );
                 // add child to geometry
-                this.geometry.addChild( b.geometry, b.state.pos, b.state.angular.pos );
+                this.geometry.addChild( b.geometry, new Physics.vector(b.state.pos).vadd(b.offset), b.state.angular.pos );
                 // calc com contribution
                 pos = b.state.pos;
                 com.add( pos._[0] * b.mass, pos._[1] * b.mass );
@@ -104,7 +104,12 @@ Physics.body('compound', function( parent ){
             // all bodies need to move
             for ( i = 0, l = this.children.length; i < l; i++ ){
                 b = this.children[ i ];
-                b.state.pos.vadd( com );
+                b.state.pos.vsub( com );
+            }
+
+            for ( i = 0, l = this.geometry.children.length; i < l; i++ ){
+                b = this.geometry.children[ i ];
+                b.pos.vsub( com );
             }
 
             // shift everything back
@@ -135,6 +140,18 @@ Physics.body('compound', function( parent ){
             this.offset.zero();
             this.children = [];
             this.geometry.clear();
+
+            return this;
+        },
+
+        refreshGeometry: function(){
+
+            this.geometry.clear();
+
+            for ( var i = 0, l = this.children.length; i < l; i++ ) {
+                b = this.children[ i ];
+                this.geometry.addChild( b.geometry, new Physics.vector(b.state.pos).vadd(b.offset), b.state.angular.pos );
+            }
 
             return this;
         },

@@ -15,7 +15,7 @@
  *     bodyB: // the second body
  *     norm: // the normal vector (Vectorish)
  *     mtv: // the minimum transit vector. (the direction and length needed to extract bodyB from bodyA)
- *     pos: // the collision point
+ *     pos: // the collision point relative to bodyA
  *     overlap: // the amount bodyA overlaps bodyB
  * }
  * ```
@@ -232,6 +232,68 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             return checkCircles( bodyA, bodyB );
 
+        } else if ( bodyA.geometry.name === 'compound' || bodyB.geometry.name === 'compound' ){
+            // compound bodies are special. We can't use gjk because
+            // they could have concavities. so we do the pieces individually
+            var test = (bodyA.geometry.name === 'compound')
+                ,compound = test ? bodyA : bodyB
+                ,other = test ? bodyB : bodyA
+                ,cols
+                ,ch
+                ,ret = []
+                ,scratch = Physics.scratchpad()
+                ,vec = scratch.vector()
+                ,oldPos = scratch.vector()
+                ,otherAABB = other.aabb()
+                ,i
+                ,l
+                ;
+
+            for ( i = 0, l = compound.children.length; i < l; i++ ){
+
+                ch = compound.children[ i ];
+                // move body to fake position
+                oldPos.clone( ch.state.pos );
+                ch.offset.vadd( oldPos.vadd( compound.offset ).rotate( -ch.state.angular.pos ) );
+                ch.state.pos.clone( compound.state.pos );
+                ch.state.angular.pos += compound.state.angular.pos;
+
+                // check it if the aabbs overlap
+                if ( Physics.aabb.overlap(otherAABB, ch.aabb()) ){
+
+                    cols = checkPair( other, ch );
+
+                    if ( cols instanceof Array ){
+                        for ( var j = 0, c, ll = cols.length; j < ll; j++ ){
+                            c = cols[j];
+                            // set body to be the compound body
+                            if ( c.bodyA === ch ){
+                                c.bodyA = compound;
+                            } else {
+                                c.bodyB = compound;
+                            }
+                            ret.push( c );
+                        }
+
+                    } else if ( cols ) {
+                        // set body to be the compound body
+                        if ( cols.bodyA === ch ){
+                            cols.bodyA = compound;
+                        } else {
+                            cols.bodyB = compound;
+                        }
+                        ret.push( cols );
+                    }
+                }
+                
+                // transform it back
+                ch.state.angular.pos -= compound.state.angular.pos;
+                ch.offset.vsub( oldPos );
+                ch.state.pos.clone( oldPos.rotate( ch.state.angular.pos ).vsub( compound.offset ) );
+            }
+
+            return scratch.done( ret );
+
         } else {
 
             return checkGJK( bodyA, bodyB );
@@ -314,7 +376,19 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ){
                     ret = checkPair( pair.bodyA, pair.bodyB );
 
-                    if ( ret ){
+                    if ( ret instanceof Array ){
+
+                        for ( var j = 0, r, ll = ret.length; j < ll; j++ ){
+                            r = ret[j];
+                            if ( r ){
+                                hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                                contactList[ hash ] = true;
+                                r.collidedPreviously = prevContacts[ hash ];
+                                collisions.push( r );
+                            }
+                        }
+
+                    } else if ( ret ){
                         hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
                         contactList[ hash ] = true;
                         ret.collidedPreviously = prevContacts[ hash ];
@@ -364,7 +438,19 @@ Physics.behavior('body-collision-detection', function( parent ){
 
                     ret = checkPair( bodyA, bodyB );
 
-                    if ( ret ){
+                    if ( ret instanceof Array ){
+
+                        for ( var j = 0, r, ll = ret.length; j < ll; j++ ){
+                            r = ret[j];
+                            if ( r ){
+                                hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                                contactList[ hash ] = true;
+                                r.collidedPreviously = prevContacts[ hash ];
+                                collisions.push( r );
+                            }
+                        }
+
+                    } else if ( ret ){
                         hash = pairHash( bodyA.uid, bodyB.uid );
                         contactList[ hash ] = true;
                         ret.collidedPreviously = prevContacts[ hash ];
