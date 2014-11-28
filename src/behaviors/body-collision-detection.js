@@ -40,6 +40,8 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
             ,fn = supportFnStack[ hash ]
+            ,angA = bodyA.state.angular.pos
+            ,angB = bodyB.state.angular.pos
             ;
 
         if ( !fn ){
@@ -55,14 +57,17 @@ Physics.behavior('body-collision-detection', function( parent ){
                     ;
 
                 if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).vadd( bodyA.offset ).transform( tA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).vadd( bodyB.offset ).transform( tB );
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotate( -angA ), vA, marginA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( angA - angB ).negate(), vB, marginB );
                 } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).vadd( bodyA.offset ).transform( tA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).vadd( bodyB.offset ).transform( tB );
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotate( -angA ), vA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( angA - angB ).negate(), vB );
                 }
 
-                searchDir.negate().rotate( tB );
+                tA.T( vA );
+                tB.T( vB );
+
+                searchDir.negate().rotate( angB );
 
                 return scratch.done({
                     a: vA.values(),
@@ -77,8 +82,8 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         fn.useCore = false;
         fn.margin = 0;
-        fn.tA.setRotation( bodyA.state.angular.pos ).setTranslation( bodyA.state.pos );
-        fn.tB.setRotation( bodyB.state.angular.pos ).setTranslation( bodyB.state.pos );
+        fn.tA.toIdentity().translate( bodyA.offset ).rotate( angA ).translate( bodyA.state.pos );
+        fn.tB.toIdentity().translate( bodyB.offset ).rotate( angB ).translate( bodyB.state.pos );
         fn.bodyA = bodyA;
         fn.bodyB = bodyB;
 
@@ -285,7 +290,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                         ret.push( cols );
                     }
                 }
-                
+
                 // transform it back
                 ch.state.angular.pos -= compound.state.angular.pos;
                 ch.offset.vsub( oldPos );

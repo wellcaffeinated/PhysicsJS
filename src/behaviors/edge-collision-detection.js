@@ -28,7 +28,6 @@ Physics.behavior('edge-collision-detection', function( parent ){
             ,aabb = body.aabb()
             ,scratch = Physics.scratchpad()
             ,offset = body.getGlobalOffset( scratch.vector() )
-            ,trans = scratch.transform()
             ,dir = scratch.vector()
             ,result = scratch.vector()
             ,collision = false
@@ -40,7 +39,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
         if ( overlap >= 0 ){
 
-            dir.set( 1, 0 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+            dir.set( 1, 0 ).rotate( -body.state.angular.pos );
 
             collision = {
                 bodyA: body,
@@ -54,7 +53,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( body.state.angular.pos ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -65,7 +64,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
         if ( overlap >= 0 ){
 
-            dir.set( 0, 1 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+            dir.set( 0, 1 ).rotate( -body.state.angular.pos );
 
             collision = {
                 bodyA: body,
@@ -79,7 +78,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( body.state.angular.pos ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -90,7 +89,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
         if ( overlap >= 0 ){
 
-            dir.set( -1, 0 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+            dir.set( -1, 0 ).rotate( -body.state.angular.pos );
 
             collision = {
                 bodyA: body,
@@ -104,7 +103,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: -overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( body.state.angular.pos ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -115,7 +114,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
         if ( overlap >= 0 ){
 
-            dir.set( 0, -1 ).rotateInv( trans.setRotation( body.state.angular.pos ) );
+            dir.set( 0, -1 ).rotate( -body.state.angular.pos );
 
             collision = {
                 bodyA: body,
@@ -129,7 +128,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: -overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( body.state.angular.pos ).vadd( offset ).values()
             };
 
             collisions.push(collision);

@@ -10,6 +10,8 @@
         ,acos = Math.acos
         ,atan2 = Math.atan2
         ,TWOPI = Math.PI * 2
+        // 64 bit is apparently faster
+        // http://jsperf.com/asdfasdfasdfasd
         ,typedArrays = !!window.Float64Array
         ;
 

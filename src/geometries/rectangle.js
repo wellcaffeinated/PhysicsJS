@@ -62,9 +62,9 @@ Physics.geometry('rectangle', function( parent ){
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,trans = scratch.transform().setRotation( angle || 0 )
-                ,xaxis = scratch.vector().set( 1, 0 ).rotateInv( trans )
-                ,yaxis = scratch.vector().set( 0, 1 ).rotateInv( trans )
+                ,trans = scratch.transform().toIdentity().rotate( -(angle || 0) )
+                ,xaxis = trans.T( scratch.vector().set( 1, 0 ) )
+                ,yaxis = trans.T( scratch.vector().set( 0, 1 ) )
                 ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
                 ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
                 ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )

@@ -60,8 +60,7 @@ Physics.geometry('convex-polygon', function( parent ){
          **/
         setVertices: function( hull ){
 
-            var scratch = Physics.scratchpad()
-                ,transl = scratch.transform()
+            var transl
                 ,verts = this.vertices = []
                 ;
 
@@ -69,19 +68,18 @@ Physics.geometry('convex-polygon', function( parent ){
                 throw ERROR_NOT_CONVEX;
             }
 
-            transl.setRotation( 0 );
-            transl.setTranslation( Physics.geometry.getPolygonCentroid( hull ).negate() );
+            transl = Physics.geometry.getPolygonCentroid( hull ).negate();
 
             // translate each vertex so that the centroid is at the origin
             // then add the vertex as a vector to this.vertices
             for ( var i = 0, l = hull.length; i < l; ++i ){
 
-                verts.push( new Physics.vector( hull[ i ] ).translate( transl ) );
+                verts.push( new Physics.vector( hull[ i ] ).vadd( transl ) );
             }
 
             this._area = Physics.geometry.getPolygonArea( verts );
             this._aabb = false;
-            return scratch.done(this);
+            return this;
         },
 
         // extended
@@ -93,9 +91,9 @@ Physics.geometry('convex-polygon', function( parent ){
 
             var scratch = Physics.scratchpad()
                 ,p = scratch.vector()
-                ,trans = scratch.transform().setRotation( angle || 0 )
-                ,xaxis = scratch.vector().set( 1, 0 ).rotateInv( trans )
-                ,yaxis = scratch.vector().set( 0, 1 ).rotateInv( trans )
+                ,trans = scratch.transform().toIdentity().rotate( -(angle || 0) )
+                ,xaxis = trans.T( scratch.vector().set( 1, 0 ) )
+                ,yaxis = trans.T( scratch.vector().set( 0, 1 ) )
                 ,xmax = this.getFarthestHullPoint( xaxis, p ).proj( xaxis )
                 ,xmin = - this.getFarthestHullPoint( xaxis.negate(), p ).proj( xaxis )
                 ,ymax = this.getFarthestHullPoint( yaxis, p ).proj( yaxis )
