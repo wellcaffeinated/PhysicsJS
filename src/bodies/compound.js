@@ -101,18 +101,7 @@ Physics.body('compound', function( parent ){
             // com adjustment (assuming com is currently at (0,0) body coords)
             com.mult( 1 / this.mass );
 
-            // all bodies need to move
-            for ( i = 0, l = this.children.length; i < l; i++ ){
-                b = this.children[ i ];
-                b.state.pos.vsub( com );
-            }
-
-            for ( i = 0, l = this.geometry.children.length; i < l; i++ ){
-                b = this.geometry.children[ i ];
-                b.pos.vsub( com );
-            }
-
-            // shift everything back
+            // shift the center of mass
             this.offset.vsub( com );
 
             // refresh view on next render

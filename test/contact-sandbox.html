@@ -144,14 +144,14 @@
                 return Physics.body('compound', {
                     x: x
                     ,y: y
-                    ,offset: Physics.vector( -60, 0 )
+                    // ,offset: Physics.vector( -60, 0 )
                     ,children: [
                         Physics.body('circle', {
-                            x: 20
+                            x: 50
                             ,y: 0
                             ,radius: 30
                             ,mass: 1
-                            // ,offset: Physics.vector( -50, 0 )
+                            ,offset: Physics.vector( 0, 10 )
                         })
                         ,Physics.body('rectangle', {
                             x: -30
