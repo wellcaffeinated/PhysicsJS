@@ -131,7 +131,10 @@ Physics.behavior('body-collision-detection', function( parent ){
             support.marginA = 0;
             support.marginB = 0;
 
-            while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
+            // while there's still an overlap (or we don't have a positive distance)
+            // and the support margins aren't bigger than the shapes...
+            // search for the distance data
+            while ( (result.overlap || result.distance === 0) && (support.marginA < dimA || support.marginB < dimB) ){
                 if ( support.marginA < dimA ){
                     support.marginA += 1;
                 }
