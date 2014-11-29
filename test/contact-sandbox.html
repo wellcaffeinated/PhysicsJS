@@ -140,7 +140,33 @@
 
             }
 
-            function addBodies( world ){
+            function makeThing(x, y){
+                return Physics.body('compound', {
+                    x: x
+                    ,y: y
+                    // ,offset: Physics.vector( -60, 0 )
+                    ,children: [
+                        Physics.body('circle', {
+                            x: 50
+                            ,y: 0
+                            ,radius: 30
+                            ,mass: 1
+                            ,offset: Physics.vector( 0, 10 )
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -30
+                            ,y: 0
+                            ,width: 60
+                            ,height: 60
+                            ,angle: Math.PI/4
+                            ,mass: 1
+                            // ,offset: Physics.vector( -60, 0 )
+                        })
+                    ]
+                });
+            }
+
+            function addBodies( world, P ){
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,
@@ -149,6 +175,8 @@
                     width: 40,
                     height: 40,
                     mass: 1.4,
+                    offset: Physics.vector(10, 2),
+                    angle: Math.PI/2,
                     //cof: 0,
                     //vy: -0.2,
                     // vx: 0.1,
@@ -162,6 +190,8 @@
                     width: 40,
                     height: 40,
                     mass: 1.4,
+                    offset: Physics.vector(-10, 2),
+                    // angle: Math.PI/2,
                     //cof: 0,
                     //vy: -0.2,
                     // vx: 0.1,
@@ -187,6 +217,10 @@
                     );
                 }
 
+
+                world.add( makeThing(400, 600) );
+                world.add( makeThing(400, 500) );
+
                 var rectangles = [
                     { x: 100, y: 60, w: 50, h: 20, mass: 1 }
                     ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
@@ -208,6 +242,8 @@
                         })
                     );
                 }
+
+
             }
 
 

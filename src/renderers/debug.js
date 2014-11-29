@@ -134,6 +134,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
         },
 
+        // extended
         connect: function( world ){
 
             world.on('sweep-prune:intervals', this.storeIntervals, this );
@@ -143,6 +144,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             this.updateGui();
         },
 
+        // extended
         disconnect: function( world ){
 
             world.off('sweep-prune:intervals', this.storeIntervals, this );
@@ -170,15 +172,17 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             var scratch = Physics.scratchpad()
                 ,opts = this.options
+                ,x = intr.tracker.body.state.pos.x + intr.tracker.body.offset.x
+                ,y = intr.tracker.body.state.pos.y + intr.tracker.body.offset.y
                 ,from = scratch.vector().set( intr.val.x, 0 )
-                ,to = scratch.vector().set( intr.val.x, intr.tracker.body.state.pos.y )
+                ,to = scratch.vector().set( intr.val.x, y )
                 ;
 
             this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
             this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
 
             from.set( 0, intr.val.y );
-            to.set( intr.tracker.body.state.pos.x, intr.val.y );
+            to.set( x, intr.val.y );
 
             this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
             this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
@@ -200,11 +204,11 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             scratch.done();
         },
 
+        // init the dat.gui settings
         initGui: function(){
 
             var self = this
                 ,gui = this.gui = new window.dat.GUI({ autoPlace: false })
-                ,el = document.getElementById('my-gui-container')
                 ,op = this.options
                 ,getset
                 ,f
@@ -328,6 +332,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             this.el.parentNode.appendChild( gui.domElement );
         },
 
+        // update the dat.gui parameters
         updateGui: function(){
             var gui = this.gui;
             // Iterate over all controllers
@@ -336,9 +341,11 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
         },
 
+        // extended
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
+                ,os = body.offset
                 ,v = body.state.vel
                 ,t = this._interpolateTime || 0
                 ,x
@@ -351,13 +358,15 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos._[0] + offset.x + v._[0] * t;
+            y = pos._[1] + offset.y + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
+            this.drawCircle( 0, 0, 2, 'red' );
+            ctx.translate( os.x, os.y );
             ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
             ctx.restore();
 
@@ -373,6 +382,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.save();
                 ctx.translate(pos.x + offset.x, pos.y + offset.y);
                 ctx.rotate(body.state.angular.pos);
+                ctx.translate( os.x, os.y );
                 ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
                 ctx.restore();
             }
@@ -384,6 +394,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.globalCompositeOperation = 'color';
                 ctx.translate( x, y );
                 ctx.rotate( ang );
+                ctx.translate( os.x, os.y );
                 ctx.drawImage(body._sleepView, -view.width/2, -view.height/2, view.width, view.height);
                 // ctx.globalCompositeOperation = '';
                 ctx.restore();
@@ -396,6 +407,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.font = '12px monospace';
                 ctx.strokeText('r: ('+x.toFixed(0)+', '+y.toFixed(0)+')', x, y-8);
                 ctx.strokeText('v: ('+format(v.x)+', '+format(v.y)+')', x, y+12);
+                ctx.strokeText('o: ('+format(os.x)+', '+format(os.y)+')', x, y+26);
                 ctx.shadowBlur = 0;
                 ctx.shadowColor = '';
             }

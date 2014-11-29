@@ -151,6 +151,7 @@ Physics.renderer('dom', function( proto ){
         createView: function( geometry ){
 
             var el = newEl()
+                ,chel
                 ,fn = geometry.name + 'Properties'
                 ;
 
@@ -159,7 +160,23 @@ Physics.renderer('dom', function( proto ){
             el.style.top = '0px';
             el.style.left = '0px';
 
-            if (this[ fn ]){
+            if ( geometry.name === 'compound' ){
+
+                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    chel = newEl();
+                    chel.className = classpfx + geometry.name + ' ' + classpfx + 'child';
+                    chel.style.position = 'absolute';
+                    chel.style.top = '0px';
+                    chel.style.left = '0px';
+                    if ( this[ ch.g.name + 'Properties' ] ){
+                        this[ ch.g.name + 'Properties' ](chel, ch.g);
+                    }
+                    chel.style[cssTransform] = 'translate('+ch.pos._[0]+'px,'+ch.pos._[1]+'px) rotate('+ ch.angle +'rad)';
+                    el.appendChild( chel );
+                }
+
+            } else if ( this[ fn ] ){
                 this[ fn ](el, geometry);
             }
 
@@ -234,6 +251,7 @@ Physics.renderer('dom', function( proto ){
 
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,x
                 ,y
                 ,ang
@@ -241,10 +259,10 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
-            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad) translate('+os._[0]+'px,'+os._[1]+'px)';
         }
     };
 });

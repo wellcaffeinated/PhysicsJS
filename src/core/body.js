@@ -77,7 +77,9 @@
             // what is its coefficient of friction with another surface with COF = 1?
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
-            view: null
+            view: null,
+            // the vector offsetting the geometry from its center of mass
+            offset: Physics.vector(0,0)
         }
        ```
      *
@@ -102,6 +104,7 @@
          **/
         init: function( options ){
 
+            var self = this;
             var vector = Physics.vector;
 
             /** related to: Physics.util.options
@@ -122,6 +125,9 @@
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
+            this.options.onChange(function( opts ){
+                self.offset = new vector( opts.offset );
+            });
             this.options( options );
 
             /**
@@ -142,18 +148,18 @@
              * ```
              **/
             this.state = {
-                pos: vector( this.x, this.y ),
-                vel: vector( this.vx, this.vy ),
-                acc: vector(),
+                pos: new vector( this.x, this.y ),
+                vel: new vector( this.vx, this.vy ),
+                acc: new vector(),
                 angular: {
                     pos: this.angle || 0.0,
                     vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
-                    pos: vector(),
-                    vel: vector(),
-                    acc: vector(),
+                    pos: new vector(),
+                    vel: new vector(),
+                    acc: new vector(),
                     angular: {
                         pos: 0.0,
                         vel: 0.0,
@@ -201,6 +207,12 @@
              * Body#mass = 1.0
              *
              * The mass.
+             **/
+
+            /**
+             * Body#offset
+             *
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -448,6 +460,20 @@
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -457,13 +483,39 @@
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos.x;
-            aabb.y += this.state.pos.y;
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
+        },
+
+        /**
+         * Body#toBodyCoords( v ) -> Physics.vector
+         * - v (Physics.vector): The vector to transform
+         * + (Physics.vector): The transformed vector
+         *
+         * Transform a vector into coordinates relative to this body.
+         **/
+        toBodyCoords: function( v ){
+            return v.vsub( this.state.pos ).rotate( -this.state.angular.pos );
+        },
+
+        /**
+          * Body#toWorldCoords( v ) -> Physics.vector
+          * - v (Physics.vector): The vector to transform
+          * + (Physics.vector): The transformed vector
+          *
+          * Transform a vector from body coordinates into world coordinates.
+          **/
+        toWorldCoords: function( v ){
+            return v.rotate( this.state.angular.pos ).vadd( this.state.pos );
         },
 
         /**
@@ -478,5 +530,46 @@
             return this;
         }
     });
+
+    /**
+     * Body.getCOM( bodies[, com] ) -> Physics.vector
+     * - bodies (Array): The list of bodies
+     * - com (Physics.vector): The vector to put result into. A new vector will be created if not provided.
+     * + (Physics.vector): The center of mass position
+     *
+     * Get center of mass position from list of bodies.
+     **/
+    Physics.body.getCOM = function( bodies, com ){
+        // @TODO add a test for this fn
+        var b
+            ,pos
+            ,i
+            ,l = bodies && bodies.length
+            ,M = 0
+            ;
+
+        com = com || new Physics.vector();
+
+        if ( !l ){
+            return com.zero();
+        }
+
+        if ( l === 1 ){
+            return com.clone( bodies[0].state.pos );
+        }
+
+        com.zero();
+
+        for ( i = 0; i < l; i++ ){
+            b = bodies[ i ];
+            pos = b.state.pos;
+            com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+            M += b.mass;
+        }
+
+        com.mult( 1 / M );
+
+        return com;
+    };
 
 }());

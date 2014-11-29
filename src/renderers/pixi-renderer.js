@@ -147,6 +147,58 @@ Physics.renderer('pixi', function( parent ){
             }
         },
 
+        // extended
+        connect: function( world ){
+
+            world.on( 'add:body', this.attach, this );
+            world.on( 'remove:body', this.detach, this );
+        },
+
+        // extended
+        disconnect: function( world ){
+
+            world.off( 'add:body', this.attach, this );
+            world.off( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * PixiRenderer#detach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to detach a child from the stage
+         **/
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // remove view from dom
+                this.stage.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * PixiRenderer#attach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to attach a child to the stage
+         **/
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // attach to viewport
+                this.stage.addChild( el );
+            }
+
+            return this;
+        },
+
         /**
          * PixiRenderer#loadSpriteSheets( assetsToLoad, callback ) -> this
          * - assetsToLoad (Array): Array of spritesheets to load
@@ -185,6 +237,7 @@ Physics.renderer('pixi', function( parent ){
         drawBody: function( body, view ){
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,t = this._interpolateTime || 0
                 ,x
                 ,y
@@ -192,12 +245,12 @@ Physics.renderer('pixi', function( parent ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
-            view.position.x = x;
-            view.position.y = y;
+            view.position.set( x, y );
+            view.pivot.set( -os._[0], -os._[1] );
             view.rotation = ang;
         },
 
@@ -356,7 +409,7 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
-        createView: function( geometry, styles ){
+        createView: function( geometry, styles, parent ){
 
             var view = null
                 ,aabb = geometry.aabb()
@@ -365,6 +418,7 @@ Physics.renderer('pixi', function( parent ){
                 ,name = geometry.name
                 ;
 
+            parent = parent || this.stage;
             styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
 
             if (name === 'circle'){
@@ -378,21 +432,31 @@ Physics.renderer('pixi', function( parent ){
             } else if (name === 'rectangle'){
 
                 view = this.createRect(-geometry.width/2, -geometry.height/2, geometry.width, geometry.height, styles);
+            } else if (name === 'compound'){
+
+                view = new PIXI.Graphics();
+
+                for ( var i = 0, l = geometry.children.length, ch, chview; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    chview = this.createView( ch.g, styles, view );
+                    chview.position.set( ch.pos.x, ch.pos.y );
+                    chview.rotation = ch.angle;
+                }
             } else {
 
                 // assume it's a point
                 view = this.createCircle(0, 0, 1, styles);
             }
 
-            if ( styles.angleIndicator && styles.angleIndicator !== 'transparent' ){
+            if ( name !== 'compound' && styles.angleIndicator && styles.angleIndicator !== 'transparent' ){
 
                 view.lineStyle( styles.lineWidth, styles.angleIndicator );
                 view.moveTo( 0, 0 );
                 view.lineTo( hw, 0 );
+                view.cacheAsBitmap = true;
             }
 
-            view.cacheAsBitmap = true;
-            this.stage.addChild(view);
+            parent.addChild(view);
             return view;
         },
 
