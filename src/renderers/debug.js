@@ -134,6 +134,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
         },
 
+        // extended
         connect: function( world ){
 
             world.on('sweep-prune:intervals', this.storeIntervals, this );
@@ -143,6 +144,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             this.updateGui();
         },
 
+        // extended
         disconnect: function( world ){
 
             world.off('sweep-prune:intervals', this.storeIntervals, this );
@@ -202,11 +204,11 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             scratch.done();
         },
 
+        // init the dat.gui settings
         initGui: function(){
 
             var self = this
                 ,gui = this.gui = new window.dat.GUI({ autoPlace: false })
-                ,el = document.getElementById('my-gui-container')
                 ,op = this.options
                 ,getset
                 ,f
@@ -330,6 +332,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             this.el.parentNode.appendChild( gui.domElement );
         },
 
+        // update the dat.gui parameters
         updateGui: function(){
             var gui = this.gui;
             // Iterate over all controllers
@@ -338,6 +341,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             }
         },
 
+        // extended
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos

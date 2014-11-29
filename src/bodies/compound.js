@@ -6,20 +6,21 @@
   *
   * Physics.body('compound')
   *
-  * Body for convex polygons. The position of the body is the centroid of the polygon.
+  * Not a body in itself. It's a container to group other bodies. The position of the body is the center of mass.
+  * It must have at least one child before being added to the world.
   *
   * Additional config options:
   *
-  * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
+  * - children: Array of [[Body]] objects.
   *
   * Example:
   *
   * ```javascript
   * var thing = Physics.body('compound', {
-  *     // place the centroid of the body at (300, 200)
+  *     // place the center of mass at (300, 200)
   *     x: 300,
   *     y: 200,
-  *     // the centroid is automatically calculated and used to position the shape
+  *     // the center of mass is automatically calculated and used to position the shape
   *     children: [
   *         body1,
   *         body2,
@@ -58,12 +59,24 @@ Physics.body('compound', function( parent ){
             }
         },
 
+        /**
+         * CompoundBody#addChild( body ) -> this
+         * - body (Body): The child to add
+         *
+         * Add a body as a child.
+         **/
         addChild: function( body ){
 
             this.addChildren([ body ]);
             return this;
         },
 
+        /**
+         * CompoundBody#addChildren( bodies ) -> this
+         * - bodies (Array): The list of children to add
+         *
+         * Add an array of children to the compound.
+         **/
         addChildren: function( bodies ){
 
             var self = this
@@ -111,7 +124,6 @@ Physics.body('compound', function( parent ){
             this.offset.vsub( com );
 
             // refresh view on next render
-
             if ( this._world ){
                 this._world.one('render', function(){
                     self.view = null;
@@ -139,6 +151,11 @@ Physics.body('compound', function( parent ){
             return this;
         },
 
+        /**
+         * CompoundBody#refreshGeometry() -> this
+         *
+         * If the children's positions change, `refreshGeometry()` should be called to fix the shape.
+         **/
         refreshGeometry: function(){
 
             this.geometry.clear();

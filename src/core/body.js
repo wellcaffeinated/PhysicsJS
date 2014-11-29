@@ -77,7 +77,9 @@
             // what is its coefficient of friction with another surface with COF = 1?
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
-            view: null
+            view: null,
+            // the vector offsetting the geometry from its center of mass
+            offset: Physics.vector(0,0)
         }
        ```
      *

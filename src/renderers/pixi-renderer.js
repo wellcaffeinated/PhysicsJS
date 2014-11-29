@@ -409,7 +409,7 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
-        createView: function( geometry, styles ){
+        createView: function( geometry, styles, parent ){
 
             var view = null
                 ,aabb = geometry.aabb()
@@ -418,6 +418,7 @@ Physics.renderer('pixi', function( parent ){
                 ,name = geometry.name
                 ;
 
+            parent = parent || this.stage;
             styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
 
             if (name === 'circle'){
@@ -431,21 +432,31 @@ Physics.renderer('pixi', function( parent ){
             } else if (name === 'rectangle'){
 
                 view = this.createRect(-geometry.width/2, -geometry.height/2, geometry.width, geometry.height, styles);
+            } else if (name === 'compound'){
+
+                view = new PIXI.Graphics();
+
+                for ( var i = 0, l = geometry.children.length, ch, chview; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    chview = this.createView( ch.g, styles, view );
+                    chview.position.set( ch.pos.x, ch.pos.y );
+                    chview.rotation = ch.angle;
+                }
             } else {
 
                 // assume it's a point
                 view = this.createCircle(0, 0, 1, styles);
             }
 
-            if ( styles.angleIndicator && styles.angleIndicator !== 'transparent' ){
+            if ( name !== 'compound' && styles.angleIndicator && styles.angleIndicator !== 'transparent' ){
 
                 view.lineStyle( styles.lineWidth, styles.angleIndicator );
                 view.moveTo( 0, 0 );
                 view.lineTo( hw, 0 );
+                view.cacheAsBitmap = true;
             }
 
-            view.cacheAsBitmap = true;
-            this.stage.addChild(view);
+            parent.addChild(view);
             return view;
         },
 

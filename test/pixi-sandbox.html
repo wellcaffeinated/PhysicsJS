@@ -203,8 +203,8 @@
                     // vx: 0.1,
                     restitution: 1
                 }));
-
-                world.add( Physics.body('circle', {
+var b;
+                world.add( b=Physics.body('circle', {
                     x: viewWidth/2,
                     y: viewHeight - 100,//+100,
                     radius: 20,
@@ -215,6 +215,10 @@
                     // vx: 0.1,
                     restitution: 0.9
                 }));
+
+                setTimeout(function(){
+                    world.remove(b)
+                }, 6000)
 
                 var polygons = [
                     {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
@@ -234,6 +238,30 @@
                         })
                     );
                 }
+
+                world.add( Physics.body('compound', {
+                    x: viewWidth/3
+                    ,y: viewHeight/2
+                    // ,offset: Physics.vector( -60, 0 )
+                    ,children: [
+                        Physics.body('circle', {
+                            x: 50
+                            ,y: 0
+                            ,radius: 30
+                            ,mass: 1
+                            ,offset: Physics.vector( 0, 10 )
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -30
+                            ,y: 0
+                            ,width: 60
+                            ,height: 60
+                            ,angle: Math.PI/4
+                            ,mass: 1
+                            // ,offset: Physics.vector( -60, 0 )
+                        })
+                    ]
+                }) );
 
                 var rectangles = [
                     { x: 100, y: 60, w: 50, h: 20, mass: 1 }

@@ -5,23 +5,11 @@
  *
  * Geometry for compound shapes.
  *
- * Additional config options:
- *
- * - children: children
- *
  * Example:
  *
  * ```javascript
- * var thing = Physics.geometry('compound', {
- *     // the centroid is automatically calculated and used to position the shape
- *     vertices: [
- *         { x: 0, y: -30 },
- *         { x: -29, y: -9 },
- *         { x: -18, y: 24 },
- *         { x: 18, y: 24 },
- *         { x: 29, y: -9 }
- *     ]
- * });
+ * var thing = Physics.geometry('compound');
+ * thing.addChild( child, pos, rotation );
  * ```
  **/
 Physics.geometry('compound', function( parent ){
@@ -44,22 +32,6 @@ Physics.geometry('compound', function( parent ){
             this.options( options );
 
             this.children = [];
-        },
-
-        /**
-         * CompoundGeometry#fromBodies( bodies ) -> this
-         * - bodies (Array): List of bodies.
-         *
-         * Create a compound geometry from a list of bodies.
-         **/
-        fromBodies: function( bodies ){
-
-            for ( var i = 0, b, l = bodies.length; i < l; i++ ) {
-                b = bodies[ i ];
-                this.addChild( b.geometry, b.state.pos );
-            }
-
-            return this;
         },
 
         /**
@@ -114,11 +86,14 @@ Physics.geometry('compound', function( parent ){
 
             for ( var i = 0, l = this.children.length; i < l; i++ ) {
                 ch = this.children[ i ];
+                // the aabb rotated by overall angle and the child rotation
                 aabb = ch.g.aabb( angle + ch.angle );
                 pos.clone( ch.pos );
                 if ( angle ){
+                    // get the child's position rotated if needed
                     pos.rotate( angle );
                 }
+                // move the aabb to the child's position
                 aabb.x += pos._[0];
                 aabb.y += pos._[1];
                 ret = ret ? Physics.aabb.union(ret, aabb, true) : aabb;
@@ -134,6 +109,8 @@ Physics.geometry('compound', function( parent ){
         },
 
         // extended
+        // NOTE: unlike other geometries this can't be used in the
+        // GJK algorithm because the shape isn't garanteed to be convex
         getFarthestHullPoint: function( dir, result ){
 
             var ch
@@ -163,6 +140,8 @@ Physics.geometry('compound', function( parent ){
         },
 
         // extended
+        // NOTE: unlike other geometries this can't be used in the
+        // GJK algorithm because the shape isn't garanteed to be convex
         getFarthestCorePoint: function( dir, result, margin ){
 
             var ch
