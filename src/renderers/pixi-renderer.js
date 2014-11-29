@@ -147,6 +147,58 @@ Physics.renderer('pixi', function( parent ){
             }
         },
 
+        // extended
+        connect: function( world ){
+
+            world.on( 'add:body', this.attach, this );
+            world.on( 'remove:body', this.detach, this );
+        },
+
+        // extended
+        disconnect: function( world ){
+
+            world.off( 'add:body', this.attach, this );
+            world.off( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * PixiRenderer#detach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to detach a child from the stage
+         **/
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // remove view from dom
+                this.stage.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * PixiRenderer#attach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to attach a child to the stage
+         **/
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // attach to viewport
+                this.stage.addChild( el );
+            }
+
+            return this;
+        },
+
         /**
          * PixiRenderer#loadSpriteSheets( assetsToLoad, callback ) -> this
          * - assetsToLoad (Array): Array of spritesheets to load
