@@ -43,36 +43,40 @@ Physics.behavior('body-collision-detection', function( parent ){
             ;
 
         if ( !fn ){
-            fn = supportFnStack[ hash ] = function( searchDir ){
+            fn = supportFnStack[ hash ] = function pairSupportFunction( searchDir ){
 
-                var scratch = Physics.scratchpad()
-                    ,tA = fn.tA
+                var tA = fn.tA
                     ,tB = fn.tB
-                    ,vA = scratch.vector()
-                    ,vB = scratch.vector()
-                    ,marginA = fn.marginA
-                    ,marginB = fn.marginB
+                    ,vA = fn.tmpv1
+                    ,vB = fn.tmpv2
                     ;
 
                 if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).vadd( bodyA.offset ).transform( tA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).vadd( bodyB.offset ).transform( tB );
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, fn.marginA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, fn.marginB );
                 } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).vadd( bodyA.offset ).transform( tA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).vadd( bodyB.offset ).transform( tB );
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB );
                 }
 
+                vA.vadd( bodyA.offset ).transform( tA );
+                vB.vadd( bodyB.offset ).transform( tB );
                 searchDir.negate().rotate( tB );
 
-                return scratch.done({
+                return {
                     a: vA.values(),
                     b: vB.values(),
                     pt: vA.vsub( vB ).values()
-                });
+                };
             };
 
+            // transforms for coordinate transformations
             fn.tA = new Physics.transform();
             fn.tB = new Physics.transform();
+
+            // temp vectors (used too frequently to justify scratchpad)
+            fn.tmpv1 = new Physics.vector();
+            fn.tmpv2 = new Physics.vector();
         }
 
         fn.useCore = false;
@@ -102,6 +106,7 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,overlap
             ,result
             ,support
+            ,inc
             ,collision = false
             ,aabbA = bodyA.aabb()
             ,dimA = Math.min( aabbA.hw, aabbA.hh )
@@ -126,6 +131,12 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
+            // figure out how much the bodies moved relative to each other
+            tmp.clone( bodyA.state.pos ).vsub( bodyA.state.old.pos ).vsub( bodyB.state.pos ).vadd( bodyB.state.old.pos );
+            inc = Math.abs(tmp.proj( d ));
+            // let's increment the margin by half this value each iteration
+            inc = Math.max( 0.5 * inc, 1 );
+
             // first get the min distance of between core objects
             support.useCore = true;
             support.marginA = 0;
@@ -136,10 +147,10 @@ Physics.behavior('body-collision-detection', function( parent ){
             // search for the distance data
             while ( (result.overlap || result.distance === 0) && (support.marginA < dimA || support.marginB < dimB) ){
                 if ( support.marginA < dimA ){
-                    support.marginA += 1;
+                    support.marginA += inc;
                 }
                 if ( support.marginB < dimB ){
-                    support.marginB += 1;
+                    support.marginB += inc;
                 }
 
                 result = Physics.gjk(support, d);
