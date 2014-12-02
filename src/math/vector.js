@@ -545,8 +545,8 @@
             cosA = Math.cos( t );
 
             if ( o ){
-                x = (o.x || o._[ 0 ]) | 0;
-                y = (o.y || o._[ 1 ]) | 0;
+                x = o.x;
+                y = o.y;
             }
         } else {
             sinA = t.sinA;
