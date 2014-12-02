@@ -150,7 +150,12 @@ Physics.renderer('canvas', function( proto ){
 
             this._layers = {};
             this.addLayer( 'main', this.el );
-            this.resize( this.options.width, this.options.height );
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
         },
 
         /**

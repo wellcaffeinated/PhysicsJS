@@ -145,6 +145,12 @@ Physics.renderer('pixi', function( parent ){
                 // add to passed in element
                 this.el.appendChild( this.renderer.view );
             }
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
         },
 
         // extended

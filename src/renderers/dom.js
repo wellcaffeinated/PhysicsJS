@@ -94,6 +94,12 @@ Physics.renderer('dom', function( proto ){
 
                 viewport.appendChild(stats);
             }
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
         },
 
         // extended

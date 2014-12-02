@@ -31,11 +31,9 @@
         <script src="../_working/physicsjs/physicsjs-full.js"></script>
         <script>
 
-            var viewWidth = parent.innerWidth
-                ,viewHeight = parent.innerHeight;
-
             var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
             var intr;
+            var viewWidth, viewHeight;
 
             function random(min, max){
                 var a = (max - min);
@@ -46,8 +44,6 @@
 
                 var renderer = Physics.renderer('debug', {
                         el: 'viewport',
-                        width: viewWidth,
-                        height: viewHeight,
                         meta: true,
                         styles: {
                             'circle': bodyStyles
@@ -57,8 +53,11 @@
                     })
                     ,edgeBounce
                     // bounds of the window
-                    ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+                    ,viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height)
                     ;
+
+                viewWidth = renderer.width;
+                viewHeight = renderer.height;
 
                 // add the renderer
                 world.add(renderer);
