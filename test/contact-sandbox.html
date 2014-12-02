@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <style>
+            html, body { height: 100%; }
             body {
                 background-color: #ffffff;
                 margin: 0;
@@ -67,9 +68,6 @@
 
                     viewWidth = parent.innerWidth;
                     viewHeight = parent.innerHeight;
-
-                    renderer.el.width = viewWidth;
-                    renderer.el.height = viewHeight;
 
                     viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
                     // edgeBounce.setAABB(viewportBounds);

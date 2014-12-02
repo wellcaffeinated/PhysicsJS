@@ -96,6 +96,14 @@ Physics.renderer('dom', function( proto ){
             }
         },
 
+        // extended
+        resize: function( width, height ){
+
+            proto.resize.call( this, width, height );
+            this.el.style.width = this.width + px;
+            this.el.style.height = this.height + px;
+        },
+
         /** internal
          * DomRenderer#pointProperties( el, geometry )
          * - el (HTMLElement): The element

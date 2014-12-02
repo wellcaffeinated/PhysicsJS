@@ -129,6 +129,7 @@ Physics.renderer('canvas', function( proto ){
                 this.el = viewport;
             }
 
+            this.container = this.el.parentNode;
             this.ctx = viewport.getContext('2d');
 
             this.els = {};
@@ -427,13 +428,14 @@ Physics.renderer('canvas', function( proto ){
         resize: function( width, height ){
 
             var layer;
+            proto.resize.call( this, width, height );
 
             for ( var id in this._layers ){
 
                 layer = this._layers[ id ];
                 if ( layer.options.autoResize ){
-                    layer.el.width = width;
-                    layer.el.height = height;
+                    layer.el.width = this.width;
+                    layer.el.height = this.height;
                 }
             }
 
@@ -619,7 +621,7 @@ Physics.renderer('canvas', function( proto ){
 
                 for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
                     ch = geometry.children[ i ];
-                    
+
                     // translate
                     ctx.translate(ch.pos.x, ch.pos.y);
                     // rotate

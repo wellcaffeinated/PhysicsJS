@@ -148,6 +148,13 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
+        resize: function( width, height ){
+
+            parent.resize.call( this, width, height );
+            this.renderer.resize( this.width, this.height );
+        },
+
+        // extended
         connect: function( world ){
 
             world.on( 'add:body', this.attach, this );

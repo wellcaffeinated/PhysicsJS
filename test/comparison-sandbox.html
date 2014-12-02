@@ -45,6 +45,7 @@
                         width: viewWidth,
                         height: viewHeight,
                         meta: true,
+                        autoResize: false,
                         //debug:true,
                         styles: {
                             'circle': {
@@ -86,24 +87,6 @@
                     restitution: 1,
                     cof: 0.5
                 });
-
-                // resize events
-                window.addEventListener('resize', function () {
-
-                    viewWidth = parent.innerWidth;
-                    viewHeight = parent.innerHeight;
-
-                    renderer.el.width = viewWidth;
-                    renderer.el.height = viewHeight;
-
-                    el.style.height = viewHeight + 'px';
-                    el.style.width = viewWidth + 'px';
-
-
-                    viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-                    edgeBounce.setAABB(viewportBounds);
-
-                }, true);
 
                 world.add( Physics.body('circle', {
                     x: viewWidth/2,

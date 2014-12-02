@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <style>
+            html, body { height: 100%; }
             body {
                 background-color: #ffffff;
                 margin: 0;
@@ -76,13 +77,7 @@
                 // resize events
                 window.addEventListener('resize', function () {
 
-                    viewWidth = parent.innerWidth;
-                    viewHeight = parent.innerHeight;
-
-                    renderer.el.width = viewWidth;
-                    renderer.el.height = viewHeight;
-
-                    viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+                    viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
                     edgeBounce.setAABB(viewportBounds);
 
                 }, true);
