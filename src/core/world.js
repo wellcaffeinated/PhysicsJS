@@ -29,9 +29,9 @@
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 120,
+        timestep: 6,
         // maximum number of iterations per step
-        maxIPF: 16,
+        maxIPF: 4,
         webworker: false, // NOT YET IMPLEMENTED
 
         // default integrator
@@ -65,9 +65,9 @@
      * ```javascript
      * {
      *  // default timestep
-     *  timestep: 1000.0 / 120,
+     *  timestep: 6,
      *  // maximum number of iterations per step
-     *  maxIPF: 16,
+     *  maxIPF: 4,
      *
      *  // default integrator
      *  integrator: 'verlet',
