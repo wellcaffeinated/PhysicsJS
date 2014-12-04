@@ -6,10 +6,8 @@
 // @license MIT
 Physics(function (world) {
 
-    var viewWidth = window.innerWidth
-        ,viewHeight = window.innerHeight
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+    // bounds of the window
+    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
         ,edgeBounce
         ,renderer
         ;
@@ -17,8 +15,6 @@ Physics(function (world) {
     // create a renderer
     renderer = Physics.renderer('canvas', {
         el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
     });
 
     // add the renderer
@@ -38,13 +34,8 @@ Physics(function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
+        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -135,9 +126,9 @@ Physics(function (world) {
     // create three trees
     [
 
-        [{ x: viewWidth / 2, y: viewHeight - 10 }, 6, 70, 0.92, (Math.PI/2)/3],
-        [{ x: viewWidth / 2 + 250, y: viewHeight - 10 }, 5, 40, 0.9, (Math.PI/2)/3],
-        [{ x: viewWidth / 2 - 250, y: viewHeight - 10 }, 3, 50, 0.95, (Math.PI/1)/5]
+        [{ x: renderer.width / 2, y: renderer.height - 10 }, 6, 70, 0.92, (Math.PI/2)/3],
+        [{ x: renderer.width / 2 + 250, y: renderer.height - 10 }, 5, 40, 0.9, (Math.PI/2)/3],
+        [{ x: renderer.width / 2 - 250, y: renderer.height - 10 }, 3, 50, 0.95, (Math.PI/1)/5]
 
     ].forEach(function( params ){
 
@@ -237,6 +228,9 @@ Physics(function (world) {
                             body.applyForce( dir.clone({ x: Math.cos( this.theta ) * r, y: Math.sin( this.theta ) * r - (0.0004 - 0.00004) * body.mass }), tmp );
                         }
                     }
+
+                    // constrain angular velocity
+                    body.state.angular.vel = Math.min(Math.max(body.state.angular.vel, -0.01), 0.01);
                 }
 
                 scratch.done();
@@ -251,6 +245,7 @@ Physics(function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
+            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -258,6 +253,7 @@ Physics(function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
+            world.wakeUpAll();
             world.remove( attractor );
         }
     });
@@ -268,7 +264,7 @@ Physics(function (world) {
         ,Physics.behavior('interactive', { el: renderer.el })
         ,Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
-        ,Physics.behavior('wind', { ground: viewHeight })
+        ,Physics.behavior('wind', { ground: renderer.height })
         ,edgeBounce
     ]);
 
@@ -276,7 +272,4 @@ Physics(function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
-
-    // start the ticker
-    Physics.util.ticker.start();
 });

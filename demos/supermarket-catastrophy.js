@@ -3,26 +3,30 @@
 //
 Physics({ timestep: 3 }, function (world) {
 
+    // bounds of the window
     var viewWidth = window.innerWidth
         ,viewHeight = window.innerHeight
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+        ,viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
         ,edgeBounce
         ,renderer
         ;
 
-    // create a renderer
-    renderer = Physics.renderer('canvas', {
-        el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
-    });
+    // let's use the pixi renderer
+    require(['vendor/pixi'], function( PIXI ){
+        window.PIXI = PIXI;
+        // create a renderer
+        renderer = Physics.renderer('pixi', {
+            el: 'viewport'
+        });
 
-    // add the renderer
-    world.add(renderer);
-    // render on each step
-    world.on('step', function () {
-        world.render();
+        // add the renderer
+        world.add(renderer);
+        // render on each step
+        world.on('step', function () {
+            world.render();
+        });
+        // add the interaction
+        world.add(Physics.behavior('interactive', { el: renderer.container }));
     });
 
     // constrain objects to these bounds
@@ -35,13 +39,8 @@ Physics({ timestep: 3 }, function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
+        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -58,8 +57,9 @@ Physics({ timestep: 3 }, function (world) {
         ,restitution: 0.99
         ,angularVelocity: 0
         ,styles: {
-            fillStyle: '#d33682'
-            ,angleIndicator: '#751b4b'
+            fillStyle: '0xd33682'
+            ,lineWidth: 1
+            ,angleIndicator: '0x751b4b'
         }
     });
 
@@ -76,8 +76,10 @@ Physics({ timestep: 3 }, function (world) {
             ,cof: 0.99
             ,restitution: 0.99
             ,styles: {
-                fillStyle: '#b58900'
-                ,angleIndicator: '#624501'
+                fillStyle: '0xb58900'
+                ,lineWidth: 1
+                ,strokeStyle: '0x624501'
+                ,angleIndicator: '0x624501'
             }
         }));
     }
@@ -97,6 +99,7 @@ Physics({ timestep: 3 }, function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
+            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -104,14 +107,14 @@ Physics({ timestep: 3 }, function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
+            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.el })
-        ,Physics.behavior('constant-acceleration')
+        Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
         ,Physics.behavior('body-collision-detection')
         ,Physics.behavior('sweep-prune')
@@ -122,7 +125,4 @@ Physics({ timestep: 3 }, function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
-
-    // start the ticker
-    Physics.util.ticker.start();
 });

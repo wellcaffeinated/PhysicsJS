@@ -8,17 +8,6 @@
 // bullet time by "poking" the screen
 //
 
-function loadScript( url ){
-    var a = document.createElement('script');
-    a.type = 'text/javascript';
-    a.src = url;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(a, s);
-}
-// For this example, we'll use a tweening engine
-// to transition in and out of "bullet time".
-loadScript('assets/scripts/vendor/tween.js');
-
 Physics({ timestep: 2 }, function (world) {
 
     var viewWidth = window.innerWidth
@@ -29,18 +18,22 @@ Physics({ timestep: 2 }, function (world) {
         ,renderer
         ;
 
-    // create a renderer
-    renderer = Physics.renderer('canvas', {
-        el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
-    });
+    // let's use the pixi renderer
+    require(['vendor/pixi'], function( PIXI ){
+        window.PIXI = PIXI;
+        // create a renderer
+        renderer = Physics.renderer('pixi', {
+            el: 'viewport'
+        });
 
-    // add the renderer
-    world.add(renderer);
-    // render on each step
-    world.on('step', function () {
-        world.render();
+        // add the renderer
+        world.add(renderer);
+        // render on each step
+        world.on('step', function () {
+            world.render();
+        });
+        // add the interaction
+        world.add(Physics.behavior('interactive', { el: renderer.container }));
     });
 
     // constrain objects to these bounds
@@ -53,13 +46,7 @@ Physics({ timestep: 2 }, function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -77,8 +64,9 @@ Physics({ timestep: 2 }, function (world) {
         ,angularVelocity: 0
         ,label: 'bullet'
         ,styles: {
-            fillStyle: '#d33682'
-            ,angleIndicator: '#751b4b'
+            fillStyle: '0xd33682'
+            ,lineWidth: 1
+            ,angleIndicator: '0x751b4b'
         }
     });
 
@@ -96,8 +84,9 @@ Physics({ timestep: 2 }, function (world) {
             ,restitution: 0.99
             ,label: 'box'
             ,styles: {
-                fillStyle: '#b58900'
-                ,angleIndicator: '#624501'
+                src: 'assets/images/crate.jpg'
+                ,width: 40
+                ,height: 40
             }
         }));
     }
@@ -166,20 +155,22 @@ Physics({ timestep: 2 }, function (world) {
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.el })
-        ,Physics.behavior('constant-acceleration')
+        Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
         ,Physics.behavior('body-collision-detection')
         ,Physics.behavior('sweep-prune')
         ,edgeBounce
     ]);
 
-    // subscribe to ticker to advance the simulation
-    Physics.util.ticker.on(function( time ) {
-        TWEEN.update();
-        world.step( time );
-    });
+    // For this example, we'll use a tweening engine
+    // to transition in and out of "bullet time".
+    require(['assets/scripts/vendor/tween.js'], function(){
+        // only start the sim when tweening engine is ready
 
-    // start the ticker
-    Physics.util.ticker.start();
+        // subscribe to ticker to advance the simulation
+        Physics.util.ticker.on(function( time ) {
+            TWEEN.update();
+            world.step( time );
+        });
+    });
 });

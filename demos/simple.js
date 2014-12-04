@@ -2,11 +2,8 @@
 // Simple example of bouncing balls
 //
 Physics(function (world) {
-
-    var viewWidth = window.innerWidth
-        ,viewHeight = window.innerHeight
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+    // bounds of the window
+    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
         ,edgeBounce
         ,renderer
         ;
@@ -14,8 +11,6 @@ Physics(function (world) {
     // create a renderer
     renderer = Physics.renderer('canvas', {
         el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
     });
 
     // add the renderer
@@ -35,13 +30,8 @@ Physics(function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
+        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -49,8 +39,8 @@ Physics(function (world) {
 
     // create some bodies
     world.add( Physics.body('circle', {
-        x: viewWidth * 0.4
-        ,y: viewHeight * 0.3
+        x: renderer.width * 0.4
+        ,y: renderer.height * 0.3
         ,vx: 0.3
         ,radius: 80
         ,styles: {
@@ -60,8 +50,8 @@ Physics(function (world) {
     }));
 
     world.add( Physics.body('circle', {
-        x: viewWidth * 0.7
-        ,y: viewHeight * 0.3
+        x: renderer.width * 0.7
+        ,y: renderer.height * 0.3
         ,vx: -0.3
         ,radius: 40
         ,styles: {
@@ -77,6 +67,7 @@ Physics(function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
+            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -84,13 +75,14 @@ Physics(function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
+            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.el })
+        Physics.behavior('interactive', { el: renderer.container })
         ,Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
         ,edgeBounce
@@ -100,7 +92,4 @@ Physics(function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
-
-    // start the ticker
-    Physics.util.ticker.start();
 });
