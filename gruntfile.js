@@ -76,6 +76,10 @@ module.exports = function(grunt) {
             'src/renderers/*.js'
         ],
 
+        sourcesIgnore: [
+            '!src/renderers/debug.js'
+        ],
+
         rjsHelper: 'test/r.js.spec.helper.js',
 
         pkg : pkg,
@@ -88,7 +92,7 @@ module.exports = function(grunt) {
             {
                 name: 'physicsjs',
                 location: '.',
-                main: 'physicsjs-'+pkg.version
+                main: 'physicsjs'
             }
         ],
         paths: {
@@ -101,14 +105,15 @@ module.exports = function(grunt) {
 
     // setup dynamic filenames
     config.name = config.pkg.name.toLowerCase();
+    config.nameFull = config.name + '-full';
     config.versioned = [config.name, config.pkg.version].join('-');
     config.versionedFull = [config.name, 'full', config.pkg.version].join('-');
-    config.dev = ['_working/physicsjs/', '.js'].join(config.name);
-    config.devFull = ['_working/physicsjs/', '.js'].join(config.name + '-full');
-    config.dist = ['dist/', '.js'].join(config.versioned);
-    config.distFull = ['dist/', '.js'].join(config.versionedFull);
-    config.uglifyFiles[['dist/', '.min.js'].join(config.versioned)] = config.dist;
-    config.uglifyFiles[['dist/', '.min.js'].join(config.versionedFull)] = config.distFull;
+    config.dev = '_working/physicsjs/'+ config.name + '.js';
+    config.devFull = '_working/physicsjs/'+ config.nameFull + '.js';
+    config.dist = 'dist/' + config.name + '.js';
+    config.distFull = 'dist/' + config.nameFull + '.js';
+    config.uglifyFiles['dist/' + config.name + '.min.js'] = config.dist;
+    config.uglifyFiles['dist/' + config.nameFull + '.min.js'] = config.distFull;
 
     // build source globs for full package
     config.sourcesFull = [].concat(config.sources);
@@ -202,7 +207,7 @@ module.exports = function(grunt) {
                 options: {
                     process: fileIdentifier
                 },
-                src : config.sourcesFull,
+                src : [].concat(config.sourcesFull).concat(config.sourcesIgnore),
                 dest : config.distFull
             }
         },

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-04
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -94,14 +94,12 @@
                 // then add the vertex as a vector to this.vertices
                 for ( var i = 0, l = hull.length; i < l; ++i ){
     
-                    verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
+                    verts.push( new Physics.vector( hull[ i ] ).translate( transl ) );
                 }
     
                 this._area = Physics.geometry.getPolygonArea( verts );
-    
                 this._aabb = false;
-                scratch.done();
-                return this;
+                return scratch.done(this);
             },
     
             // extended
@@ -146,7 +144,7 @@
                     ,idx
                     ;
     
-                result = result || Physics.vector();
+                result = result || new Physics.vector();
     
                 if ( l < 2 ){
                     if ( data ){

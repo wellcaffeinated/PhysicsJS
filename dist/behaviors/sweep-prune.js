@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-04
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -85,7 +85,7 @@
     
                 world.on( 'add:body', this.trackBody, this );
                 world.on( 'remove:body', this.untrackBody, this );
-                world.on( 'integrate:velocities', this.sweep, this );
+                world.on( 'integrate:positions', this.sweep, this, 1 );
     
                 // add current bodies
                 var bodies = world.getBodies();
@@ -98,9 +98,9 @@
             // extended
             disconnect: function( world ){
     
-                world.off( 'add:body', this.trackBody );
-                world.off( 'remove:body', this.untrackBody );
-                world.off( 'integrate:velocities', this.sweep );
+                world.off( 'add:body', this.trackBody, this );
+                world.off( 'remove:body', this.untrackBody, this );
+                world.off( 'integrate:positions', this.sweep, this, 1 );
                 this.clear();
             },
     
@@ -114,6 +114,11 @@
     
                 this.updateIntervals();
                 this.sortIntervalLists();
+    
+                if ( this._world ){
+                    this._world.emit('sweep-prune:intervals', this.intervalLists);
+                }
+    
                 return this.checkOverlaps();
             },
     
@@ -214,6 +219,10 @@
                     };
                 }
     
+                if ( doCreate){
+                    c.flag = 1;
+                }
+    
                 return c;
             },
     
@@ -282,7 +291,8 @@
                     ,candidates = this.candidates
                     ;
     
-                encounters.length = candidates.length = 0;
+                Physics.util.clearArray( encounters );
+                Physics.util.clearArray( candidates );
     
                 for ( var xyz = 0; xyz < maxDof; ++xyz ){
     
@@ -330,11 +340,7 @@
                                     // if it's the x axis, create a pair
                                     c = this.getPair( tr1, tr2, isX );
     
-                                    if ( c ){
-    
-                                        if ( c.flag > collisionFlag ){
-                                            c.flag = 1;
-                                        }
+                                    if ( c && c.flag < collisionFlag ){
     
                                         // if it's greater than the axis index, set the flag
                                         // to = 0.
@@ -377,10 +383,7 @@
     
                 var tr
                     ,intr
-                    ,scratch = Physics.scratchpad()
-                    ,pos = scratch.vector()
                     ,aabb
-                    ,span = scratch.vector()
                     ,list = this.tracked
                     ,i = list.length
                     ;
@@ -390,17 +393,13 @@
     
                     tr = list[ i ];
                     intr = tr.interval;
-                    pos.clone( tr.body.state.pos );
                     aabb = tr.body.aabb();
-                    span.set( aabb.hw, aabb.hh );
     
                     // copy the position (plus or minus) the aabb half-dimensions
                     // into the min/max intervals
-                    intr.min.val.clone( pos ).vsub( span );
-                    intr.max.val.clone( pos ).vadd( span );
+                    intr.min.val.clone( aabb ).sub( aabb.hw, aabb.hh );
+                    intr.max.val.clone( aabb ).add( aabb.hw, aabb.hh );
                 }
-    
-                scratch.done();
             },
     
             /** internal
@@ -421,13 +420,13 @@
     
                         min: {
                             type: false, //min
-                            val: Physics.vector(),
+                            val: new Physics.vector(),
                             tracker: tracker
                         },
     
                         max: {
                             type: true, //max
-                            val: Physics.vector(),
+                            val: new Physics.vector(),
                             tracker: tracker
                         }
                     }

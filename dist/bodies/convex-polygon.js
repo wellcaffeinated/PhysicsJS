@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-04
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -19,7 +19,7 @@
     /*
      * @requires geometries/convex-polygon
      */
-     /** 
+     /**
       * class ConvexPolygonBody < Body
       *
       * Physics.body('convex-polygon')
@@ -27,7 +27,7 @@
       * Body for convex polygons. The position of the body is the centroid of the polygon.
       *
       * Additional config options:
-      * 
+      *
       * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
       *
       * Example:
@@ -51,7 +51,7 @@
     Physics.body('convex-polygon', function( parent ){
     
         var defaults = {
-            
+    
         };
     
         return {

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-04
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -21,7 +21,7 @@
         // Browser globals (root is window)
         root.Physics = factory.call(root);
     }
-}(this, function () {
+}(typeof window !== 'undefined' ? window : this, function () {
 
 'use strict';
 
@@ -168,6 +168,32 @@ Physics.util = {};
             hh: aabb.hh
         };
     };
+
+    /**
+     * Physics.aabb.union( aabb1, aabb2[, modify] ) -> Object
+     * - aabb1 (Object): The first aabb (returned if modify is `true`)
+     * - aabb2 (Object): The second aabb
+     * + (Object): The union of two aabbs. If modify is `true`, then the first aabb will be modified and returned.
+     *
+     * Get the union of two aabbs.
+     **/
+    Physics.aabb.union = function( aabb1, aabb2, modify ){
+
+        var ret = modify === true ? aabb1 : {}
+            ,maxX = Math.max( aabb1.x + aabb1.hw, aabb2.x + aabb2.hw )
+            ,maxY = Math.max( aabb1.y + aabb1.hh, aabb2.y + aabb2.hh )
+            ,minX = Math.min( aabb1.x - aabb1.hw, aabb2.x - aabb2.hw )
+            ,minY = Math.min( aabb1.y - aabb1.hh, aabb2.y - aabb2.hh )
+            ;
+
+        ret.hw = Math.abs(maxX - minX) * 0.5;
+        ret.hh = Math.abs(maxY - minY) * 0.5;
+        ret.x = (maxX + minX) * 0.5;
+        ret.y = (maxY + minY) * 0.5;
+
+        return ret;
+    };
+
 
     /**
      * Physics.aabb.overlap( aabb1, aabb2 ) -> Boolean
@@ -574,8 +600,8 @@ Physics.util = {};
             return new Transform( vect, angle );
         }
 
-        this.v = Physics.vector();
-        this.o = Physics.vector(); // origin of rotation
+        this.v = new Physics.vector();
+        this.o = new Physics.vector(); // origin of rotation
         
         if ( vect instanceof Transform ){
 
@@ -668,9 +694,9 @@ Physics.util = {};
         ,typedArrays = !!window.Float64Array
         ;
 
-    /** 
+    /**
      * class Physics.vector
-     * 
+     *
      * The vector class and factory function.
      *
      * Call `Physics.vector` with the same arguments as
@@ -708,7 +734,7 @@ Physics.util = {};
      * - x (Number): The x coordinate
      * - y (Number): The y coordinate
      * - vect (Vectorish): A vector-like object to clone
-     * 
+     *
      * Vector Constructor.
      **/
     var Vector = function Vector( x, y ) {
@@ -750,9 +776,9 @@ Physics.util = {};
     };
 
     Object.defineProperties( Vector.prototype, {
-        /** 
+        /**
          * Physics.vector#x
-         * 
+         *
          * Getter/setter property for the x coordinate.
          **/
         x: {
@@ -765,9 +791,9 @@ Physics.util = {};
                 this._[0] = x;
             }
         },
-        /** 
+        /**
          * Physics.vector#y
-         * 
+         *
          * Getter/setter property for the y coordinate.
          **/
         y: {
@@ -782,15 +808,15 @@ Physics.util = {};
         }
     });
 
-    // 
+    //
     // Methods
-    // 
+    //
 
     /**
      * Physics.vector#set( x, y ) -> this
      * - x (Number): x coordinate
      * - y (Number): y coordinate
-     * 
+     *
      * Sets the x and y components of this vector.
      **/
     Vector.prototype.set = function( x, y ) {
@@ -805,7 +831,7 @@ Physics.util = {};
     /** deprecated: 0.6.0..1.0.0
      * Physics.vector#get( idx ) -> Number
      * - idx (Number): The coordinate index (0 or 1)
-     * 
+     *
      * Get the x or y component by index.
      **/
     Vector.prototype.get = function( n ){
@@ -816,7 +842,7 @@ Physics.util = {};
     /**
      * Physics.vector#vadd( v ) -> this
      * - v (Physics.vector): vector to add
-     * 
+     *
      * Add a [[Physics.vector]] to `this`.
      **/
     Vector.prototype.vadd = function( v ) {
@@ -831,7 +857,7 @@ Physics.util = {};
     /**
      * Physics.vector#vsub( v ) -> this
      * - v (Physics.vector): vector to subtract
-     * 
+     *
      * Subtract a [[Physics.vector]] from `this`.
      **/
     Vector.prototype.vsub = function( v ) {
@@ -847,11 +873,11 @@ Physics.util = {};
      * Physics.vector#add( x, y ) -> this
      * - x (Number): amount to add to the x coordinate
      * - y (Number): amount to add to the y coordinate
-     * 
+     *
      * Add scalars [[Physics.vector]] to the coordinates.
      **/
     Vector.prototype.add = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] += +x || 0;
@@ -863,11 +889,11 @@ Physics.util = {};
      * Physics.vector#sub( x, y ) -> this
      * - x (Number): amount to subtract from the x coordinate
      * - y (Number): amount to subtract from the y coordinate
-     * 
+     *
      * Subtract scalars [[Physics.vector]] from the coordinates.
      **/
     Vector.prototype.sub = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] -= x;
@@ -878,13 +904,13 @@ Physics.util = {};
     /**
      * Physics.vector#mult( m ) -> this
      * - m (Number): amount to multiply this vector by
-     * 
+     *
      * Multiply this by a scalar quantity.
      *
      * Same as scaling the vector by an amount `m`.
      **/
     Vector.prototype.mult = function( m ) {
-        
+
         if ( !this.recalc ){
 
             this._[4] *= m * m;
@@ -896,10 +922,10 @@ Physics.util = {};
         return this;
     };
 
-    /** 
+    /**
      * Physics.vector#dot( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the dot product of this vector with `v`.
      **/
     Vector.prototype.dot = function( v ) {
@@ -907,10 +933,10 @@ Physics.util = {};
         return (this._[0] * v._[0]) + (this._[1] * v._[1]);
     };
 
-    /** 
+    /**
      * Physics.vector#cross( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the (left-handed) cross product of this vector with `v`.
      **/
     Vector.prototype.cross = function( v ) {
@@ -921,7 +947,7 @@ Physics.util = {};
     /**
      * Physics.vector#proj( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [scalar projection](http://en.wikipedia.org/wiki/Vector_projection#Scalar_projection_2) of this along `v`.
      **/
     Vector.prototype.proj = function( v ){
@@ -933,7 +959,7 @@ Physics.util = {};
     /**
      * Physics.vector#vproj( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [vector projection](http://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2) of this along `v` and copy the result into this vector.
      **/
     Vector.prototype.vproj = function( v ){
@@ -946,7 +972,7 @@ Physics.util = {};
      * Physics.vector#angle( [v] ) -> Number
      * - v (Physics.vector): The other vector
      * + (Number): The angle in radians between this vector and the x-axis OR `v` if specified
-     * 
+     *
      * Compute the angle between `this` and vector `v` or this and x axis.
      **/
     Vector.prototype.angle = function( v ){
@@ -954,7 +980,7 @@ Physics.util = {};
         var ang;
 
         if ( this.equals( Vector.zero ) ){
-            
+
             if ( v ){
                 return v.angle();
             } else {
@@ -966,10 +992,10 @@ Physics.util = {};
             if ( v && !v.equals( Vector.zero ) ){
                 ang = atan2( this._[1] * v._[0] - this._[0] * v._[1], this._[0] * v._[0] + this._[1] * v._[1]);
             } else {
-                ang = atan2( this._[ 1 ], this._[ 0 ] );    
+                ang = atan2( this._[ 1 ], this._[ 0 ] );
             }
         }
-        
+
         while (ang > Math.PI){
             ang -= TWOPI;
         }
@@ -985,7 +1011,7 @@ Physics.util = {};
      * Physics.vector#angle2( left, right ) -> Number
      * - left (Physics.vector): The position on the left
      * - right (Physics.vector): The position on the right
-     * 
+     *
      * Compute the angle created between three points; left -> this -> right.
      **/
     Vector.prototype.angle2 = function( left, right ){
@@ -1010,7 +1036,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#norm() -> Number
-     * 
+     *
      * Compute the norm (length) of this vector.
      **/
     Vector.prototype.norm = function() {
@@ -1020,13 +1046,13 @@ Physics.util = {};
             this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
             this._[3] = sqrt( this._[4] );
         }
-        
+
         return this._[3];
     };
 
     /**
      * Physics.vector#normSq() -> Number
-     * 
+     *
      * Compute the norm (length) squared of this vector.
      **/
     Vector.prototype.normSq = function() {
@@ -1043,14 +1069,14 @@ Physics.util = {};
     /**
      * Physics.vector#dist( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance from this vector to another vector `v`.
      **/
     Vector.prototype.dist = function( v ) {
-      
+
         var dx, dy;
         return sqrt(
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -1058,14 +1084,14 @@ Physics.util = {};
     /**
      * Physics.vector#distSq( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance squared from this vector to another vector `v`.
      **/
     Vector.prototype.distSq = function( v ) {
 
         var dx, dy;
         return (
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -1073,7 +1099,7 @@ Physics.util = {};
     /**
      * Physics.vector#perp( [ccw] ) -> this
      * - ccw (Boolean): flag to indicate that we should rotate counterclockwise
-     * 
+     *
      * Change this vector into a vector that will be perpendicular.
      *
      * In other words, rotate by (+-) 90 degrees.
@@ -1103,7 +1129,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#normalize() -> this
-     * 
+     *
      * Normalise this vector, making it a unit vector.
      **/
     Vector.prototype.normalize = function() {
@@ -1129,7 +1155,7 @@ Physics.util = {};
     /**
      * Physics.vector#transform( t ) -> this
      * - t (Physics.transform): The transformation to apply
-     * 
+     *
      * Apply a [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transform = function( t ){
@@ -1145,7 +1171,7 @@ Physics.util = {};
 
         // rotate about origin "o" then translate
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ], 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ],
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y + t.v._[ 1 ]
         );
     };
@@ -1153,7 +1179,7 @@ Physics.util = {};
     /**
      * Physics.vector#transformInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse of
-     * 
+     *
      * Apply an inverse [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transformInv = function( t ){
@@ -1169,7 +1195,7 @@ Physics.util = {};
 
         // inverse translate then inverse rotate about origin "o"
         return this.set(
-            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x,
             - this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -1180,10 +1206,10 @@ Physics.util = {};
      * - t (Physics.transform): The transformation to apply the rotational part of
      * - ang (Number): The angle (in radians), to rotate by
      * - o (Vectorish): The point of origin of the rotation
-     * 
+     *
      * Rotate this vector.
-     * 
-     * An angle and rotation origin can be specified, 
+     *
+     * An angle and rotation origin can be specified,
      * or a transform can be specified and only the rotation
      * portion of that transform will be applied
      **/
@@ -1200,22 +1226,22 @@ Physics.util = {};
             cosA = Math.cos( t );
 
             if ( o ){
-                x = (o.x || o._[ 0 ]) | 0;
-                y = (o.y || o._[ 1 ]) | 0;
+                x = o.x;
+                y = o.y;
             }
         } else {
             sinA = t.sinA;
             cosA = t.cosA;
-        
+
             x = t.o._[ 0 ];
             y = t.o._[ 1 ];
         }
-            
+
         this._[ 0 ] -= x;
         this._[ 1 ] -= y;
 
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x,
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -1223,16 +1249,16 @@ Physics.util = {};
     /**
      * Physics.vector#rotateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse rotational part of
-     * 
+     *
      * Apply the inverse rotation of a transform.
-     * 
-     * Only the inverse rotation portion of 
+     *
+     * Only the inverse rotation portion of
      * that transform will be applied.
      **/
     Vector.prototype.rotateInv = function( t ){
 
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ],
             -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
         );
     };
@@ -1240,10 +1266,10 @@ Physics.util = {};
     /**
      * Physics.vector#translate( t ) -> this
      * - t (Physics.transform): The transformation to apply the translational part of
-     * 
+     *
      * Apply the translation of a transform.
-     * 
-     * Only the translation portion of 
+     *
+     * Only the translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translate = function( t ){
@@ -1254,10 +1280,10 @@ Physics.util = {};
     /**
      * Physics.vector#translateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse translational part of
-     * 
+     *
      * Apply the inverse translation of a transform.
-     * 
-     * Only the inverse translation portion of 
+     *
+     * Only the inverse translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translateInv = function( t ){
@@ -1271,10 +1297,10 @@ Physics.util = {};
      * - v (Vectorish): The vector-like object to clone
      * + (this): If `v` is specified as an argument
      * + (Physics.vector): A new vector instance that clones this vector, if no argument is specified
-     * 
+     *
      * Create a clone of this vector, or clone another vector into this instance.
      *
-     * This is especially useful in vector algorithms 
+     * This is especially useful in vector algorithms
      * that use temporary vectors (which most should).
      * You can create temporary vectors and then do things like...
      * ```
@@ -1285,7 +1311,7 @@ Physics.util = {};
      * ```
      **/
     Vector.prototype.clone = function( v ) {
-        
+
         // http://jsperf.com/vector-storage-test
 
         if ( v ){
@@ -1294,7 +1320,7 @@ Physics.util = {};
 
                 return this.set( v.x, v.y );
             }
-            
+
             this.recalc = v.recalc;
 
             if (!v.recalc){
@@ -1314,7 +1340,7 @@ Physics.util = {};
     /**
      * Physics.vector#swap( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Swap values with other vector.
      **/
     Vector.prototype.swap = function( v ){
@@ -1331,7 +1357,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#values() -> Object
-     * 
+     *
      * Get the coordinate values as an object literal.
      **/
     Vector.prototype.values = function(){
@@ -1345,7 +1371,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#zero() -> this
-     * 
+     *
      * Set the coordinates of this vector to zero.
      **/
     Vector.prototype.zero = function() {
@@ -1360,7 +1386,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#negate() -> this
-     * 
+     *
      * Flip this vector in the opposite direction.
      **/
     Vector.prototype.negate = function( component ){
@@ -1380,9 +1406,9 @@ Physics.util = {};
      * Physics.vector#clamp( minV, maxV ) -> this
      * - minV (Vectorish): The minimum vector
      * - maxV (Vectorish): The maximum vector
-     * 
+     *
      * Constrain vector components to minima and maxima.
-     * 
+     *
      * The vector analog of [scalar clamping](http://en.wikipedia.org/wiki/Clamping_(graphics)).
      **/
     Vector.prototype.clamp = function( minV, maxV ){
@@ -1395,7 +1421,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#toString() -> String
-     * 
+     *
      * Get a formatted string of this vector's coordinates.
      **/
     Vector.prototype.toString = function(){
@@ -1407,7 +1433,7 @@ Physics.util = {};
     /**
      * Physics.vector#equals( v ) -> Boolean
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Determine if this vector equals another.
      **/
     Vector.prototype.equals = function( v ){
@@ -1419,7 +1445,7 @@ Physics.util = {};
 
     /**
      * Physics.vector.axis = Array
-     * 
+     *
      * Read-only axis vectors for general reference.
      *
      * Example:
@@ -1436,7 +1462,7 @@ Physics.util = {};
 
     /**
      * Physics.vector.zero = zeroVector
-     * 
+     *
      * Read-only zero vector for reference
      **/
     Vector.zero = new Vector(0, 0);
@@ -1704,6 +1730,23 @@ Physics.util.indexOf = function indexOf(arr, value) {
     return -1;
 };
 
+
+// http://jsperf.com/array-destroy/87
+/**
+ * Physics.util.clearArray( arr ) -> Array
+ * - arr (Array): The array to clear
+ * + (Array): The array passed in
+ *
+ * Quickly clear an array.
+ **/
+Physics.util.clearArray = function clearArray(arr){
+    var l = arr.length;
+    while( l-- ){
+        arr.pop();
+    }
+    return arr;
+};
+
 /**
  * Physics.util.throttle( fn, delay ) -> Function
  * - fn (Function): The function to throttle
@@ -1726,7 +1769,7 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
             }
         }
         ;
-        
+
     scope = scope || null;
 
     return function(){
@@ -1765,6 +1808,16 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
  * });
  * ```
  **/
+// deep copy callback to extend deeper into options
+var deepCopyFn = function( a, b ){
+
+    if ( Physics.util.isPlainObject( b ) ){
+
+        return Physics.util.extend({}, a, b, deepCopyFn );
+    }
+
+    return b !== undefined ? b : a;
+};
 Physics.util.options = function( def, target ){
 
     var _def = {}
@@ -1773,9 +1826,9 @@ Physics.util.options = function( def, target ){
         ;
 
     // set options
-    fn = function fn( options ){
+    fn = function fn( options, deep ){
 
-        Physics.util.extend(target, options, null);
+        Physics.util.extend(target, options, deep ? deepCopyFn : null);
         for ( var i = 0, l = callbacks.length; i < l; ++i ){
             callbacks[ i ]( target );
         }
@@ -1783,9 +1836,9 @@ Physics.util.options = function( def, target ){
     };
 
     // add defaults
-    fn.defaults = function defaults( def ){
-        Physics.util.extend( _def, def );
-        Physics.util.defaults( target, _def );
+    fn.defaults = function defaults( def, deep ){
+        Physics.util.extend( _def, def, deep ? deepCopyFn : null );
+        Physics.util.defaults( target, _def, deep ? deepCopyFn : null );
         return _def;
     };
 
@@ -1943,7 +1996,7 @@ var maxPoolSize = 40;
 var keyPrefix = +new Date() + '';
 
 function releaseArray(array) {
-  array.length = 0;
+  Physics.util.clearArray( array );
   if (arrayPool.length < maxPoolSize) {
     arrayPool.push(array);
   }
@@ -2378,7 +2431,7 @@ Physics.scratchpad = (function(){
     var scratches = [];
     var numScratches = 0;
     var Scratch, Scratchpad;
-    
+
     var regIndex = 0;
 
 
@@ -2386,7 +2439,7 @@ Physics.scratchpad = (function(){
      * class Scratch
      *
      * A scratchpad session.
-     * 
+     *
      * This class keeps track of temporary objects used
      * in this session and releases them when finished (call to `.done()`).
      *
@@ -2401,7 +2454,7 @@ Physics.scratchpad = (function(){
         // private variables
         this._active = false;
         this._indexArr = [];
-        
+
         if (++numScratches >= Scratchpad.maxScratches){
             throw SCRATCH_MAX_REACHED;
         }
@@ -2414,9 +2467,9 @@ Physics.scratchpad = (function(){
          * - val (Mixed): No effect on this method, just passed on to the return value so you can do things like:
          return scratch.done( myReturnVal );
          * + (Mixed): Whatever you specified as `val`
-         * 
+         *
          * Declare that your work is finished.
-         * 
+         *
          * Release temp objects for use elsewhere. Must be called when immediate work is done.
          *
          * You can wrap the return value in scratch.done() so that you don't forget to call it.
@@ -2432,10 +2485,10 @@ Physics.scratchpad = (function(){
             this._active = false;
             var s;
             for ( var i = 0; i < regIndex; ++i ){
-                
+
                 this[ i ] = 0;
             }
-            
+
             // add it back to the scratch stack for future use
             scratches.push( this );
             return val;
@@ -2450,13 +2503,13 @@ Physics.scratchpad = (function(){
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance.
      * + (Function): The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.
      * + (Scratch): The scratch session.
-     * 
+     *
      * Get a new scratch session to work from or wrap a function in a scratch session.
-     * 
+     *
      * Call `.done()` on it when finished.
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // get a scratch session manually
      * var myAlg = function( scratch, arg1, arg2, ... ){
@@ -2473,7 +2526,7 @@ Physics.scratchpad = (function(){
      * ```
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // wrap a function in a scratch session
      * var myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){
@@ -2506,13 +2559,13 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.fn( fn ) -> Function
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].
      * + (Function): The wrapped function that can be reused like the original minus the first (scratch) parameter.
-     * 
+     *
      * Wrap a function in a scratch session.
      *
      * Same as calling `Physics.scratchpad( fn )` with a function specified.
      **/
     Scratchpad.fn = function( fn ){
-        
+
         var args = [];
         for ( var i = 0, l = fn.length; i < l; i++ ){
             args.push( i );
@@ -2535,7 +2588,7 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.register( name, constructor )
      * - name (String): Name of the object class
      * - constructor (Function): The object constructor
-     * 
+     *
      * Register a new object to be included in scratchpads.
      *
      * Example:
@@ -2558,7 +2611,7 @@ Physics.scratchpad = (function(){
         }
 
         // create a new function on the prototype
-        proto[ name ] = function(){
+        Scratch.prototype[ name ] = function(){
 
             // get the stack (or initialize it)
             var stack = this[ stackname ] || (this[ stackname ] = [])
@@ -2581,7 +2634,7 @@ Physics.scratchpad = (function(){
             }
 
             // return or create new instance
-            return stack[ stackIndex ] || 
+            return stack[ stackIndex ] ||
                     (stack[ stackIndex ] = useFactory ? constructor() : new constructor() );
         };
 
@@ -2595,10 +2648,13 @@ Physics.scratchpad = (function(){
 
 })();
 
+
 // ---
 // inside: src/util/pubsub.js
 
 (function(){
+
+    var defaultPriority = 1;
 
     function getPriority( val ){
         return val._priority_;
@@ -2666,13 +2722,14 @@ Physics.scratchpad = (function(){
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
+                fn._scope_ = scope;
 
-            } else if (!priority) {
+            } else if ( priority === undefined ) {
 
                 priority = scope;
             }
 
-            fn._priority_ = priority;
+            fn._priority_ = priority === undefined ? defaultPriority : priority;
 
             idx = Physics.util.sortedIndex( listeners, fn, getPriority );
 
@@ -2681,15 +2738,16 @@ Physics.scratchpad = (function(){
         },
 
         /**
-         * Physics.util.pubsub#off( topic, fn ) -> this
+         * Physics.util.pubsub#off( topic, fn[, scope] ) -> this
          * Physics.util.pubsub#off( topicCfg ) -> this
          * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
          * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
          * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+         * - scope (Object): The scope the callback was bound to. This is important if you are binding methods that come from object prototypes.
          *
          * Unsubscribe callback(s) from topic(s).
          **/
-        off: function( topic, fn ){
+        off: function( topic, fn, scope ){
 
             var listeners
                 ,listn
@@ -2734,7 +2792,10 @@ Physics.scratchpad = (function(){
 
                 listn = listeners[ i ];
 
-                if ( listn._bindfn_ === fn || listn === fn ){
+                if (
+                    (listn._bindfn_ === fn || listn === fn) &&
+                    ( (!scope) || listn._scope_ === scope) // check the scope too if specified
+                ){
                     listeners.splice( i, 1 );
                     break;
                 }
@@ -2839,7 +2900,7 @@ Physics.scratchpad = (function(){
  **/
 (function(window){
 
-    var active = false
+    var active = true
         ,ps = Physics.util.pubsub()
         ,perf = window.performance
         ;
@@ -2861,6 +2922,8 @@ Physics.scratchpad = (function(){
 
         var time;
 
+        window.requestAnimationFrame( step );
+
         if (!active){
             return;
         }
@@ -2871,8 +2934,14 @@ Physics.scratchpad = (function(){
             return;
         }
 
-        window.requestAnimationFrame( step );
         ps.emit( 'tick', time );
+    }
+
+    // start stepping if we can
+    if ( window.requestAnimationFrame ){
+        step();
+    } else {
+        active = false;
     }
 
     /**
@@ -2883,7 +2952,6 @@ Physics.scratchpad = (function(){
     function start(){
 
         active = true;
-        step();
         return this;
     }
 
@@ -3098,7 +3166,7 @@ Physics.scratchpad = (function(){
      * Get a test function to match any body who's aabb intersects point
      **/
     var $at = function $at( point ){
-        point = Physics.vector( point );
+        point = new Physics.vector( point );
         return function( body ){
             var aabb = body.aabb();
             return Physics.aabb.contains( aabb, point );
@@ -3416,7 +3484,7 @@ Physics.scratchpad = (function(){
         disconnect: function( world ){
 
             if (this.behave){
-                world.off('integrate:positions', this.behave);
+                world.off('integrate:positions', this.behave, this);
             }
         },
 
@@ -3456,6 +3524,44 @@ Physics.scratchpad = (function(){
         view: null
     };
 
+    // Running average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean
+    // s is current std deviation
+    // v is value to push
+    function pushRunningAvg( k, m, s, v ){
+
+        var x = v - m;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m += x / k;
+        s += x * (v - m);
+    }
+
+    // Running vector average
+    // http://www.johndcook.com/blog/standard_deviation
+    // k is num elements
+    // m is current mean (vector)
+    // s is current std deviation (vector)
+    // v is vector to push
+    function pushRunningVectorAvg( k, m, s, v ){
+        var invK = 1/k
+            ,x = v.get(0) - m.get(0)
+            ,y = v.get(1) - m.get(1)
+            ;
+
+        // Mk = Mk-1+ (xk – Mk-1)/k
+        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+        m.add( x * invK, y * invK );
+
+        x *= v.get(0) - m.get(0);
+        y *= v.get(1) - m.get(1);
+
+        s.add( x, y );
+    }
+
     var uidGen = 1;
 
     /** related to: Physics.util.decorator
@@ -3478,7 +3584,9 @@ Physics.scratchpad = (function(){
             // what is its coefficient of friction with another surface with COF = 1?
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
-            view: null
+            view: null,
+            // the vector offsetting the geometry from its center of mass
+            offset: Physics.vector(0,0)
         }
        ```
      *
@@ -3503,6 +3611,7 @@ Physics.scratchpad = (function(){
          **/
         init: function( options ){
 
+            var self = this;
             var vector = Physics.vector;
 
             /** related to: Physics.util.options
@@ -3523,6 +3632,9 @@ Physics.scratchpad = (function(){
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
+            this.options.onChange(function( opts ){
+                self.offset = new vector( opts.offset );
+            });
             this.options( options );
 
             /**
@@ -3543,18 +3655,18 @@ Physics.scratchpad = (function(){
              * ```
              **/
             this.state = {
-                pos: vector( this.x, this.y ),
-                vel: vector( this.vx, this.vy ),
-                acc: vector(),
+                pos: new vector( this.x, this.y ),
+                vel: new vector( this.vx, this.vy ),
+                acc: new vector(),
                 angular: {
                     pos: this.angle || 0.0,
                     vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
-                    pos: vector(),
-                    vel: vector(),
-                    acc: vector(),
+                    pos: new vector(),
+                    vel: new vector(),
+                    acc: new vector(),
                     angular: {
                         pos: 0.0,
                         vel: 0.0,
@@ -3562,6 +3674,13 @@ Physics.scratchpad = (function(){
                     }
                 }
             };
+
+            // private storage for sleeping
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
 
             // cleanup
             delete this.x;
@@ -3595,6 +3714,12 @@ Physics.scratchpad = (function(){
              * Body#mass = 1.0
              *
              * The mass.
+             **/
+
+            /**
+             * Body#offset
+             *
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -3666,12 +3791,108 @@ Physics.scratchpad = (function(){
                  **/
 
                 /** related to: Physics.renderer
-                 * Body#style
+                 * Body#styles
                  *
                  * The styles the renderer should use for creating the view.
                  *
                  * The styles depend on the renderer. See [[Renderer#createView]] for style options.
                  **/
+        },
+
+        /**
+         * Body#sleep( [dt] ) -> Boolean
+         * - dt (Number): Time to advance the idle time
+         * - dt (Boolean): If `true`, the body will be forced to sleep. If `false`, the body will be forced to awake.
+         *
+         * Get and/or set whether the body is asleep.
+         *
+         * If called with a time (in ms), the time will be added to the idle time and sleep conditions will be checked.
+         **/
+        sleep: function( dt ){
+
+            if ( dt === true ){
+                // force sleep
+                this.asleep = true;
+
+            } else if ( dt === false ){
+                // force wakup
+                this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
+                this.sleepIdleTime = 0;
+
+            } else if ( dt && !this.asleep ) {
+
+                this.sleepCheck( dt );
+            }
+
+            return this.asleep;
+        },
+
+        /**
+         * Body#sleepCheck( [dt] )
+         * - dt (Number): Time to advance the idle time
+         *
+         * Check if the body should be sleeping.
+         *
+         * Call with no arguments if some event could possibly wake up the body. This will force the body to recheck.
+         **/
+        sleepCheck: function( dt ){
+
+            var opts = this._world && this._world.options;
+
+            // if sleeping disabled. stop.
+            if ( this.sleepDisabled || (opts && opts.sleepDisabled) ){
+                return;
+            }
+
+            var limit
+                ,v
+                ,d
+                ,r
+                ,aabb
+                ,scratch = Physics.scratchpad()
+                ,diff = scratch.vector()
+                ,diff2 = scratch.vector()
+                ;
+
+            dt = dt || 0;
+            aabb = this.geometry.aabb();
+            r = Math.max(aabb.hw, aabb.hh);
+
+            if ( this.asleep ){
+                // check velocity
+                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
+                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
+
+                if ( v >= limit ){
+                    this.sleep( false );
+                    return scratch.done();
+                }
+            }
+
+            this._sleepMeanK++;
+            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
+            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
+            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
+
+            if ( v <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
+
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleep( false );
+            }
+
+            scratch.done();
         },
 
         /**
@@ -3732,7 +3953,7 @@ Physics.scratchpad = (function(){
 
             // if no point at which to apply the force... apply at center of mass
             if ( p && this.moi ){
-                
+
                 // apply torques
                 state = this.state;
                 r.clone( p );
@@ -3746,6 +3967,20 @@ Physics.scratchpad = (function(){
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -3755,13 +3990,39 @@ Physics.scratchpad = (function(){
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos.x;
-            aabb.y += this.state.pos.y;
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
+        },
+
+        /**
+         * Body#toBodyCoords( v ) -> Physics.vector
+         * - v (Physics.vector): The vector to transform
+         * + (Physics.vector): The transformed vector
+         *
+         * Transform a vector into coordinates relative to this body.
+         **/
+        toBodyCoords: function( v ){
+            return v.vsub( this.state.pos ).rotate( -this.state.angular.pos );
+        },
+
+        /**
+          * Body#toWorldCoords( v ) -> Physics.vector
+          * - v (Physics.vector): The vector to transform
+          * + (Physics.vector): The transformed vector
+          *
+          * Transform a vector from body coordinates into world coordinates.
+          **/
+        toWorldCoords: function( v ){
+            return v.rotate( this.state.angular.pos ).vadd( this.state.pos );
         },
 
         /**
@@ -3776,6 +4037,47 @@ Physics.scratchpad = (function(){
             return this;
         }
     });
+
+    /**
+     * Body.getCOM( bodies[, com] ) -> Physics.vector
+     * - bodies (Array): The list of bodies
+     * - com (Physics.vector): The vector to put result into. A new vector will be created if not provided.
+     * + (Physics.vector): The center of mass position
+     *
+     * Get center of mass position from list of bodies.
+     **/
+    Physics.body.getCOM = function( bodies, com ){
+        // @TODO add a test for this fn
+        var b
+            ,pos
+            ,i
+            ,l = bodies && bodies.length
+            ,M = 0
+            ;
+
+        com = com || new Physics.vector();
+
+        if ( !l ){
+            return com.zero();
+        }
+
+        if ( l === 1 ){
+            return com.clone( bodies[0].state.pos );
+        }
+
+        com.zero();
+
+        for ( i = 0; i < l; i++ ){
+            b = bodies[ i ];
+            pos = b.state.pos;
+            com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+            M += b.mass;
+        }
+
+        com.mult( 1 / M );
+
+        return com;
+    };
 
 }());
 
@@ -3866,7 +4168,7 @@ Physics.scratchpad = (function(){
          **/
         getFarthestHullPoint: function( dir, result ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );
@@ -3888,7 +4190,7 @@ Physics.scratchpad = (function(){
          **/
         getFarthestCorePoint: function( dir, result, margin ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );
@@ -4117,7 +4419,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     var scratch = Physics.scratchpad()
         ,prev = scratch.vector()
         ,next = scratch.vector()
-        ,ret = Physics.vector()
+        ,ret = new Physics.vector()
         ,tmp
         ,l = hull.length
         ;
@@ -4125,14 +4427,14 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     if ( l < 2 ){
         // it must be a point
         scratch.done();
-        return Physics.vector( hull[0] );
+        return new Physics.vector( hull[0] );
     }
 
     if ( l === 2 ){
         // it's a line
         // get the midpoint
         scratch.done();
-        return Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
+        return new Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
     }
 
     prev.clone( hull[ l - 1 ] );
@@ -4177,7 +4479,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     lambdaB = - L.dot( A ) / L.normSq();
@@ -4187,15 +4489,15 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
-        return Physics.vector( linePt2 );
+        return new Physics.vector( linePt2 );
     } else if ( lambdaB <= 0 ){
         // vice versa
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     // guess we'd better do the math now...
-    p = Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
+    p = new Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
     scratch.done();
     return p;
 };
@@ -4220,7 +4522,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      * - name (String): The name of the integrator to create
      * - options (Object): The configuration for that integrator ( depends on integrator ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // drag applied during integration
@@ -4246,28 +4548,29 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /** internal
          * Integrator#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
-            
+
             /** related to: Physics.util.options
              * Integrator#options( options ) -> Object
              * - options (Object): The options to set as an object
              * + (Object): The options
-             * 
-             * Set options on this instance. 
-             * 
+             *
+             * Set options on this instance.
+             *
              * Access options directly from the options object.
-             * 
+             *
              * Example:
              *
              * ```javascript
              * this.options.someOption;
              * ```
-             * 
+             *
              **/
             this.options = Physics.util.options( defaults );
+            this.options( options );
         },
 
         /**
@@ -4297,7 +4600,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integrate( bodies, dt ) -> this
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Integrate bodies by timestep.
          *
          * Will emit `integrate:velocities` and `integrate:positions`
@@ -4308,7 +4611,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             var world = this._world;
 
             this.integrateVelocities( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:velocities', {
                     bodies: bodies,
@@ -4317,7 +4620,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
 
             this.integratePositions( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:positions', {
                     bodies: bodies,
@@ -4331,7 +4634,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Integrator#connect( world )
          * - world (Physics.world): The world to connect to
-         * 
+         *
          * Connect to a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -4342,7 +4645,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Integrator#disconnect( world )
          * - world (Physics.world): The world to disconnect from
-         * 
+         *
          * Disconnect from a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -4354,7 +4657,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integrateVelocities( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the velocities.
          *
          * Should be overridden when creating integrators.
@@ -4368,11 +4671,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integratePositions( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the positions.
          *
          * Called after [[Integrator#integrateVelocities]].
-         * 
+         *
          * Should be overridden when creating integrators.
          **/
         integratePositions: function( bodies, dt ){
@@ -4382,6 +4685,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     });
 
 }());
+
 
 // ---
 // inside: src/core/renderer.js
@@ -4397,7 +4701,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // width of viewport
         width: 600,
         // height of viewport
-        height: 600
+        height: 600,
+        // automatically resize the renderer
+        autoResize: true
     };
 
     /** related to: Physics.util.decorator
@@ -4417,6 +4723,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             width: 600,
             // height of viewport
             height: 600
+            // automatically resize the renderer
+            autoResize: true
         }
        ```
      *
@@ -4441,13 +4749,43 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          **/
         init: function( options ){
 
-            var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
+            var self = this
+                ,el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
                 ;
 
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options(defaults);
+            this.options( options );
 
             this.el = el ? el : document.body;
+            this.container = el && el.parentNode ? el.parentNode : document.body;
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
+
+            window.addEventListener('resize', Physics.util.throttle(function(){
+                if ( self.options.autoResize ){
+                    self.resize();
+                }
+            }), 100);
+        },
+
+        /**
+         * Renderer#resize( [width, height] ) -> this
+         * - width (Number): The width in px
+         * - height (Number): The height in px
+         *
+         * Set the dimensions of the renderer.
+         *
+         * If no dimensions are specified it will auto resize.
+         **/
+        resize: function( width, height ){
+
+            if ( width === undefined && height === undefined ){
+                width = this.container.offsetWidth;
+                height = this.container.offsetHeight;
+            }
+
+            this.width = width || 0;
+            this.height = height || 0;
+            // should be implemented in renderers
         },
 
         /**
@@ -4625,13 +4963,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 120,
+        timestep: 6,
         // maximum number of iterations per step
-        maxIPF: 16,
+        maxIPF: 4,
         webworker: false, // NOT YET IMPLEMENTED
 
         // default integrator
-        integrator: 'verlet'
+        integrator: 'verlet',
+
+        // is sleeping disabled?
+        sleepDisabled: false,
+        // speed at which bodies wake up
+        sleepSpeedLimit: 0.1,
+        // variance in position below which bodies fall asleep
+        sleepVarianceLimit: 2,
+        // time (ms) before sleepy bodies fall asleep
+        sleepTimeLimit: 500
     };
 
     // begin world definitions
@@ -4651,12 +4998,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      *
      * ```javascript
      * {
-     *     // default timestep
-     *     timestep: 1000.0 / 120,
-     *     // maximum number of iterations per step
-     *     maxIPF: 16,
-     *     // default integrator
-     *     integrator: 'verlet'
+     *  // default timestep
+     *  timestep: 6,
+     *  // maximum number of iterations per step
+     *  maxIPF: 4,
+     *
+     *  // default integrator
+     *  integrator: 'verlet',
+     *
+     *  // is sleeping disabled?
+     *  sleepDisabled: false,
+     *  // speed at which bodies wake up
+     *  sleepSpeedLimit: 0.1,
+     *  // variance in position below which bodies fall asleep
+     *  sleepVarianceLimit: 2,
+     *  // time (ms) before sleepy bodies fall asleep
+     *  sleepTimeLimit: 500
      * }
      * ```
      *
@@ -4782,7 +5139,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -4830,7 +5187,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -5009,7 +5366,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             if ( dt ){
 
-                this._dt = dt;
+                this._dt = +dt.toPrecision(4); // only keep 4 decimal places of precision otherwise we get rounding errors
                 // calculate the maximum jump in time over which to do iterations
                 this._maxJump = dt * this.options.maxIPF;
 
@@ -5017,6 +5374,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
 
             return this._dt;
+        },
+
+        /** chainable
+         * Physics.world#wakeUpAll() -> this
+         * + (this): for chaining
+         *
+         * Wake up all bodies in world.
+         **/
+        wakeUpAll: function(){
+            var i = 0
+                ,l = this._bodies.length
+                ;
+
+            for ( i = 0; i < l; i++ ){
+                this._bodies[ i ].sleep( false );
+            }
         },
 
         /** chainable
@@ -5250,6 +5623,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // the target time for the world time to step to
             target = time + worldDiff - dt;
 
+            this.emit('beforeStep');
+
             if ( time <= target ){
 
                 while ( time <= target ){
@@ -5404,12 +5779,12 @@ Physics.integrator('verlet', function( parent ){
 
 
     return {
-        /** 
+        /**
          * class Verlet < Integrator
          *
          * `Physics.integrator('verlet')`.
          *
-         * The improved euler integrator.
+         * The verlet integrator.
          **/
 
         // extended
@@ -5427,6 +5802,8 @@ Physics.integrator('verlet', function( parent ){
                 ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
+                ,prevDt = this.prevDt || dt
+                ,dtMul = (dtdt + dt * prevDt) * 0.5
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -5435,24 +5812,24 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
-                    // 
+                    //
                     // v = x - ox
                     // x = x + (v + a * dt * dt)
 
                     // use the velocity in vel if the velocity has been changed manually
                     if (state.vel.equals( state.old.vel ) && body.started()){
-                            
+
                         // Get velocity by subtracting old position from curr position
                         state.vel.clone( state.pos ).vsub( state.old.pos );
 
                     } else {
 
                         state.old.pos.clone( state.pos ).vsub( state.vel );
-                        // so we need to scale the value by dt so it 
+                        // so we need to scale the value by dt so it
                         // complies with other integration methods
                         state.vel.mult( dt );
                     }
@@ -5465,9 +5842,9 @@ Physics.integrator('verlet', function( parent ){
 
                     // Apply acceleration
                     // v += a * dt * dt
-                    state.vel.vadd( state.acc.mult( dtdt ) );
+                    state.vel.vadd( state.acc.mult( dtMul ) );
 
-                    // normalize velocity 
+                    // restore velocity
                     state.vel.mult( 1/dt );
 
                     // store calculated velocity
@@ -5478,7 +5855,7 @@ Physics.integrator('verlet', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     if (state.angular.vel === state.old.angular.vel && body.started()){
 
@@ -5490,7 +5867,7 @@ Physics.integrator('verlet', function( parent ){
                         state.angular.vel *= dt;
                     }
 
-                    state.angular.vel += state.angular.acc * dtdt;
+                    state.angular.vel += state.angular.acc * dtMul;
                     state.angular.vel /= dt;
                     state.old.angular.vel = state.angular.vel;
                     state.angular.acc = 0;
@@ -5514,6 +5891,8 @@ Physics.integrator('verlet', function( parent ){
             var dtdt = dt * dt
                 ,body = null
                 ,state
+                ,prevDt = this.prevDt || dt
+                ,dtcorr = dt/prevDt
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -5522,42 +5901,43 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
-                    // so we need to scale the value by dt so it 
+                    // so we need to scale the value by dt so it
                     // complies with other integration methods
-                    state.vel.mult( dt );
-                
+                    state.vel.mult( dt * dtcorr );
+
                     // Store old position.
                     // xold = x
                     state.old.pos.clone( state.pos );
 
                     state.pos.vadd( state.vel );
 
-                    // normalize velocity 
-                    state.vel.mult( 1/dt );
+                    // restore velocity
+                    state.vel.mult( 1 / (dt * dtcorr) );
 
                     // store calculated velocity
                     state.old.vel.clone( state.vel );
 
                     //
                     // Angular components
-                    // 
+                    //
 
-                    
-                    state.angular.vel *= dt;
-                
+
+                    state.angular.vel *= dt * dtcorr;
+
                     state.old.angular.pos = state.angular.pos;
 
                     state.angular.pos += state.angular.vel;
-                    state.angular.vel /= dt;
+                    state.angular.vel /= dt * dtcorr;
                     state.old.angular.vel = state.angular.vel;
                 }
             }
+
+            this.prevDt = dt;
         }
     };
 });
-
 
 
 // ---

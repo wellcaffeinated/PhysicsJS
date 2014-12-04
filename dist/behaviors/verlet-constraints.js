@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-04
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -67,7 +67,7 @@
             // extended
             disconnect: function( world ){
     
-                world.off('integrate:positions', this.resolve);
+                world.off('integrate:positions', this.resolve, this);
             },
     
             /**
