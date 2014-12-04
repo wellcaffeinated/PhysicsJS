@@ -56,6 +56,38 @@
      *    }
      * }
      * ```
+     *
+     * Styles can also be defined on a per-body basis. Use the "styles" property for a body:
+     *
+     * Example:
+     *
+     * ```javascript
+     * Physics.body('circle', {
+     *     // ...
+     *     styles: {
+     *        strokeStyle: '0x542437',
+     *        lineWidth: 1,
+     *        fillStyle: '0x542437',
+     *        angleIndicator: '0xFFFFFF'
+     *    }
+     * });
+     * ```
+     *
+     * You can also define an image to use for a body:
+     *
+     * Example:
+     *
+     * ```javascript
+     * Physics.body('circle', {
+     *     // ...
+     *     styles: {
+     *        src: 'path/to/image.jpg',
+     *        width: 40,
+     *        height: 50,
+     *        anchor: { x: 0.5, y: 0.5 }
+     *    }
+     * });
+     * ```
      **/
     /* global PIXI */
     Physics.renderer('pixi', function( parent ){
@@ -451,6 +483,22 @@
     
                 parent = parent || this.stage;
                 styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
+    
+                // must want an image
+                if ( styles.src ){
+                    view = PIXI.Sprite.fromImage( styles.src );
+                    if ( styles.anchor ) {
+                        view.anchor.x = styles.anchor.x;
+                        view.anchor.y = styles.anchor.y;
+                    }
+                    if ( styles.width ){
+                        view.width = styles.width;
+                    }
+                    if ( styles.height ){
+                        view.height = styles.height;
+                    }
+                    return view;
+                }
     
                 if (name === 'circle'){
     

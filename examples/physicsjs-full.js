@@ -4207,10 +4207,37 @@ Physics.scratchpad = (function(){
  */
 
 /**
+ * Physics.geometry.regularPolygonVertices( sides, radius ) -> Array
+ * - sides (Number): Number of sides the polygon has
+ * - radius (Number): Size from center to a vertex
+ * + (Array): A list of [[Vectorish]] objects representing the vertices
+ *
+ * Generate a list of vertices for a regular polygon of any number of sides.
+ **/
+Physics.geometry.regularPolygonVertices = function( sides, radius ){
+    var verts = []
+        ,angle = Math.PI * 2 / sides
+        ,a = 0
+        ,i
+        ;
+
+    for ( i = 0; i < sides; i++ ){
+        verts.push({
+            x: radius * Math.cos( a )
+            ,y: radius * Math.sin( a )
+        });
+
+        a += angle;
+    }
+
+    return verts;
+};
+
+/**
  * Physics.geometry.isPolygonConvex( hull ) -> Boolean
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if the polygon is convex. `false` otherwise.
- * 
+ *
  * Determine if polygon hull is convex
  **/
 Physics.geometry.isPolygonConvex = function( hull ){
@@ -4241,7 +4268,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
     // edge and retain the last edge
     // add two to the length to do a full cycle
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( tmp.clone( hull[ (i - 1) % l ] ) );
 
         if ( sign === false ){
@@ -4250,7 +4277,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
             sign = prev.cross( next );
 
         } else if ( (sign > 0) ^ (prev.cross( next ) > 0) ){
-        
+
             // if the cross products are different signs it's not convex
             ret = false;
             break;
@@ -4268,13 +4295,13 @@ Physics.geometry.isPolygonConvex = function( hull ){
  * Physics.geometry.getPolygonMOI( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The polygon's moment of inertia
- * 
+ *
  * Gets the moment of inertia of a convex polygon
  *
  * See [List of moments of inertia](http://en.wikipedia.org/wiki/List_of_moments_of_inertia)
  * for more information.
- * 
- * _Note_: we make the following assumpations: 
+ *
+ * _Note_: we make the following assumpations:
  * * mass is unitary (== 1)
  * * axis of rotation is the origin
  **/
@@ -4307,7 +4334,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
     prev.clone( hull[ 0 ] );
 
     for ( var i = 1; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = Math.abs( next.cross( prev ) );
@@ -4326,7 +4353,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
  * - pt (Vectorish): The point to test
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if point `pt` is inside the polygon
- * 
+ *
  * Check if point is inside polygon hull.
  **/
 Physics.geometry.isPointInPolygon = function( pt, hull ){
@@ -4359,7 +4386,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
     // calculate the sum of angles between vector pairs
     // from point to vertices
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( point );
         ang += next.angle( prev );
         prev.swap( next );
@@ -4373,7 +4400,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
  * Physics.geometry.getPolygonArea( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The area (positive for clockwise ordering)
- * 
+ *
  * Get the signed area of the polygon.
  **/
 Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
@@ -4395,7 +4422,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         ret += prev.cross( next );
@@ -4411,7 +4438,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
  * Physics.geometry.getPolygonCentroid( hull ) -> Physics.vector
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Physics.vector): The centroid
- * 
+ *
  * Get the coordinates of the centroid.
  **/
 Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
@@ -4440,7 +4467,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = prev.cross( next );
@@ -4462,7 +4489,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
  * - linePt1 (Vectorish): The first endpoint of the line
  * - linePt2 (Vectorish): The second endpoint of the line
  * + (Vector): The closest point
- * 
+ *
  * Get the closest point on a discrete line to specified point.
  **/
 Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
@@ -4501,7 +4528,6 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     scratch.done();
     return p;
 };
-
 
 
 // ---
@@ -9141,7 +9167,7 @@ Physics.behavior('sweep-prune', function( parent ){
 // ---
 // inside: src/behaviors/verlet-constraints.js
 
-/** 
+/**
  * class VerletConstraintsBehavior < Behavior
  *
  * `Physics.behavior('verlet-constraints')`.
@@ -9197,7 +9223,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /**
          * VerletConstraintsBehavior#drop() -> this
-         * 
+         *
          * Remove all constraints
          **/
         drop: function(){
@@ -9215,7 +9241,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
          * - targetLength (Number): Target length. defaults to current distance between the bodies
          * + (Object): The constraint data object
-         * 
+         *
          * Constrain two bodies to a target relative distance.
          *
          * Returns constraint data that can be used to remove the constraint later.
@@ -9258,7 +9284,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
          * - targetAngle (Number): Target angle. Defaults to the current angle between bodies
          * + (Object): The constraint data object
-         * 
+         *
          * Constrain three bodies to a target relative angle
          *
          * Returns constraint data that can be used to remove the constraint later.
@@ -9297,7 +9323,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * VerletConstraintsBehavior#remove( constraintId ) -> this
          * - constraintData (Object): The constraint data returned when creating a constraint
          * - constraintId (String): The constraint id
-         * 
+         *
          * Remove a constraint
          **/
         remove: function( cstrOrId ){
@@ -9317,7 +9343,7 @@ Physics.behavior('verlet-constraints', function( parent ){
             if ( isObj ){
 
                 for ( i = 0, l = constraints.length; i < l; ++i ){
-                    
+
                     if ( constraints[ i ] === cstrOrId ){
 
                         constraints.splice( i, 1 );
@@ -9327,7 +9353,7 @@ Physics.behavior('verlet-constraints', function( parent ){
             } else {
 
                 for ( i = 0, l = constraints.length; i < l; ++i ){
-                    
+
                     if ( constraints[ i ].id === cstrOrId ){
 
                         constraints.splice( i, 1 );
@@ -9342,7 +9368,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /** internal
          * VerletConstraintsBehavior#resolveAngleConstraints( coef )
          * - coef (Number): Coefficient for this resolution phase
-         * 
+         *
          * Resolve angle constraints.
          **/
         resolveAngleConstraints: function( coef ){
@@ -9358,7 +9384,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 ;
 
             for ( var i = 0, l = constraints.length; i < l; ++i ){
-            
+
                 con = constraints[ i ];
 
                 ang = con.bodyB.state.pos.angle2( con.bodyA.state.pos, con.bodyC.state.pos );
@@ -9369,11 +9395,11 @@ Physics.behavior('verlet-constraints', function( parent ){
                     continue;
 
                 } else if (corr <= -Math.PI){
-                
+
                     corr += TWOPI;
 
                 } else if (corr >= Math.PI){
-                
+
                     corr -= TWOPI;
                 }
 
@@ -9388,7 +9414,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyA.treatment === 'dynamic' ){
 
                     if ( con.bodyB.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                        
+
                         ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyB.treatment !== 'dynamic' ){
@@ -9400,7 +9426,6 @@ Physics.behavior('verlet-constraints', function( parent ){
                         ang = corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyA.mass );
                     }
 
-                    // ang = corr;
 
                     trans.setRotation( ang );
                     con.bodyA.state.pos.translateInv( trans );
@@ -9411,19 +9436,17 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyC.treatment === 'dynamic' ){
 
                     if ( con.bodyA.treatment === 'dynamic' && con.bodyB.treatment === 'dynamic' ){
-                        
+
                         ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
 
                     } else if ( con.bodyB.treatment !== 'dynamic' ){
 
                         ang = -corr * con.bodyA.mass / ( con.bodyC.mass + con.bodyA.mass );
-                        
+
                     } else {
 
                         ang = -corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyC.mass );
                     }
-
-                    // ang = -corr;
 
                     trans.setRotation( ang );
                     con.bodyC.state.pos.translateInv( trans );
@@ -9434,13 +9457,13 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyB.treatment === 'dynamic' ){
 
                     if ( con.bodyA.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                        
+
                         ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyA.treatment !== 'dynamic' ){
 
                         ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyB.mass );
-                        
+
                     } else {
 
                         ang = corr * con.bodyA.mass / ( con.bodyA.mass + con.bodyC.mass );
@@ -9458,6 +9481,10 @@ Physics.behavior('verlet-constraints', function( parent ){
                     con.bodyB.state.pos.rotateInv( trans );
                     con.bodyB.state.pos.translate( trans );
                 }
+
+                con.bodyA.sleepCheck();
+                con.bodyB.sleepCheck();
+                con.bodyC.sleepCheck();
             }
 
             scratch.done();
@@ -9466,7 +9493,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /** internal
          * VerletConstraintsBehavior#resolveDistanceConstraints( coef )
          * - coef (Number): Coefficient for this resolution phase
-         * 
+         *
          * Resolve distance constraints.
          **/
         resolveDistanceConstraints: function( coef ){
@@ -9481,7 +9508,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 ;
 
             for ( var i = 0, l = constraints.length; i < l; ++i ){
-            
+
                 con = constraints[ i ];
 
                 // move constrained bodies to target length based on their
@@ -9489,7 +9516,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 BA.clone( con.bodyB.state.pos ).vsub( con.bodyA.state.pos );
                 len = BA.normSq() || Math.random() * 0.0001;
                 corr = coef * con.stiffness * ( len - con.targetLengthSq ) / len;
-                
+
                 BA.mult( corr );
                 proportion = (con.bodyA.treatment !== 'dynamic' || con.bodyB.treatment !== 'dynamic') ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
 
@@ -9514,6 +9541,9 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                     con.bodyB.state.pos.vsub( BA );
                 }
+
+                con.bodyA.sleepCheck();
+                con.bodyB.sleepCheck();
             }
 
             scratch.done();
@@ -9521,7 +9551,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#shuffleConstraints()
-         * 
+         *
          * Mix up the constraints.
          **/
         shuffleConstraints: function(){
@@ -9532,7 +9562,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#resolve()
-         * 
+         *
          * Resolve all constraints.
          **/
         resolve: function(){
@@ -9552,7 +9582,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /**
          * VerletConstraintsBehavior#getConstraints() -> Object
          * + (Object): The object containing copied arrays of the constraints
-         * 
+         *
          * Get all constraints.
          **/
         getConstraints: function(){
@@ -10092,6 +10122,37 @@ Physics.integrator('velocity-verlet', function( parent ){
  *        angleIndicator: 'white'
  *    }
  * }
+ * ```
+ *
+ * Styles can also be defined on a per-body basis. Use the "styles" property for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        strokeStyle: '#542437',
+ *        lineWidth: 1,
+ *        fillStyle: '#542437',
+ *        angleIndicator: 'white'
+ *    }
+ * });
+ * ```
+ *
+ * You can also define an image to use for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        src: 'path/to/image.jpg',
+ *        width: 40,
+ *        height: 50
+ *    }
+ * });
  * ```
  **/
 Physics.renderer('canvas', function( proto ){
@@ -11158,6 +11219,38 @@ Physics.renderer('dom', function( proto ){
  *    }
  * }
  * ```
+ *
+ * Styles can also be defined on a per-body basis. Use the "styles" property for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        strokeStyle: '0x542437',
+ *        lineWidth: 1,
+ *        fillStyle: '0x542437',
+ *        angleIndicator: '0xFFFFFF'
+ *    }
+ * });
+ * ```
+ *
+ * You can also define an image to use for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        src: 'path/to/image.jpg',
+ *        width: 40,
+ *        height: 50,
+ *        anchor: { x: 0.5, y: 0.5 }
+ *    }
+ * });
+ * ```
  **/
 /* global PIXI */
 Physics.renderer('pixi', function( parent ){
@@ -11553,6 +11646,22 @@ Physics.renderer('pixi', function( parent ){
 
             parent = parent || this.stage;
             styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
+
+            // must want an image
+            if ( styles.src ){
+                view = PIXI.Sprite.fromImage( styles.src );
+                if ( styles.anchor ) {
+                    view.anchor.x = styles.anchor.x;
+                    view.anchor.y = styles.anchor.y;
+                }
+                if ( styles.width ){
+                    view.width = styles.width;
+                }
+                if ( styles.height ){
+                    view.height = styles.height;
+                }
+                return view;
+            }
 
             if (name === 'circle'){
 
