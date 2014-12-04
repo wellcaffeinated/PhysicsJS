@@ -3,10 +3,8 @@
 //
 Physics(function (world) {
 
-    var viewWidth = window.innerWidth
-        ,viewHeight = window.innerHeight
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+    // bounds of the window
+    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
         ,edgeBounce
         ,renderer
         ;
@@ -14,8 +12,6 @@ Physics(function (world) {
     // create a renderer
     renderer = Physics.renderer('canvas', {
         el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
     });
 
     // add the renderer
@@ -35,13 +31,8 @@ Physics(function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
+        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -88,13 +79,13 @@ Physics(function (world) {
 
             fruitcake.push(
                 Physics.body('circle', {
-                    x: spacing * col + viewWidth / 2 - 100
-                    ,y: spacing * row + viewHeight / 2
+                    x: spacing * col + renderer.width / 2 - 100
+                    ,y: spacing * row + renderer.height / 2
                     ,radius: r
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: colors[ fruitcake.length % colors.length ]
-                        ,angleIndicator: 'rgba(0,0,0,0.6)'
+                        ,angleIndicator: r === 30 ? 'rgba(0,0,0,0.6)' : false
                     }
                 })
             );
@@ -128,7 +119,7 @@ Physics(function (world) {
         for ( var i = 0, l = constraints.length; i < l; ++i ){
 
             c = constraints[ i ];
-            renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, '#4d4d4d');
+            renderer.drawLine(c.bodyA.state.pos, c.bodyB.state.pos, 'rgba(200, 200, 200, 0.2)');
         }
     });
 
@@ -143,6 +134,7 @@ Physics(function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
+            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -150,13 +142,14 @@ Physics(function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
+            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.el })
+        Physics.behavior('interactive', { el: renderer.container })
         ,Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
         ,edgeBounce
@@ -166,7 +159,4 @@ Physics(function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
-
-    // start the ticker
-    Physics.util.ticker.start();
 });
