@@ -3,8 +3,10 @@
 //
 Physics(function (world) {
 
-    // bounds of the window
-    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+    var viewWidth = window.innerWidth
+        ,viewHeight = window.innerHeight
+        // bounds of the window
+        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
         ,edgeBounce
         ,renderer
         ;
@@ -12,6 +14,8 @@ Physics(function (world) {
     // create a renderer
     renderer = Physics.renderer('canvas', {
         el: 'viewport'
+        ,width: viewWidth
+        ,height: viewHeight
     });
 
     // add the renderer
@@ -31,8 +35,13 @@ Physics(function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
-        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
+        viewWidth = window.innerWidth;
+        viewHeight = window.innerHeight;
+
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -45,12 +54,12 @@ Physics(function (world) {
 
     // the "basket"
     var basket = [];
-    for ( var i = 200; i < Math.min(renderer.width - 200, 1000); i += 5 ){
+    for ( var i = 200; i < Math.min(viewWidth - 200, 1000); i += 5 ){
 
         l = basket.push(
             Physics.body('circle', {
                 x: i
-                ,y: renderer.height / 2
+                ,y: viewHeight / 2
                 ,radius: 1
                 ,restitution: 0.2
                 ,mass: .5
@@ -87,7 +96,7 @@ Physics(function (world) {
         boxes.push( Physics.body('rectangle', {
             width: 50
             ,height: 50
-            ,x: 60 * (i % 6) + renderer.width / 2 - (180)
+            ,x: 60 * (i % 6) + viewWidth / 2 - (180)
             ,y: 60 * (i / 6 | 0) + 50
             ,restitution: 0.9
             ,angle: Math.random()
@@ -109,7 +118,6 @@ Physics(function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
-            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -117,7 +125,6 @@ Physics(function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
-            world.wakeUpAll();
             world.remove( attractor );
         }
     });
@@ -136,4 +143,7 @@ Physics(function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
+
+    // start the ticker
+    Physics.util.ticker.start();
 });

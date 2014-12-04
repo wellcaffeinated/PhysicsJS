@@ -3,8 +3,10 @@
 //
 Physics({ timestep: 8 },function (world) {
 
-    // bounds of the window
-    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+    var viewWidth = window.innerWidth
+        ,viewHeight = window.innerHeight
+        // bounds of the window
+        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
         ,edgeBounce
         ,renderer
         ;
@@ -12,6 +14,8 @@ Physics({ timestep: 8 },function (world) {
     // create a renderer
     renderer = Physics.renderer('canvas', {
         el: 'viewport'
+        ,width: viewWidth
+        ,height: viewHeight
     });
 
     // add the renderer
@@ -20,6 +24,28 @@ Physics({ timestep: 8 },function (world) {
     world.on('step', function () {
         world.render();
     });
+
+    // constrain objects to these bounds
+    edgeBounce = Physics.behavior('edge-collision-detection', {
+        aabb: viewportBounds
+        ,restitution: 0.2
+        ,cof: 0.8
+    });
+
+    // resize events
+    window.addEventListener('resize', function () {
+
+        viewWidth = window.innerWidth;
+        viewHeight = window.innerHeight;
+
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+        // update the boundaries
+        edgeBounce.setAABB(viewportBounds);
+
+    }, true);
 
     // for constraints
     var rigidConstraints = Physics.behavior('verlet-constraints', {
@@ -33,8 +59,8 @@ Physics({ timestep: 8 },function (world) {
 
             cloth.push(
                 Physics.body('circle', {
-                    x: 8 * col + (renderer.width - l * 8) / 2
-                    ,y: 8 * row + (renderer.height/2 - 200)
+                    x: 8 * col + (viewWidth - l * 8) / 2
+                    ,y: 8 * row + (viewHeight/2 - 200)
                     ,radius: 4
                     ,hidden: true
                 })
@@ -117,7 +143,6 @@ Physics({ timestep: 8 },function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
-            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -125,19 +150,22 @@ Physics({ timestep: 8 },function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
-            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('interactive', { el: renderer.container, moveThrottle: 5 })
+        Physics.behavior('interactive', { el: renderer.el, moveThrottle: 5 })
         ,Physics.behavior('constant-acceleration')
+        //,edgeBounce
     ]);
 
     // subscribe to ticker to advance the simulation
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
+
+    // start the ticker
+    Physics.util.ticker.start();
 });

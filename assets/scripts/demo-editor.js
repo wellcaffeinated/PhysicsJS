@@ -1,32 +1,27 @@
 (function(){
     var editors = window.CodeEditors = [];
-    var basePath = getBasePath();
     var htmlContent = [
         '<!doctype html>'
         ,'<html>'
           ,'<head>'
-          ,'<style>html, body, #viewport { background: #171717; height: 100%; } .pjs-meta { color: #fff; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
-          ,'<script src="'+basePath + 'vendor/raf.js"></script>'
-          ,'<script src="'+basePath + 'vendor/physicsjs-current/physicsjs-full.min.js"></script>'
-          ,'<script>var require = { baseUrl: "'+basePath+'"};</script>'
-          ,'<script src="'+basePath + 'vendor/require.js"></script>'
+          ,'<style>body { background: #171717; } .pjs-meta { color: #fff; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
           ,'</head>'
           ,'<body>'
-          ,'<div id="viewport"></div>'
-
+          ,'<script src="'+getScriptUrlLike('raf')+'"></script>'
+          ,'<script src="'+getScriptUrlLike('physicsjs')+'"></script>'
 
     ].join( '\n' );
 
-    function getBasePath(){
+    function getScriptUrlLike( word ){
         var el = Array.prototype.filter.call(document.getElementsByTagName('script'), function( el ){
             return el.src.indexOf('physicsjs') > -1;
         });
 
         if ( el[0] ){
-            return el[0].src.replace('vendor/physicsjs-current/physicsjs-full.min.js', '');
+            return el[0].src;
         }
 
-        return '.';
+        return '';
     }
 
     var els = document.getElementsByClassName('demo');

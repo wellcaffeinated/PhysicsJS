@@ -3,29 +3,26 @@
 //
 Physics({ timestep: 4 }, function (world) {
 
-    // bounds of the window
     var viewWidth = window.innerWidth
-        ,viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+        ,viewHeight = window.innerHeight
+        // bounds of the window
+        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
         ,edgeBounce
         ,renderer
         ;
 
-    // let's use the pixi renderer
-    require(['vendor/pixi'], function( PIXI ){
-        window.PIXI = PIXI;
-        // create a renderer
-        renderer = Physics.renderer('pixi', {
-            el: 'viewport'
-        });
+    // create a renderer
+    renderer = Physics.renderer('canvas', {
+        el: 'viewport'
+        ,width: viewWidth
+        ,height: viewHeight
+    });
 
-        // add the renderer
-        world.add(renderer);
-        // render on each step
-        world.on('step', function () {
-            world.render();
-        });
-        // add the interaction
-        world.add(Physics.behavior('interactive', { el: renderer.container }));
+    // add the renderer
+    world.add(renderer);
+    // render on each step
+    world.on('step', function () {
+        world.render();
     });
 
     // constrain objects to these bounds
@@ -38,31 +35,25 @@ Physics({ timestep: 4 }, function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
-        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
+        viewWidth = window.innerWidth;
+        viewHeight = window.innerHeight;
+
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
     }, true);
 
-    Physics.geometry.regularPolygonVertices = function( sides, radius ){
-        var verts = []
-            ,angle = Math.PI * 2 / sides
-            ,a = 0
-            ,i
-            ;
-
-        for ( i = 0; i < sides; i++ ){
-            verts.push({
-                x: radius * Math.cos( a )
-                ,y: radius * Math.sin( a )
-            });
-
-            a += angle;
-        }
-
-        return verts;
-    };
+    var pent = [
+        { x: 50, y: 0 }
+        ,{ x: 25, y: -25 }
+        ,{ x: -25, y: -25 }
+        ,{ x: -50, y: 0 }
+        ,{ x: 0, y: 50 }
+    ];
 
     function random( min, max ){
         return (Math.random() * (max-min) + min)|0
@@ -83,9 +74,8 @@ Physics({ timestep: 4 }, function (world) {
                     ,radius: 40
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0x268bd2'
-                        ,lineWidth: 1
-                        ,angleIndicator: '0x155479'
+                        fillStyle: '#268bd2'
+                        ,angleIndicator: '#155479'
                     }
                 });
                 break;
@@ -100,9 +90,8 @@ Physics({ timestep: 4 }, function (world) {
                     ,vx: random(-5, 5)/100
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0xd33682'
-                        ,lineWidth: 1
-                        ,angleIndicator: '0x751b4b'
+                        fillStyle: '#d33682'
+                        ,angleIndicator: '#751b4b'
                     }
                 });
                 break;
@@ -110,14 +99,15 @@ Physics({ timestep: 4 }, function (world) {
                 // add a polygon
             case 2:
                 body = Physics.body('convex-polygon', {
-                    vertices: Physics.geometry.regularPolygonVertices( random( 5, 10 ), random(30, 50) )
+                    vertices: pent
                     ,x: viewWidth / 2
                     ,y: 50
                     ,vx: random(-5, 5)/100
                     ,angle: random( 0, 2 * Math.PI )
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0x859900'
+                        fillStyle: '#859900'
+                        ,angleIndicator: '#414700'
                     }
                 });
                 break;
@@ -140,7 +130,6 @@ Physics({ timestep: 4 }, function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
-            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -148,14 +137,14 @@ Physics({ timestep: 4 }, function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
-            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('constant-acceleration')
+        Physics.behavior('interactive', { el: renderer.el })
+        ,Physics.behavior('constant-acceleration')
         ,Physics.behavior('body-impulse-response')
         ,Physics.behavior('body-collision-detection')
         ,Physics.behavior('sweep-prune')
@@ -166,4 +155,7 @@ Physics({ timestep: 4 }, function (world) {
     Physics.util.ticker.on(function( time ) {
         world.step( time );
     });
+
+    // start the ticker
+    Physics.util.ticker.start();
 });

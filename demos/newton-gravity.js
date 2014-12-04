@@ -1,32 +1,28 @@
 //
 // More involved example of a newtonian gravity
 //
-Physics({ sleepDisabled: true }, function (world) {
+Physics(function (world) {
 
-    // bounds of the window
     var viewWidth = window.innerWidth
         ,viewHeight = window.innerHeight
-        ,viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+        // bounds of the window
+        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
         ,edgeBounce
         ,renderer
         ;
 
-    // let's use the pixi renderer
-    require(['vendor/pixi'], function( PIXI ){
-        window.PIXI = PIXI;
-        // create a renderer
-        renderer = Physics.renderer('pixi', {
-            el: 'viewport'
-        });
+    // create a renderer
+    renderer = Physics.renderer('canvas', {
+        el: 'viewport'
+        ,width: viewWidth
+        ,height: viewHeight
+    });
 
-        // add the renderer
-        world.add(renderer);
-        // render on each step
-        world.on('step', function () {
-            world.render();
-        });
-        // add the interaction
-        world.add(Physics.behavior('interactive', { el: renderer.container }));
+    // add the renderer
+    world.add(renderer);
+    // render on each step
+    world.on('step', function () {
+        world.render();
     });
 
     // constrain objects to these bounds
@@ -39,8 +35,13 @@ Physics({ sleepDisabled: true }, function (world) {
     // resize events
     window.addEventListener('resize', function () {
 
-        // as of 0.7.0 the renderer will auto resize... so we just take the values from the renderer
-        viewportBounds = Physics.aabb(0, 0, renderer.width, renderer.height);
+        viewWidth = window.innerWidth;
+        viewHeight = window.innerHeight;
+
+        renderer.el.width = viewWidth;
+        renderer.el.height = viewHeight;
+
+        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
         // update the boundaries
         edgeBounce.setAABB(viewportBounds);
 
@@ -61,7 +62,7 @@ Physics({ sleepDisabled: true }, function (world) {
                 ,vy: Math.random()*0.01 - 0.005
                 ,restitution: 0.99
                 ,styles: {
-                    fillStyle: '0xdc322f'
+                    fillStyle: '#dc322f'
                 }
             })
         );
@@ -77,7 +78,6 @@ Physics({ sleepDisabled: true }, function (world) {
     });
     world.on({
         'interact:poke': function( pos ){
-            world.wakeUpAll();
             attractor.position( pos );
             world.add( attractor );
         }
@@ -85,14 +85,14 @@ Physics({ sleepDisabled: true }, function (world) {
             attractor.position( pos );
         }
         ,'interact:release': function(){
-            world.wakeUpAll();
             world.remove( attractor );
         }
     });
 
     // add things to the world
     world.add([
-        Physics.behavior('newtonian', { strength: .01 })
+        Physics.behavior('interactive', { el: renderer.el })
+        ,Physics.behavior('newtonian', { strength: .01 })
         ,Physics.behavior('sweep-prune')
         ,Physics.behavior('body-collision-detection', { checkAll: false })
         ,Physics.behavior('body-impulse-response')
