@@ -97,7 +97,7 @@ Physics.behavior('body-collision-detection', function( parent ){
      *
      * Use GJK algorithm to check arbitrary bodies for collisions
      */
-    var checkGJK = function checkGJK( bodyA, bodyB, disp ){
+    var checkGJK = function checkGJK( bodyA, bodyB ){
 
         var scratch = Physics.scratchpad()
             ,d = scratch.vector()
@@ -131,14 +131,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
-            inc = 1;
-            // if we have a displacement vector then project it along the vector
-            // from body A to B to find out approx how far they moved
-            if ( disp ){
-                inc = Math.abs(disp.proj( d ));
-                // let's increment the margin by half this value each iteration
-                inc = Math.max( 0.5 * inc, 1 );
-            }
+            inc = Math.max(1e-4 * dimA * dimB, 1);
 
             // first get the min distance of between core objects
             support.useCore = true;
@@ -231,12 +224,11 @@ Physics.behavior('body-collision-detection', function( parent ){
      * checkPair( bodyA, bodyB[, disp] ) -> Object
      * - bodyA (Object): First body
      * - bodyB (Object): Second body
-     * - disp (Physics.vector): relative displacement
      * + (Object): Collision result
      *
      * Check a pair for collisions
      */
-    var checkPair = function checkPair( bodyA, bodyB, disp ){
+    var checkPair = function checkPair( bodyA, bodyB ){
 
         // filter out bodies that don't collide with each other
         if (
@@ -246,17 +238,9 @@ Physics.behavior('body-collision-detection', function( parent ){
             return false;
         }
 
-        var scratch = Physics.scratchpad();
-
-        if ( !disp ){
-            disp = scratch.vector();
-            // figure out how much the bodies moved relative to each other
-            disp.clone( bodyA.state.pos ).vsub( bodyA.state.old.pos ).vsub( bodyB.state.pos ).vadd( bodyB.state.old.pos );
-        }
-
         if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
 
-            return scratch.done(checkCircles( bodyA, bodyB, disp ));
+            return checkCircles( bodyA, bodyB );
 
         } else if ( bodyA.geometry.name === 'compound' || bodyB.geometry.name === 'compound' ){
             // compound bodies are special. We can't use gjk because
@@ -267,6 +251,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,cols
                 ,ch
                 ,ret = []
+                ,scratch = Physics.scratchpad()
                 ,vec = scratch.vector()
                 ,oldPos = scratch.vector()
                 ,otherAABB = other.aabb()
@@ -286,7 +271,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 // check it if the aabbs overlap
                 if ( Physics.aabb.overlap(otherAABB, ch.aabb()) ){
 
-                    cols = checkPair( other, ch, disp );
+                    cols = checkPair( other, ch );
 
                     if ( cols instanceof Array ){
                         for ( var j = 0, c, ll = cols.length; j < ll; j++ ){
@@ -321,7 +306,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         } else {
 
-            return scratch.done( checkGJK( bodyA, bodyB, disp ) );
+            return checkGJK( bodyA, bodyB );
         }
     };
 
