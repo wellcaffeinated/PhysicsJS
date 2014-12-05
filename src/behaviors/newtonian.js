@@ -76,13 +76,14 @@ Physics.behavior('newtonian', function( parent ){
                 ,bodyB
                 ,posA = scratch.vector()
                 ,posB = scratch.vector()
+                ,i, j, k, m, l, ll, lll
                 ;
 
-            for ( var j = 0, l = bodies.length; j < l; j++ ){
+            for ( j = 0, l = bodies.length; j < l; j++ ){
 
                 body = bodies[ j ];
 
-                for ( var i = j + 1; i < l; i++ ){
+                for ( i = j + 1; i < l; i++ ){
 
                     other = bodies[ i ];
 
@@ -95,10 +96,10 @@ Physics.behavior('newtonian', function( parent ){
 
                     if ( comp ){
                         if ( other.name === 'compound' ){
-                            for ( var k = 0, ll = comp.children.length; k < ll; k++ ){
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
                                 bodyA = comp.children[ k ];
                                 comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
-                                for ( var m = 0, lll = other.children.length; m < lll; m++ ){
+                                for ( m = 0, lll = other.children.length; m < lll; m++ ){
                                     bodyB = other.children[ m ];
                                     other.toWorldCoords( posB.clone( bodyB.state.pos ).vadd( other.offset ) );
                                     this.calcPotential( posA, posB, potential );
@@ -107,7 +108,7 @@ Physics.behavior('newtonian', function( parent ){
                                 }
                             }
                         } else {
-                            for ( var k = 0, ll = comp.children.length; k < ll; k++ ){
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
                                 bodyA = comp.children[ k ];
                                 comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
                                 this.calcPotential( posA, other.state.pos, potential );
