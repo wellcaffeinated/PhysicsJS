@@ -479,6 +479,7 @@ Physics.renderer('pixi', function( parent ){
                 if ( styles.height ){
                     view.height = styles.height;
                 }
+                parent.addChild(view);
                 return view;
             }
 
