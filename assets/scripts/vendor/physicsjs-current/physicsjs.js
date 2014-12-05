@@ -4207,10 +4207,37 @@ Physics.scratchpad = (function(){
  */
 
 /**
+ * Physics.geometry.regularPolygonVertices( sides, radius ) -> Array
+ * - sides (Number): Number of sides the polygon has
+ * - radius (Number): Size from center to a vertex
+ * + (Array): A list of [[Vectorish]] objects representing the vertices
+ *
+ * Generate a list of vertices for a regular polygon of any number of sides.
+ **/
+Physics.geometry.regularPolygonVertices = function( sides, radius ){
+    var verts = []
+        ,angle = Math.PI * 2 / sides
+        ,a = 0
+        ,i
+        ;
+
+    for ( i = 0; i < sides; i++ ){
+        verts.push({
+            x: radius * Math.cos( a )
+            ,y: radius * Math.sin( a )
+        });
+
+        a += angle;
+    }
+
+    return verts;
+};
+
+/**
  * Physics.geometry.isPolygonConvex( hull ) -> Boolean
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if the polygon is convex. `false` otherwise.
- * 
+ *
  * Determine if polygon hull is convex
  **/
 Physics.geometry.isPolygonConvex = function( hull ){
@@ -4241,7 +4268,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
     // edge and retain the last edge
     // add two to the length to do a full cycle
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( tmp.clone( hull[ (i - 1) % l ] ) );
 
         if ( sign === false ){
@@ -4250,7 +4277,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
             sign = prev.cross( next );
 
         } else if ( (sign > 0) ^ (prev.cross( next ) > 0) ){
-        
+
             // if the cross products are different signs it's not convex
             ret = false;
             break;
@@ -4268,13 +4295,13 @@ Physics.geometry.isPolygonConvex = function( hull ){
  * Physics.geometry.getPolygonMOI( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The polygon's moment of inertia
- * 
+ *
  * Gets the moment of inertia of a convex polygon
  *
  * See [List of moments of inertia](http://en.wikipedia.org/wiki/List_of_moments_of_inertia)
  * for more information.
- * 
- * _Note_: we make the following assumpations: 
+ *
+ * _Note_: we make the following assumpations:
  * * mass is unitary (== 1)
  * * axis of rotation is the origin
  **/
@@ -4307,7 +4334,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
     prev.clone( hull[ 0 ] );
 
     for ( var i = 1; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = Math.abs( next.cross( prev ) );
@@ -4326,7 +4353,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
  * - pt (Vectorish): The point to test
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if point `pt` is inside the polygon
- * 
+ *
  * Check if point is inside polygon hull.
  **/
 Physics.geometry.isPointInPolygon = function( pt, hull ){
@@ -4359,7 +4386,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
     // calculate the sum of angles between vector pairs
     // from point to vertices
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( point );
         ang += next.angle( prev );
         prev.swap( next );
@@ -4373,7 +4400,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
  * Physics.geometry.getPolygonArea( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The area (positive for clockwise ordering)
- * 
+ *
  * Get the signed area of the polygon.
  **/
 Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
@@ -4395,7 +4422,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         ret += prev.cross( next );
@@ -4411,7 +4438,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
  * Physics.geometry.getPolygonCentroid( hull ) -> Physics.vector
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Physics.vector): The centroid
- * 
+ *
  * Get the coordinates of the centroid.
  **/
 Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
@@ -4440,7 +4467,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = prev.cross( next );
@@ -4462,7 +4489,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
  * - linePt1 (Vectorish): The first endpoint of the line
  * - linePt2 (Vectorish): The second endpoint of the line
  * + (Vector): The closest point
- * 
+ *
  * Get the closest point on a discrete line to specified point.
  **/
 Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
@@ -4501,7 +4528,6 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     scratch.done();
     return p;
 };
-
 
 
 // ---

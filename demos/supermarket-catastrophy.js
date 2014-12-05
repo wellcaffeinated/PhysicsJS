@@ -76,10 +76,9 @@ Physics({ timestep: 3 }, function (world) {
             ,cof: 0.99
             ,restitution: 0.99
             ,styles: {
-                fillStyle: '0xb58900'
-                ,lineWidth: 1
-                ,strokeStyle: '0x624501'
-                ,angleIndicator: '0x624501'
+                src: 'assets/images/crate.jpg'
+                ,width: 40
+                ,height: 40
             }
         }));
     }

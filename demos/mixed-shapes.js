@@ -45,37 +45,29 @@ Physics({ timestep: 4 }, function (world) {
 
     }, true);
 
-    Physics.geometry.regularPolygonVertices = function( sides, radius ){
-        var verts = []
-            ,angle = Math.PI * 2 / sides
-            ,a = 0
-            ,i
-            ;
-
-        for ( i = 0; i < sides; i++ ){
-            verts.push({
-                x: radius * Math.cos( a )
-                ,y: radius * Math.sin( a )
-            });
-
-            a += angle;
-        }
-
-        return verts;
-    };
+    var colors = [
+        ['0x268bd2', '0x155479']
+        ,['0xd33682', '0x751b4b']
+        ,['0xcb4b16', '0x72240d']
+        ,['0x6c71c4', '0x545999']
+        ,['0x268bd2', '0x1b6c9b']
+        ,['0x859900', '0x606900']
+    ];
 
     function random( min, max ){
-        return (Math.random() * (max-min) + min)|0
+        return (Math.random() * (max-min) + min)|0;
     }
 
     function dropInBody(){
 
         var body;
+        var c;
 
         switch ( random( 0, 3 ) ){
 
                 // add a circle
             case 0:
+                c = colors[0];
                 body = Physics.body('circle', {
                     x: viewWidth / 2
                     ,y: 50
@@ -83,15 +75,16 @@ Physics({ timestep: 4 }, function (world) {
                     ,radius: 40
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0x268bd2'
+                        fillStyle: c[0]
                         ,lineWidth: 1
-                        ,angleIndicator: '0x155479'
+                        ,angleIndicator: c[1]
                     }
                 });
                 break;
 
                 // add a square
             case 1:
+                c = colors[1];
                 body = Physics.body('rectangle', {
                     width: 50
                     ,height: 50
@@ -100,24 +93,27 @@ Physics({ timestep: 4 }, function (world) {
                     ,vx: random(-5, 5)/100
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0xd33682'
+                        fillStyle: c[0]
                         ,lineWidth: 1
-                        ,angleIndicator: '0x751b4b'
+                        ,angleIndicator: c[1]
                     }
                 });
                 break;
 
                 // add a polygon
             case 2:
+                var s = random( 5, 10 );
+                c = colors[ Math.min(s - 3, colors.length-1) ];
                 body = Physics.body('convex-polygon', {
-                    vertices: Physics.geometry.regularPolygonVertices( random( 5, 10 ), random(30, 50) )
+                    vertices: Physics.geometry.regularPolygonVertices( s, random(30, 50) )
                     ,x: viewWidth / 2
                     ,y: 50
                     ,vx: random(-5, 5)/100
                     ,angle: random( 0, 2 * Math.PI )
                     ,restitution: 0.9
                     ,styles: {
-                        fillStyle: '0x859900'
+                        fillStyle: c[0]
+                        ,angleIndicator: false
                     }
                 });
                 break;

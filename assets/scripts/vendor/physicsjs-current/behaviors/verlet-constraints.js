@@ -16,7 +16,7 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /** 
+    /**
      * class VerletConstraintsBehavior < Behavior
      *
      * `Physics.behavior('verlet-constraints')`.
@@ -72,7 +72,7 @@
     
             /**
              * VerletConstraintsBehavior#drop() -> this
-             * 
+             *
              * Remove all constraints
              **/
             drop: function(){
@@ -90,7 +90,7 @@
              * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
              * - targetLength (Number): Target length. defaults to current distance between the bodies
              * + (Object): The constraint data object
-             * 
+             *
              * Constrain two bodies to a target relative distance.
              *
              * Returns constraint data that can be used to remove the constraint later.
@@ -133,7 +133,7 @@
              * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
              * - targetAngle (Number): Target angle. Defaults to the current angle between bodies
              * + (Object): The constraint data object
-             * 
+             *
              * Constrain three bodies to a target relative angle
              *
              * Returns constraint data that can be used to remove the constraint later.
@@ -172,7 +172,7 @@
              * VerletConstraintsBehavior#remove( constraintId ) -> this
              * - constraintData (Object): The constraint data returned when creating a constraint
              * - constraintId (String): The constraint id
-             * 
+             *
              * Remove a constraint
              **/
             remove: function( cstrOrId ){
@@ -192,7 +192,7 @@
                 if ( isObj ){
     
                     for ( i = 0, l = constraints.length; i < l; ++i ){
-                        
+    
                         if ( constraints[ i ] === cstrOrId ){
     
                             constraints.splice( i, 1 );
@@ -202,7 +202,7 @@
                 } else {
     
                     for ( i = 0, l = constraints.length; i < l; ++i ){
-                        
+    
                         if ( constraints[ i ].id === cstrOrId ){
     
                             constraints.splice( i, 1 );
@@ -217,7 +217,7 @@
             /** internal
              * VerletConstraintsBehavior#resolveAngleConstraints( coef )
              * - coef (Number): Coefficient for this resolution phase
-             * 
+             *
              * Resolve angle constraints.
              **/
             resolveAngleConstraints: function( coef ){
@@ -233,7 +233,7 @@
                     ;
     
                 for ( var i = 0, l = constraints.length; i < l; ++i ){
-                
+    
                     con = constraints[ i ];
     
                     ang = con.bodyB.state.pos.angle2( con.bodyA.state.pos, con.bodyC.state.pos );
@@ -244,11 +244,11 @@
                         continue;
     
                     } else if (corr <= -Math.PI){
-                    
+    
                         corr += TWOPI;
     
                     } else if (corr >= Math.PI){
-                    
+    
                         corr -= TWOPI;
                     }
     
@@ -263,7 +263,7 @@
                     if ( con.bodyA.treatment === 'dynamic' ){
     
                         if ( con.bodyB.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                            
+    
                             ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
     
                         } else if ( con.bodyB.treatment !== 'dynamic' ){
@@ -275,7 +275,6 @@
                             ang = corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyA.mass );
                         }
     
-                        // ang = corr;
     
                         trans.setRotation( ang );
                         con.bodyA.state.pos.translateInv( trans );
@@ -286,19 +285,17 @@
                     if ( con.bodyC.treatment === 'dynamic' ){
     
                         if ( con.bodyA.treatment === 'dynamic' && con.bodyB.treatment === 'dynamic' ){
-                            
+    
                             ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
     
                         } else if ( con.bodyB.treatment !== 'dynamic' ){
     
                             ang = -corr * con.bodyA.mass / ( con.bodyC.mass + con.bodyA.mass );
-                            
+    
                         } else {
     
                             ang = -corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyC.mass );
                         }
-    
-                        // ang = -corr;
     
                         trans.setRotation( ang );
                         con.bodyC.state.pos.translateInv( trans );
@@ -309,13 +306,13 @@
                     if ( con.bodyB.treatment === 'dynamic' ){
     
                         if ( con.bodyA.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                            
+    
                             ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
     
                         } else if ( con.bodyA.treatment !== 'dynamic' ){
     
                             ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyB.mass );
-                            
+    
                         } else {
     
                             ang = corr * con.bodyA.mass / ( con.bodyA.mass + con.bodyC.mass );
@@ -333,6 +330,10 @@
                         con.bodyB.state.pos.rotateInv( trans );
                         con.bodyB.state.pos.translate( trans );
                     }
+    
+                    con.bodyA.sleepCheck();
+                    con.bodyB.sleepCheck();
+                    con.bodyC.sleepCheck();
                 }
     
                 scratch.done();
@@ -341,7 +342,7 @@
             /** internal
              * VerletConstraintsBehavior#resolveDistanceConstraints( coef )
              * - coef (Number): Coefficient for this resolution phase
-             * 
+             *
              * Resolve distance constraints.
              **/
             resolveDistanceConstraints: function( coef ){
@@ -356,7 +357,7 @@
                     ;
     
                 for ( var i = 0, l = constraints.length; i < l; ++i ){
-                
+    
                     con = constraints[ i ];
     
                     // move constrained bodies to target length based on their
@@ -364,7 +365,7 @@
                     BA.clone( con.bodyB.state.pos ).vsub( con.bodyA.state.pos );
                     len = BA.normSq() || Math.random() * 0.0001;
                     corr = coef * con.stiffness * ( len - con.targetLengthSq ) / len;
-                    
+    
                     BA.mult( corr );
                     proportion = (con.bodyA.treatment !== 'dynamic' || con.bodyB.treatment !== 'dynamic') ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
     
@@ -389,6 +390,9 @@
     
                         con.bodyB.state.pos.vsub( BA );
                     }
+    
+                    con.bodyA.sleepCheck();
+                    con.bodyB.sleepCheck();
                 }
     
                 scratch.done();
@@ -396,7 +400,7 @@
     
             /** internal
              * VerletConstraintsBehavior#shuffleConstraints()
-             * 
+             *
              * Mix up the constraints.
              **/
             shuffleConstraints: function(){
@@ -407,7 +411,7 @@
     
             /** internal
              * VerletConstraintsBehavior#resolve()
-             * 
+             *
              * Resolve all constraints.
              **/
             resolve: function(){
@@ -427,7 +431,7 @@
             /**
              * VerletConstraintsBehavior#getConstraints() -> Object
              * + (Object): The object containing copied arrays of the constraints
-             * 
+             *
              * Get all constraints.
              **/
             getConstraints: function(){
