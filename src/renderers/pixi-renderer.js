@@ -469,6 +469,7 @@ Physics.renderer('pixi', function( parent ){
             // must want an image
             if ( styles.src ){
                 view = PIXI.Sprite.fromImage( styles.src );
+                view.anchor.set( 0.5, 0.5 );
                 if ( styles.anchor ) {
                     view.anchor.x = styles.anchor.x;
                     view.anchor.y = styles.anchor.y;
