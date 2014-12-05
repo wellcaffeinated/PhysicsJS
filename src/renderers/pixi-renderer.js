@@ -320,14 +320,14 @@ Physics.renderer('pixi', function( parent ){
 
                 if ( styles.fillStyle && styles.fillStyle !== 'transparent' ){
                     graphics.beginFill( styles.fillStyle );
-                    graphics.fillAlpha = styles.fillAlpha || 1;
+                    graphics.fillAlpha = styles.fillAlpha !== undefined ? styles.fillAlpha : 1;
                 } else {
                     graphics.beginFill();
                     graphics.fillAlpha = 0;
                 }
 
                 graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle );
-                graphics.alpha = styles.alpha || 1;
+                graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
 
             } else {
 
