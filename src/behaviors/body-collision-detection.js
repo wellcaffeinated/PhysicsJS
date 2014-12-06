@@ -131,7 +131,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
-            inc = Math.max(1e-4 * dimA * dimB, 1);
+            // inc by 1% of the smallest dim.
+            inc = 1e-2 * Math.min(dimA || 1, dimB || 1);
 
             // first get the min distance of between core objects
             support.useCore = true;
