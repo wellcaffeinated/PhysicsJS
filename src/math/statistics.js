@@ -13,7 +13,7 @@
          * see [http://www.johndcook.com/blog/standard_deviation]
          *
          * Note: variance can be calculated from the "s" value by multiplying it by `1/(k-1)`
-         */
+         **/
         pushRunningAvg: function( v, k, m, s ){
 
             var x = v - m;
@@ -40,7 +40,7 @@
         * Note: variance can be calculated from the "s" vector by multiplying it by `1/(k-1)`
         *
         * If s value is ommitted it won't be used.
-        */
+        **/
         pushRunningVectorAvg: function( v, k, m, s ){
             var invK = 1/k
                 ,x = v.get(0) - m.get(0)
