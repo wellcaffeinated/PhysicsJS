@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -570,6 +570,73 @@ Physics.util = {};
 
     Physics.gjk = gjk;
 
+})();
+
+
+// ---
+// inside: src/math/statistics.js
+
+(function(){
+
+    Physics.statistics = {
+        /**
+         * Physics.statistics.pushRunningAvg( v, k, m, s ) -> Array
+         * - v (Number): is value to push
+         * - k (Number): is num elements
+         * - m (Number): is current mean
+         * - s (Number): is current s value
+         * + (Array): Returns a 2 element array containing the next mean, and s value
+         *
+         * Push a value to a running average calculation.
+         * see [http://www.johndcook.com/blog/standard_deviation]
+         *
+         * Note: variance can be calculated from the "s" value by multiplying it by `1/(k-1)`
+         **/
+        pushRunningAvg: function( v, k, m, s ){
+
+            var x = v - m;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m += x / k;
+            s += x * (v - m);
+            return [m, s];
+        },
+
+        /**
+        * Physics.statistics.pushRunningVectorAvg( v, k, m[, s] )
+        * - v (Physics.vector): is vector to push
+        * - k (Number): is num elements
+        * - m (Physics.vector): is current mean
+        * - s (Physics.vector): is current s value
+        *
+        * Push a vector to a running vector average calculation.
+        * see [http://www.johndcook.com/blog/standard_deviation]
+        *
+        * Calculations are done in place. The `m` and `s` parameters are altered.
+        *
+        * Note: variance can be calculated from the "s" vector by multiplying it by `1/(k-1)`
+        *
+        * If s value is ommitted it won't be used.
+        **/
+        pushRunningVectorAvg: function( v, k, m, s ){
+            var invK = 1/k
+                ,x = v.get(0) - m.get(0)
+                ,y = v.get(1) - m.get(1)
+                ;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m.add( x * invK, y * invK );
+
+            if ( s ){
+                x *= v.get(0) - m.get(0);
+                y *= v.get(1) - m.get(1);
+
+                s.add( x, y );
+            }
+        }
+    };
 })();
 
 
@@ -3524,44 +3591,6 @@ Physics.scratchpad = (function(){
         view: null
     };
 
-    // Running average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean
-    // s is current std deviation
-    // v is value to push
-    function pushRunningAvg( k, m, s, v ){
-
-        var x = v - m;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m += x / k;
-        s += x * (v - m);
-    }
-
-    // Running vector average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean (vector)
-    // s is current std deviation (vector)
-    // v is vector to push
-    function pushRunningVectorAvg( k, m, s, v ){
-        var invK = 1/k
-            ,x = v.get(0) - m.get(0)
-            ,y = v.get(1) - m.get(1)
-            ;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m.add( x * invK, y * invK );
-
-        x *= v.get(0) - m.get(0);
-        y *= v.get(1) - m.get(1);
-
-        s.add( x, y );
-    }
-
     var uidGen = 1;
 
     /** related to: Physics.util.decorator
@@ -3857,6 +3886,8 @@ Physics.scratchpad = (function(){
                 ,scratch = Physics.scratchpad()
                 ,diff = scratch.vector()
                 ,diff2 = scratch.vector()
+                ,kfac
+                ,stats
                 ;
 
             dt = dt || 0;
@@ -3875,9 +3906,11 @@ Physics.scratchpad = (function(){
             }
 
             this._sleepMeanK++;
-            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
-            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
-            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            kfac = 1/(this._sleepMeanK - 1);
+            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
+            stats = Physics.statistics.pushRunningAvg( this.state.angular.pos, this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            v = this._sleepPosVariance.norm() + Math.abs(r * stats[1]);
+            v *= kfac;
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
 
             if ( v <= limit ){
@@ -5002,7 +5035,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // speed at which bodies wake up
         sleepSpeedLimit: 0.1,
         // variance in position below which bodies fall asleep
-        sleepVarianceLimit: 2,
+        sleepVarianceLimit: 0.02,
         // time (ms) before sleepy bodies fall asleep
         sleepTimeLimit: 500
     };

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -45,6 +45,10 @@
             ,forceWakeupAboveOverlapThreshold: true
         };
     
+        function getUid( b ){
+            return b.uid;
+        }
+    
         return {
     
             // extended
@@ -53,6 +57,8 @@
                 parent.init.call( this );
                 this.options.defaults( defaults );
                 this.options( options );
+    
+                this._bodyList = [];
             },
     
             // no applyTo method
@@ -148,24 +154,27 @@
     
                     if ( fixedA ){
     
-                        // extract bodies
-                        bodyB.state.pos.vadd( mtv );
-                        bodyB.state.old.pos.vadd( mtv );
+                        // push mtv to the stats for calculating the average
+                        bodyB._mtvStatsK++;
+                        Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
     
                     } else if ( fixedB ){
     
-                        // extract bodies
-                        bodyA.state.pos.vsub( mtv );
-                        bodyA.state.old.pos.vsub( mtv );
+                        // push mtv to the stats for calculating the average
+                        bodyA._mtvStatsK++;
+                        Physics.statistics.pushRunningVectorAvg( mtv.negate(), bodyA._mtvStatsK, bodyA._mtvStats );
+                        mtv.negate();
     
                     } else {
     
-                        // extract bodies
+                        // push mtv to the stats for calculating the average
                         mtv.mult( 0.5 );
-                        bodyA.state.pos.vsub( mtv );
-                        bodyA.state.old.pos.vsub( mtv );
-                        bodyB.state.pos.vadd( mtv );
-                        bodyB.state.old.pos.vadd( mtv );
+                        bodyA._mtvStatsK++;
+                        bodyB._mtvStatsK++;
+                        mtv.negate();
+                        Physics.statistics.pushRunningVectorAvg( mtv, bodyA._mtvStatsK, bodyA._mtvStats );
+                        mtv.negate();
+                        Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
                     }
                 }
     
@@ -264,6 +273,14 @@
                 scratch.done();
             },
     
+            // internal
+            _pushUniq: function( body ){
+                var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+                if ( this._bodyList[ idx ] !== body ){
+                    this._bodyList.splice( idx, 0, body );
+                }
+            },
+    
             /** internal
              * BodyImpulseResponseBehavior#respond( data )
              * - data (Object): event data
@@ -275,11 +292,21 @@
                 var self = this
                     ,col
                     ,collisions = Physics.util.shuffle(data.collisions)
+                    ,i,l,b
                     ;
     
-                for ( var i = 0, l = collisions.length; i < l; ++i ){
+                for ( i = 0, l = collisions.length; i < l; ++i ){
     
                     col = collisions[ i ];
+                    // add bodies to list for later
+                    this._pushUniq( col.bodyA );
+                    this._pushUniq( col.bodyB );
+                    // ensure they have mtv stat vectors
+                    col.bodyA._mtvStats = col.bodyA._mtvStats || new Physics.vector();
+                    col.bodyB._mtvStats = col.bodyB._mtvStats || new Physics.vector();
+                    col.bodyA._mtvStatsK = col.bodyA._mtvStatsK|0;
+                    col.bodyB._mtvStatsK = col.bodyB._mtvStatsK|0;
+    
                     self.collideBodies(
                         col.bodyA,
                         col.bodyB,
@@ -288,6 +315,15 @@
                         col.mtv,
                         col.collidedPreviously
                     );
+                }
+    
+                // apply mtv vectors from the average mtv vector
+                for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                    b = this._bodyList.pop();
+                    b.state.pos.vadd( b._mtvStats );
+                    b.state.old.pos.vadd( b._mtvStats );
+                    b._mtvStats.zero();
+                    b._mtvStatsK = 0;
                 }
             }
         };

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -149,11 +149,8 @@
                     bodyB: bodyB
                 };
     
-                // figure out how much the bodies moved relative to each other
-                tmp.clone( bodyA.state.pos ).vsub( bodyA.state.old.pos ).vsub( bodyB.state.pos ).vadd( bodyB.state.old.pos );
-                inc = Math.abs(tmp.proj( d ));
-                // let's increment the margin by half this value each iteration
-                inc = Math.max( 0.5 * inc, 1 );
+                // inc by 1% of the smallest dim.
+                inc = 1e-2 * Math.min(dimA || 1, dimB || 1);
     
                 // first get the min distance of between core objects
                 support.useCore = true;
@@ -243,7 +240,7 @@
         };
     
         /*
-         * checkPair( bodyA, bodyB ) -> Object
+         * checkPair( bodyA, bodyB[, disp] ) -> Object
          * - bodyA (Object): First body
          * - bodyB (Object): Second body
          * + (Object): Collision result

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -285,7 +285,7 @@
                         }
                     }
                     ,get sleepVarianceLimit(){
-                        return self._world ? self._world.options.sleepVarianceLimit : 2;
+                        return self._world ? self._world.options.sleepVarianceLimit : 0.02;
                     }
                     ,set sleepVarianceLimit( t ){
                         if ( self._world ){
@@ -322,7 +322,7 @@
                 f.add( getset, 'sleepDisabled');
                 f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
                 f.add( getset, 'sleepSpeedLimit', 0.001, 1);
-                f.add( getset, 'sleepVarianceLimit', 0.01, 100);
+                f.add( getset, 'sleepVarianceLimit', 0.01, 1);
                 f.add( { pause: pauseWorld }, 'pause');
                 f.open();
     

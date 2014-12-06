@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-06
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -338,14 +338,14 @@
     
                     if ( styles.fillStyle && styles.fillStyle !== 'transparent' ){
                         graphics.beginFill( styles.fillStyle );
-                        graphics.fillAlpha = styles.fillAlpha || 1;
+                        graphics.fillAlpha = styles.fillAlpha !== undefined ? styles.fillAlpha : 1;
                     } else {
                         graphics.beginFill();
                         graphics.fillAlpha = 0;
                     }
     
                     graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle );
-                    graphics.alpha = styles.alpha || 1;
+                    graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
     
                 } else {
     
