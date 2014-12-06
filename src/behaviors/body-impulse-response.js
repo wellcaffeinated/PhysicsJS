@@ -27,6 +27,10 @@ Physics.behavior('body-impulse-response', function( parent ){
         ,forceWakeupAboveOverlapThreshold: true
     };
 
+    function getUid( b ){
+        return b.uid;
+    }
+
     return {
 
         // extended
@@ -35,6 +39,8 @@ Physics.behavior('body-impulse-response', function( parent ){
             parent.init.call( this );
             this.options.defaults( defaults );
             this.options( options );
+
+            this._bodyList = [];
         },
 
         // no applyTo method
@@ -130,24 +136,23 @@ Physics.behavior('body-impulse-response', function( parent ){
 
                 if ( fixedA ){
 
-                    // extract bodies
-                    bodyB.state.pos.vadd( mtv );
-                    bodyB.state.old.pos.vadd( mtv );
+                    // push mtv to the stats for calculating the average
+                    bodyB._mtvStats.push( mtv );
 
                 } else if ( fixedB ){
 
-                    // extract bodies
-                    bodyA.state.pos.vsub( mtv );
-                    bodyA.state.old.pos.vsub( mtv );
+                    // push mtv to the stats for calculating the average
+                    bodyA._mtvStats.push( mtv.negate() );
+                    mtv.negate();
 
                 } else {
 
-                    // extract bodies
+                    // push mtv to the stats for calculating the average
                     mtv.mult( 0.5 );
-                    bodyA.state.pos.vsub( mtv );
-                    bodyA.state.old.pos.vsub( mtv );
-                    bodyB.state.pos.vadd( mtv );
-                    bodyB.state.old.pos.vadd( mtv );
+                    mtv.negate();
+                    bodyA._mtvStats.push( mtv );
+                    mtv.negate();
+                    bodyB._mtvStats.push( mtv );
                 }
             }
 
@@ -246,6 +251,14 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
+        // internal
+        _pushUniq: function( body ){
+            var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+            if ( this._bodyList[ idx ] !== body ){
+                this._bodyList.splice( idx, 0, body );
+            }
+        },
+
         /** internal
          * BodyImpulseResponseBehavior#respond( data )
          * - data (Object): event data
@@ -257,11 +270,19 @@ Physics.behavior('body-impulse-response', function( parent ){
             var self = this
                 ,col
                 ,collisions = Physics.util.shuffle(data.collisions)
+                ,i,l,b
                 ;
 
-            for ( var i = 0, l = collisions.length; i < l; ++i ){
+            for ( i = 0, l = collisions.length; i < l; ++i ){
 
                 col = collisions[ i ];
+                // add bodies to list for later
+                this._pushUniq( col.bodyA );
+                this._pushUniq( col.bodyB );
+                // ensure they have mtv stat vectors
+                col.bodyA._mtvStats = col.bodyA._mtvStats || new Physics.statistics({ useVectors: true });
+                col.bodyB._mtvStats = col.bodyB._mtvStats || new Physics.statistics({ useVectors: true });
+
                 self.collideBodies(
                     col.bodyA,
                     col.bodyB,
@@ -270,6 +291,14 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.mtv,
                     col.collidedPreviously
                 );
+            }
+
+            // apply mtv vectors from the average mtv vector
+            for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                b = this._bodyList.pop();
+                b.state.pos.vadd( b._mtvStats.mean );
+                b.state.old.pos.vadd( b._mtvStats.mean );
+                b._mtvStats.clear();
             }
         }
     };

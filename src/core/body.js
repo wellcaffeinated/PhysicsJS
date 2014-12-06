@@ -325,6 +325,7 @@
 
             this._sleepAngStats.push( this.state.angular.pos );
             this._sleepPosStats.push( this.state.pos );
+
             v = this._sleepPosStats.s.norm() + Math.abs(r * this._sleepAngStats.s);
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
 

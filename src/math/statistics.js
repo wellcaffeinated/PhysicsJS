@@ -85,23 +85,24 @@
          *
          * see: [http://www.johndcook.com/blog/standard_deviation](http://www.johndcook.com/blog/standard_deviation)
          */
-        push: function push( v ){
+        push: function( v ){
 
             this.n++;
             this.recalc = true;
 
             if ( this.options.useVectors ){
+                
                 var invN = 1/this.n
-                    ,x = v.get(0) - this.mean.get(0)
-                    ,y = v.get(1) - this.mean.get(1)
+                    ,x = v._[0] - this.mean._[0]
+                    ,y = v._[1] - this.mean._[1]
                     ;
 
                 // Mk = Mk-1+ (xk – Mk-1)/k
                 // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
                 this.mean.add( x * invN, y * invN );
 
-                x *= v.get(0) - this.mean.get(0);
-                y *= v.get(1) - this.mean.get(1);
+                x *= v._[0] - this.mean._[0];
+                y *= v._[1] - this.mean._[1];
 
                 this._runningS.add( x, y );
 
