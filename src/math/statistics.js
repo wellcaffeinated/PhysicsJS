@@ -4,6 +4,21 @@
         useVectors: false
     };
 
+    /**
+    * class Physics.statistics
+    *
+    * Class for calculating running mean and variance of numbers or vectors.
+    **/
+
+    /**
+    * new Physics.statistics( [opts] )
+    * - opts (Object): Config options
+    *
+    * Statistics constructor.
+    *
+    * Options:
+    * - useVectors: set to `true` to be able to push vectors as values and get mean/variance as vector values
+    **/
     var Stats = function( opts ){
         if ( !(this instanceof Stats) ){
             return new Stats( opts );
