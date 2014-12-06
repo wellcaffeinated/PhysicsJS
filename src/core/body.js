@@ -17,44 +17,6 @@
         view: null
     };
 
-    // Running average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean
-    // s is current std deviation
-    // v is value to push
-    function pushRunningAvg( k, m, s, v ){
-
-        var x = v - m;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m += x / k;
-        s += x * (v - m);
-    }
-
-    // Running vector average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean (vector)
-    // s is current std deviation (vector)
-    // v is vector to push
-    function pushRunningVectorAvg( k, m, s, v ){
-        var invK = 1/k
-            ,x = v.get(0) - m.get(0)
-            ,y = v.get(1) - m.get(1)
-            ;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m.add( x * invK, y * invK );
-
-        x *= v.get(0) - m.get(0);
-        y *= v.get(1) - m.get(1);
-
-        s.add( x, y );
-    }
-
     var uidGen = 1;
 
     /** related to: Physics.util.decorator
@@ -169,11 +131,8 @@
             };
 
             // private storage for sleeping
-            this._sleepAngPosMean = 0;
-            this._sleepAngPosVariance = 0;
-            this._sleepPosMean = new vector();
-            this._sleepPosVariance = new vector();
-            this._sleepMeanK = 0;
+            this._sleepAngStats = new Physics.statistics();
+            this._sleepPosStats = new Physics.statistics({ useVectors: true });
 
             // cleanup
             delete this.x;
@@ -310,11 +269,8 @@
             } else if ( dt === false ){
                 // force wakup
                 this.asleep = false;
-                this._sleepMeanK = 0;
-                this._sleepAngPosMean = 0;
-                this._sleepAngPosVariance = 0;
-                this._sleepPosMean.zero();
-                this._sleepPosVariance.zero();
+                this._sleepAngStats.clear();
+                this._sleepPosStats.clear();
                 this.sleepIdleTime = 0;
 
             } else if ( dt && !this.asleep ) {
@@ -367,10 +323,9 @@
                 }
             }
 
-            this._sleepMeanK++;
-            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
-            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
-            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            this._sleepAngStats.push( this.state.angular.pos );
+            this._sleepPosStats.push( this.state.pos );
+            v = this._sleepPosStats.s.norm() + Math.abs(r * this._sleepAngStats.s);
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
 
             if ( v <= limit ){
