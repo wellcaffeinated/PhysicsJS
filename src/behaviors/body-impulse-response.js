@@ -137,22 +137,26 @@ Physics.behavior('body-impulse-response', function( parent ){
                 if ( fixedA ){
 
                     // push mtv to the stats for calculating the average
-                    bodyB._mtvStats.push( mtv );
+                    bodyB._mtvStatsK++;
+                    Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
 
                 } else if ( fixedB ){
 
                     // push mtv to the stats for calculating the average
-                    bodyA._mtvStats.push( mtv.negate() );
+                    bodyA._mtvStatsK++;
+                    Physics.statistics.pushRunningVectorAvg( mtv.negate(), bodyA._mtvStatsK, bodyA._mtvStats );
                     mtv.negate();
 
                 } else {
 
                     // push mtv to the stats for calculating the average
                     mtv.mult( 0.5 );
+                    bodyA._mtvStatsK++;
+                    bodyB._mtvStatsK++;
                     mtv.negate();
-                    bodyA._mtvStats.push( mtv );
+                    Physics.statistics.pushRunningVectorAvg( mtv, bodyA._mtvStatsK, bodyA._mtvStats );
                     mtv.negate();
-                    bodyB._mtvStats.push( mtv );
+                    Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
                 }
             }
 
@@ -280,8 +284,10 @@ Physics.behavior('body-impulse-response', function( parent ){
                 this._pushUniq( col.bodyA );
                 this._pushUniq( col.bodyB );
                 // ensure they have mtv stat vectors
-                col.bodyA._mtvStats = col.bodyA._mtvStats || new Physics.statistics({ useVectors: true });
-                col.bodyB._mtvStats = col.bodyB._mtvStats || new Physics.statistics({ useVectors: true });
+                col.bodyA._mtvStats = col.bodyA._mtvStats || new Physics.vector();
+                col.bodyB._mtvStats = col.bodyB._mtvStats || new Physics.vector();
+                col.bodyA._mtvStatsK = col.bodyA._mtvStatsK|0;
+                col.bodyB._mtvStatsK = col.bodyB._mtvStatsK|0;
 
                 self.collideBodies(
                     col.bodyA,
@@ -296,9 +302,10 @@ Physics.behavior('body-impulse-response', function( parent ){
             // apply mtv vectors from the average mtv vector
             for ( i = 0, l = this._bodyList.length; i < l; ++i ){
                 b = this._bodyList.pop();
-                b.state.pos.vadd( b._mtvStats.mean );
-                b.state.old.pos.vadd( b._mtvStats.mean );
-                b._mtvStats.clear();
+                b.state.pos.vadd( b._mtvStats );
+                b.state.old.pos.vadd( b._mtvStats );
+                b._mtvStats.zero();
+                b._mtvStatsK = 0;
             }
         }
     };

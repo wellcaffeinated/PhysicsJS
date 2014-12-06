@@ -131,8 +131,11 @@
             };
 
             // private storage for sleeping
-            this._sleepAngStats = new Physics.statistics();
-            this._sleepPosStats = new Physics.statistics({ useVectors: true });
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
 
             // cleanup
             delete this.x;
@@ -269,8 +272,11 @@
             } else if ( dt === false ){
                 // force wakup
                 this.asleep = false;
-                this._sleepAngStats.clear();
-                this._sleepPosStats.clear();
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
                 this.sleepIdleTime = 0;
 
             } else if ( dt && !this.asleep ) {
@@ -306,6 +312,8 @@
                 ,scratch = Physics.scratchpad()
                 ,diff = scratch.vector()
                 ,diff2 = scratch.vector()
+                ,kfac
+                ,stats
                 ;
 
             dt = dt || 0;
@@ -323,10 +331,12 @@
                 }
             }
 
-            this._sleepAngStats.push( this.state.angular.pos );
-            this._sleepPosStats.push( this.state.pos );
-
-            v = this._sleepPosStats.s.norm() + Math.abs(r * this._sleepAngStats.s);
+            this._sleepMeanK++;
+            kfac = 1/(this._sleepMeanK - 1);
+            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
+            stats = Physics.statistics.pushRunningAvg( this.state.angular.pos, this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            v = this._sleepPosVariance.norm() + Math.abs(r * stats[1]);
+            v *= kfac;
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
 
             if ( v <= limit ){

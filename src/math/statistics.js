@@ -1,136 +1,62 @@
 (function(){
 
-    var defaults = {
-        useVectors: false
-    };
-
-    /**
-    * class Physics.statistics
-    *
-    * Class for calculating running mean and variance of numbers or vectors.
-    **/
-
-    /**
-    * new Physics.statistics( [opts] )
-    * - opts (Object): Config options
-    *
-    * Statistics constructor.
-    *
-    * Options:
-    * - useVectors: set to `true` to be able to push vectors as values and get mean/variance as vector values
-    **/
-    var Stats = function( opts ){
-        if ( !(this instanceof Stats) ){
-            return new Stats( opts );
-        }
-
-        this.options = Physics.util.options( defaults );
-        this.options( opts );
-
-        this.n = 0;
-        this.recalc = true;
-
-        var getS;
-
-        if ( this.options.useVectors ){
-
-            this.mean = new Physics.vector();
-            this._runningS = new Physics.vector();
-            this._s = new Physics.vector();
-            getS = function(){
-                if ( !this.recalc ){
-                    return this._s;
-                }
-
-                this.recalc = false;
-                if (this.n <= 1){
-                    return this._s.zero();
-                }
-                return this._s.clone( this._runningS ).mult( 1 / (this.n - 1) );
-            }
-
-        } else {
-            this.mean = 0;
-            this._runningS = 0;
-            getS = function(){
-                return (this.n > 1) ? this._runningS / (this.n - 1) : 0.0;
-            };
-        }
-
+    Physics.statistics = {
         /**
-        * Physics.statistics#mean
-        *
-        * The running mean (number or vector).
-        **/
-
-        /**
-         * Physics.statistics#s
+         * Physics.statistics.pushRunningAvg( v, k, m, s ) -> Array
+         * - v (Number): is value to push
+         * - k (Number): is num elements
+         * - m (Number): is current mean
+         * - s (Number): is current s value
+         * + (Array): Returns a 2 element array containing the next mean, and s value
          *
-         * Getter property for the standard deviation.
-         **/
-        Object.defineProperties( this, {
-            s: {
-                get: getS
-            }
-        });
-    };
-
-    Stats.prototype = {
-
-        /**
-         * Physics.statistics.push( v )
-         * - v (Number|Physics.vector): The value to push. (vector if options.useVectors is `true`)
+         * Push a value to a running average calculation.
+         * see [http://www.johndcook.com/blog/standard_deviation]
          *
-         * Push a value to the statistics.
-         *
-         * see: [http://www.johndcook.com/blog/standard_deviation](http://www.johndcook.com/blog/standard_deviation)
+         * Note: variance can be calculated from the "s" value by multiplying it by `1/(k-1)`
          */
-        push: function( v ){
+        pushRunningAvg: function( v, k, m, s ){
 
-            this.n++;
-            this.recalc = true;
+            var x = v - m;
 
-            if ( this.options.useVectors ){
-                
-                var invN = 1/this.n
-                    ,x = v._[0] - this.mean._[0]
-                    ,y = v._[1] - this.mean._[1]
-                    ;
-
-                // Mk = Mk-1+ (xk – Mk-1)/k
-                // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-                this.mean.add( x * invN, y * invN );
-
-                x *= v._[0] - this.mean._[0];
-                y *= v._[1] - this.mean._[1];
-
-                this._runningS.add( x, y );
-
-            } else {
-
-                var x = v - this.mean;
-
-                // Mk = Mk-1+ (xk – Mk-1)/k
-                // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-                this.mean += x / this.n;
-                this._runningS += x * (v - this.mean);
-            }
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m += x / k;
+            s += x * (v - m);
+            return [m, s];
         },
 
-        clear: function(){
-            this.recalc = true;
-            if ( this.options.useVectors ){
-                this.n = 0;
-                this.mean.zero();
-                this._runningS.zero();
-                this._s.zero();
-            } else {
-                this.n = 0;
-                this.mean = 0;
-                this._runningS = 0;
+        /**
+        * Physics.statistics.pushRunningVectorAvg( v, k, m[, s] )
+        * - v (Physics.vector): is vector to push
+        * - k (Number): is num elements
+        * - m (Physics.vector): is current mean
+        * - s (Physics.vector): is current s value
+        *
+        * Push a vector to a running vector average calculation.
+        * see [http://www.johndcook.com/blog/standard_deviation]
+        *
+        * Calculations are done in place. The `m` and `s` parameters are altered.
+        *
+        * Note: variance can be calculated from the "s" vector by multiplying it by `1/(k-1)`
+        *
+        * If s value is ommitted it won't be used.
+        */
+        pushRunningVectorAvg: function( v, k, m, s ){
+            var invK = 1/k
+                ,x = v.get(0) - m.get(0)
+                ,y = v.get(1) - m.get(1)
+                ;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m.add( x * invK, y * invK );
+
+            if ( s ){
+                x *= v.get(0) - m.get(0);
+                y *= v.get(1) - m.get(1);
+
+                s.add( x, y );
             }
         }
     };
-
-    Physics.statistics = Stats;
 })();
