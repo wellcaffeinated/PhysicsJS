@@ -308,7 +308,7 @@ Physics.behavior('body-impulse-response', function( parent ){
             // apply mtv vectors from the average mtv vector
             for ( i = 0, l = this._bodyList.length; i < l; ++i ){
                 b = this._bodyList.pop();
-                clampMTV( b._oldmtvTotal.negate(), b._mtvTotal, b._mtvTotal );
+                // clampMTV( b._oldmtvTotal, b._mtvTotal, b._mtvTotal );
 
                 if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
                     b._mtvTotal.mult( this.options.bodyExtractDropoff );
