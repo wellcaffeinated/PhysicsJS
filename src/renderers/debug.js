@@ -139,7 +139,6 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             world.on('sweep-prune:intervals', this.storeIntervals, this );
             world.on('collisions:detected', this.storeCollisions, this );
-            world.on('render', this.reset, this);
 
             this.updateGui();
         },
@@ -149,7 +148,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             world.off('sweep-prune:intervals', this.storeIntervals, this );
             world.off('collisions:detected', this.storeCollisions, this );
-            world.off('render', this.reset, this);
+
         },
 
         storeIntervals: function( intervals ){
@@ -259,7 +258,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                     }
                 }
                 ,get sleepSpeedLimit(){
-                    return self._world ? self._world.options.sleepSpeedLimit : 0.01;
+                    return self._world ? self._world.options.sleepSpeedLimit : 0.005;
                 }
                 ,set sleepSpeedLimit( t ){
                     if ( self._world ){
@@ -267,7 +266,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                     }
                 }
                 ,get sleepVarianceLimit(){
-                    return self._world ? self._world.options.sleepVarianceLimit : 0.02;
+                    return self._world ? self._world.options.sleepVarianceLimit : 0.2;
                 }
                 ,set sleepVarianceLimit( t ){
                     if ( self._world ){

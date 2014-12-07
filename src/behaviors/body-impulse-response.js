@@ -31,6 +31,22 @@ Physics.behavior('body-impulse-response', function( parent ){
         return b.uid;
     }
 
+    function clampMTV( totalV, mtv, into ){
+
+        var m, n;
+        n = mtv.norm();
+        m = n - totalV.proj( mtv );
+        m = Math.max( 0, Math.min( n, m ) );
+
+        if ( n === 0 ){
+            into.zero();
+        } else {
+            into.clone( mtv ).mult( m/n );
+        }
+
+        return into;
+    }
+
     return {
 
         // extended
@@ -126,37 +142,27 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ;
 
             if ( contact ){
-                if ( mtv.normSq() < this.options.mtvThreshold ){
-                    mtv.mult( this.options.bodyExtractDropoff );
-                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
-                    // wake up bodies if necessary
-                    bodyA.sleep( false );
-                    bodyB.sleep( false );
-                }
 
                 if ( fixedA ){
 
-                    // push mtv to the stats for calculating the average
-                    bodyB._mtvStatsK++;
-                    Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
 
                 } else if ( fixedB ){
 
-                    // push mtv to the stats for calculating the average
-                    bodyA._mtvStatsK++;
-                    Physics.statistics.pushRunningVectorAvg( mtv.negate(), bodyA._mtvStatsK, bodyA._mtvStats );
+                    clampMTV( bodyA._mtvTotal, mtv.negate(), tmp );
+                    bodyA._mtvTotal.vadd( tmp );
                     mtv.negate();
 
                 } else {
 
-                    // push mtv to the stats for calculating the average
                     mtv.mult( 0.5 );
-                    bodyA._mtvStatsK++;
-                    bodyB._mtvStatsK++;
                     mtv.negate();
-                    Physics.statistics.pushRunningVectorAvg( mtv, bodyA._mtvStatsK, bodyA._mtvStats );
+                    clampMTV( bodyA._mtvTotal, mtv, tmp );
+                    bodyA._mtvTotal.vadd( tmp );
                     mtv.negate();
-                    Physics.statistics.pushRunningVectorAvg( mtv, bodyB._mtvStatsK, bodyB._mtvStats );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
                 }
             }
 
@@ -273,7 +279,7 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             var self = this
                 ,col
-                ,collisions = Physics.util.shuffle(data.collisions)
+                ,collisions = data.collisions// Physics.util.shuffle(data.collisions)
                 ,i,l,b
                 ;
 
@@ -284,10 +290,10 @@ Physics.behavior('body-impulse-response', function( parent ){
                 this._pushUniq( col.bodyA );
                 this._pushUniq( col.bodyB );
                 // ensure they have mtv stat vectors
-                col.bodyA._mtvStats = col.bodyA._mtvStats || new Physics.vector();
-                col.bodyB._mtvStats = col.bodyB._mtvStats || new Physics.vector();
-                col.bodyA._mtvStatsK = col.bodyA._mtvStatsK|0;
-                col.bodyB._mtvStatsK = col.bodyB._mtvStatsK|0;
+                col.bodyA._mtvTotal = col.bodyA._mtvTotal || new Physics.vector();
+                col.bodyB._mtvTotal = col.bodyB._mtvTotal || new Physics.vector();
+                col.bodyA._oldmtvTotal = col.bodyA._oldmtvTotal || new Physics.vector();
+                col.bodyB._oldmtvTotal = col.bodyB._oldmtvTotal || new Physics.vector();
 
                 self.collideBodies(
                     col.bodyA,
@@ -302,10 +308,19 @@ Physics.behavior('body-impulse-response', function( parent ){
             // apply mtv vectors from the average mtv vector
             for ( i = 0, l = this._bodyList.length; i < l; ++i ){
                 b = this._bodyList.pop();
-                b.state.pos.vadd( b._mtvStats );
-                b.state.old.pos.vadd( b._mtvStats );
-                b._mtvStats.zero();
-                b._mtvStatsK = 0;
+                clampMTV( b._oldmtvTotal.negate(), b._mtvTotal, b._mtvTotal );
+
+                if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
+                    b._mtvTotal.mult( this.options.bodyExtractDropoff );
+                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                    // wake up bodies if necessary
+                    b.sleep( false );
+                }
+
+                b.state.pos.vadd( b._mtvTotal );
+                b.state.old.pos.vadd( b._mtvTotal );
+                b._oldmtvTotal.swap( b._mtvTotal );
+                b._mtvTotal.zero();
             }
         }
     };

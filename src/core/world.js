@@ -40,7 +40,7 @@
         // is sleeping disabled?
         sleepDisabled: false,
         // speed at which bodies wake up
-        sleepSpeedLimit: 0.1,
+        sleepSpeedLimit: 0.05,
         // variance in position below which bodies fall asleep
         sleepVarianceLimit: 0.02,
         // time (ms) before sleepy bodies fall asleep

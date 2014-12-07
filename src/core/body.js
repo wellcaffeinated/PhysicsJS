@@ -19,6 +19,11 @@
 
     var uidGen = 1;
 
+    var Pi2 = Math.PI * 2;
+    function cycleAngle( ang ){
+        return ((ang % Pi2) + Pi2) % Pi2;
+    }
+
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
      * - name (String): The name of the body to create
@@ -332,13 +337,17 @@
             }
 
             this._sleepMeanK++;
-            kfac = 1/(this._sleepMeanK - 1);
+            kfac = this._sleepMeanK > 1 ? 1/(this._sleepMeanK - 1) : 0;
             Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
-            stats = Physics.statistics.pushRunningAvg( this.state.angular.pos, this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
-            v = this._sleepPosVariance.norm() + Math.abs(r * stats[1]);
+            // we take the sin because that maps the discontinuous angle to a continuous value
+            // then the statistics calculations work better
+            stats = Physics.statistics.pushRunningAvg( Math.sin(this.state.angular.pos), this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            this._sleepAngPosMean = stats[0];
+            this._sleepAngPosVariance = stats[1];
+            v = this._sleepPosVariance.norm() + Math.abs(r * Math.asin(stats[1]));
             v *= kfac;
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
-
+            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
             if ( v <= limit ){
                 // check idle time
                 limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
