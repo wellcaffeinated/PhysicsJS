@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -45,6 +45,26 @@
             ,forceWakeupAboveOverlapThreshold: true
         };
     
+        function getUid( b ){
+            return b.uid;
+        }
+    
+        function clampMTV( totalV, mtv, into ){
+    
+            var m, n;
+            n = mtv.norm();
+            m = n - totalV.proj( mtv );
+            m = Math.max( 0, Math.min( n, m ) );
+    
+            if ( n === 0 ){
+                into.zero();
+            } else {
+                into.clone( mtv ).mult( m/n );
+            }
+    
+            return into;
+        }
+    
         return {
     
             // extended
@@ -53,6 +73,8 @@
                 parent.init.call( this );
                 this.options.defaults( defaults );
                 this.options( options );
+    
+                this._bodyList = [];
             },
     
             // no applyTo method
@@ -134,38 +156,34 @@
                     ,impulse
                     ,sign
                     ,max
+                    ,ratio
                     ,inContact = contact
                     ;
     
                 if ( contact ){
-                    if ( mtv.normSq() < this.options.mtvThreshold ){
-                        mtv.mult( this.options.bodyExtractDropoff );
-                    } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
-                        // wake up bodies if necessary
-                        bodyA.sleep( false );
-                        bodyB.sleep( false );
-                    }
     
                     if ( fixedA ){
     
-                        // extract bodies
-                        bodyB.state.pos.vadd( mtv );
-                        bodyB.state.old.pos.vadd( mtv );
+                        clampMTV( bodyB._mtvTotal, mtv, tmp );
+                        bodyB._mtvTotal.vadd( tmp );
     
                     } else if ( fixedB ){
     
-                        // extract bodies
-                        bodyA.state.pos.vsub( mtv );
-                        bodyA.state.old.pos.vsub( mtv );
+                        clampMTV( bodyA._mtvTotal, mtv.negate(), tmp );
+                        bodyA._mtvTotal.vadd( tmp );
+                        mtv.negate();
     
                     } else {
     
-                        // extract bodies
-                        mtv.mult( 0.5 );
-                        bodyA.state.pos.vsub( mtv );
-                        bodyA.state.old.pos.vsub( mtv );
-                        bodyB.state.pos.vadd( mtv );
-                        bodyB.state.old.pos.vadd( mtv );
+                        ratio = 0.5; //bodyA.mass / ( bodyA.mass + bodyB.mass );
+                        mtv.mult( ratio );
+                        clampMTV( bodyB._mtvTotal, mtv, tmp );
+                        bodyB._mtvTotal.vadd( tmp );
+    
+                        mtv.clone( mtrans ).mult( ratio - 1 );
+                        clampMTV( bodyA._mtvTotal, mtv, tmp );
+                        bodyA._mtvTotal.vadd( tmp );
+    
                     }
                 }
     
@@ -264,6 +282,14 @@
                 scratch.done();
             },
     
+            // internal
+            _pushUniq: function( body ){
+                var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+                if ( this._bodyList[ idx ] !== body ){
+                    this._bodyList.splice( idx, 0, body );
+                }
+            },
+    
             /** internal
              * BodyImpulseResponseBehavior#respond( data )
              * - data (Object): event data
@@ -274,12 +300,22 @@
     
                 var self = this
                     ,col
-                    ,collisions = Physics.util.shuffle(data.collisions)
+                    ,collisions = data.collisions// Physics.util.shuffle(data.collisions)
+                    ,i,l,b
                     ;
     
-                for ( var i = 0, l = collisions.length; i < l; ++i ){
+                for ( i = 0, l = collisions.length; i < l; ++i ){
     
                     col = collisions[ i ];
+                    // add bodies to list for later
+                    this._pushUniq( col.bodyA );
+                    this._pushUniq( col.bodyB );
+                    // ensure they have mtv stat vectors
+                    col.bodyA._mtvTotal = col.bodyA._mtvTotal || new Physics.vector();
+                    col.bodyB._mtvTotal = col.bodyB._mtvTotal || new Physics.vector();
+                    col.bodyA._oldmtvTotal = col.bodyA._oldmtvTotal || new Physics.vector();
+                    col.bodyB._oldmtvTotal = col.bodyB._oldmtvTotal || new Physics.vector();
+    
                     self.collideBodies(
                         col.bodyA,
                         col.bodyB,
@@ -288,6 +324,24 @@
                         col.mtv,
                         col.collidedPreviously
                     );
+                }
+    
+                // apply mtv vectors from the average mtv vector
+                for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                    b = this._bodyList.pop();
+                    // clampMTV( b._oldmtvTotal, b._mtvTotal, b._mtvTotal );
+    
+                    if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
+                        b._mtvTotal.mult( this.options.bodyExtractDropoff );
+                    } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                        // wake up bodies if necessary
+                        b.sleep( false );
+                    }
+    
+                    b.state.pos.vadd( b._mtvTotal );
+                    b.state.old.pos.vadd( b._mtvTotal );
+                    b._oldmtvTotal.swap( b._mtvTotal );
+                    b._mtvTotal.zero();
                 }
             }
         };

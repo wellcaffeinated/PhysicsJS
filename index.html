@@ -13,120 +13,281 @@ title: PhysicsJS
 //
 Physics(function (world) {
 
-    var viewWidth = window.innerWidth
-        ,viewHeight = window.innerHeight
-        // center of the window
-        ,center = Physics.vector(viewWidth, viewHeight).mult(0.5)
-        // bounds of the window
-        ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
-        ,attractor
-        ,edgeBounce
-        ,renderer
-        ;
+    // bounds of the window
+    var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
+    ,width = window.innerWidth
+    ,height = window.innerHeight
+    ,renderer
+    ;
 
-    // create a renderer
-    renderer = Physics.renderer('canvas', {
-        el: 'viewport'
-        ,width: viewWidth
-        ,height: viewHeight
-    });
+    // let's use the pixi renderer
+    require(['vendor/pixi'], function( PIXI ){
+        window.PIXI = PIXI;
+        // create a renderer
+        renderer = Physics.renderer('pixi', {
+            el: 'viewport'
+        });
 
-    // add the renderer
-    world.add(renderer);
-    // render on each step
-    world.on('step', function () {
-        world.render();
-    });
-
-    // attract bodies to a point
-    attractor = Physics.behavior('attractor', {
-        pos: center
-        ,strength: .1
-        ,order: 1
-    });
-
-    // constrain objects to these bounds
-    edgeBounce = Physics.behavior('edge-collision-detection', {
-        aabb: viewportBounds
-        ,restitution: 0.2
-        ,cof: 0.8
-    });
-
-    // resize events
-    window.addEventListener('resize', function () {
-
-        viewWidth = window.innerWidth;
-        viewHeight = window.innerHeight;
-
-        renderer.el.width = viewWidth;
-        renderer.el.height = viewHeight;
-
-        viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
-        // update the boundaries
-        edgeBounce.setAABB(viewportBounds);
-
-    }, true);
-
-    // move the attractor position to match the mouse coords
-    renderer.el.addEventListener('mousemove', function( e ){
-        attractor.position({ x: e.pageX, y: e.pageY });
+        // add the renderer
+        world.add(renderer);
+        // render on each step
+        world.on('step', function () {
+            world.render();
+        });
+        // add the interaction
+        world.add(Physics.behavior('interactive', { el: renderer.container }));
     });
 
     // some fun colors
-    var colors = [
-        '#b58900',
-        '#cb4b16',
-        '#dc322f',
-        '#d33682',
-        '#6c71c4',
-        '#268bd2',
-        '#2aa198',
-        '#859900'
-    ];
-    // create some bodies
-    var l = 10;
-    var bodies = [];
-    var v = Physics.vector(0, 300);
-    var b, r;
+    var colors = {
+        blue: '0x1d6b98',
+        blueDark: '0x14546f',
+        red: '0xdc322f',
+        darkRed: '0xa42222'
+    };
 
-    while ( l-- ) {
-        r = (20 + Math.random()*30)|0;
-        b = Physics.body('circle', {
-            radius: r
-            ,mass: r
-            ,x: v.x + center.x
-            ,y: v.y + center.y
-            ,vx: v.perp().mult(0.0001).x
-            ,vx: v.y
-            ,styles: {
-                fillStyle: colors[ l % colors.length ]
-            }
-        });
-        bodies.push(b);
-        v.perp(true)
-            .mult(10000)
-            .rotate(l / 3);
+    // scale relative to window width
+    function S( n ){
+        return n * window.innerWidth / 600;
     }
 
-    // add things to the world
-    world.add( bodies );
-    world.add([
-        Physics.behavior('newtonian', {
-            strength: 0.005
-            ,min: 10
+    // create the zero
+    var zero = Physics.body('compound', {
+        x: width/2 - S(80)
+        ,y: height/2
+        ,treatment: 'static'
+        ,styles: {
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
+        }
+        ,children: [
+        // coords of children are relative to the compound center of mass
+        Physics.body('rectangle', {
+            x: S(-50)
+            ,y: 0
+            ,width: S(20)
+            ,height: S(97)
+            ,mass: 20
         })
-        ,Physics.behavior('body-impulse-response')
-        ,edgeBounce
-        ,attractor
-    ]);
-
-    // subscribe to ticker to advance the simulation
-    Physics.util.ticker.on(function( time ) {
-        world.step( time );
+        ,Physics.body('rectangle', {
+            x: S(50)
+            ,y: 0
+            ,width: S(20)
+            ,height: S(97)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: 0
+            ,y: S(75)
+            ,width: S(48)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: -S(35)
+            ,y: S(60)
+            ,angle: Math.PI / 4
+            ,width: S(50)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: S(35)
+            ,y: S(60)
+            ,angle: -Math.PI / 4
+            ,width: S(50)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: 0
+            ,y: S(-75)
+            ,width: S(48)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: -S(35)
+            ,y: -S(60)
+            ,angle: -Math.PI / 4
+            ,width: S(50)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ,Physics.body('rectangle', {
+            x: S(35)
+            ,y: -S(60)
+            ,angle: Math.PI / 4
+            ,width: S(50)
+            ,height: S(20)
+            ,mass: 20
+        })
+        ]
     });
 
-    // start the ticker
-    Physics.util.ticker.start();
+    // the point...
+    var point = Physics.body('circle', {
+        x: width/2 + S(6)
+        ,y: height/2 + S(76)
+        ,radius: S(13)
+        ,treatment: 'static'
+        ,styles: {
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
+            ,mass: 80
+        }
+    });
+
+    // the seven...
+    var seven = Physics.body('compound', {
+        x: width/2 + S(86)
+        ,y: height/2 - S(34)
+        ,treatment: 'static'
+        ,styles: {
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
+        }
+        ,children: [
+        Physics.body('rectangle', {
+            x: S(35)
+            ,y: -S(80)
+            ,width: S(114)
+            ,height: S(24)
+            ,mass: 40
+        })
+        ,Physics.body('rectangle', {
+            x: S(51.5)
+            ,y: S(2.5)
+            ,angle: -70 * Math.PI/180
+            ,width: S(160)
+            ,height: S(28)
+            ,mass: 40
+        })
+        ]
+    });
+
+    // create 200 circles placed randomly
+    var l = 100;
+    var circles = [];
+    while( l-- ){
+        circles.push(Physics.body('circle', {
+            x: Math.random() * width
+            ,y: Math.random() * height
+            ,radius: S(10)
+            ,mass: 1
+            ,restitution: 0.5
+            ,styles: {
+                strokeStyle: colors.darkBlue
+                ,fillStyle: colors.blue
+                ,lineWidth: 1
+            }
+        }));
+    }
+
+    world.add(circles);
+
+    // add things to the world
+    world.add([
+    zero
+    ,point
+    ,seven
+    ]);
+
+    // when circles fall past the bottom. reset them
+    function wrapY(){
+        var b
+        ,i
+        ,l
+        ,h = height + 100
+        ,w =  width /2
+        ,x = w
+        ;
+
+        for( i = 0, l = circles.length; i < l; i++){
+            b = circles[i];
+            if ( b.state.pos.y > height ){
+                b.state.pos.y -= h;
+                b.state.pos.x = x + w * (2 * Math.random() - 1);
+                b.state.vel.zero();
+            }
+        }
+    }
+
+    world.on('step', wrapY);
+
+    // slowly fade in the numbers
+    function fadeIn(){
+        zero.view.alpha = 0;
+        seven.view.alpha = 0;
+
+        new TWEEN.Tween( { alpha: 0 } )
+        .to( { alpha: 1 }, 1000 )
+        .onUpdate( function () {
+            zero.view.alpha = this.alpha;
+            point.view.alpha = this.alpha;
+            seven.view.alpha = this.alpha;
+        } )
+        .start()
+        ;
+    }
+
+    world.one('render', function(){
+        // set the alpha on children to 1
+        function setAlpha(c){
+            c.alpha = 1;
+        }
+        zero.view.children.forEach(setAlpha);
+        seven.view.children.forEach(setAlpha);
+        zero.view.alpha = 0;
+        seven.view.alpha = 0;
+
+        // fade in after 2 seconds
+        setTimeout(fadeIn, 3000);
+    });
+
+    // after 10 seconds to some more fun
+    setTimeout(function(){
+        // constrain objects to these bounds
+        var edgeBounce = Physics.behavior('edge-collision-detection', {
+            aabb: viewportBounds
+            ,restitution: 0
+            ,cof: 0.8
+        });
+
+        world.add( edgeBounce );
+
+        // "detach" the 0.7
+        zero.treatment = point.treatment = seven.treatment = 'dynamic';
+        // wake up sleeping bodies
+        world.wakeUpAll();
+        world.off('step', wrapY);
+    }, 10000)
+
+    // add behaviors
+    world.add([
+    Physics.behavior('constant-acceleration')
+    ,Physics.behavior('body-impulse-response')
+    ,Physics.behavior('body-collision-detection')
+    ,Physics.behavior('sweep-prune')
+    ]);
+
+    // For this example, we'll use a tweening engine
+    // to transition the alpha
+    require(['assets/scripts/vendor/tween.js'], function(){
+        // only start the sim when tweening engine is ready
+
+        // subscribe to ticker to advance the simulation
+        Physics.util.ticker.on(function( time ) {
+            TWEEN.update();
+            world.step( time );
+        });
+    });
 });
 
 // go ahead... expand the code and play around...
@@ -134,6 +295,8 @@ Physics(function (world) {
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="{{relative}}assets/scripts/vendor/jquery.selectric.min.js"></script>
+
 <script>
 jQuery(function( $ ){
     var editor = window.CodeEditors[0];
@@ -156,16 +319,23 @@ jQuery(function( $ ){
         $changer.append('<option value="'+src+'">'+key+'</option>');
     });
     $changer.val('intro');
-    $('#demo-area .controls').prepend( $changer );
+    $('#demo-area .controls').append( $changer );
+    $changer.selectric({
+        maxHeight: 600
+    });
 
     var introText = editor.getValue();
 
     function update( content ){
+        var ed = editor.getWrapperElement();
+        var d = ed.style.display;
+        ed.style.display = '';
         editor.setValue( content );
+        ed.style.display = d;
         $('#demo-area .ctrl-run').trigger('click');
     }
 
-    $(document).on('change', '.controls select', function(){
+    $changer.on('change', function(){
         var $this = $(this);
         var src = $this.val();
         var idx = $.inArray( $this.children('[value="'+src+'"]')[0], $this.children() );
@@ -182,9 +352,7 @@ jQuery(function( $ ){
 
     idx = window.location.hash.replace('#demo-', '')|0;
     if ( idx ){
-        $changer.val( $changer.children().eq(idx).val() )
-            .trigger('change')
-            ;
+        $changer.prop('selectedIndex', idx).selectric('refresh').trigger('change');
     }
 });
 </script>

@@ -1,7 +1,7 @@
 //
 // Mixed Shapes
 //
-Physics({ timestep: 4 }, function (world) {
+Physics({ timestep: 6 }, function (world) {
 
     // bounds of the window
     var viewWidth = window.innerWidth
@@ -46,12 +46,12 @@ Physics({ timestep: 4 }, function (world) {
     }, true);
 
     var colors = [
-        ['0x268bd2', '0x155479']
-        ,['0xd33682', '0x751b4b']
-        ,['0xcb4b16', '0x72240d']
-        ,['0x6c71c4', '0x545999']
-        ,['0x268bd2', '0x1b6c9b']
-        ,['0x859900', '0x606900']
+        ['0x268bd2', '0x0d394f']
+        ,['0xc93b3b', '0x561414']
+        ,['0xe25e36', '0x79231b']
+        ,['0x6c71c4', '0x393f6a']
+        ,['0x58c73c', '0x30641c']
+        ,['0xcac34c', '0x736a2c']
     ];
 
     function random( min, max ){
@@ -76,6 +76,7 @@ Physics({ timestep: 4 }, function (world) {
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: c[0]
+                        ,strokeStyle: c[1]
                         ,lineWidth: 1
                         ,angleIndicator: c[1]
                     }
@@ -94,6 +95,7 @@ Physics({ timestep: 4 }, function (world) {
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: c[0]
+                        ,strokeStyle: c[1]
                         ,lineWidth: 1
                         ,angleIndicator: c[1]
                     }
@@ -113,7 +115,9 @@ Physics({ timestep: 4 }, function (world) {
                     ,restitution: 0.9
                     ,styles: {
                         fillStyle: c[0]
-                        ,angleIndicator: false
+                        ,strokeStyle: c[1]
+                        ,lineWidth: 1
+                        ,angleIndicator: c[1]
                     }
                 });
                 break;

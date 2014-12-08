@@ -339,6 +339,10 @@ nav.toc {
         bottom: 0;
         right: 0;
     }
+
+    textarea {
+        display: none;
+    }
 }
 .demo-wrap {
     position: relative;
@@ -359,8 +363,19 @@ nav.toc {
         position: absolute;
         top: 0;
         right: 0;
-        padding: 1em;
+        padding: 0.7em 0.5em 0 0;
         z-index: 3;
+        background: rgba(0,0,0,0.5);
+
+        .selectricWrapper {
+            display: inline-block;
+            margin: 0 0.4em 1px 0;
+            vertical-align: middle;
+        }
+
+        > * {
+            margin-right: 0.5em;
+        }
     }
 
     .CodeMirror {
@@ -636,4 +651,182 @@ nav.toc {
     .optional:after {
       content: ']';
     }
+}
+
+/*======================================================================
+Selectric
+======================================================================*/
+.selectricWrapper {
+    position: relative;
+    margin: 0 0 10px;
+    width: 300px;
+    cursor: pointer;
+}
+
+.selectricResponsive {
+    width: 100%;
+}
+
+.selectric {
+    border: 1px solid #1E6EA7;
+    background: #268BD2;
+    position: relative;
+    border-radius: 3px;
+}
+.selectric .label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0 36px 0 0;
+    padding: 5px 14px 4px;
+    font-size: 12px;
+    line-height: 24px;
+    color: #FFFFFF;
+    min-height: 24px;
+}
+.selectric .button {
+    border-radius: 0px;
+    display: block;
+    position: absolute;
+    right: 10px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 12px;
+    height: 12px;
+    color: #0E4266;
+    text-align: center;
+    font: 0/0 a;
+    /* IE Fix */
+}
+.selectric .button:after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-top-color: #0E4266;
+    border-bottom: none;
+}
+
+.selectricHover .selectric {
+    border-color: #05558e;
+}
+.selectricHover .selectric .button {
+    color: #05558e;
+}
+.selectricHover .selectric .button:after {
+    border-top-color: #05558e;
+}
+
+.selectricOpen {
+    z-index: 9999;
+}
+.selectricOpen .selectric {
+    border-color: #05558e;
+    background: #0d72b9;
+}
+.selectricOpen .selectricItems {
+    display: block;
+}
+
+.selectricDisabled {
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.selectricHideSelect {
+    position: relative;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+.selectricHideSelect select {
+    position: absolute;
+    left: -100%;
+    display: none;
+}
+
+.selectricInput {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    outline: none !important;
+    border: none !important;
+    *font: 0/0 a !important;
+    background: none !important;
+}
+
+.selectricTempShow {
+    position: absolute !important;
+    visibility: hidden !important;
+    display: block !important;
+}
+
+/* Items box */
+.selectricItems {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #F9F9F9;
+    border: 1px solid #CCC;
+    z-index: -1;
+    box-shadow: 0 0 10px -6px;
+}
+.selectricItems .selectricScroll {
+    height: 100%;
+    overflow: auto;
+}
+.selectricAbove .selectricItems {
+    top: auto;
+    bottom: 100%;
+}
+.selectricItems ul, .selectricItems li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 12px;
+    line-height: 20px;
+    min-height: 20px;
+}
+.selectricItems li {
+    display: block;
+    padding: 5px;
+    border-top: 1px solid #FFF;
+    border-bottom: 1px solid #DBDADA;
+    color: #666;
+    cursor: pointer;
+}
+.selectricItems li.selected {
+    background: #A9C2E4;
+    color: #444;
+    border-top-color: #E0E0E0;
+}
+.selectricItems li:hover {
+    background: #A9C2E4;
+    color: #444;
+}
+.selectricItems li.disabled {
+    background: #F5F5F5;
+    color: #BBB;
+    border-top-color: #FAFAFA;
+    cursor: default;
 }
