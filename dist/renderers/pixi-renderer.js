@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -45,7 +45,9 @@
      *        strokeStyle: '0xE8900C',
      *        lineWidth: 3,
      *        fillStyle: '0xD5DE4C',
-     *        angleIndicator: '0xE8900C'
+     *        angleIndicator: '0xE8900C',
+     *        strokeAlpha: 1,
+     *        fillAlpha: 1
      *    },
      *
      *    'convex-polygon' : {
@@ -127,6 +129,7 @@
                         fillStyle: colors.blue,
                         angleIndicator: colors.white,
                         fillAlpha: 1,
+                        strokeAlpha: 1,
                         alpha: 1
                     },
     
@@ -136,6 +139,7 @@
                         fillStyle: colors.violet,
                         angleIndicator: colors.white,
                         fillAlpha: 1,
+                        strokeAlpha: 1,
                         alpha: 1
                     },
     
@@ -145,6 +149,7 @@
                         fillStyle: colors.violet,
                         angleIndicator: colors.white,
                         fillAlpha: 1,
+                        strokeAlpha: 1,
                         alpha: 1
                     }
                 }
@@ -338,14 +343,14 @@
     
                     if ( styles.fillStyle && styles.fillStyle !== 'transparent' ){
                         graphics.beginFill( styles.fillStyle );
-                        graphics.fillAlpha = styles.fillAlpha || 1;
+                        graphics.fillAlpha = styles.fillAlpha !== undefined ? styles.fillAlpha : 1;
                     } else {
                         graphics.beginFill();
                         graphics.fillAlpha = 0;
                     }
     
-                    graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle );
-                    graphics.alpha = styles.alpha || 1;
+                    graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle, styles.strokeAlpha !== undefined ? styles.strokeAlpha : 1 );
+                    graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
     
                 } else {
     
@@ -534,6 +539,9 @@
                     view.lineStyle( styles.lineWidth, styles.angleIndicator );
                     view.moveTo( 0, 0 );
                     view.lineTo( hw, 0 );
+                }
+    
+                if ( name !== 'compound' ){
                     view.cacheAsBitmap = true;
                 }
     

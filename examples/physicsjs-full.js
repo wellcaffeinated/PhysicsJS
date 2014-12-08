@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -570,6 +570,73 @@ Physics.util = {};
 
     Physics.gjk = gjk;
 
+})();
+
+
+// ---
+// inside: src/math/statistics.js
+
+(function(){
+
+    Physics.statistics = {
+        /**
+         * Physics.statistics.pushRunningAvg( v, k, m, s ) -> Array
+         * - v (Number): is value to push
+         * - k (Number): is num elements
+         * - m (Number): is current mean
+         * - s (Number): is current s value
+         * + (Array): Returns a 2 element array containing the next mean, and s value
+         *
+         * Push a value to a running average calculation.
+         * see [http://www.johndcook.com/blog/standard_deviation]
+         *
+         * Note: variance can be calculated from the "s" value by multiplying it by `1/(k-1)`
+         **/
+        pushRunningAvg: function( v, k, m, s ){
+
+            var x = v - m;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m += x / k;
+            s += x * (v - m);
+            return [m, s];
+        },
+
+        /**
+        * Physics.statistics.pushRunningVectorAvg( v, k, m[, s] )
+        * - v (Physics.vector): is vector to push
+        * - k (Number): is num elements
+        * - m (Physics.vector): is current mean
+        * - s (Physics.vector): is current s value
+        *
+        * Push a vector to a running vector average calculation.
+        * see [http://www.johndcook.com/blog/standard_deviation]
+        *
+        * Calculations are done in place. The `m` and `s` parameters are altered.
+        *
+        * Note: variance can be calculated from the "s" vector by multiplying it by `1/(k-1)`
+        *
+        * If s value is ommitted it won't be used.
+        **/
+        pushRunningVectorAvg: function( v, k, m, s ){
+            var invK = 1/k
+                ,x = v.get(0) - m.get(0)
+                ,y = v.get(1) - m.get(1)
+                ;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m.add( x * invK, y * invK );
+
+            if ( s ){
+                x *= v.get(0) - m.get(0);
+                y *= v.get(1) - m.get(1);
+
+                s.add( x, y );
+            }
+        }
+    };
 })();
 
 
@@ -3524,45 +3591,12 @@ Physics.scratchpad = (function(){
         view: null
     };
 
-    // Running average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean
-    // s is current std deviation
-    // v is value to push
-    function pushRunningAvg( k, m, s, v ){
-
-        var x = v - m;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m += x / k;
-        s += x * (v - m);
-    }
-
-    // Running vector average
-    // http://www.johndcook.com/blog/standard_deviation
-    // k is num elements
-    // m is current mean (vector)
-    // s is current std deviation (vector)
-    // v is vector to push
-    function pushRunningVectorAvg( k, m, s, v ){
-        var invK = 1/k
-            ,x = v.get(0) - m.get(0)
-            ,y = v.get(1) - m.get(1)
-            ;
-
-        // Mk = Mk-1+ (xk – Mk-1)/k
-        // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
-        m.add( x * invK, y * invK );
-
-        x *= v.get(0) - m.get(0);
-        y *= v.get(1) - m.get(1);
-
-        s.add( x, y );
-    }
-
     var uidGen = 1;
+
+    var Pi2 = Math.PI * 2;
+    function cycleAngle( ang ){
+        return ((ang % Pi2) + Pi2) % Pi2;
+    }
 
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
@@ -3857,6 +3891,8 @@ Physics.scratchpad = (function(){
                 ,scratch = Physics.scratchpad()
                 ,diff = scratch.vector()
                 ,diff2 = scratch.vector()
+                ,kfac
+                ,stats
                 ;
 
             dt = dt || 0;
@@ -3875,11 +3911,17 @@ Physics.scratchpad = (function(){
             }
 
             this._sleepMeanK++;
-            pushRunningVectorAvg( this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance, this.state.pos );
-            pushRunningAvg( this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance, this.state.angular.pos );
-            v = this._sleepPosVariance.norm() + Math.abs(r * this._sleepAngPosVariance);
+            kfac = this._sleepMeanK > 1 ? 1/(this._sleepMeanK - 1) : 0;
+            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
+            // we take the sin because that maps the discontinuous angle to a continuous value
+            // then the statistics calculations work better
+            stats = Physics.statistics.pushRunningAvg( Math.sin(this.state.angular.pos), this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            this._sleepAngPosMean = stats[0];
+            this._sleepAngPosVariance = stats[1];
+            v = this._sleepPosVariance.norm() + Math.abs(r * Math.asin(stats[1]));
+            v *= kfac;
             limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
-
+            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
             if ( v <= limit ){
                 // check idle time
                 limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
@@ -5000,9 +5042,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // is sleeping disabled?
         sleepDisabled: false,
         // speed at which bodies wake up
-        sleepSpeedLimit: 0.1,
+        sleepSpeedLimit: 0.05,
         // variance in position below which bodies fall asleep
-        sleepVarianceLimit: 2,
+        sleepVarianceLimit: 0.02,
         // time (ms) before sleepy bodies fall asleep
         sleepTimeLimit: 500
     };
@@ -7234,11 +7276,8 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
-            // figure out how much the bodies moved relative to each other
-            tmp.clone( bodyA.state.pos ).vsub( bodyA.state.old.pos ).vsub( bodyB.state.pos ).vadd( bodyB.state.old.pos );
-            inc = Math.abs(tmp.proj( d ));
-            // let's increment the margin by half this value each iteration
-            inc = Math.max( 0.5 * inc, 1 );
+            // inc by 1% of the smallest dim.
+            inc = 1e-2 * Math.min(dimA || 1, dimB || 1);
 
             // first get the min distance of between core objects
             support.useCore = true;
@@ -7328,7 +7367,7 @@ Physics.behavior('body-collision-detection', function( parent ){
     };
 
     /*
-     * checkPair( bodyA, bodyB ) -> Object
+     * checkPair( bodyA, bodyB[, disp] ) -> Object
      * - bodyA (Object): First body
      * - bodyB (Object): Second body
      * + (Object): Collision result
@@ -7623,6 +7662,26 @@ Physics.behavior('body-impulse-response', function( parent ){
         ,forceWakeupAboveOverlapThreshold: true
     };
 
+    function getUid( b ){
+        return b.uid;
+    }
+
+    function clampMTV( totalV, mtv, into ){
+
+        var m, n;
+        n = mtv.norm();
+        m = n - totalV.proj( mtv );
+        m = Math.max( 0, Math.min( n, m ) );
+
+        if ( n === 0 ){
+            into.zero();
+        } else {
+            into.clone( mtv ).mult( m/n );
+        }
+
+        return into;
+    }
+
     return {
 
         // extended
@@ -7631,6 +7690,8 @@ Physics.behavior('body-impulse-response', function( parent ){
             parent.init.call( this );
             this.options.defaults( defaults );
             this.options( options );
+
+            this._bodyList = [];
         },
 
         // no applyTo method
@@ -7712,38 +7773,34 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,impulse
                 ,sign
                 ,max
+                ,ratio
                 ,inContact = contact
                 ;
 
             if ( contact ){
-                if ( mtv.normSq() < this.options.mtvThreshold ){
-                    mtv.mult( this.options.bodyExtractDropoff );
-                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
-                    // wake up bodies if necessary
-                    bodyA.sleep( false );
-                    bodyB.sleep( false );
-                }
 
                 if ( fixedA ){
 
-                    // extract bodies
-                    bodyB.state.pos.vadd( mtv );
-                    bodyB.state.old.pos.vadd( mtv );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
 
                 } else if ( fixedB ){
 
-                    // extract bodies
-                    bodyA.state.pos.vsub( mtv );
-                    bodyA.state.old.pos.vsub( mtv );
+                    clampMTV( bodyA._mtvTotal, mtv.negate(), tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+                    mtv.negate();
 
                 } else {
 
-                    // extract bodies
-                    mtv.mult( 0.5 );
-                    bodyA.state.pos.vsub( mtv );
-                    bodyA.state.old.pos.vsub( mtv );
-                    bodyB.state.pos.vadd( mtv );
-                    bodyB.state.old.pos.vadd( mtv );
+                    ratio = 0.5; //bodyA.mass / ( bodyA.mass + bodyB.mass );
+                    mtv.mult( ratio );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
+
+                    mtv.clone( mtrans ).mult( ratio - 1 );
+                    clampMTV( bodyA._mtvTotal, mtv, tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+
                 }
             }
 
@@ -7842,6 +7899,14 @@ Physics.behavior('body-impulse-response', function( parent ){
             scratch.done();
         },
 
+        // internal
+        _pushUniq: function( body ){
+            var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+            if ( this._bodyList[ idx ] !== body ){
+                this._bodyList.splice( idx, 0, body );
+            }
+        },
+
         /** internal
          * BodyImpulseResponseBehavior#respond( data )
          * - data (Object): event data
@@ -7852,12 +7917,22 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             var self = this
                 ,col
-                ,collisions = Physics.util.shuffle(data.collisions)
+                ,collisions = data.collisions// Physics.util.shuffle(data.collisions)
+                ,i,l,b
                 ;
 
-            for ( var i = 0, l = collisions.length; i < l; ++i ){
+            for ( i = 0, l = collisions.length; i < l; ++i ){
 
                 col = collisions[ i ];
+                // add bodies to list for later
+                this._pushUniq( col.bodyA );
+                this._pushUniq( col.bodyB );
+                // ensure they have mtv stat vectors
+                col.bodyA._mtvTotal = col.bodyA._mtvTotal || new Physics.vector();
+                col.bodyB._mtvTotal = col.bodyB._mtvTotal || new Physics.vector();
+                col.bodyA._oldmtvTotal = col.bodyA._oldmtvTotal || new Physics.vector();
+                col.bodyB._oldmtvTotal = col.bodyB._oldmtvTotal || new Physics.vector();
+
                 self.collideBodies(
                     col.bodyA,
                     col.bodyB,
@@ -7866,6 +7941,24 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.mtv,
                     col.collidedPreviously
                 );
+            }
+
+            // apply mtv vectors from the average mtv vector
+            for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                b = this._bodyList.pop();
+                // clampMTV( b._oldmtvTotal, b._mtvTotal, b._mtvTotal );
+
+                if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
+                    b._mtvTotal.mult( this.options.bodyExtractDropoff );
+                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                    // wake up bodies if necessary
+                    b.sleep( false );
+                }
+
+                b.state.pos.vadd( b._mtvTotal );
+                b.state.old.pos.vadd( b._mtvTotal );
+                b._oldmtvTotal.swap( b._mtvTotal );
+                b._mtvTotal.zero();
             }
         }
     };
@@ -8573,7 +8666,7 @@ Physics.behavior('interactive', function( parent ){
 // ---
 // inside: src/behaviors/newtonian.js
 
-/** 
+/**
  * class NewtonianBehavior < Behavior
  *
  * `Physics.behavior('newtonian')`.
@@ -8611,42 +8704,95 @@ Physics.behavior('newtonian', function( parent ){
             });
             this.options( options );
         },
-        
+
+        calcPotential: function( posA, posB, out ){
+
+            var strength = this.options.strength
+                ,minDistSq = this._minDistSq
+                ,maxDistSq = this._maxDistSq
+                ,normsq
+                ,g
+                ,pos
+                ;
+
+            pos = out || new Physics.vector();
+
+            // clone the position
+            pos.clone( posB ).vsub( posA );
+            // get the square distance
+            normsq = pos.normSq();
+
+            if (normsq > minDistSq && normsq < maxDistSq){
+
+                g = strength / normsq;
+                return pos.normalize().mult( g );
+            }
+
+            return pos.zero();
+        },
+
         // extended
         behave: function( data ){
 
             var bodies = this.getTargets()
                 ,body
                 ,other
-                ,strength = this.options.strength
-                ,minDistSq = this._minDistSq
-                ,maxDistSq = this._maxDistSq
                 ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
-                ,normsq
-                ,g
+                ,potential = scratch.vector()
+                ,comp
+                ,bodyA
+                ,bodyB
+                ,posA = scratch.vector()
+                ,posB = scratch.vector()
+                ,i, j, k, m, l, ll, lll
                 ;
 
-            for ( var j = 0, l = bodies.length; j < l; j++ ){
-                
+            for ( j = 0, l = bodies.length; j < l; j++ ){
+
                 body = bodies[ j ];
 
-                for ( var i = j + 1; i < l; i++ ){
-                    
+                for ( i = j + 1; i < l; i++ ){
+
                     other = bodies[ i ];
-                    // clone the position
-                    pos.clone( other.state.pos );
-                    pos.vsub( body.state.pos );
-                    // get the square distance
-                    normsq = pos.normSq();
 
-                    if (normsq > minDistSq && normsq < maxDistSq){
-
-                        g = strength / normsq;
-
-                        body.accelerate( pos.normalize().mult( g * other.mass ) );
-                        other.accelerate( pos.mult( body.mass/other.mass ).negate() );
+                    if ( body.name === 'compound' ){
+                        comp = body;
+                    } else if ( other.name === 'compound' ){
+                        comp = other;
+                        other = body;
                     }
+
+                    if ( comp ){
+                        if ( other.name === 'compound' ){
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                for ( m = 0, lll = other.children.length; m < lll; m++ ){
+                                    bodyB = other.children[ m ];
+                                    other.toWorldCoords( posB.clone( bodyB.state.pos ).vadd( other.offset ) );
+                                    this.calcPotential( posA, posB, potential );
+                                    comp.accelerate( potential.mult( bodyB.mass ) );
+                                    other.accelerate( potential.mult( bodyA.mass/bodyB.mass ).negate() );
+                                }
+                            }
+                        } else {
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                this.calcPotential( posA, other.state.pos, potential );
+                                comp.accelerate( potential.mult( other.mass ) );
+                                other.accelerate( potential.mult( bodyA.mass/other.mass ).negate() );
+                            }
+                        }
+
+                    } else {
+
+                        this.calcPotential( body.state.pos, other.state.pos, potential );
+                        body.accelerate( potential.mult( other.mass ) );
+                        other.accelerate( potential.mult( body.mass/other.mass ).negate() );
+                    }
+
+                    comp = null;
                 }
             }
 
@@ -11208,7 +11354,9 @@ Physics.renderer('dom', function( proto ){
  *        strokeStyle: '0xE8900C',
  *        lineWidth: 3,
  *        fillStyle: '0xD5DE4C',
- *        angleIndicator: '0xE8900C'
+ *        angleIndicator: '0xE8900C',
+ *        strokeAlpha: 1,
+ *        fillAlpha: 1
  *    },
  *
  *    'convex-polygon' : {
@@ -11290,6 +11438,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.blue,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 },
 
@@ -11299,6 +11448,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.violet,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 },
 
@@ -11308,6 +11458,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.violet,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 }
             }
@@ -11501,14 +11652,14 @@ Physics.renderer('pixi', function( parent ){
 
                 if ( styles.fillStyle && styles.fillStyle !== 'transparent' ){
                     graphics.beginFill( styles.fillStyle );
-                    graphics.fillAlpha = styles.fillAlpha || 1;
+                    graphics.fillAlpha = styles.fillAlpha !== undefined ? styles.fillAlpha : 1;
                 } else {
                     graphics.beginFill();
                     graphics.fillAlpha = 0;
                 }
 
-                graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle );
-                graphics.alpha = styles.alpha || 1;
+                graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle, styles.strokeAlpha !== undefined ? styles.strokeAlpha : 1 );
+                graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
 
             } else {
 
@@ -11697,6 +11848,9 @@ Physics.renderer('pixi', function( parent ){
                 view.lineStyle( styles.lineWidth, styles.angleIndicator );
                 view.moveTo( 0, 0 );
                 view.lineTo( hw, 0 );
+            }
+
+            if ( name !== 'compound' ){
                 view.cacheAsBitmap = true;
             }
 

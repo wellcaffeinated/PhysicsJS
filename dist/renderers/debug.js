@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-04
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -157,7 +157,6 @@
     
                 world.on('sweep-prune:intervals', this.storeIntervals, this );
                 world.on('collisions:detected', this.storeCollisions, this );
-                world.on('render', this.reset, this);
     
                 this.updateGui();
             },
@@ -167,7 +166,7 @@
     
                 world.off('sweep-prune:intervals', this.storeIntervals, this );
                 world.off('collisions:detected', this.storeCollisions, this );
-                world.off('render', this.reset, this);
+    
             },
     
             storeIntervals: function( intervals ){
@@ -277,7 +276,7 @@
                         }
                     }
                     ,get sleepSpeedLimit(){
-                        return self._world ? self._world.options.sleepSpeedLimit : 0.01;
+                        return self._world ? self._world.options.sleepSpeedLimit : 0.005;
                     }
                     ,set sleepSpeedLimit( t ){
                         if ( self._world ){
@@ -285,7 +284,7 @@
                         }
                     }
                     ,get sleepVarianceLimit(){
-                        return self._world ? self._world.options.sleepVarianceLimit : 2;
+                        return self._world ? self._world.options.sleepVarianceLimit : 0.2;
                     }
                     ,set sleepVarianceLimit( t ){
                         if ( self._world ){
@@ -322,7 +321,7 @@
                 f.add( getset, 'sleepDisabled');
                 f.add( getset, 'sleepTimeLimit', 1, 10000).step( 10 );
                 f.add( getset, 'sleepSpeedLimit', 0.001, 1);
-                f.add( getset, 'sleepVarianceLimit', 0.01, 100);
+                f.add( getset, 'sleepVarianceLimit', 0.01, 1);
                 f.add( { pause: pauseWorld }, 'pause');
                 f.open();
     
