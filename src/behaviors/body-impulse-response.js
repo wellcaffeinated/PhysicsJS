@@ -138,6 +138,7 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,impulse
                 ,sign
                 ,max
+                ,ratio
                 ,inContact = contact
                 ;
 
@@ -156,13 +157,15 @@ Physics.behavior('body-impulse-response', function( parent ){
 
                 } else {
 
-                    mtv.mult( 0.5 );
-                    mtv.negate();
-                    clampMTV( bodyA._mtvTotal, mtv, tmp );
-                    bodyA._mtvTotal.vadd( tmp );
-                    mtv.negate();
+                    ratio = 0.5; //bodyA.mass / ( bodyA.mass + bodyB.mass );
+                    mtv.mult( ratio );
                     clampMTV( bodyB._mtvTotal, mtv, tmp );
                     bodyB._mtvTotal.vadd( tmp );
+
+                    mtv.clone( mtrans ).mult( ratio - 1 );
+                    clampMTV( bodyA._mtvTotal, mtv, tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+
                 }
             }
 
