@@ -389,7 +389,7 @@ nav.toc ul {
 }
 /* line 343, styles.scss */
 #demo-area textarea {
-  display: none;
+  opacity: 0;
 }
 
 /* line 347, styles.scss */
