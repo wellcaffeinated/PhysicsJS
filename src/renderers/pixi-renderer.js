@@ -27,7 +27,9 @@
  *        strokeStyle: '0xE8900C',
  *        lineWidth: 3,
  *        fillStyle: '0xD5DE4C',
- *        angleIndicator: '0xE8900C'
+ *        angleIndicator: '0xE8900C',
+ *        strokeAlpha: 1,
+ *        fillAlpha: 1
  *    },
  *
  *    'convex-polygon' : {
@@ -109,6 +111,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.blue,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 },
 
@@ -118,6 +121,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.violet,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 },
 
@@ -127,6 +131,7 @@ Physics.renderer('pixi', function( parent ){
                     fillStyle: colors.violet,
                     angleIndicator: colors.white,
                     fillAlpha: 1,
+                    strokeAlpha: 1,
                     alpha: 1
                 }
             }
@@ -326,7 +331,7 @@ Physics.renderer('pixi', function( parent ){
                     graphics.fillAlpha = 0;
                 }
 
-                graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle );
+                graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle, styles.strokeAlpha !== undefined ? styles.strokeAlpha : 1 );
                 graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
 
             } else {
@@ -516,6 +521,9 @@ Physics.renderer('pixi', function( parent ){
                 view.lineStyle( styles.lineWidth, styles.angleIndicator );
                 view.moveTo( 0, 0 );
                 view.lineTo( hw, 0 );
+            }
+
+            if ( name !== 'compound' ){
                 view.cacheAsBitmap = true;
             }
 
