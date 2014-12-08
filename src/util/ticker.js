@@ -7,7 +7,7 @@
  **/
 (function(window){
 
-    var active = false
+    var active = true
         ,ps = Physics.util.pubsub()
         ,perf = window.performance
         ;
@@ -29,6 +29,8 @@
 
         var time;
 
+        window.requestAnimationFrame( step );
+
         if (!active){
             return;
         }
@@ -39,8 +41,14 @@
             return;
         }
 
-        window.requestAnimationFrame( step );
         ps.emit( 'tick', time );
+    }
+
+    // start stepping if we can
+    if ( window.requestAnimationFrame ){
+        step();
+    } else {
+        active = false;
     }
 
     /**
@@ -51,7 +59,6 @@
     function start(){
 
         active = true;
-        step();
         return this;
     }
 

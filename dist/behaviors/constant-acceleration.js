@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -45,7 +45,7 @@
                 this.options( options );
     
                 // extend options
-                this._acc = Physics.vector();
+                this._acc = new Physics.vector();
                 this.setAcceleration( this.options.acc );
                 delete this.options.acc;
             },

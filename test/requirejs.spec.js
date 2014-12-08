@@ -30,8 +30,9 @@ describe("AMD Loading", function() {
 
             var world = Phys({
                     timestep: .1
+                    ,maxIPF: 20
                 })
-                ,body = Phys.body('custom', function(){}, {
+                ,body = Phys.body('point', {
                     x: 0,
                     y: 0,
                     vx: 2

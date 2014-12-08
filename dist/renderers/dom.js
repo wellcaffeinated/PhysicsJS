@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -69,6 +69,7 @@
         var classpfx = 'pjs-'
             ,px = 'px'
             ,cssTransform = pfx('transform')
+            ,borderRadius = pfx('borderRadius')
             ;
     
         var newEl = function( node, content ){
@@ -111,6 +112,36 @@
     
                     viewport.appendChild(stats);
                 }
+    
+                if ( this.options.autoResize ){
+                    this.resize();
+                } else {
+                    this.resize( this.options.width, this.options.height );
+                }
+            },
+    
+            // extended
+            resize: function( width, height ){
+    
+                proto.resize.call( this, width, height );
+                this.el.style.width = this.width + px;
+                this.el.style.height = this.height + px;
+            },
+    
+            /** internal
+             * DomRenderer#pointProperties( el, geometry )
+             * - el (HTMLElement): The element
+             * - geometry (Geometry): The body's geometry
+             *
+             * Set dom element style properties for a point.
+             **/
+            pointProperties: function( el, geometry ){
+    
+                el.style.width = '2px';
+                el.style.height = '2px';
+                el.style.marginLeft = '-1px';
+                el.style.marginTop = '-1px';
+                el.style[ borderRadius ] = '50%';
             },
     
             /** internal
@@ -128,6 +159,7 @@
                 el.style.height = (aabb.hh * 2) + px;
                 el.style.marginLeft = (-aabb.hw) + px;
                 el.style.marginTop = (-aabb.hh) + px;
+                el.style[ borderRadius ] = '50%';
             },
     
             /** internal
@@ -151,6 +183,7 @@
             createView: function( geometry ){
     
                 var el = newEl()
+                    ,chel
                     ,fn = geometry.name + 'Properties'
                     ;
     
@@ -159,7 +192,23 @@
                 el.style.top = '0px';
                 el.style.left = '0px';
     
-                if (this[ fn ]){
+                if ( geometry.name === 'compound' ){
+    
+                    for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                        ch = geometry.children[ i ];
+                        chel = newEl();
+                        chel.className = classpfx + geometry.name + ' ' + classpfx + 'child';
+                        chel.style.position = 'absolute';
+                        chel.style.top = '0px';
+                        chel.style.left = '0px';
+                        if ( this[ ch.g.name + 'Properties' ] ){
+                            this[ ch.g.name + 'Properties' ](chel, ch.g);
+                        }
+                        chel.style[cssTransform] = 'translate('+ch.pos._[0]+'px,'+ch.pos._[1]+'px) rotate('+ ch.angle +'rad)';
+                        el.appendChild( chel );
+                    }
+    
+                } else if ( this[ fn ] ){
                     this[ fn ](el, geometry);
                 }
     
@@ -177,8 +226,8 @@
             // extended
             disconnect: function( world ){
     
-                world.off( 'add:body', this.attach );
-                world.off( 'remove:body', this.detach );
+                world.off( 'add:body', this.attach, this );
+                world.off( 'remove:body', this.detach, this );
             },
     
             /**
@@ -234,6 +283,7 @@
     
                 var pos = body.state.pos
                     ,v = body.state.vel
+                    ,os = body.offset
                     ,x
                     ,y
                     ,ang
@@ -241,10 +291,10 @@
                     ;
     
                 // interpolate positions
-                x = pos.x + v.x * t;
-                y = pos.y + v.y * t;
+                x = pos._[0] + v._[0] * t;
+                y = pos._[1] + v._[1] * t;
                 ang = body.state.angular.pos + body.state.angular.vel * t;
-                view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+                view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad) translate('+os._[0]+'px,'+os._[1]+'px)';
             }
         };
     });

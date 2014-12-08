@@ -19,6 +19,11 @@
 
     var uidGen = 1;
 
+    var Pi2 = Math.PI * 2;
+    function cycleAngle( ang ){
+        return ((ang % Pi2) + Pi2) % Pi2;
+    }
+
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
      * - name (String): The name of the body to create
@@ -39,7 +44,9 @@
             // what is its coefficient of friction with another surface with COF = 1?
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
-            view: null
+            view: null,
+            // the vector offsetting the geometry from its center of mass
+            offset: Physics.vector(0,0)
         }
        ```
      *
@@ -64,6 +71,7 @@
          **/
         init: function( options ){
 
+            var self = this;
             var vector = Physics.vector;
 
             /** related to: Physics.util.options
@@ -84,6 +92,9 @@
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
+            this.options.onChange(function( opts ){
+                self.offset = new vector( opts.offset );
+            });
             this.options( options );
 
             /**
@@ -104,18 +115,18 @@
              * ```
              **/
             this.state = {
-                pos: vector( this.x, this.y ),
-                vel: vector( this.vx, this.vy ),
-                acc: vector(),
+                pos: new vector( this.x, this.y ),
+                vel: new vector( this.vx, this.vy ),
+                acc: new vector(),
                 angular: {
                     pos: this.angle || 0.0,
                     vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
-                    pos: vector(),
-                    vel: vector(),
-                    acc: vector(),
+                    pos: new vector(),
+                    vel: new vector(),
+                    acc: new vector(),
                     angular: {
                         pos: 0.0,
                         vel: 0.0,
@@ -123,6 +134,13 @@
                     }
                 }
             };
+
+            // private storage for sleeping
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
 
             // cleanup
             delete this.x;
@@ -156,6 +174,12 @@
              * Body#mass = 1.0
              *
              * The mass.
+             **/
+
+            /**
+             * Body#offset
+             *
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -236,6 +260,110 @@
         },
 
         /**
+         * Body#sleep( [dt] ) -> Boolean
+         * - dt (Number): Time to advance the idle time
+         * - dt (Boolean): If `true`, the body will be forced to sleep. If `false`, the body will be forced to awake.
+         *
+         * Get and/or set whether the body is asleep.
+         *
+         * If called with a time (in ms), the time will be added to the idle time and sleep conditions will be checked.
+         **/
+        sleep: function( dt ){
+
+            if ( dt === true ){
+                // force sleep
+                this.asleep = true;
+
+            } else if ( dt === false ){
+                // force wakup
+                this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
+                this.sleepIdleTime = 0;
+
+            } else if ( dt && !this.asleep ) {
+
+                this.sleepCheck( dt );
+            }
+
+            return this.asleep;
+        },
+
+        /**
+         * Body#sleepCheck( [dt] )
+         * - dt (Number): Time to advance the idle time
+         *
+         * Check if the body should be sleeping.
+         *
+         * Call with no arguments if some event could possibly wake up the body. This will force the body to recheck.
+         **/
+        sleepCheck: function( dt ){
+
+            var opts = this._world && this._world.options;
+
+            // if sleeping disabled. stop.
+            if ( this.sleepDisabled || (opts && opts.sleepDisabled) ){
+                return;
+            }
+
+            var limit
+                ,v
+                ,d
+                ,r
+                ,aabb
+                ,scratch = Physics.scratchpad()
+                ,diff = scratch.vector()
+                ,diff2 = scratch.vector()
+                ,kfac
+                ,stats
+                ;
+
+            dt = dt || 0;
+            aabb = this.geometry.aabb();
+            r = Math.max(aabb.hw, aabb.hh);
+
+            if ( this.asleep ){
+                // check velocity
+                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
+                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
+
+                if ( v >= limit ){
+                    this.sleep( false );
+                    return scratch.done();
+                }
+            }
+
+            this._sleepMeanK++;
+            kfac = this._sleepMeanK > 1 ? 1/(this._sleepMeanK - 1) : 0;
+            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
+            // we take the sin because that maps the discontinuous angle to a continuous value
+            // then the statistics calculations work better
+            stats = Physics.statistics.pushRunningAvg( Math.sin(this.state.angular.pos), this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            this._sleepAngPosMean = stats[0];
+            this._sleepAngPosVariance = stats[1];
+            v = this._sleepPosVariance.norm() + Math.abs(r * Math.asin(stats[1]));
+            v *= kfac;
+            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
+            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
+            if ( v <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
+
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleep( false );
+            }
+
+            scratch.done();
+        },
+
+        /**
          * Body#setWorld( world ) -> this
          * - world (Object): The world (or null)
          *
@@ -293,7 +421,7 @@
 
             // if no point at which to apply the force... apply at center of mass
             if ( p && this.moi ){
-                
+
                 // apply torques
                 state = this.state;
                 r.clone( p );
@@ -307,6 +435,20 @@
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -316,13 +458,39 @@
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos.x;
-            aabb.y += this.state.pos.y;
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
+        },
+
+        /**
+         * Body#toBodyCoords( v ) -> Physics.vector
+         * - v (Physics.vector): The vector to transform
+         * + (Physics.vector): The transformed vector
+         *
+         * Transform a vector into coordinates relative to this body.
+         **/
+        toBodyCoords: function( v ){
+            return v.vsub( this.state.pos ).rotate( -this.state.angular.pos );
+        },
+
+        /**
+          * Body#toWorldCoords( v ) -> Physics.vector
+          * - v (Physics.vector): The vector to transform
+          * + (Physics.vector): The transformed vector
+          *
+          * Transform a vector from body coordinates into world coordinates.
+          **/
+        toWorldCoords: function( v ){
+            return v.rotate( this.state.angular.pos ).vadd( this.state.pos );
         },
 
         /**
@@ -337,5 +505,46 @@
             return this;
         }
     });
+
+    /**
+     * Body.getCOM( bodies[, com] ) -> Physics.vector
+     * - bodies (Array): The list of bodies
+     * - com (Physics.vector): The vector to put result into. A new vector will be created if not provided.
+     * + (Physics.vector): The center of mass position
+     *
+     * Get center of mass position from list of bodies.
+     **/
+    Physics.body.getCOM = function( bodies, com ){
+        // @TODO add a test for this fn
+        var b
+            ,pos
+            ,i
+            ,l = bodies && bodies.length
+            ,M = 0
+            ;
+
+        com = com || new Physics.vector();
+
+        if ( !l ){
+            return com.zero();
+        }
+
+        if ( l === 1 ){
+            return com.clone( bodies[0].state.pos );
+        }
+
+        com.zero();
+
+        for ( i = 0; i < l; i++ ){
+            b = bodies[ i ];
+            pos = b.state.pos;
+            com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+            M += b.mass;
+        }
+
+        com.mult( 1 / M );
+
+        return com;
+    };
 
 }());

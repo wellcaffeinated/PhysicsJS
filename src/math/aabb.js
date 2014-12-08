@@ -100,6 +100,32 @@
     };
 
     /**
+     * Physics.aabb.union( aabb1, aabb2[, modify] ) -> Object
+     * - aabb1 (Object): The first aabb (returned if modify is `true`)
+     * - aabb2 (Object): The second aabb
+     * + (Object): The union of two aabbs. If modify is `true`, then the first aabb will be modified and returned.
+     *
+     * Get the union of two aabbs.
+     **/
+    Physics.aabb.union = function( aabb1, aabb2, modify ){
+
+        var ret = modify === true ? aabb1 : {}
+            ,maxX = Math.max( aabb1.x + aabb1.hw, aabb2.x + aabb2.hw )
+            ,maxY = Math.max( aabb1.y + aabb1.hh, aabb2.y + aabb2.hh )
+            ,minX = Math.min( aabb1.x - aabb1.hw, aabb2.x - aabb2.hw )
+            ,minY = Math.min( aabb1.y - aabb1.hh, aabb2.y - aabb2.hh )
+            ;
+
+        ret.hw = Math.abs(maxX - minX) * 0.5;
+        ret.hh = Math.abs(maxY - minY) * 0.5;
+        ret.x = (maxX + minX) * 0.5;
+        ret.y = (maxY + minY) * 0.5;
+
+        return ret;
+    };
+
+
+    /**
      * Physics.aabb.overlap( aabb1, aabb2 ) -> Boolean
      * - aabb1 (Object): The first aabb
      * - aabb2 (Object): The second aabb

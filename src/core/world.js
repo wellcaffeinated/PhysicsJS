@@ -29,13 +29,22 @@
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 120,
+        timestep: 6,
         // maximum number of iterations per step
-        maxIPF: 16,
+        maxIPF: 4,
         webworker: false, // NOT YET IMPLEMENTED
 
         // default integrator
-        integrator: 'verlet'
+        integrator: 'verlet',
+
+        // is sleeping disabled?
+        sleepDisabled: false,
+        // speed at which bodies wake up
+        sleepSpeedLimit: 0.05,
+        // variance in position below which bodies fall asleep
+        sleepVarianceLimit: 0.02,
+        // time (ms) before sleepy bodies fall asleep
+        sleepTimeLimit: 500
     };
 
     // begin world definitions
@@ -55,12 +64,22 @@
      *
      * ```javascript
      * {
-     *     // default timestep
-     *     timestep: 1000.0 / 120,
-     *     // maximum number of iterations per step
-     *     maxIPF: 16,
-     *     // default integrator
-     *     integrator: 'verlet'
+     *  // default timestep
+     *  timestep: 6,
+     *  // maximum number of iterations per step
+     *  maxIPF: 4,
+     *
+     *  // default integrator
+     *  integrator: 'verlet',
+     *
+     *  // is sleeping disabled?
+     *  sleepDisabled: false,
+     *  // speed at which bodies wake up
+     *  sleepSpeedLimit: 0.1,
+     *  // variance in position below which bodies fall asleep
+     *  sleepVarianceLimit: 2,
+     *  // time (ms) before sleepy bodies fall asleep
+     *  sleepTimeLimit: 500
      * }
      * ```
      *
@@ -186,7 +205,7 @@
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -234,7 +253,7 @@
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -421,6 +440,22 @@
             }
 
             return this._dt;
+        },
+
+        /** chainable
+         * Physics.world#wakeUpAll() -> this
+         * + (this): for chaining
+         *
+         * Wake up all bodies in world.
+         **/
+        wakeUpAll: function(){
+            var i = 0
+                ,l = this._bodies.length
+                ;
+
+            for ( i = 0; i < l; i++ ){
+                this._bodies[ i ].sleep( false );
+            }
         },
 
         /** chainable
@@ -653,6 +688,8 @@
 
             // the target time for the world time to step to
             target = time + worldDiff - dt;
+
+            this.emit('beforeStep');
 
             if ( time <= target ){
 

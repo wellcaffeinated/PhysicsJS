@@ -9,7 +9,9 @@
         // width of viewport
         width: 600,
         // height of viewport
-        height: 600
+        height: 600,
+        // automatically resize the renderer
+        autoResize: true
     };
 
     /** related to: Physics.util.decorator
@@ -29,6 +31,8 @@
             width: 600,
             // height of viewport
             height: 600
+            // automatically resize the renderer
+            autoResize: true
         }
        ```
      *
@@ -53,13 +57,43 @@
          **/
         init: function( options ){
 
-            var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
+            var self = this
+                ,el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
                 ;
 
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options(defaults);
+            this.options( options );
 
             this.el = el ? el : document.body;
+            this.container = el && el.parentNode ? el.parentNode : document.body;
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
+
+            window.addEventListener('resize', Physics.util.throttle(function(){
+                if ( self.options.autoResize ){
+                    self.resize();
+                }
+            }), 100);
+        },
+
+        /**
+         * Renderer#resize( [width, height] ) -> this
+         * - width (Number): The width in px
+         * - height (Number): The height in px
+         *
+         * Set the dimensions of the renderer.
+         *
+         * If no dimensions are specified it will auto resize.
+         **/
+        resize: function( width, height ){
+
+            if ( width === undefined && height === undefined ){
+                width = this.container.offsetWidth;
+                height = this.container.offsetHeight;
+            }
+
+            this.width = width || 0;
+            this.height = height || 0;
+            // should be implemented in renderers
         },
 
         /**

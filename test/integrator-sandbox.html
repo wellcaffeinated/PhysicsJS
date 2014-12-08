@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			html, body { height: 100%; }
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+
+			canvas {
+				position: absolute;
+
+			}
+
+			.pjs-meta {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				font-size: 20px;
+				font-family: monospace;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="../lib/pixi.js"></script>
+		<script src="../_working/physicsjs/physicsjs-full.js"></script>
+		<script>
+			Physics.behavior('spring', function( proto ){
+				return {
+					init: function( opts ){
+						proto.init.call(this, opts);
+
+						this.body = opts.body;
+						this.k = opts.k || 1;
+						this.center = Physics.vector( opts.center );
+					},
+
+					// connect: function( world ){
+					// 	world.on('integrate:velocities', this.behave, this);
+					// },
+					//
+					// disconnect: function(){
+					// 	world.off('integrate:velocities', this.behave, this);
+					// },
+					behave: function(){
+						var scratch = Physics.scratchpad();
+						var tmp = scratch.vector();
+						tmp.clone( this.center ).vsub( this.body.state.pos );
+						this.body.accelerate( tmp.mult( this.k ) );
+						scratch.done();
+					}
+				}
+			});
+
+
+			Physics({timestep: 2, maxIPF: 24},function (world) {
+
+				var viewWidth = parent.innerWidth
+					,viewHeight = parent.innerHeight
+					,renderer = Physics.renderer('canvas', {
+						el: 'viewport',
+						width: viewWidth,
+						height: viewHeight,
+						meta: true,
+						//debug:true,
+						styles: {
+							'circle': {
+								strokeStyle: 'grey',
+								lineWidth: 1,
+								fillStyle: 'black',
+								angleIndicator: 'white'
+							},
+							'convex-polygon': {
+								strokeStyle: 'grey',
+								lineWidth: 1,
+								fillStyle: 'black',
+								angleIndicator: 'none'
+							}
+						}
+					})
+					,edgeBounce
+					// bounds of the window
+					,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+					;
+
+				// add the renderer
+				world.add(renderer);
+				// render on each step
+				world.on('step', function () {
+					world.render();
+				});
+
+				// world.add( Physics.integrator('velocity-verlet') );
+
+				// constrain objects to these bounds
+				edgeBounce = Physics.behavior('edge-collision-detection', {
+					aabb: viewportBounds,
+					restitution: 1,
+					cof: 0.5
+				});
+
+				// resize events
+				window.addEventListener('resize', function () {
+
+					viewWidth = parent.innerWidth;
+					viewHeight = parent.innerHeight;
+
+					renderer.el.width = viewWidth;
+					renderer.el.height = viewHeight;
+
+					viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+					edgeBounce.setAABB(viewportBounds);
+
+				}, true);
+
+				world.add( Physics.body('circle', {
+					x: viewWidth/2,
+					y: viewHeight/2,// - 20,//+100,
+					radius: 20,
+					width: 40,
+					height: 40,
+					mass: 1.4,
+					//cof: 0,
+					vy: -0.2,
+					// vx: 0.1,
+					restitution: 1,
+					styles: { fillStyle: 'red' }
+				}));
+
+				// world.add( Physics.body('rectangle', {
+				// 	x: viewWidth/4,
+				// 	y: viewHeight - 20,//+100,
+				// 	radius: 20,
+				// 	width: 40,
+				// 	height: 40,
+				// 	mass: 1.4,
+				// 	// cof: 0,
+				// 	vy: -0.2,
+				// 	// vx: 0.1,
+				// 	angle: 0.1,
+				// 	restitution: 0.8,
+				// 	styles: { fillStyle: 'red' }
+				// }));
+
+				// world.add( Physics.body('circle', {
+				// 	x: viewWidth/2,
+				// 	y: viewHeight - 61,//+100,
+				// 	radius: 20,
+				// 	width: 40,
+				// 	height: 40,
+				// 	mass: 1.4,
+				// 	//cof: 0,
+				// 	vy: -0.2,
+				// 	// vx: 0.1,
+				// 	restitution: 1,
+				// 	styles: { fillStyle: 'red' }
+				// }));
+
+				var ball = world.getBodies()[0];
+				var center = Physics.vector({x: viewWidth/2, y: viewHeight/2 });
+
+				world.add([
+					// Physics.behavior('spring', { k: 0.00001, center: center, body: ball }),
+					Physics.behavior('body-collision-detection', {
+						checkAll: false
+					}),
+					Physics.behavior('sweep-prune'),
+					Physics.behavior('body-impulse-response'),
+					// add gravity
+					Physics.behavior('constant-acceleration'),
+					Physics.behavior('interactive', {el:renderer.el}),
+					edgeBounce
+				]);
+
+				world.on('render', function(meta){
+					//console.log(meta.meta.interpolateTime);
+				});
+
+				// subscribe to ticker to advance the simulation
+				Physics.util.ticker.on(function (time, dt) {
+
+					world.step(time);
+				});
+
+				// start the ticker
+				Physics.util.ticker.start();
+
+				// var graph = new PIXI.Graphics();
+				// graph.x = center.x;
+				// graph.y = center.y;
+				//
+				// renderer.stage.addChild(graph);
+				renderer.addLayer('path').render = function(){
+					var sx = 1;
+					var sy = 300;
+					// console.log(center.angle(ball.state.pos))
+					var x = sx * (center.y - ball.state.pos.y);// * (center.angle(ball.state.pos) > 0 ? 1 : -1);
+					var y = sy * ball.state.vel.norm() * (ball.state.vel.angle() > 0 ? 1 : -1);
+					// console.log(x, y)
+					renderer.drawCircle(x + center.x, y + center.y, 0.25, '#f66', this.ctx);
+					// graph.endFill();
+				};
+				// world.timestep( 20 );
+				// setInterval(function(){
+				// 	world.timestep(world.timestep() + 20 * (0.5 - Math.random()))
+				// }, 1000)
+			});
+
+		</script>
+	</body>
+</html>

@@ -57,4 +57,37 @@ describe("PubSub events", function() {
         expect( callbacks.calledOnce.calls.length ).toEqual( 1 );
         expect( callbacks.notCalled ).not.toHaveBeenCalled();
     });
+
+    it("should handle prototype assignment correctly", function() {
+
+        var Cat = function(){
+
+            this.purred = false;
+        };
+
+        Cat.prototype = {
+            track: function( ps ){
+                ps.on('pet', this.purr, this);
+            }
+            ,untrack: function( ps ){
+                ps.off('pet', this.purr, this);
+            }
+            ,purr: function(){
+                this.purred = true;
+            }
+        };
+
+        var felix = new Cat()
+            ,sylvester = new Cat()
+            ;
+
+        felix.track( ps );
+        sylvester.track( ps );
+        felix.untrack( ps );
+
+        ps.emit('pet');
+
+        expect( sylvester.purred ).toBe( true );
+        expect( felix.purred ).toBe( false );
+    });
 });

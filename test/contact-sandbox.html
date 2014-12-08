@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            html, body { height: 100%; }
+            body {
+                background-color: #ffffff;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            canvas {
+                position: absolute;
+
+            }
+
+            .pjs-meta {
+                position: absolute;
+                top: 1em;
+                right: 1em;
+                font-size: 16px;
+                font-family: monospace;
+            }
+
+        </style>
+    </head>
+    <body>
+        <script src="../lib/pixi.js"></script>
+        <script src="../lib/dat.gui.js"></script>
+        <script src="../_working/physicsjs/physicsjs-full.js"></script>
+        <script>
+
+            var viewWidth = parent.innerWidth
+                ,viewHeight = parent.innerHeight;
+
+            var bodyStyles = { strokeStyle: '#888', fillStyle: 'transparent', lineWidth: 2, angleIndicator: 'rgba(200, 200, 100, 1)' };
+
+            function setup(world) {
+
+                var renderer = Physics.renderer('debug', {
+                        el: 'viewport',
+                        width: viewWidth,
+                        height: viewHeight,
+                        meta: true,
+                        styles: {
+                            'circle': bodyStyles
+                            ,'rectangle': bodyStyles
+                            ,'convex-polygon': bodyStyles
+                        }
+                    })
+                    ,edgeBounce
+                    // bounds of the window
+                    ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+                    ;
+
+                // add the renderer
+                world.add(renderer);
+                // render on each step
+                world.on('step', function () {
+                    world.render();
+                });
+
+                world.add( Physics.integrator('velocity-verlet') );
+
+                // resize events
+                window.addEventListener('resize', function () {
+
+                    viewWidth = parent.innerWidth;
+                    viewHeight = parent.innerHeight;
+
+                    viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight);
+                    // edgeBounce.setAABB(viewportBounds);
+
+                }, true);
+
+                world.add([
+
+                    Physics.behavior('sweep-prune')
+                    ,Physics.behavior('body-collision-detection', {
+                        checkAll: false
+                    })
+
+                    // ,Physics.behavior('body-impulse-response')
+                    // add gravity
+                    // ,Physics.behavior('constant-acceleration')
+                ]);
+
+                // Physics.util.ticker.on(function (time, dt) {
+                //
+                //     world.step(time);
+                // });
+
+                setInterval(function(){
+                    world.step();
+                }, 500);
+            }
+
+            function initEvents( world ){
+
+                var grab = false
+                    ,start
+                    ,mouseStart
+                    ;
+
+                document.addEventListener('mousedown', function( e ){
+                    var pos = Physics.vector({ x: e.pageX, y: e.pageY })
+                        ,body
+                        ;
+
+                    body = world.findOne({ $at: pos });
+
+                    if ( body ){
+                        grab = body;
+                        start = body.state.pos.clone();
+                        mouseStart = pos;
+                    }
+                });
+
+                document.addEventListener('mousemove', Physics.util.throttle(function( e ){
+                    var pos;
+
+                    if ( grab ){
+                        pos = Physics.vector({ x: e.pageX, y: e.pageY });
+                        pos.vsub( mouseStart );
+
+                        grab.state.pos.clone( start ).vadd( pos );
+
+                        world.step();
+                    }
+                }, 1000/60));
+
+                document.addEventListener('mouseup', function(){
+
+                    grab = false;
+                    world.step();
+                });
+
+            }
+
+            function makeThing(x, y){
+                return Physics.body('compound', {
+                    x: x
+                    ,y: y
+                    // ,offset: Physics.vector( -60, 0 )
+                    ,children: [
+                        Physics.body('circle', {
+                            x: 50
+                            ,y: 0
+                            ,radius: 30
+                            ,mass: 1
+                            ,offset: Physics.vector( 0, 10 )
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -30
+                            ,y: 0
+                            ,width: 60
+                            ,height: 60
+                            ,angle: Math.PI/4
+                            ,mass: 1
+                            // ,offset: Physics.vector( -60, 0 )
+                        })
+                    ]
+                });
+            }
+
+            function addBodies( world, P ){
+
+                world.add( Physics.body('circle', {
+                    x: viewWidth/2,
+                    y: viewHeight - 20,//+100,
+                    radius: 20,
+                    width: 40,
+                    height: 40,
+                    mass: 1.4,
+                    offset: Physics.vector(10, 2),
+                    angle: Math.PI/2,
+                    //cof: 0,
+                    //vy: -0.2,
+                    // vx: 0.1,
+                    restitution: 1
+                }));
+
+                world.add( Physics.body('circle', {
+                    x: viewWidth/2,
+                    y: viewHeight - 100,//+100,
+                    radius: 20,
+                    width: 40,
+                    height: 40,
+                    mass: 1.4,
+                    offset: Physics.vector(-10, 2),
+                    // angle: Math.PI/2,
+                    //cof: 0,
+                    //vy: -0.2,
+                    // vx: 0.1,
+                    restitution: 0.9
+                }));
+
+                var polygons = [
+                    {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
+                    {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], angle: Math.PI  }
+                ];
+
+                for(var i = 0;i < polygons.length;i++){
+                    world.add(
+                        Physics.body('convex-polygon', {
+                          x: polygons[i].x,
+                          y: polygons[i].y,
+                          vertices: polygons[i].v,
+                          angle: polygons[i].angle,
+
+                          restitution: 0.5,
+                          cof: 1
+                        })
+                    );
+                }
+
+
+                world.add( makeThing(400, 600) );
+                world.add( makeThing(400, 500) );
+
+                var rectangles = [
+                    { x: 100, y: 60, w: 50, h: 20, mass: 1 }
+                    ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
+                    ,{ x: 500, y: 100, w: 150, h: 300, mass: 3 }
+                ];
+
+                for(var i = 0;i < rectangles.length;i++){
+                    world.add(
+                        Physics.body('rectangle', {
+                          x: rectangles[i].x,
+                          y: rectangles[i].y,
+                          width: rectangles[i].w,
+                          height: rectangles[i].h,
+                          angle: rectangles[i].angle,
+                          mass: rectangles[i].mass,
+
+                          restitution: 0.6,
+                          cof: 1
+                        })
+                    );
+                }
+
+
+            }
+
+            function zeroPointSeven( world ){
+                // some fun colors
+                var colors = [
+                    '#b58900',
+                    '#cb4b16',
+                    '#dc322f',
+                    '#d33682',
+                    '#6c71c4',
+                    '#268bd2',
+                    '#2aa198',
+                    '#859900'
+                ];
+
+                // scale relative to window width
+                function S( n ){
+                    return n * window.innerWidth / 600;
+                }
+
+                var versionMass = 100;
+
+                // create the zero
+                var zero = Physics.body('compound', {
+                    x: 400/2 - S(80)
+                    ,y: 500/2
+                    //,treatment: 'static'
+                    ,mass: versionMass
+                    ,styles: {
+                        fillStyle: colors[2]
+                        ,strokeStyle: colors[4]
+                        ,lineWidth: 2
+                    }
+                    ,children: [
+                        // coords of children are relative to the compound center of mass
+                        Physics.body('rectangle', {
+                            x: S(-50)
+                            ,y: 0
+                            ,width: S(20)
+                            ,height: S(97)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: S(50)
+                            ,y: 0
+                            ,width: S(20)
+                            ,height: S(97)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: 0
+                            ,y: S(75)
+                            ,width: S(48)
+                            ,height: S(20)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -S(35)
+                            ,y: S(60)
+                            ,angle: Math.PI / 4
+                            ,width: S(50)
+                            ,height: S(20)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: S(35)
+                            ,y: S(60)
+                            ,angle: -Math.PI / 4
+                            ,width: S(50)
+                            ,height: S(20)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: 0
+                            ,y: S(-75)
+                            ,width: S(48)
+                            ,height: S(20)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: -S(35)
+                            ,y: -S(60)
+                            ,angle: -Math.PI / 4
+                            ,width: S(50)
+                            ,height: S(20)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: S(35)
+                            ,y: -S(60)
+                            ,angle: Math.PI / 4
+                            ,width: S(50)
+                            ,height: S(20)
+                        })
+                    ]
+                });
+
+                var point = Physics.body('circle', {
+                    x: 400/2 + S(6)
+                    ,y: 500/2 + S(76)
+                    ,radius: S(13)
+                    ,mass: versionMass
+                    ,treatment: 'static'
+                    ,styles: {
+                        fillStyle: colors[2]
+                        ,strokeStyle: colors[4]
+                        ,lineWidth: 2
+                    }
+                });
+
+                var seven = Physics.body('compound', {
+                    x: 400/2 + S(86)
+                    ,y: 500/2 - S(34)
+                    //,treatment: 'static'
+                    ,mass: versionMass
+                    ,styles: {
+                        fillStyle: colors[2]
+                        ,strokeStyle: colors[4]
+                        ,lineWidth: 2
+                    }
+                    ,children: [
+                        Physics.body('rectangle', {
+                            x: S(35)
+                            ,y: -S(80)
+                            ,width: S(114)
+                            ,height: S(24)
+                        })
+                        ,Physics.body('rectangle', {
+                            x: S(51.5)
+                            ,y: S(2.5)
+                            ,angle: -70 * Math.PI/180
+                            ,width: S(160)
+                            ,height: S(28)
+                        })
+                    ]
+                });
+
+                var l = 0;
+                while( l-- ){
+                    world.add(Physics.body('circle', {
+                        x: Math.random() * 400
+                        ,y: Math.random() * 500
+                        ,radius: S(2)
+                        ,mass: 1
+                        ,restitution: 0
+                    }));
+                }
+
+                // add things to the world
+                world.add([
+                    zero
+                    ,point
+                    ,seven
+                ]);
+            }
+
+
+            Physics({ timestep: 2, maxIPF: 24 }, [
+                setup
+                ,addBodies
+                // ,zeroPointSeven
+                ,initEvents
+            ]);
+
+        </script>
+    </body>
+</html>

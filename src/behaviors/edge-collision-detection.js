@@ -1,4 +1,4 @@
-/** 
+/**
  * class EdgeCollisionDetectionBehavior < Behavior
  *
  * `Physics.behavior('edge-collision-detection')`.
@@ -19,7 +19,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
      * - bounds (Physics.aabb): The boundary
      * - dummy: (Body): The dummy body to publish as the static other body it collides with
      * + (Array): The collision data
-     * 
+     *
      * Check if a body collides with the boundary
      */
     var checkGeneral = function checkGeneral( body, bounds, dummy ){
@@ -27,6 +27,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         var overlap
             ,aabb = body.aabb()
             ,scratch = Physics.scratchpad()
+            ,offset = body.getGlobalOffset( scratch.vector() )
             ,trans = scratch.transform()
             ,dir = scratch.vector()
             ,result = scratch.vector()
@@ -53,7 +54,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -78,7 +79,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -103,7 +104,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: -overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -128,7 +129,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: -overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -144,7 +145,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
      * - bounds (Physics.aabb): The boundary
      * - dummy: (Body): The dummy body to publish as the static other body it collides with
      * + (Array): The collision data
-     * 
+     *
      * Check if a body collides with the boundary
      */
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
@@ -171,8 +172,8 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
             this.setAABB( this.options.aabb );
             this.restitution = this.options.restitution;
-            
-            this.body = Physics.body('point', { 
+
+            this.body = Physics.body('point', {
                 treatment: 'static',
                 restitution: this.options.restitution,
                 cof: this.options.cof
@@ -182,7 +183,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         /**
          * EdgeCollisionDetectionBehavior#setAABB( aabb ) -> this
          * - aabb (Physics.aabb): The aabb to use as the boundary
-         * 
+         *
          * Set the boundaries of the edge.
          **/
         setAABB: function( aabb ){
@@ -198,7 +199,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 },
                 max: {
                     x: (aabb.x + aabb.hw),
-                    y: (aabb.y + aabb.hh)  
+                    y: (aabb.y + aabb.hh)
                 }
             };
 
@@ -208,23 +209,23 @@ Physics.behavior('edge-collision-detection', function( parent ){
         // extended
         connect: function( world ){
 
-            world.on( 'integrate:velocities', this.checkAll, this );
+            world.on( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         // extended
         disconnect: function( world ){
 
-            world.off( 'integrate:velocities', this.checkAll );
+            world.off( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         /** internal
          * EdgeCollisionDetectionBehavior#checkAll( data )
          * - data (Object): Event data
-         * 
+         *
          * Event callback to check all bodies for collisions with the edge
          **/
         checkAll: function( data ){
-            
+
             var bodies = this.getTargets()
                 ,dt = data.dt
                 ,body
@@ -232,6 +233,10 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 ,ret
                 ,bounds = this._edges
                 ,dummy = this.body
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; i++ ){
@@ -240,14 +245,23 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
                 // only detect dynamic bodies
                 if ( body.treatment === 'dynamic' ){
-                    
+
                     ret = checkEdgeCollide( body, bounds, dummy );
 
                     if ( ret ){
+                        hash = pairHash( body.uid, dummy.uid );
+
+                        for ( var j = 0, ll = ret.length; j < ll; j++ ){
+                            contactList[ hash ] = true;
+                            ret[ j ].collidedPreviously = prevContacts[ hash ];
+                        }
+
                         collisions.push.apply( collisions, ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 

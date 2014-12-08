@@ -13,9 +13,9 @@
         ,typedArrays = !!window.Float64Array
         ;
 
-    /** 
+    /**
      * class Physics.vector
-     * 
+     *
      * The vector class and factory function.
      *
      * Call `Physics.vector` with the same arguments as
@@ -53,7 +53,7 @@
      * - x (Number): The x coordinate
      * - y (Number): The y coordinate
      * - vect (Vectorish): A vector-like object to clone
-     * 
+     *
      * Vector Constructor.
      **/
     var Vector = function Vector( x, y ) {
@@ -95,9 +95,9 @@
     };
 
     Object.defineProperties( Vector.prototype, {
-        /** 
+        /**
          * Physics.vector#x
-         * 
+         *
          * Getter/setter property for the x coordinate.
          **/
         x: {
@@ -110,9 +110,9 @@
                 this._[0] = x;
             }
         },
-        /** 
+        /**
          * Physics.vector#y
-         * 
+         *
          * Getter/setter property for the y coordinate.
          **/
         y: {
@@ -127,15 +127,15 @@
         }
     });
 
-    // 
+    //
     // Methods
-    // 
+    //
 
     /**
      * Physics.vector#set( x, y ) -> this
      * - x (Number): x coordinate
      * - y (Number): y coordinate
-     * 
+     *
      * Sets the x and y components of this vector.
      **/
     Vector.prototype.set = function( x, y ) {
@@ -150,7 +150,7 @@
     /** deprecated: 0.6.0..1.0.0
      * Physics.vector#get( idx ) -> Number
      * - idx (Number): The coordinate index (0 or 1)
-     * 
+     *
      * Get the x or y component by index.
      **/
     Vector.prototype.get = function( n ){
@@ -161,7 +161,7 @@
     /**
      * Physics.vector#vadd( v ) -> this
      * - v (Physics.vector): vector to add
-     * 
+     *
      * Add a [[Physics.vector]] to `this`.
      **/
     Vector.prototype.vadd = function( v ) {
@@ -176,7 +176,7 @@
     /**
      * Physics.vector#vsub( v ) -> this
      * - v (Physics.vector): vector to subtract
-     * 
+     *
      * Subtract a [[Physics.vector]] from `this`.
      **/
     Vector.prototype.vsub = function( v ) {
@@ -192,11 +192,11 @@
      * Physics.vector#add( x, y ) -> this
      * - x (Number): amount to add to the x coordinate
      * - y (Number): amount to add to the y coordinate
-     * 
+     *
      * Add scalars [[Physics.vector]] to the coordinates.
      **/
     Vector.prototype.add = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] += +x || 0;
@@ -208,11 +208,11 @@
      * Physics.vector#sub( x, y ) -> this
      * - x (Number): amount to subtract from the x coordinate
      * - y (Number): amount to subtract from the y coordinate
-     * 
+     *
      * Subtract scalars [[Physics.vector]] from the coordinates.
      **/
     Vector.prototype.sub = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] -= x;
@@ -223,13 +223,13 @@
     /**
      * Physics.vector#mult( m ) -> this
      * - m (Number): amount to multiply this vector by
-     * 
+     *
      * Multiply this by a scalar quantity.
      *
      * Same as scaling the vector by an amount `m`.
      **/
     Vector.prototype.mult = function( m ) {
-        
+
         if ( !this.recalc ){
 
             this._[4] *= m * m;
@@ -241,10 +241,10 @@
         return this;
     };
 
-    /** 
+    /**
      * Physics.vector#dot( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the dot product of this vector with `v`.
      **/
     Vector.prototype.dot = function( v ) {
@@ -252,10 +252,10 @@
         return (this._[0] * v._[0]) + (this._[1] * v._[1]);
     };
 
-    /** 
+    /**
      * Physics.vector#cross( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the (left-handed) cross product of this vector with `v`.
      **/
     Vector.prototype.cross = function( v ) {
@@ -266,7 +266,7 @@
     /**
      * Physics.vector#proj( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [scalar projection](http://en.wikipedia.org/wiki/Vector_projection#Scalar_projection_2) of this along `v`.
      **/
     Vector.prototype.proj = function( v ){
@@ -278,7 +278,7 @@
     /**
      * Physics.vector#vproj( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [vector projection](http://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2) of this along `v` and copy the result into this vector.
      **/
     Vector.prototype.vproj = function( v ){
@@ -291,7 +291,7 @@
      * Physics.vector#angle( [v] ) -> Number
      * - v (Physics.vector): The other vector
      * + (Number): The angle in radians between this vector and the x-axis OR `v` if specified
-     * 
+     *
      * Compute the angle between `this` and vector `v` or this and x axis.
      **/
     Vector.prototype.angle = function( v ){
@@ -299,7 +299,7 @@
         var ang;
 
         if ( this.equals( Vector.zero ) ){
-            
+
             if ( v ){
                 return v.angle();
             } else {
@@ -311,10 +311,10 @@
             if ( v && !v.equals( Vector.zero ) ){
                 ang = atan2( this._[1] * v._[0] - this._[0] * v._[1], this._[0] * v._[0] + this._[1] * v._[1]);
             } else {
-                ang = atan2( this._[ 1 ], this._[ 0 ] );    
+                ang = atan2( this._[ 1 ], this._[ 0 ] );
             }
         }
-        
+
         while (ang > Math.PI){
             ang -= TWOPI;
         }
@@ -330,7 +330,7 @@
      * Physics.vector#angle2( left, right ) -> Number
      * - left (Physics.vector): The position on the left
      * - right (Physics.vector): The position on the right
-     * 
+     *
      * Compute the angle created between three points; left -> this -> right.
      **/
     Vector.prototype.angle2 = function( left, right ){
@@ -355,7 +355,7 @@
 
     /**
      * Physics.vector#norm() -> Number
-     * 
+     *
      * Compute the norm (length) of this vector.
      **/
     Vector.prototype.norm = function() {
@@ -365,13 +365,13 @@
             this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
             this._[3] = sqrt( this._[4] );
         }
-        
+
         return this._[3];
     };
 
     /**
      * Physics.vector#normSq() -> Number
-     * 
+     *
      * Compute the norm (length) squared of this vector.
      **/
     Vector.prototype.normSq = function() {
@@ -388,14 +388,14 @@
     /**
      * Physics.vector#dist( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance from this vector to another vector `v`.
      **/
     Vector.prototype.dist = function( v ) {
-      
+
         var dx, dy;
         return sqrt(
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -403,14 +403,14 @@
     /**
      * Physics.vector#distSq( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance squared from this vector to another vector `v`.
      **/
     Vector.prototype.distSq = function( v ) {
 
         var dx, dy;
         return (
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -418,7 +418,7 @@
     /**
      * Physics.vector#perp( [ccw] ) -> this
      * - ccw (Boolean): flag to indicate that we should rotate counterclockwise
-     * 
+     *
      * Change this vector into a vector that will be perpendicular.
      *
      * In other words, rotate by (+-) 90 degrees.
@@ -448,7 +448,7 @@
 
     /**
      * Physics.vector#normalize() -> this
-     * 
+     *
      * Normalise this vector, making it a unit vector.
      **/
     Vector.prototype.normalize = function() {
@@ -474,7 +474,7 @@
     /**
      * Physics.vector#transform( t ) -> this
      * - t (Physics.transform): The transformation to apply
-     * 
+     *
      * Apply a [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transform = function( t ){
@@ -490,7 +490,7 @@
 
         // rotate about origin "o" then translate
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ], 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ],
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y + t.v._[ 1 ]
         );
     };
@@ -498,7 +498,7 @@
     /**
      * Physics.vector#transformInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse of
-     * 
+     *
      * Apply an inverse [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transformInv = function( t ){
@@ -514,7 +514,7 @@
 
         // inverse translate then inverse rotate about origin "o"
         return this.set(
-            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x,
             - this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -525,10 +525,10 @@
      * - t (Physics.transform): The transformation to apply the rotational part of
      * - ang (Number): The angle (in radians), to rotate by
      * - o (Vectorish): The point of origin of the rotation
-     * 
+     *
      * Rotate this vector.
-     * 
-     * An angle and rotation origin can be specified, 
+     *
+     * An angle and rotation origin can be specified,
      * or a transform can be specified and only the rotation
      * portion of that transform will be applied
      **/
@@ -545,22 +545,22 @@
             cosA = Math.cos( t );
 
             if ( o ){
-                x = (o.x || o._[ 0 ]) | 0;
-                y = (o.y || o._[ 1 ]) | 0;
+                x = o.x;
+                y = o.y;
             }
         } else {
             sinA = t.sinA;
             cosA = t.cosA;
-        
+
             x = t.o._[ 0 ];
             y = t.o._[ 1 ];
         }
-            
+
         this._[ 0 ] -= x;
         this._[ 1 ] -= y;
 
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x,
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -568,16 +568,16 @@
     /**
      * Physics.vector#rotateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse rotational part of
-     * 
+     *
      * Apply the inverse rotation of a transform.
-     * 
-     * Only the inverse rotation portion of 
+     *
+     * Only the inverse rotation portion of
      * that transform will be applied.
      **/
     Vector.prototype.rotateInv = function( t ){
 
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ],
             -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
         );
     };
@@ -585,10 +585,10 @@
     /**
      * Physics.vector#translate( t ) -> this
      * - t (Physics.transform): The transformation to apply the translational part of
-     * 
+     *
      * Apply the translation of a transform.
-     * 
-     * Only the translation portion of 
+     *
+     * Only the translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translate = function( t ){
@@ -599,10 +599,10 @@
     /**
      * Physics.vector#translateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse translational part of
-     * 
+     *
      * Apply the inverse translation of a transform.
-     * 
-     * Only the inverse translation portion of 
+     *
+     * Only the inverse translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translateInv = function( t ){
@@ -616,10 +616,10 @@
      * - v (Vectorish): The vector-like object to clone
      * + (this): If `v` is specified as an argument
      * + (Physics.vector): A new vector instance that clones this vector, if no argument is specified
-     * 
+     *
      * Create a clone of this vector, or clone another vector into this instance.
      *
-     * This is especially useful in vector algorithms 
+     * This is especially useful in vector algorithms
      * that use temporary vectors (which most should).
      * You can create temporary vectors and then do things like...
      * ```
@@ -630,7 +630,7 @@
      * ```
      **/
     Vector.prototype.clone = function( v ) {
-        
+
         // http://jsperf.com/vector-storage-test
 
         if ( v ){
@@ -639,7 +639,7 @@
 
                 return this.set( v.x, v.y );
             }
-            
+
             this.recalc = v.recalc;
 
             if (!v.recalc){
@@ -659,7 +659,7 @@
     /**
      * Physics.vector#swap( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Swap values with other vector.
      **/
     Vector.prototype.swap = function( v ){
@@ -676,7 +676,7 @@
 
     /**
      * Physics.vector#values() -> Object
-     * 
+     *
      * Get the coordinate values as an object literal.
      **/
     Vector.prototype.values = function(){
@@ -690,7 +690,7 @@
 
     /**
      * Physics.vector#zero() -> this
-     * 
+     *
      * Set the coordinates of this vector to zero.
      **/
     Vector.prototype.zero = function() {
@@ -705,7 +705,7 @@
 
     /**
      * Physics.vector#negate() -> this
-     * 
+     *
      * Flip this vector in the opposite direction.
      **/
     Vector.prototype.negate = function( component ){
@@ -725,9 +725,9 @@
      * Physics.vector#clamp( minV, maxV ) -> this
      * - minV (Vectorish): The minimum vector
      * - maxV (Vectorish): The maximum vector
-     * 
+     *
      * Constrain vector components to minima and maxima.
-     * 
+     *
      * The vector analog of [scalar clamping](http://en.wikipedia.org/wiki/Clamping_(graphics)).
      **/
     Vector.prototype.clamp = function( minV, maxV ){
@@ -740,7 +740,7 @@
 
     /**
      * Physics.vector#toString() -> String
-     * 
+     *
      * Get a formatted string of this vector's coordinates.
      **/
     Vector.prototype.toString = function(){
@@ -752,7 +752,7 @@
     /**
      * Physics.vector#equals( v ) -> Boolean
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Determine if this vector equals another.
      **/
     Vector.prototype.equals = function( v ){
@@ -764,7 +764,7 @@
 
     /**
      * Physics.vector.axis = Array
-     * 
+     *
      * Read-only axis vectors for general reference.
      *
      * Example:
@@ -781,7 +781,7 @@
 
     /**
      * Physics.vector.zero = zeroVector
-     * 
+     *
      * Read-only zero vector for reference
      **/
     Vector.zero = new Vector(0, 0);

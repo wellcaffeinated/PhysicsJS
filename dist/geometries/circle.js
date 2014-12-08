@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -80,7 +80,7 @@
             // extended
             getFarthestHullPoint: function( dir, result ){
     
-                result = result || Physics.vector();
+                result = result || new Physics.vector();
     
                 return result.clone( dir ).normalize().mult( this.radius );
             },
@@ -88,7 +88,7 @@
             // extended
             getFarthestCorePoint: function( dir, result, margin ){
     
-                result = result || Physics.vector();
+                result = result || new Physics.vector();
     
                 // we can use the center of the circle as the core object
                 // because we can project a point to the hull in any direction

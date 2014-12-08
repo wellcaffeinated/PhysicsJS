@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                background-color: #ffffff;
+                margin: 0;
+                overflow: hidden;
+                height: 100%;
+            }
+
+            canvas {
+                position: relative;
+            }
+
+            .viewport {
+                position: relative;
+                float: left;
+                height: 100%;
+                box-sizing: border-box;
+                border-right: 1px solid black;
+            }
+
+            .pjs-meta {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                font-size: 20px;
+                font-family: monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="../lib/pixi.js"></script>
+        <script src="../_working/physicsjs/physicsjs-full.js"></script>
+        <script>
+            function setup(world) {
+
+                var viewWidth = parent.innerWidth / 3
+                    ,viewHeight = parent.innerHeight
+                    ,el = document.createElement('div')
+                    ,renderer = Physics.renderer('canvas', {
+                        el: el,
+                        width: viewWidth,
+                        height: viewHeight,
+                        meta: true,
+                        autoResize: false,
+                        //debug:true,
+                        styles: {
+                            'circle': {
+                                strokeStyle: 'grey',
+                                lineWidth: 1,
+                                fillStyle: 'black',
+                                angleIndicator: 'white'
+                            },
+                            'convex-polygon': {
+                                strokeStyle: 'grey',
+                                lineWidth: 1,
+                                fillStyle: 'black',
+                                angleIndicator: 'none'
+                            }
+                        }
+                    })
+                    ,edgeBounce
+                    // bounds of the window
+                    ,viewportBounds = Physics.aabb(0, 0, viewWidth, viewHeight)
+                    ;
+
+                el.className = 'viewport';
+                el.style.height = viewHeight + 'px';
+                el.style.width = viewWidth + 'px';
+                document.body.appendChild( el );
+
+                // add the renderer
+                world.add(renderer);
+                // render on each step
+                world.on('step', function () {
+                    world.render();
+                });
+
+                world.add( Physics.integrator('velocity-verlet') );
+
+                // constrain objects to these bounds
+                edgeBounce = Physics.behavior('edge-collision-detection', {
+                    aabb: viewportBounds,
+                    restitution: 1,
+                    cof: 0.5
+                });
+
+                world.add( Physics.body('circle', {
+                    x: viewWidth/2,
+                    y: viewHeight - 20,//+100,
+                    radius: 20,
+                    width: 40,
+                    height: 40,
+                    mass: 1.4,
+                    //cof: 0,
+                    vy: -0.2,
+                    // vx: 0.1,
+                    restitution: 1,
+                    styles: { fillStyle: 'red' }
+                }));
+
+                var ball = world.getBodies()[0];
+                var center = Physics.vector({x: viewWidth/2, y: viewHeight/2 });
+
+                world.add([
+                    // Physics.behavior('spring', { k: 0.00001, center: center, body: ball })
+                    Physics.behavior('body-collision-detection', {
+                        checkAll: false
+                    }),
+                    Physics.behavior('sweep-prune'),
+                    Physics.behavior('body-impulse-response'),
+                    // add gravity
+                    Physics.behavior('constant-acceleration'),
+                    Physics.behavior('interactive', {el:renderer.el}),
+                    edgeBounce
+                ]);
+
+                // subscribe to ticker to advance the simulation
+                Physics.util.ticker.on(function (time, dt) {
+
+                    world.step(time);
+                });
+            }
+
+            var opts = { timestep: 3, maxIPF: 24 };
+            var world1 = Physics(opts, setup).pause();
+            var world2 = Physics(opts, setup).pause();
+            var world3 = Physics(opts, setup).pause();
+
+            world1.add( Physics.integrator('velocity-verlet-alt') );
+            world2.add( Physics.integrator('verlet') );
+            world3.add( Physics.integrator('velocity-verlet') );
+
+            var last = Physics.util.ticker.now();
+            Physics.util.ticker.on(function (time) {
+                var dt = time - last;
+                // console.log(1000/dt);
+                last = time;
+            });
+
+            document.body.onclick = function(){
+                world1.unpause();
+                world2.unpause();
+                world3.unpause();
+            };
+
+        </script>
+    </body>
+</html>
