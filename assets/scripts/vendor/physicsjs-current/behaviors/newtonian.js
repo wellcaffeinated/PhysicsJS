@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-06
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *

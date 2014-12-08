@@ -5,7 +5,7 @@
         '<!doctype html>'
         ,'<html>'
           ,'<head>'
-          ,'<style>html, body, #viewport { background: #171717; height: 100%; } .pjs-meta { color: #fff; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
+          ,'<style>html, body, #viewport { margin: 0; background: #171717; height: 100%; } .pjs-meta { color: #fff; } canvas { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }</style>'
           ,'<script src="'+basePath + 'vendor/raf.js"></script>'
           ,'<script src="'+basePath + 'vendor/physicsjs-current/physicsjs-full.min.js"></script>'
           ,'<script>var require = { baseUrl: "'+basePath+'"};</script>'
@@ -48,17 +48,17 @@
         var buttons = document.createElement('div');
         buttons.className = 'controls';
 
-        // run button
-        var runBtn = document.createElement('button');
-        runBtn.className = 'ctrl-run';
-        runBtn.innerHTML = 'update';
-        buttons.appendChild( runBtn );
-
         // hide button
         var hideBtn = document.createElement('button');
         hideBtn.className = 'ctrl-hide';
         hideBtn.innerHTML = 'hide code';
         buttons.appendChild( hideBtn );
+        
+        // run button
+        var runBtn = document.createElement('button');
+        runBtn.className = 'ctrl-run';
+        runBtn.innerHTML = 'update';
+        buttons.appendChild( runBtn );
 
         wrapper.appendChild( buttons );
 

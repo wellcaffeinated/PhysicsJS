@@ -17,7 +17,6 @@ Physics(function (world) {
     var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
     ,width = window.innerWidth
     ,height = window.innerHeight
-    ,attractor
     ,renderer
     ;
 
@@ -40,16 +39,12 @@ Physics(function (world) {
     });
 
     // some fun colors
-    var colors = [
-    '0xb58900',
-    '0xcb4b16',
-    '0xdc322f',
-    '0xd33682',
-    '0x6c71c4',
-    '0x268bd2',
-    '0x2aa198',
-    '0x859900'
-    ];
+    var colors = {
+        blue: '0x1d6b98',
+        blueDark: '0x14546f',
+        red: '0xdc322f',
+        darkRed: '0xa42222'
+    };
 
     // scale relative to window width
     function S( n ){
@@ -62,8 +57,10 @@ Physics(function (world) {
         ,y: height/2
         ,treatment: 'static'
         ,styles: {
-            fillStyle: colors[5]
-            ,alpha: 0
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
         }
         ,children: [
         // coords of children are relative to the compound center of mass
@@ -137,8 +134,10 @@ Physics(function (world) {
         ,radius: S(13)
         ,treatment: 'static'
         ,styles: {
-            fillStyle: colors[5]
-            ,alpha: 0
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
             ,mass: 80
         }
     });
@@ -149,8 +148,10 @@ Physics(function (world) {
         ,y: height/2 - S(34)
         ,treatment: 'static'
         ,styles: {
-            fillStyle: colors[5]
-            ,alpha: 0
+            fillStyle: colors.red
+            ,lineWidth: 1
+            ,strokeStyle: colors.darkRed
+            ,alpha: 0.0001 //pixi bug
         }
         ,children: [
         Physics.body('rectangle', {
@@ -178,10 +179,14 @@ Physics(function (world) {
         circles.push(Physics.body('circle', {
             x: Math.random() * width
             ,y: Math.random() * height
-            ,radius: S(6)
+            ,radius: S(10)
             ,mass: 1
             ,restitution: 0.5
-            ,styles: colors[2]
+            ,styles: {
+                strokeStyle: colors.darkBlue
+                ,fillStyle: colors.blue
+                ,lineWidth: 1
+            }
         }));
     }
 
@@ -218,6 +223,9 @@ Physics(function (world) {
 
     // slowly fade in the numbers
     function fadeIn(){
+        zero.view.alpha = 0;
+        seven.view.alpha = 0;
+
         new TWEEN.Tween( { alpha: 0 } )
         .to( { alpha: 1 }, 1000 )
         .onUpdate( function () {
@@ -250,7 +258,7 @@ Physics(function (world) {
             aabb: viewportBounds
             ,restitution: 0
             ,cof: 0.8
-        }).applyTo([zero,point,seven]);
+        });
 
         world.add( edgeBounce );
 
@@ -259,24 +267,6 @@ Physics(function (world) {
         // wake up sleeping bodies
         world.wakeUpAll();
         world.off('step', wrapY);
-
-        world.on('step', function(){
-            var b
-            ,i
-            ,l
-            ,h = height + 100
-            ,w =  width /2
-            ,x = w
-            ;
-
-            // remove circles that fall past the bottom
-            for( i = 0, l = circles.length; i < l; i++){
-                b = circles[i];
-                if ( b.state.pos.y > height ){
-                    world.remove(b);
-                }
-            }
-        });
     }, 10000)
 
     // add behaviors
@@ -285,7 +275,6 @@ Physics(function (world) {
     ,Physics.behavior('body-impulse-response')
     ,Physics.behavior('body-collision-detection')
     ,Physics.behavior('sweep-prune')
-    ,attractor
     ]);
 
     // For this example, we'll use a tweening engine
@@ -306,6 +295,8 @@ Physics(function (world) {
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="{{relative}}assets/scripts/vendor/jquery.selectric.min.js"></script>
+
 <script>
 jQuery(function( $ ){
     var editor = window.CodeEditors[0];
@@ -328,16 +319,23 @@ jQuery(function( $ ){
         $changer.append('<option value="'+src+'">'+key+'</option>');
     });
     $changer.val('intro');
-    $('#demo-area .controls').prepend( $changer );
+    $('#demo-area .controls').append( $changer );
+    $changer.selectric({
+        maxHeight: 600
+    });
 
     var introText = editor.getValue();
 
     function update( content ){
+        var ed = editor.getWrapperElement();
+        var d = ed.style.display;
+        ed.style.display = '';
         editor.setValue( content );
+        ed.style.display = d;
         $('#demo-area .ctrl-run').trigger('click');
     }
 
-    $(document).on('change', '.controls select', function(){
+    $changer.on('change', function(){
         var $this = $(this);
         var src = $this.val();
         var idx = $.inArray( $this.children('[value="'+src+'"]')[0], $this.children() );
@@ -354,9 +352,7 @@ jQuery(function( $ ){
 
     idx = window.location.hash.replace('#demo-', '')|0;
     if ( idx ){
-        $changer.val( $changer.children().eq(idx).val() )
-            .trigger('change')
-            ;
+        $changer.prop('selectedIndex', idx).selectric('refresh').trigger('change');
     }
 });
 </script>

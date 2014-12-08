@@ -94,6 +94,8 @@ Physics(function (world) {
             ,styles: {
                 fillStyle: '#268bd2'
                 ,angleIndicator: '#155479'
+                ,strokeStyle: '#155479'
+                ,lineWidth: 1
             }
         }));
     }
