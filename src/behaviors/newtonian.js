@@ -1,4 +1,4 @@
-/** 
+/**
  * class NewtonianBehavior < Behavior
  *
  * `Physics.behavior('newtonian')`.
@@ -36,42 +36,95 @@ Physics.behavior('newtonian', function( parent ){
             });
             this.options( options );
         },
-        
+
+        calcPotential: function( posA, posB, out ){
+
+            var strength = this.options.strength
+                ,minDistSq = this._minDistSq
+                ,maxDistSq = this._maxDistSq
+                ,normsq
+                ,g
+                ,pos
+                ;
+
+            pos = out || new Physics.vector();
+
+            // clone the position
+            pos.clone( posB ).vsub( posA );
+            // get the square distance
+            normsq = pos.normSq();
+
+            if (normsq > minDistSq && normsq < maxDistSq){
+
+                g = strength / normsq;
+                return pos.normalize().mult( g );
+            }
+
+            return pos.zero();
+        },
+
         // extended
         behave: function( data ){
 
             var bodies = this.getTargets()
                 ,body
                 ,other
-                ,strength = this.options.strength
-                ,minDistSq = this._minDistSq
-                ,maxDistSq = this._maxDistSq
                 ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
-                ,normsq
-                ,g
+                ,potential = scratch.vector()
+                ,comp
+                ,bodyA
+                ,bodyB
+                ,posA = scratch.vector()
+                ,posB = scratch.vector()
+                ,i, j, k, m, l, ll, lll
                 ;
 
-            for ( var j = 0, l = bodies.length; j < l; j++ ){
-                
+            for ( j = 0, l = bodies.length; j < l; j++ ){
+
                 body = bodies[ j ];
 
-                for ( var i = j + 1; i < l; i++ ){
-                    
+                for ( i = j + 1; i < l; i++ ){
+
                     other = bodies[ i ];
-                    // clone the position
-                    pos.clone( other.state.pos );
-                    pos.vsub( body.state.pos );
-                    // get the square distance
-                    normsq = pos.normSq();
 
-                    if (normsq > minDistSq && normsq < maxDistSq){
-
-                        g = strength / normsq;
-
-                        body.accelerate( pos.normalize().mult( g * other.mass ) );
-                        other.accelerate( pos.mult( body.mass/other.mass ).negate() );
+                    if ( body.name === 'compound' ){
+                        comp = body;
+                    } else if ( other.name === 'compound' ){
+                        comp = other;
+                        other = body;
                     }
+
+                    if ( comp ){
+                        if ( other.name === 'compound' ){
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                for ( m = 0, lll = other.children.length; m < lll; m++ ){
+                                    bodyB = other.children[ m ];
+                                    other.toWorldCoords( posB.clone( bodyB.state.pos ).vadd( other.offset ) );
+                                    this.calcPotential( posA, posB, potential );
+                                    comp.accelerate( potential.mult( bodyB.mass ) );
+                                    other.accelerate( potential.mult( bodyA.mass/bodyB.mass ).negate() );
+                                }
+                            }
+                        } else {
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                this.calcPotential( posA, other.state.pos, potential );
+                                comp.accelerate( potential.mult( other.mass ) );
+                                other.accelerate( potential.mult( bodyA.mass/other.mass ).negate() );
+                            }
+                        }
+
+                    } else {
+
+                        this.calcPotential( body.state.pos, other.state.pos, potential );
+                        body.accelerate( potential.mult( other.mass ) );
+                        other.accelerate( potential.mult( body.mass/other.mass ).negate() );
+                    }
+
+                    comp = null;
                 }
             }
 

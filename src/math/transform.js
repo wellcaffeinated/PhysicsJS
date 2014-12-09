@@ -22,8 +22,8 @@
             return new Transform( vect, angle );
         }
 
-        this.v = Physics.vector();
-        this.o = Physics.vector(); // origin of rotation
+        this.v = new Physics.vector();
+        this.o = new Physics.vector(); // origin of rotation
         
         if ( vect instanceof Transform ){
 

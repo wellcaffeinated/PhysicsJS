@@ -3,7 +3,7 @@ $(function($){
     function throttle( fn, delay ){
         var to;
         return function(){
-            
+
             var self = this
                 ,args = arguments
                 ;
@@ -61,7 +61,7 @@ $(function($){
             ;
 
         for ( i = 0; i < l; ++i ){
-            
+
             if (pos < $(titles[ i ]).offset().top){
                 idx = i && i - 1;
                 break;

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -19,7 +19,7 @@
     Physics.integrator('improved-euler', function( parent ){
     
         return {
-            /** 
+            /**
              * class ImprovedEuler < Integrator
              *
              * `Physics.integrator('improved-euler')`.
@@ -33,7 +33,7 @@
                 // call parent init
                 parent.init.call(this, options);
             },
-     
+    
             // extended
             integrateVelocities: function( bodies, dt ){
     
@@ -49,15 +49,15 @@
                     state = body.state;
     
                     // only integrate if the body isn't fixed
-                    if ( body.treatment !== 'static' ){
+                    if ( body.treatment !== 'static' && !body.sleep( dt ) ){
     
                         // Inspired from https://github.com/soulwire/Coffee-Physics
                         // @licence MIT
-                        // 
+                        //
                         // x += (v * dt) + (a * 0.5 * dt * dt)
                         // v += a * dt
     
-                        
+    
                         // Scale force to mass.
                         // state.acc.mult( body.massInv );
     
@@ -83,7 +83,7 @@
     
                         //
                         // Angular components
-                        // 
+                        //
     
                         state.old.angular.vel = state.angular.vel;
                         state.angular.vel += state.angular.acc * dt;
@@ -119,7 +119,7 @@
                     state = body.state;
     
                     // only integrate if the body isn't fixed
-                    if ( body.treatment !== 'static' ){
+                    if ( body.treatment !== 'static' && !body.sleep() ){
     
     
                         // Store previous location.
@@ -137,7 +137,7 @@
     
                         //
                         // Angular components
-                        // 
+                        //
     
                         state.old.angular.pos = state.angular.pos;
                         state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
@@ -150,7 +150,6 @@
             }
         };
     });
-    
     
     // end module: integrators/improved-euler.js
     return Physics;

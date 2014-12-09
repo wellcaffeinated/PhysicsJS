@@ -67,7 +67,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.on( 'add:body', this.trackBody, this );
             world.on( 'remove:body', this.untrackBody, this );
-            world.on( 'integrate:velocities', this.sweep, this );
+            world.on( 'integrate:positions', this.sweep, this, 1 );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -80,9 +80,9 @@ Physics.behavior('sweep-prune', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'add:body', this.trackBody );
-            world.off( 'remove:body', this.untrackBody );
-            world.off( 'integrate:velocities', this.sweep );
+            world.off( 'add:body', this.trackBody, this );
+            world.off( 'remove:body', this.untrackBody, this );
+            world.off( 'integrate:positions', this.sweep, this, 1 );
             this.clear();
         },
 
@@ -96,6 +96,11 @@ Physics.behavior('sweep-prune', function( parent ){
 
             this.updateIntervals();
             this.sortIntervalLists();
+
+            if ( this._world ){
+                this._world.emit('sweep-prune:intervals', this.intervalLists);
+            }
+
             return this.checkOverlaps();
         },
 
@@ -317,7 +322,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                 // if it's the x axis, create a pair
                                 c = this.getPair( tr1, tr2, isX );
 
-                                if ( c ){
+                                if ( c && c.flag < collisionFlag ){
 
                                     // if it's greater than the axis index, set the flag
                                     // to = 0.
@@ -397,13 +402,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                     min: {
                         type: false, //min
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     },
 
                     max: {
                         type: true, //max
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     }
                 }

@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<style>
+			html, body { height: 100%; }
 			body {
 				background-color: #ffffff;
 				margin: 0;
@@ -36,6 +37,14 @@
 						this.k = opts.k || 1;
 						this.center = Physics.vector( opts.center );
 					},
+
+					// connect: function( world ){
+					// 	world.on('integrate:velocities', this.behave, this);
+					// },
+					//
+					// disconnect: function(){
+					// 	world.off('integrate:velocities', this.behave, this);
+					// },
 					behave: function(){
 						var scratch = Physics.scratchpad();
 						var tmp = scratch.vector();
@@ -84,7 +93,7 @@
 					world.render();
 				});
 
-				world.add( Physics.integrator('velocity-verlet') );
+				// world.add( Physics.integrator('velocity-verlet') );
 
 				// constrain objects to these bounds
 				edgeBounce = Physics.behavior('edge-collision-detection', {
@@ -107,34 +116,34 @@
 
 				}, true);
 
-				// world.add( Physics.body('circle', {
-				// 	x: viewWidth/2,
+				world.add( Physics.body('circle', {
+					x: viewWidth/2,
+					y: viewHeight/2,// - 20,//+100,
+					radius: 20,
+					width: 40,
+					height: 40,
+					mass: 1.4,
+					//cof: 0,
+					vy: -0.2,
+					// vx: 0.1,
+					restitution: 1,
+					styles: { fillStyle: 'red' }
+				}));
+
+				// world.add( Physics.body('rectangle', {
+				// 	x: viewWidth/4,
 				// 	y: viewHeight - 20,//+100,
 				// 	radius: 20,
 				// 	width: 40,
 				// 	height: 40,
 				// 	mass: 1.4,
-				// 	//cof: 0,
+				// 	// cof: 0,
 				// 	vy: -0.2,
 				// 	// vx: 0.1,
-				// 	restitution: 1,
+				// 	angle: 0.1,
+				// 	restitution: 0.8,
 				// 	styles: { fillStyle: 'red' }
 				// }));
-
-				world.add( Physics.body('rectangle', {
-					x: viewWidth/4,
-					y: viewHeight - 20,//+100,
-					radius: 20,
-					width: 40,
-					height: 40,
-					mass: 1.4,
-					// cof: 0,
-					vy: -0.2,
-					// vx: 0.1,
-					angle: 0.1,
-					restitution: 0.8,
-					styles: { fillStyle: 'red' }
-				}));
 
 				// world.add( Physics.body('circle', {
 				// 	x: viewWidth/2,
@@ -154,7 +163,7 @@
 				var center = Physics.vector({x: viewWidth/2, y: viewHeight/2 });
 
 				world.add([
-					// Physics.behavior('spring', { k: 0.00001, center: center, body: ball })
+					// Physics.behavior('spring', { k: 0.00001, center: center, body: ball }),
 					Physics.behavior('body-collision-detection', {
 						checkAll: false
 					}),
@@ -191,7 +200,7 @@
 					var x = sx * (center.y - ball.state.pos.y);// * (center.angle(ball.state.pos) > 0 ? 1 : -1);
 					var y = sy * ball.state.vel.norm() * (ball.state.vel.angle() > 0 ? 1 : -1);
 					// console.log(x, y)
-					renderer.drawCircle(x + center.x, y + center.y, 0.5, '#f66', this.ctx);
+					renderer.drawCircle(x + center.x, y + center.y, 0.25, '#f66', this.ctx);
 					// graph.endFill();
 				};
 				// world.timestep( 20 );

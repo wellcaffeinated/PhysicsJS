@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -21,7 +21,7 @@
         // Browser globals (root is window)
         root.Physics = factory.call(root);
     }
-}(this, function () {
+}(typeof window !== 'undefined' ? window : this, function () {
 
 'use strict';
 
@@ -168,6 +168,32 @@ Physics.util = {};
             hh: aabb.hh
         };
     };
+
+    /**
+     * Physics.aabb.union( aabb1, aabb2[, modify] ) -> Object
+     * - aabb1 (Object): The first aabb (returned if modify is `true`)
+     * - aabb2 (Object): The second aabb
+     * + (Object): The union of two aabbs. If modify is `true`, then the first aabb will be modified and returned.
+     *
+     * Get the union of two aabbs.
+     **/
+    Physics.aabb.union = function( aabb1, aabb2, modify ){
+
+        var ret = modify === true ? aabb1 : {}
+            ,maxX = Math.max( aabb1.x + aabb1.hw, aabb2.x + aabb2.hw )
+            ,maxY = Math.max( aabb1.y + aabb1.hh, aabb2.y + aabb2.hh )
+            ,minX = Math.min( aabb1.x - aabb1.hw, aabb2.x - aabb2.hw )
+            ,minY = Math.min( aabb1.y - aabb1.hh, aabb2.y - aabb2.hh )
+            ;
+
+        ret.hw = Math.abs(maxX - minX) * 0.5;
+        ret.hh = Math.abs(maxY - minY) * 0.5;
+        ret.x = (maxX + minX) * 0.5;
+        ret.y = (maxY + minY) * 0.5;
+
+        return ret;
+    };
+
 
     /**
      * Physics.aabb.overlap( aabb1, aabb2 ) -> Boolean
@@ -548,6 +574,73 @@ Physics.util = {};
 
 
 // ---
+// inside: src/math/statistics.js
+
+(function(){
+
+    Physics.statistics = {
+        /**
+         * Physics.statistics.pushRunningAvg( v, k, m, s ) -> Array
+         * - v (Number): is value to push
+         * - k (Number): is num elements
+         * - m (Number): is current mean
+         * - s (Number): is current s value
+         * + (Array): Returns a 2 element array containing the next mean, and s value
+         *
+         * Push a value to a running average calculation.
+         * see [http://www.johndcook.com/blog/standard_deviation]
+         *
+         * Note: variance can be calculated from the "s" value by multiplying it by `1/(k-1)`
+         **/
+        pushRunningAvg: function( v, k, m, s ){
+
+            var x = v - m;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m += x / k;
+            s += x * (v - m);
+            return [m, s];
+        },
+
+        /**
+        * Physics.statistics.pushRunningVectorAvg( v, k, m[, s] )
+        * - v (Physics.vector): is vector to push
+        * - k (Number): is num elements
+        * - m (Physics.vector): is current mean
+        * - s (Physics.vector): is current s value
+        *
+        * Push a vector to a running vector average calculation.
+        * see [http://www.johndcook.com/blog/standard_deviation]
+        *
+        * Calculations are done in place. The `m` and `s` parameters are altered.
+        *
+        * Note: variance can be calculated from the "s" vector by multiplying it by `1/(k-1)`
+        *
+        * If s value is ommitted it won't be used.
+        **/
+        pushRunningVectorAvg: function( v, k, m, s ){
+            var invK = 1/k
+                ,x = v.get(0) - m.get(0)
+                ,y = v.get(1) - m.get(1)
+                ;
+
+            // Mk = Mk-1+ (xk – Mk-1)/k
+            // Sk = Sk-1 + (xk – Mk-1)*(xk – Mk).
+            m.add( x * invK, y * invK );
+
+            if ( s ){
+                x *= v.get(0) - m.get(0);
+                y *= v.get(1) - m.get(1);
+
+                s.add( x, y );
+            }
+        }
+    };
+})();
+
+
+// ---
 // inside: src/math/transform.js
 
 (function(){
@@ -574,8 +667,8 @@ Physics.util = {};
             return new Transform( vect, angle );
         }
 
-        this.v = Physics.vector();
-        this.o = Physics.vector(); // origin of rotation
+        this.v = new Physics.vector();
+        this.o = new Physics.vector(); // origin of rotation
         
         if ( vect instanceof Transform ){
 
@@ -668,9 +761,9 @@ Physics.util = {};
         ,typedArrays = !!window.Float64Array
         ;
 
-    /** 
+    /**
      * class Physics.vector
-     * 
+     *
      * The vector class and factory function.
      *
      * Call `Physics.vector` with the same arguments as
@@ -708,7 +801,7 @@ Physics.util = {};
      * - x (Number): The x coordinate
      * - y (Number): The y coordinate
      * - vect (Vectorish): A vector-like object to clone
-     * 
+     *
      * Vector Constructor.
      **/
     var Vector = function Vector( x, y ) {
@@ -750,9 +843,9 @@ Physics.util = {};
     };
 
     Object.defineProperties( Vector.prototype, {
-        /** 
+        /**
          * Physics.vector#x
-         * 
+         *
          * Getter/setter property for the x coordinate.
          **/
         x: {
@@ -765,9 +858,9 @@ Physics.util = {};
                 this._[0] = x;
             }
         },
-        /** 
+        /**
          * Physics.vector#y
-         * 
+         *
          * Getter/setter property for the y coordinate.
          **/
         y: {
@@ -782,15 +875,15 @@ Physics.util = {};
         }
     });
 
-    // 
+    //
     // Methods
-    // 
+    //
 
     /**
      * Physics.vector#set( x, y ) -> this
      * - x (Number): x coordinate
      * - y (Number): y coordinate
-     * 
+     *
      * Sets the x and y components of this vector.
      **/
     Vector.prototype.set = function( x, y ) {
@@ -805,7 +898,7 @@ Physics.util = {};
     /** deprecated: 0.6.0..1.0.0
      * Physics.vector#get( idx ) -> Number
      * - idx (Number): The coordinate index (0 or 1)
-     * 
+     *
      * Get the x or y component by index.
      **/
     Vector.prototype.get = function( n ){
@@ -816,7 +909,7 @@ Physics.util = {};
     /**
      * Physics.vector#vadd( v ) -> this
      * - v (Physics.vector): vector to add
-     * 
+     *
      * Add a [[Physics.vector]] to `this`.
      **/
     Vector.prototype.vadd = function( v ) {
@@ -831,7 +924,7 @@ Physics.util = {};
     /**
      * Physics.vector#vsub( v ) -> this
      * - v (Physics.vector): vector to subtract
-     * 
+     *
      * Subtract a [[Physics.vector]] from `this`.
      **/
     Vector.prototype.vsub = function( v ) {
@@ -847,11 +940,11 @@ Physics.util = {};
      * Physics.vector#add( x, y ) -> this
      * - x (Number): amount to add to the x coordinate
      * - y (Number): amount to add to the y coordinate
-     * 
+     *
      * Add scalars [[Physics.vector]] to the coordinates.
      **/
     Vector.prototype.add = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] += +x || 0;
@@ -863,11 +956,11 @@ Physics.util = {};
      * Physics.vector#sub( x, y ) -> this
      * - x (Number): amount to subtract from the x coordinate
      * - y (Number): amount to subtract from the y coordinate
-     * 
+     *
      * Subtract scalars [[Physics.vector]] from the coordinates.
      **/
     Vector.prototype.sub = function( x, y ){
-        
+
         this.recalc = true;
 
         this._[0] -= x;
@@ -878,13 +971,13 @@ Physics.util = {};
     /**
      * Physics.vector#mult( m ) -> this
      * - m (Number): amount to multiply this vector by
-     * 
+     *
      * Multiply this by a scalar quantity.
      *
      * Same as scaling the vector by an amount `m`.
      **/
     Vector.prototype.mult = function( m ) {
-        
+
         if ( !this.recalc ){
 
             this._[4] *= m * m;
@@ -896,10 +989,10 @@ Physics.util = {};
         return this;
     };
 
-    /** 
+    /**
      * Physics.vector#dot( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the dot product of this vector with `v`.
      **/
     Vector.prototype.dot = function( v ) {
@@ -907,10 +1000,10 @@ Physics.util = {};
         return (this._[0] * v._[0]) + (this._[1] * v._[1]);
     };
 
-    /** 
+    /**
      * Physics.vector#cross( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the (left-handed) cross product of this vector with `v`.
      **/
     Vector.prototype.cross = function( v ) {
@@ -921,7 +1014,7 @@ Physics.util = {};
     /**
      * Physics.vector#proj( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [scalar projection](http://en.wikipedia.org/wiki/Vector_projection#Scalar_projection_2) of this along `v`.
      **/
     Vector.prototype.proj = function( v ){
@@ -933,7 +1026,7 @@ Physics.util = {};
     /**
      * Physics.vector#vproj( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the [vector projection](http://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2) of this along `v` and copy the result into this vector.
      **/
     Vector.prototype.vproj = function( v ){
@@ -946,7 +1039,7 @@ Physics.util = {};
      * Physics.vector#angle( [v] ) -> Number
      * - v (Physics.vector): The other vector
      * + (Number): The angle in radians between this vector and the x-axis OR `v` if specified
-     * 
+     *
      * Compute the angle between `this` and vector `v` or this and x axis.
      **/
     Vector.prototype.angle = function( v ){
@@ -954,7 +1047,7 @@ Physics.util = {};
         var ang;
 
         if ( this.equals( Vector.zero ) ){
-            
+
             if ( v ){
                 return v.angle();
             } else {
@@ -966,10 +1059,10 @@ Physics.util = {};
             if ( v && !v.equals( Vector.zero ) ){
                 ang = atan2( this._[1] * v._[0] - this._[0] * v._[1], this._[0] * v._[0] + this._[1] * v._[1]);
             } else {
-                ang = atan2( this._[ 1 ], this._[ 0 ] );    
+                ang = atan2( this._[ 1 ], this._[ 0 ] );
             }
         }
-        
+
         while (ang > Math.PI){
             ang -= TWOPI;
         }
@@ -985,7 +1078,7 @@ Physics.util = {};
      * Physics.vector#angle2( left, right ) -> Number
      * - left (Physics.vector): The position on the left
      * - right (Physics.vector): The position on the right
-     * 
+     *
      * Compute the angle created between three points; left -> this -> right.
      **/
     Vector.prototype.angle2 = function( left, right ){
@@ -1010,7 +1103,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#norm() -> Number
-     * 
+     *
      * Compute the norm (length) of this vector.
      **/
     Vector.prototype.norm = function() {
@@ -1020,13 +1113,13 @@ Physics.util = {};
             this._[4] = (this._[0] * this._[0] + this._[1] * this._[1]);
             this._[3] = sqrt( this._[4] );
         }
-        
+
         return this._[3];
     };
 
     /**
      * Physics.vector#normSq() -> Number
-     * 
+     *
      * Compute the norm (length) squared of this vector.
      **/
     Vector.prototype.normSq = function() {
@@ -1043,14 +1136,14 @@ Physics.util = {};
     /**
      * Physics.vector#dist( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance from this vector to another vector `v`.
      **/
     Vector.prototype.dist = function( v ) {
-      
+
         var dx, dy;
         return sqrt(
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -1058,14 +1151,14 @@ Physics.util = {};
     /**
      * Physics.vector#distSq( v ) -> Number
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Compute the distance squared from this vector to another vector `v`.
      **/
     Vector.prototype.distSq = function( v ) {
 
         var dx, dy;
         return (
-            (dx = (v._[0] - this._[0])) * dx + 
+            (dx = (v._[0] - this._[0])) * dx +
             (dy = (v._[1] - this._[1])) * dy
         );
     };
@@ -1073,7 +1166,7 @@ Physics.util = {};
     /**
      * Physics.vector#perp( [ccw] ) -> this
      * - ccw (Boolean): flag to indicate that we should rotate counterclockwise
-     * 
+     *
      * Change this vector into a vector that will be perpendicular.
      *
      * In other words, rotate by (+-) 90 degrees.
@@ -1103,7 +1196,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#normalize() -> this
-     * 
+     *
      * Normalise this vector, making it a unit vector.
      **/
     Vector.prototype.normalize = function() {
@@ -1129,7 +1222,7 @@ Physics.util = {};
     /**
      * Physics.vector#transform( t ) -> this
      * - t (Physics.transform): The transformation to apply
-     * 
+     *
      * Apply a [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transform = function( t ){
@@ -1145,7 +1238,7 @@ Physics.util = {};
 
         // rotate about origin "o" then translate
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ], 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x + t.v._[ 0 ],
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y + t.v._[ 1 ]
         );
     };
@@ -1153,7 +1246,7 @@ Physics.util = {};
     /**
      * Physics.vector#transformInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse of
-     * 
+     *
      * Apply an inverse [[Physics.transform]] to this vector.
      **/
     Vector.prototype.transformInv = function( t ){
@@ -1169,7 +1262,7 @@ Physics.util = {};
 
         // inverse translate then inverse rotate about origin "o"
         return this.set(
-            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA + this._[ 1 ] * sinA + x,
             - this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -1180,10 +1273,10 @@ Physics.util = {};
      * - t (Physics.transform): The transformation to apply the rotational part of
      * - ang (Number): The angle (in radians), to rotate by
      * - o (Vectorish): The point of origin of the rotation
-     * 
+     *
      * Rotate this vector.
-     * 
-     * An angle and rotation origin can be specified, 
+     *
+     * An angle and rotation origin can be specified,
      * or a transform can be specified and only the rotation
      * portion of that transform will be applied
      **/
@@ -1200,22 +1293,22 @@ Physics.util = {};
             cosA = Math.cos( t );
 
             if ( o ){
-                x = (o.x || o._[ 0 ]) | 0;
-                y = (o.y || o._[ 1 ]) | 0;
+                x = o.x;
+                y = o.y;
             }
         } else {
             sinA = t.sinA;
             cosA = t.cosA;
-        
+
             x = t.o._[ 0 ];
             y = t.o._[ 1 ];
         }
-            
+
         this._[ 0 ] -= x;
         this._[ 1 ] -= y;
 
         return this.set(
-            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x, 
+            this._[ 0 ] * cosA - this._[ 1 ] * sinA + x,
             this._[ 0 ] * sinA + this._[ 1 ] * cosA + y
         );
     };
@@ -1223,16 +1316,16 @@ Physics.util = {};
     /**
      * Physics.vector#rotateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse rotational part of
-     * 
+     *
      * Apply the inverse rotation of a transform.
-     * 
-     * Only the inverse rotation portion of 
+     *
+     * Only the inverse rotation portion of
      * that transform will be applied.
      **/
     Vector.prototype.rotateInv = function( t ){
 
         return this.set(
-            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ], 
+            (this._[ 0 ] - t.o._[ 0 ]) * t.cosA + (this._[ 1 ] - t.o._[ 1 ]) * t.sinA + t.o._[ 0 ],
             -(this._[ 0 ] - t.o._[ 0 ]) * t.sinA + (this._[ 1 ] - t.o._[ 1 ]) * t.cosA + t.o._[ 1 ]
         );
     };
@@ -1240,10 +1333,10 @@ Physics.util = {};
     /**
      * Physics.vector#translate( t ) -> this
      * - t (Physics.transform): The transformation to apply the translational part of
-     * 
+     *
      * Apply the translation of a transform.
-     * 
-     * Only the translation portion of 
+     *
+     * Only the translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translate = function( t ){
@@ -1254,10 +1347,10 @@ Physics.util = {};
     /**
      * Physics.vector#translateInv( t ) -> this
      * - t (Physics.transform): The transformation to apply the inverse translational part of
-     * 
+     *
      * Apply the inverse translation of a transform.
-     * 
-     * Only the inverse translation portion of 
+     *
+     * Only the inverse translation portion of
      * that transform will be applied.
      **/
     Vector.prototype.translateInv = function( t ){
@@ -1271,10 +1364,10 @@ Physics.util = {};
      * - v (Vectorish): The vector-like object to clone
      * + (this): If `v` is specified as an argument
      * + (Physics.vector): A new vector instance that clones this vector, if no argument is specified
-     * 
+     *
      * Create a clone of this vector, or clone another vector into this instance.
      *
-     * This is especially useful in vector algorithms 
+     * This is especially useful in vector algorithms
      * that use temporary vectors (which most should).
      * You can create temporary vectors and then do things like...
      * ```
@@ -1285,7 +1378,7 @@ Physics.util = {};
      * ```
      **/
     Vector.prototype.clone = function( v ) {
-        
+
         // http://jsperf.com/vector-storage-test
 
         if ( v ){
@@ -1294,7 +1387,7 @@ Physics.util = {};
 
                 return this.set( v.x, v.y );
             }
-            
+
             this.recalc = v.recalc;
 
             if (!v.recalc){
@@ -1314,7 +1407,7 @@ Physics.util = {};
     /**
      * Physics.vector#swap( v ) -> this
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Swap values with other vector.
      **/
     Vector.prototype.swap = function( v ){
@@ -1331,7 +1424,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#values() -> Object
-     * 
+     *
      * Get the coordinate values as an object literal.
      **/
     Vector.prototype.values = function(){
@@ -1345,7 +1438,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#zero() -> this
-     * 
+     *
      * Set the coordinates of this vector to zero.
      **/
     Vector.prototype.zero = function() {
@@ -1360,7 +1453,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#negate() -> this
-     * 
+     *
      * Flip this vector in the opposite direction.
      **/
     Vector.prototype.negate = function( component ){
@@ -1380,9 +1473,9 @@ Physics.util = {};
      * Physics.vector#clamp( minV, maxV ) -> this
      * - minV (Vectorish): The minimum vector
      * - maxV (Vectorish): The maximum vector
-     * 
+     *
      * Constrain vector components to minima and maxima.
-     * 
+     *
      * The vector analog of [scalar clamping](http://en.wikipedia.org/wiki/Clamping_(graphics)).
      **/
     Vector.prototype.clamp = function( minV, maxV ){
@@ -1395,7 +1488,7 @@ Physics.util = {};
 
     /**
      * Physics.vector#toString() -> String
-     * 
+     *
      * Get a formatted string of this vector's coordinates.
      **/
     Vector.prototype.toString = function(){
@@ -1407,7 +1500,7 @@ Physics.util = {};
     /**
      * Physics.vector#equals( v ) -> Boolean
      * - v (Physics.vector): The other vector
-     * 
+     *
      * Determine if this vector equals another.
      **/
     Vector.prototype.equals = function( v ){
@@ -1419,7 +1512,7 @@ Physics.util = {};
 
     /**
      * Physics.vector.axis = Array
-     * 
+     *
      * Read-only axis vectors for general reference.
      *
      * Example:
@@ -1436,7 +1529,7 @@ Physics.util = {};
 
     /**
      * Physics.vector.zero = zeroVector
-     * 
+     *
      * Read-only zero vector for reference
      **/
     Vector.zero = new Vector(0, 0);
@@ -1704,6 +1797,23 @@ Physics.util.indexOf = function indexOf(arr, value) {
     return -1;
 };
 
+
+// http://jsperf.com/array-destroy/87
+/**
+ * Physics.util.clearArray( arr ) -> Array
+ * - arr (Array): The array to clear
+ * + (Array): The array passed in
+ *
+ * Quickly clear an array.
+ **/
+Physics.util.clearArray = function clearArray(arr){
+    var l = arr.length;
+    while( l-- ){
+        arr.pop();
+    }
+    return arr;
+};
+
 /**
  * Physics.util.throttle( fn, delay ) -> Function
  * - fn (Function): The function to throttle
@@ -1726,7 +1836,7 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
             }
         }
         ;
-        
+
     scope = scope || null;
 
     return function(){
@@ -1765,6 +1875,16 @@ Physics.util.throttle = function throttle( fn, delay, scope ){
  * });
  * ```
  **/
+// deep copy callback to extend deeper into options
+var deepCopyFn = function( a, b ){
+
+    if ( Physics.util.isPlainObject( b ) ){
+
+        return Physics.util.extend({}, a, b, deepCopyFn );
+    }
+
+    return b !== undefined ? b : a;
+};
 Physics.util.options = function( def, target ){
 
     var _def = {}
@@ -1773,9 +1893,9 @@ Physics.util.options = function( def, target ){
         ;
 
     // set options
-    fn = function fn( options ){
+    fn = function fn( options, deep ){
 
-        Physics.util.extend(target, options, null);
+        Physics.util.extend(target, options, deep ? deepCopyFn : null);
         for ( var i = 0, l = callbacks.length; i < l; ++i ){
             callbacks[ i ]( target );
         }
@@ -1783,9 +1903,9 @@ Physics.util.options = function( def, target ){
     };
 
     // add defaults
-    fn.defaults = function defaults( def ){
-        Physics.util.extend( _def, def );
-        Physics.util.defaults( target, _def );
+    fn.defaults = function defaults( def, deep ){
+        Physics.util.extend( _def, def, deep ? deepCopyFn : null );
+        Physics.util.defaults( target, _def, deep ? deepCopyFn : null );
         return _def;
     };
 
@@ -1943,7 +2063,7 @@ var maxPoolSize = 40;
 var keyPrefix = +new Date() + '';
 
 function releaseArray(array) {
-  array.length = 0;
+  Physics.util.clearArray( array );
   if (arrayPool.length < maxPoolSize) {
     arrayPool.push(array);
   }
@@ -2378,7 +2498,7 @@ Physics.scratchpad = (function(){
     var scratches = [];
     var numScratches = 0;
     var Scratch, Scratchpad;
-    
+
     var regIndex = 0;
 
 
@@ -2386,7 +2506,7 @@ Physics.scratchpad = (function(){
      * class Scratch
      *
      * A scratchpad session.
-     * 
+     *
      * This class keeps track of temporary objects used
      * in this session and releases them when finished (call to `.done()`).
      *
@@ -2401,7 +2521,7 @@ Physics.scratchpad = (function(){
         // private variables
         this._active = false;
         this._indexArr = [];
-        
+
         if (++numScratches >= Scratchpad.maxScratches){
             throw SCRATCH_MAX_REACHED;
         }
@@ -2414,9 +2534,9 @@ Physics.scratchpad = (function(){
          * - val (Mixed): No effect on this method, just passed on to the return value so you can do things like:
          return scratch.done( myReturnVal );
          * + (Mixed): Whatever you specified as `val`
-         * 
+         *
          * Declare that your work is finished.
-         * 
+         *
          * Release temp objects for use elsewhere. Must be called when immediate work is done.
          *
          * You can wrap the return value in scratch.done() so that you don't forget to call it.
@@ -2432,10 +2552,10 @@ Physics.scratchpad = (function(){
             this._active = false;
             var s;
             for ( var i = 0; i < regIndex; ++i ){
-                
+
                 this[ i ] = 0;
             }
-            
+
             // add it back to the scratch stack for future use
             scratches.push( this );
             return val;
@@ -2450,13 +2570,13 @@ Physics.scratchpad = (function(){
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance.
      * + (Function): The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.
      * + (Scratch): The scratch session.
-     * 
+     *
      * Get a new scratch session to work from or wrap a function in a scratch session.
-     * 
+     *
      * Call `.done()` on it when finished.
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // get a scratch session manually
      * var myAlg = function( scratch, arg1, arg2, ... ){
@@ -2473,7 +2593,7 @@ Physics.scratchpad = (function(){
      * ```
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // wrap a function in a scratch session
      * var myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){
@@ -2506,13 +2626,13 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.fn( fn ) -> Function
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].
      * + (Function): The wrapped function that can be reused like the original minus the first (scratch) parameter.
-     * 
+     *
      * Wrap a function in a scratch session.
      *
      * Same as calling `Physics.scratchpad( fn )` with a function specified.
      **/
     Scratchpad.fn = function( fn ){
-        
+
         var args = [];
         for ( var i = 0, l = fn.length; i < l; i++ ){
             args.push( i );
@@ -2535,7 +2655,7 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.register( name, constructor )
      * - name (String): Name of the object class
      * - constructor (Function): The object constructor
-     * 
+     *
      * Register a new object to be included in scratchpads.
      *
      * Example:
@@ -2558,7 +2678,7 @@ Physics.scratchpad = (function(){
         }
 
         // create a new function on the prototype
-        proto[ name ] = function(){
+        Scratch.prototype[ name ] = function(){
 
             // get the stack (or initialize it)
             var stack = this[ stackname ] || (this[ stackname ] = [])
@@ -2581,7 +2701,7 @@ Physics.scratchpad = (function(){
             }
 
             // return or create new instance
-            return stack[ stackIndex ] || 
+            return stack[ stackIndex ] ||
                     (stack[ stackIndex ] = useFactory ? constructor() : new constructor() );
         };
 
@@ -2595,10 +2715,13 @@ Physics.scratchpad = (function(){
 
 })();
 
+
 // ---
 // inside: src/util/pubsub.js
 
 (function(){
+
+    var defaultPriority = 1;
 
     function getPriority( val ){
         return val._priority_;
@@ -2666,13 +2789,14 @@ Physics.scratchpad = (function(){
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
+                fn._scope_ = scope;
 
-            } else if (!priority) {
+            } else if ( priority === undefined ) {
 
                 priority = scope;
             }
 
-            fn._priority_ = priority;
+            fn._priority_ = priority === undefined ? defaultPriority : priority;
 
             idx = Physics.util.sortedIndex( listeners, fn, getPriority );
 
@@ -2681,15 +2805,16 @@ Physics.scratchpad = (function(){
         },
 
         /**
-         * Physics.util.pubsub#off( topic, fn ) -> this
+         * Physics.util.pubsub#off( topic, fn[, scope] ) -> this
          * Physics.util.pubsub#off( topicCfg ) -> this
          * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
          * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
          * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+         * - scope (Object): The scope the callback was bound to. This is important if you are binding methods that come from object prototypes.
          *
          * Unsubscribe callback(s) from topic(s).
          **/
-        off: function( topic, fn ){
+        off: function( topic, fn, scope ){
 
             var listeners
                 ,listn
@@ -2734,7 +2859,10 @@ Physics.scratchpad = (function(){
 
                 listn = listeners[ i ];
 
-                if ( listn._bindfn_ === fn || listn === fn ){
+                if (
+                    (listn._bindfn_ === fn || listn === fn) &&
+                    ( (!scope) || listn._scope_ === scope) // check the scope too if specified
+                ){
                     listeners.splice( i, 1 );
                     break;
                 }
@@ -2839,7 +2967,7 @@ Physics.scratchpad = (function(){
  **/
 (function(window){
 
-    var active = false
+    var active = true
         ,ps = Physics.util.pubsub()
         ,perf = window.performance
         ;
@@ -2861,6 +2989,8 @@ Physics.scratchpad = (function(){
 
         var time;
 
+        window.requestAnimationFrame( step );
+
         if (!active){
             return;
         }
@@ -2871,8 +3001,14 @@ Physics.scratchpad = (function(){
             return;
         }
 
-        window.requestAnimationFrame( step );
         ps.emit( 'tick', time );
+    }
+
+    // start stepping if we can
+    if ( window.requestAnimationFrame ){
+        step();
+    } else {
+        active = false;
     }
 
     /**
@@ -2883,7 +3019,6 @@ Physics.scratchpad = (function(){
     function start(){
 
         active = true;
-        step();
         return this;
     }
 
@@ -3098,7 +3233,7 @@ Physics.scratchpad = (function(){
      * Get a test function to match any body who's aabb intersects point
      **/
     var $at = function $at( point ){
-        point = Physics.vector( point );
+        point = new Physics.vector( point );
         return function( body ){
             var aabb = body.aabb();
             return Physics.aabb.contains( aabb, point );
@@ -3416,7 +3551,7 @@ Physics.scratchpad = (function(){
         disconnect: function( world ){
 
             if (this.behave){
-                world.off('integrate:positions', this.behave);
+                world.off('integrate:positions', this.behave, this);
             }
         },
 
@@ -3458,6 +3593,11 @@ Physics.scratchpad = (function(){
 
     var uidGen = 1;
 
+    var Pi2 = Math.PI * 2;
+    function cycleAngle( ang ){
+        return ((ang % Pi2) + Pi2) % Pi2;
+    }
+
     /** related to: Physics.util.decorator
      * Physics.body( name[, options] ) -> Body
      * - name (String): The name of the body to create
@@ -3478,7 +3618,9 @@ Physics.scratchpad = (function(){
             // what is its coefficient of friction with another surface with COF = 1?
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
-            view: null
+            view: null,
+            // the vector offsetting the geometry from its center of mass
+            offset: Physics.vector(0,0)
         }
        ```
      *
@@ -3503,6 +3645,7 @@ Physics.scratchpad = (function(){
          **/
         init: function( options ){
 
+            var self = this;
             var vector = Physics.vector;
 
             /** related to: Physics.util.options
@@ -3523,6 +3666,9 @@ Physics.scratchpad = (function(){
              **/
             // all options get copied onto the body.
             this.options = Physics.util.options( defaults, this );
+            this.options.onChange(function( opts ){
+                self.offset = new vector( opts.offset );
+            });
             this.options( options );
 
             /**
@@ -3543,18 +3689,18 @@ Physics.scratchpad = (function(){
              * ```
              **/
             this.state = {
-                pos: vector( this.x, this.y ),
-                vel: vector( this.vx, this.vy ),
-                acc: vector(),
+                pos: new vector( this.x, this.y ),
+                vel: new vector( this.vx, this.vy ),
+                acc: new vector(),
                 angular: {
                     pos: this.angle || 0.0,
                     vel: this.angularVelocity || 0.0,
                     acc: 0.0
                 },
                 old: {
-                    pos: vector(),
-                    vel: vector(),
-                    acc: vector(),
+                    pos: new vector(),
+                    vel: new vector(),
+                    acc: new vector(),
                     angular: {
                         pos: 0.0,
                         vel: 0.0,
@@ -3562,6 +3708,13 @@ Physics.scratchpad = (function(){
                     }
                 }
             };
+
+            // private storage for sleeping
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
 
             // cleanup
             delete this.x;
@@ -3595,6 +3748,12 @@ Physics.scratchpad = (function(){
              * Body#mass = 1.0
              *
              * The mass.
+             **/
+
+            /**
+             * Body#offset
+             *
+             * The vector offsetting the body's shape from its center of mass.
              **/
 
              /**
@@ -3666,12 +3825,116 @@ Physics.scratchpad = (function(){
                  **/
 
                 /** related to: Physics.renderer
-                 * Body#style
+                 * Body#styles
                  *
                  * The styles the renderer should use for creating the view.
                  *
                  * The styles depend on the renderer. See [[Renderer#createView]] for style options.
                  **/
+        },
+
+        /**
+         * Body#sleep( [dt] ) -> Boolean
+         * - dt (Number): Time to advance the idle time
+         * - dt (Boolean): If `true`, the body will be forced to sleep. If `false`, the body will be forced to awake.
+         *
+         * Get and/or set whether the body is asleep.
+         *
+         * If called with a time (in ms), the time will be added to the idle time and sleep conditions will be checked.
+         **/
+        sleep: function( dt ){
+
+            if ( dt === true ){
+                // force sleep
+                this.asleep = true;
+
+            } else if ( dt === false ){
+                // force wakup
+                this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
+                this.sleepIdleTime = 0;
+
+            } else if ( dt && !this.asleep ) {
+
+                this.sleepCheck( dt );
+            }
+
+            return this.asleep;
+        },
+
+        /**
+         * Body#sleepCheck( [dt] )
+         * - dt (Number): Time to advance the idle time
+         *
+         * Check if the body should be sleeping.
+         *
+         * Call with no arguments if some event could possibly wake up the body. This will force the body to recheck.
+         **/
+        sleepCheck: function( dt ){
+
+            var opts = this._world && this._world.options;
+
+            // if sleeping disabled. stop.
+            if ( this.sleepDisabled || (opts && opts.sleepDisabled) ){
+                return;
+            }
+
+            var limit
+                ,v
+                ,d
+                ,r
+                ,aabb
+                ,scratch = Physics.scratchpad()
+                ,diff = scratch.vector()
+                ,diff2 = scratch.vector()
+                ,kfac
+                ,stats
+                ;
+
+            dt = dt || 0;
+            aabb = this.geometry.aabb();
+            r = Math.max(aabb.hw, aabb.hh);
+
+            if ( this.asleep ){
+                // check velocity
+                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
+                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
+
+                if ( v >= limit ){
+                    this.sleep( false );
+                    return scratch.done();
+                }
+            }
+
+            this._sleepMeanK++;
+            kfac = this._sleepMeanK > 1 ? 1/(this._sleepMeanK - 1) : 0;
+            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
+            // we take the sin because that maps the discontinuous angle to a continuous value
+            // then the statistics calculations work better
+            stats = Physics.statistics.pushRunningAvg( Math.sin(this.state.angular.pos), this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
+            this._sleepAngPosMean = stats[0];
+            this._sleepAngPosVariance = stats[1];
+            v = this._sleepPosVariance.norm() + Math.abs(r * Math.asin(stats[1]));
+            v *= kfac;
+            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
+            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
+            if ( v <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
+
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleep( false );
+            }
+
+            scratch.done();
         },
 
         /**
@@ -3732,7 +3995,7 @@ Physics.scratchpad = (function(){
 
             // if no point at which to apply the force... apply at center of mass
             if ( p && this.moi ){
-                
+
                 // apply torques
                 state = this.state;
                 r.clone( p );
@@ -3746,6 +4009,20 @@ Physics.scratchpad = (function(){
             return this;
         },
 
+        /** related to: Body#offset
+         * Body#getGlobalOffset( [out] ) -> Physics.vector
+         * - out (Physics.vector): A vector to use to put the result into. One is created if `out` isn't specified.
+         * + (Physics.vector): The offset in global coordinates
+         *
+         * Get the body offset vector (from the center of mass) for the body's shape in global coordinates.
+         **/
+        getGlobalOffset: function( out ){
+
+            out = out || new Physics.vector();
+            out.clone( this.offset ).rotate( this.state.angular.pos );
+            return out;
+        },
+
         /** related to: Physics.aabb
          * Body#aabb() -> Object
          * + (Object): The aabb of this body
@@ -3755,13 +4032,39 @@ Physics.scratchpad = (function(){
         aabb: function(){
 
             var angle = this.state.angular.pos
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
                 ,aabb = this.geometry.aabb( angle )
                 ;
 
-            aabb.x += this.state.pos.x;
-            aabb.y += this.state.pos.y;
+            this.getGlobalOffset( v );
 
-            return aabb;
+            aabb.x += this.state.pos._[0] + v._[0];
+            aabb.y += this.state.pos._[1] + v._[1];
+
+            return scratch.done( aabb );
+        },
+
+        /**
+         * Body#toBodyCoords( v ) -> Physics.vector
+         * - v (Physics.vector): The vector to transform
+         * + (Physics.vector): The transformed vector
+         *
+         * Transform a vector into coordinates relative to this body.
+         **/
+        toBodyCoords: function( v ){
+            return v.vsub( this.state.pos ).rotate( -this.state.angular.pos );
+        },
+
+        /**
+          * Body#toWorldCoords( v ) -> Physics.vector
+          * - v (Physics.vector): The vector to transform
+          * + (Physics.vector): The transformed vector
+          *
+          * Transform a vector from body coordinates into world coordinates.
+          **/
+        toWorldCoords: function( v ){
+            return v.rotate( this.state.angular.pos ).vadd( this.state.pos );
         },
 
         /**
@@ -3776,6 +4079,47 @@ Physics.scratchpad = (function(){
             return this;
         }
     });
+
+    /**
+     * Body.getCOM( bodies[, com] ) -> Physics.vector
+     * - bodies (Array): The list of bodies
+     * - com (Physics.vector): The vector to put result into. A new vector will be created if not provided.
+     * + (Physics.vector): The center of mass position
+     *
+     * Get center of mass position from list of bodies.
+     **/
+    Physics.body.getCOM = function( bodies, com ){
+        // @TODO add a test for this fn
+        var b
+            ,pos
+            ,i
+            ,l = bodies && bodies.length
+            ,M = 0
+            ;
+
+        com = com || new Physics.vector();
+
+        if ( !l ){
+            return com.zero();
+        }
+
+        if ( l === 1 ){
+            return com.clone( bodies[0].state.pos );
+        }
+
+        com.zero();
+
+        for ( i = 0; i < l; i++ ){
+            b = bodies[ i ];
+            pos = b.state.pos;
+            com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+            M += b.mass;
+        }
+
+        com.mult( 1 / M );
+
+        return com;
+    };
 
 }());
 
@@ -3866,7 +4210,7 @@ Physics.scratchpad = (function(){
          **/
         getFarthestHullPoint: function( dir, result ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );
@@ -3888,7 +4232,7 @@ Physics.scratchpad = (function(){
          **/
         getFarthestCorePoint: function( dir, result, margin ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // not implemented.
             return result.set( 0, 0 );
@@ -3905,10 +4249,37 @@ Physics.scratchpad = (function(){
  */
 
 /**
+ * Physics.geometry.regularPolygonVertices( sides, radius ) -> Array
+ * - sides (Number): Number of sides the polygon has
+ * - radius (Number): Size from center to a vertex
+ * + (Array): A list of [[Vectorish]] objects representing the vertices
+ *
+ * Generate a list of vertices for a regular polygon of any number of sides.
+ **/
+Physics.geometry.regularPolygonVertices = function( sides, radius ){
+    var verts = []
+        ,angle = Math.PI * 2 / sides
+        ,a = 0
+        ,i
+        ;
+
+    for ( i = 0; i < sides; i++ ){
+        verts.push({
+            x: radius * Math.cos( a )
+            ,y: radius * Math.sin( a )
+        });
+
+        a += angle;
+    }
+
+    return verts;
+};
+
+/**
  * Physics.geometry.isPolygonConvex( hull ) -> Boolean
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if the polygon is convex. `false` otherwise.
- * 
+ *
  * Determine if polygon hull is convex
  **/
 Physics.geometry.isPolygonConvex = function( hull ){
@@ -3939,7 +4310,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
     // edge and retain the last edge
     // add two to the length to do a full cycle
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( tmp.clone( hull[ (i - 1) % l ] ) );
 
         if ( sign === false ){
@@ -3948,7 +4319,7 @@ Physics.geometry.isPolygonConvex = function( hull ){
             sign = prev.cross( next );
 
         } else if ( (sign > 0) ^ (prev.cross( next ) > 0) ){
-        
+
             // if the cross products are different signs it's not convex
             ret = false;
             break;
@@ -3966,13 +4337,13 @@ Physics.geometry.isPolygonConvex = function( hull ){
  * Physics.geometry.getPolygonMOI( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The polygon's moment of inertia
- * 
+ *
  * Gets the moment of inertia of a convex polygon
  *
  * See [List of moments of inertia](http://en.wikipedia.org/wiki/List_of_moments_of_inertia)
  * for more information.
- * 
- * _Note_: we make the following assumpations: 
+ *
+ * _Note_: we make the following assumpations:
  * * mass is unitary (== 1)
  * * axis of rotation is the origin
  **/
@@ -4005,7 +4376,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
     prev.clone( hull[ 0 ] );
 
     for ( var i = 1; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = Math.abs( next.cross( prev ) );
@@ -4024,7 +4395,7 @@ Physics.geometry.getPolygonMOI = function( hull ){
  * - pt (Vectorish): The point to test
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Boolean): `true` if point `pt` is inside the polygon
- * 
+ *
  * Check if point is inside polygon hull.
  **/
 Physics.geometry.isPointInPolygon = function( pt, hull ){
@@ -4057,7 +4428,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
     // calculate the sum of angles between vector pairs
     // from point to vertices
     for ( var i = 1; i <= l; ++i ){
-        
+
         next.clone( hull[ i % l ] ).vsub( point );
         ang += next.angle( prev );
         prev.swap( next );
@@ -4071,7 +4442,7 @@ Physics.geometry.isPointInPolygon = function( pt, hull ){
  * Physics.geometry.getPolygonArea( hull ) -> Number
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Number): The area (positive for clockwise ordering)
- * 
+ *
  * Get the signed area of the polygon.
  **/
 Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
@@ -4093,7 +4464,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         ret += prev.cross( next );
@@ -4109,7 +4480,7 @@ Physics.geometry.getPolygonArea = function getPolygonArea( hull ){
  * Physics.geometry.getPolygonCentroid( hull ) -> Physics.vector
  * - hull (Array): Array of ([[Vectorish]]) vertices
  * + (Physics.vector): The centroid
- * 
+ *
  * Get the coordinates of the centroid.
  **/
 Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
@@ -4117,7 +4488,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     var scratch = Physics.scratchpad()
         ,prev = scratch.vector()
         ,next = scratch.vector()
-        ,ret = Physics.vector()
+        ,ret = new Physics.vector()
         ,tmp
         ,l = hull.length
         ;
@@ -4125,20 +4496,20 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
     if ( l < 2 ){
         // it must be a point
         scratch.done();
-        return Physics.vector( hull[0] );
+        return new Physics.vector( hull[0] );
     }
 
     if ( l === 2 ){
         // it's a line
         // get the midpoint
         scratch.done();
-        return Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
+        return new Physics.vector((hull[ 1 ].x + hull[ 0 ].x)/2, (hull[ 1 ].y + hull[ 0 ].y)/2 );
     }
 
     prev.clone( hull[ l - 1 ] );
 
     for ( var i = 0; i < l; ++i ){
-        
+
         next.clone( hull[ i ] );
 
         tmp = prev.cross( next );
@@ -4160,7 +4531,7 @@ Physics.geometry.getPolygonCentroid = function getPolygonCentroid( hull ){
  * - linePt1 (Vectorish): The first endpoint of the line
  * - linePt2 (Vectorish): The second endpoint of the line
  * + (Vector): The closest point
- * 
+ *
  * Get the closest point on a discrete line to specified point.
  **/
 Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, linePt2 ){
@@ -4177,7 +4548,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // oh.. it's a zero vector. So A and B are both the closest.
         // just use one of them
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     lambdaB = - L.dot( A ) / L.normSq();
@@ -4187,19 +4558,18 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // woops.. that means the closest simplex point
         // isn't on the line it's point B itself
         scratch.done();
-        return Physics.vector( linePt2 );
+        return new Physics.vector( linePt2 );
     } else if ( lambdaB <= 0 ){
         // vice versa
         scratch.done();
-        return Physics.vector( linePt1 );
+        return new Physics.vector( linePt1 );
     }
 
     // guess we'd better do the math now...
-    p = Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
+    p = new Physics.vector( linePt2 ).mult( lambdaB ).vadd( A.clone( linePt1 ).mult( lambdaA ) );
     scratch.done();
     return p;
 };
-
 
 
 // ---
@@ -4220,7 +4590,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      * - name (String): The name of the integrator to create
      * - options (Object): The configuration for that integrator ( depends on integrator ).
        Available options and defaults:
-       
+
        ```javascript
         {
             // drag applied during integration
@@ -4246,28 +4616,29 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /** internal
          * Integrator#init( options )
          * - options (Object): The configuration options passed by the factory
-         * 
+         *
          * Initialization. Internal use.
          **/
         init: function( options ){
-            
+
             /** related to: Physics.util.options
              * Integrator#options( options ) -> Object
              * - options (Object): The options to set as an object
              * + (Object): The options
-             * 
-             * Set options on this instance. 
-             * 
+             *
+             * Set options on this instance.
+             *
              * Access options directly from the options object.
-             * 
+             *
              * Example:
              *
              * ```javascript
              * this.options.someOption;
              * ```
-             * 
+             *
              **/
             this.options = Physics.util.options( defaults );
+            this.options( options );
         },
 
         /**
@@ -4297,7 +4668,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integrate( bodies, dt ) -> this
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Integrate bodies by timestep.
          *
          * Will emit `integrate:velocities` and `integrate:positions`
@@ -4308,7 +4679,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             var world = this._world;
 
             this.integrateVelocities( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:velocities', {
                     bodies: bodies,
@@ -4317,7 +4688,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
 
             this.integratePositions( bodies, dt );
-            
+
             if ( world ){
                 world.emit('integrate:positions', {
                     bodies: bodies,
@@ -4331,7 +4702,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Integrator#connect( world )
          * - world (Physics.world): The world to connect to
-         * 
+         *
          * Connect to a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -4342,7 +4713,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         /**
          * Integrator#disconnect( world )
          * - world (Physics.world): The world to disconnect from
-         * 
+         *
          * Disconnect from a world.
          *
          * Extend this when creating integrators if you need to specify pubsub management.
@@ -4354,7 +4725,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integrateVelocities( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the velocities.
          *
          * Should be overridden when creating integrators.
@@ -4368,11 +4739,11 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          * Integrator#integratePositions( bodies, dt )
          * - bodies (Array): List of bodies to integrate
          * - dt (Number): Timestep size
-         * 
+         *
          * Just integrate the positions.
          *
          * Called after [[Integrator#integrateVelocities]].
-         * 
+         *
          * Should be overridden when creating integrators.
          **/
         integratePositions: function( bodies, dt ){
@@ -4382,6 +4753,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     });
 
 }());
+
 
 // ---
 // inside: src/core/renderer.js
@@ -4397,7 +4769,9 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
         // width of viewport
         width: 600,
         // height of viewport
-        height: 600
+        height: 600,
+        // automatically resize the renderer
+        autoResize: true
     };
 
     /** related to: Physics.util.decorator
@@ -4417,6 +4791,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             width: 600,
             // height of viewport
             height: 600
+            // automatically resize the renderer
+            autoResize: true
         }
        ```
      *
@@ -4441,13 +4817,43 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
          **/
         init: function( options ){
 
-            var el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
+            var self = this
+                ,el = typeof options.el === 'string' ? document.getElementById(options.el) : options.el
                 ;
 
-            this.options = Physics.util.extend({}, defaults, options);
+            this.options = Physics.util.options(defaults);
+            this.options( options );
 
             this.el = el ? el : document.body;
+            this.container = el && el.parentNode ? el.parentNode : document.body;
             this.drawMeta = Physics.util.throttle( Physics.util.bind(this.drawMeta, this), this.options.metaRefresh );
+
+            window.addEventListener('resize', Physics.util.throttle(function(){
+                if ( self.options.autoResize ){
+                    self.resize();
+                }
+            }), 100);
+        },
+
+        /**
+         * Renderer#resize( [width, height] ) -> this
+         * - width (Number): The width in px
+         * - height (Number): The height in px
+         *
+         * Set the dimensions of the renderer.
+         *
+         * If no dimensions are specified it will auto resize.
+         **/
+        resize: function( width, height ){
+
+            if ( width === undefined && height === undefined ){
+                width = this.container.offsetWidth;
+                height = this.container.offsetHeight;
+            }
+
+            this.width = width || 0;
+            this.height = height || 0;
+            // should be implemented in renderers
         },
 
         /**
@@ -4625,13 +5031,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
     var defaults = {
 
         // default timestep
-        timestep: 1000.0 / 120,
+        timestep: 6,
         // maximum number of iterations per step
-        maxIPF: 16,
+        maxIPF: 4,
         webworker: false, // NOT YET IMPLEMENTED
 
         // default integrator
-        integrator: 'verlet'
+        integrator: 'verlet',
+
+        // is sleeping disabled?
+        sleepDisabled: false,
+        // speed at which bodies wake up
+        sleepSpeedLimit: 0.05,
+        // variance in position below which bodies fall asleep
+        sleepVarianceLimit: 0.02,
+        // time (ms) before sleepy bodies fall asleep
+        sleepTimeLimit: 500
     };
 
     // begin world definitions
@@ -4651,12 +5066,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      *
      * ```javascript
      * {
-     *     // default timestep
-     *     timestep: 1000.0 / 120,
-     *     // maximum number of iterations per step
-     *     maxIPF: 16,
-     *     // default integrator
-     *     integrator: 'verlet'
+     *  // default timestep
+     *  timestep: 6,
+     *  // maximum number of iterations per step
+     *  maxIPF: 4,
+     *
+     *  // default integrator
+     *  integrator: 'verlet',
+     *
+     *  // is sleeping disabled?
+     *  sleepDisabled: false,
+     *  // speed at which bodies wake up
+     *  sleepSpeedLimit: 0.1,
+     *  // variance in position below which bodies fall asleep
+     *  sleepVarianceLimit: 2,
+     *  // time (ms) before sleepy bodies fall asleep
+     *  sleepTimeLimit: 500
      * }
      * ```
      *
@@ -4782,7 +5207,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -4830,7 +5255,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             var i = 0
                 ,len = arg && arg.length || 0
-                ,thing = len ? arg[ 0 ] : arg
+                ,thing = Physics.util.isArray( arg ) ? arg[ 0 ] : arg
                 ;
 
             if ( !thing ){
@@ -5009,7 +5434,7 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
             if ( dt ){
 
-                this._dt = dt;
+                this._dt = +dt.toPrecision(4); // only keep 4 decimal places of precision otherwise we get rounding errors
                 // calculate the maximum jump in time over which to do iterations
                 this._maxJump = dt * this.options.maxIPF;
 
@@ -5017,6 +5442,22 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             }
 
             return this._dt;
+        },
+
+        /** chainable
+         * Physics.world#wakeUpAll() -> this
+         * + (this): for chaining
+         *
+         * Wake up all bodies in world.
+         **/
+        wakeUpAll: function(){
+            var i = 0
+                ,l = this._bodies.length
+                ;
+
+            for ( i = 0; i < l; i++ ){
+                this._bodies[ i ].sleep( false );
+            }
         },
 
         /** chainable
@@ -5250,6 +5691,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
             // the target time for the world time to step to
             target = time + worldDiff - dt;
 
+            this.emit('beforeStep');
+
             if ( time <= target ){
 
                 while ( time <= target ){
@@ -5404,12 +5847,12 @@ Physics.integrator('verlet', function( parent ){
 
 
     return {
-        /** 
+        /**
          * class Verlet < Integrator
          *
          * `Physics.integrator('verlet')`.
          *
-         * The improved euler integrator.
+         * The verlet integrator.
          **/
 
         // extended
@@ -5427,6 +5870,8 @@ Physics.integrator('verlet', function( parent ){
                 ,drag = 1 - this.options.drag
                 ,body = null
                 ,state
+                ,prevDt = this.prevDt || dt
+                ,dtMul = (dtdt + dt * prevDt) * 0.5
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -5435,24 +5880,24 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
-                    // 
+                    //
                     // v = x - ox
                     // x = x + (v + a * dt * dt)
 
                     // use the velocity in vel if the velocity has been changed manually
                     if (state.vel.equals( state.old.vel ) && body.started()){
-                            
+
                         // Get velocity by subtracting old position from curr position
                         state.vel.clone( state.pos ).vsub( state.old.pos );
 
                     } else {
 
                         state.old.pos.clone( state.pos ).vsub( state.vel );
-                        // so we need to scale the value by dt so it 
+                        // so we need to scale the value by dt so it
                         // complies with other integration methods
                         state.vel.mult( dt );
                     }
@@ -5465,9 +5910,9 @@ Physics.integrator('verlet', function( parent ){
 
                     // Apply acceleration
                     // v += a * dt * dt
-                    state.vel.vadd( state.acc.mult( dtdt ) );
+                    state.vel.vadd( state.acc.mult( dtMul ) );
 
-                    // normalize velocity 
+                    // restore velocity
                     state.vel.mult( 1/dt );
 
                     // store calculated velocity
@@ -5478,7 +5923,7 @@ Physics.integrator('verlet', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     if (state.angular.vel === state.old.angular.vel && body.started()){
 
@@ -5490,7 +5935,7 @@ Physics.integrator('verlet', function( parent ){
                         state.angular.vel *= dt;
                     }
 
-                    state.angular.vel += state.angular.acc * dtdt;
+                    state.angular.vel += state.angular.acc * dtMul;
                     state.angular.vel /= dt;
                     state.old.angular.vel = state.angular.vel;
                     state.angular.acc = 0;
@@ -5514,6 +5959,8 @@ Physics.integrator('verlet', function( parent ){
             var dtdt = dt * dt
                 ,body = null
                 ,state
+                ,prevDt = this.prevDt || dt
+                ,dtcorr = dt/prevDt
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; ++i ){
@@ -5522,42 +5969,43 @@ Physics.integrator('verlet', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't static
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
-                    // so we need to scale the value by dt so it 
+                    // so we need to scale the value by dt so it
                     // complies with other integration methods
-                    state.vel.mult( dt );
-                
+                    state.vel.mult( dt * dtcorr );
+
                     // Store old position.
                     // xold = x
                     state.old.pos.clone( state.pos );
 
                     state.pos.vadd( state.vel );
 
-                    // normalize velocity 
-                    state.vel.mult( 1/dt );
+                    // restore velocity
+                    state.vel.mult( 1 / (dt * dtcorr) );
 
                     // store calculated velocity
                     state.old.vel.clone( state.vel );
 
                     //
                     // Angular components
-                    // 
+                    //
 
-                    
-                    state.angular.vel *= dt;
-                
+
+                    state.angular.vel *= dt * dtcorr;
+
                     state.old.angular.pos = state.angular.pos;
 
                     state.angular.pos += state.angular.vel;
-                    state.angular.vel /= dt;
+                    state.angular.vel /= dt * dtcorr;
                     state.old.angular.vel = state.angular.vel;
                 }
             }
+
+            this.prevDt = dt;
         }
     };
 });
-
 
 
 // ---
@@ -5660,7 +6108,7 @@ Physics.geometry('circle', function( parent ){
         // extended
         getFarthestHullPoint: function( dir, result ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             return result.clone( dir ).normalize().mult( this.radius );
         },
@@ -5668,7 +6116,7 @@ Physics.geometry('circle', function( parent ){
         // extended
         getFarthestCorePoint: function( dir, result, margin ){
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             // we can use the center of the circle as the core object
             // because we can project a point to the hull in any direction
@@ -5676,6 +6124,184 @@ Physics.geometry('circle', function( parent ){
             // but since the caller is expecting a certain margin... give it
             // to them
             return result.clone( dir ).normalize().mult( this.radius - margin );
+        }
+    };
+});
+
+
+// ---
+// inside: src/geometries/compound.js
+
+/**
+ * class CompoundGeometry < Geometry
+ *
+ * Physics.geometry('compound')
+ *
+ * Geometry for compound shapes.
+ *
+ * Example:
+ *
+ * ```javascript
+ * var thing = Physics.geometry('compound');
+ * thing.addChild( child, pos, rotation );
+ * ```
+ **/
+Physics.geometry('compound', function( parent ){
+
+    var defaults = {
+
+    };
+
+    return {
+
+        // extended
+        init: function( options ){
+
+            var self = this;
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            this.options.defaults( defaults );
+            this.options( options );
+
+            this.children = [];
+        },
+
+        /**
+         * CompoundGeometry#addChild( geometry, pos ) -> this
+         * - geometry (Geometry): The child to add.
+         * - pos (Physics.vector): The position to add the child at.
+         * - angle (Number): The rotation angle
+         *
+         * Add a child at relative position.
+         **/
+        addChild: function( geometry, pos, angle ){
+
+            this._aabb = null;
+            this.children.push({
+                g: geometry
+                ,pos: new Physics.vector( pos )
+                ,angle: angle
+            });
+
+            return this;
+        },
+
+        /**
+         * CompoundGeometry#clear() -> this
+         *
+         * Remove all children.
+         **/
+        clear: function(){
+
+            this._aabb = null;
+            this.children = [];
+
+            return this;
+        },
+
+        // extended
+        aabb: function( angle ){
+
+            if (!angle && this._aabb){
+                return Physics.aabb.clone( this._aabb );
+            }
+
+            var b
+                ,aabb
+                ,ch
+                ,ret
+                ,scratch = Physics.scratchpad()
+                ,pos = Physics.vector()
+                ;
+
+            angle = angle || 0;
+
+            for ( var i = 0, l = this.children.length; i < l; i++ ) {
+                ch = this.children[ i ];
+                // the aabb rotated by overall angle and the child rotation
+                aabb = ch.g.aabb( angle + ch.angle );
+                pos.clone( ch.pos );
+                if ( angle ){
+                    // get the child's position rotated if needed
+                    pos.rotate( angle );
+                }
+                // move the aabb to the child's position
+                aabb.x += pos._[0];
+                aabb.y += pos._[1];
+                ret = ret ? Physics.aabb.union(ret, aabb, true) : aabb;
+            }
+
+            if ( !angle ){
+                // if we don't have an angle specified (or it's zero)
+                // then we can cache this result
+                this._aabb = Physics.aabb.clone( ret );
+            }
+
+            return scratch.done( ret );
+        },
+
+        // extended
+        // NOTE: unlike other geometries this can't be used in the
+        // GJK algorithm because the shape isn't garanteed to be convex
+        getFarthestHullPoint: function( dir, result ){
+
+            var ch
+                ,i
+                ,l = this.children.length
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
+                ,len = 0
+                ,maxlen = 0
+                ;
+
+            result = result || new Physics.vector();
+
+            // find the one with the largest projection along dir
+            for ( i = 0; i < l; i++ ) {
+                ch = this.children[ i ];
+                ch.g.getFarthestHullPoint( dir.rotate(-ch.angle), v );
+                len = v.rotate(ch.angle).vadd( ch.pos ).proj( dir.rotate(ch.angle) );
+
+                if ( len > maxlen ){
+                    maxlen = len;
+                    result.swap( v );
+                }
+            }
+
+            return scratch.done( result );
+        },
+
+        // extended
+        // NOTE: unlike other geometries this can't be used in the
+        // GJK algorithm because the shape isn't garanteed to be convex
+        getFarthestCorePoint: function( dir, result, margin ){
+
+            var ch
+                ,i
+                ,l = this.children.length
+                ,scratch = Physics.scratchpad()
+                ,v = scratch.vector()
+                ,len = 0
+                ,maxlen = 0
+                ;
+
+            result = result || new Physics.vector();
+
+            // find the one with the largest projection along dir
+            for ( i = 0; i < l; i++ ) {
+                ch = this.children[ i ];
+                ch.g.getFarthestCorePoint(dir.rotate(-ch.angle), v, margin );
+                len = v.rotate(ch.angle).vadd( ch.pos ).proj( dir.rotate(ch.angle) );
+
+                if ( len > maxlen ){
+                    maxlen = len;
+                    result.swap( v );
+                }
+            }
+
+            return scratch.done( result );
         }
     };
 });
@@ -5762,14 +6388,12 @@ Physics.geometry('convex-polygon', function( parent ){
             // then add the vertex as a vector to this.vertices
             for ( var i = 0, l = hull.length; i < l; ++i ){
 
-                verts.push( Physics.vector( hull[ i ] ).translate( transl ) );
+                verts.push( new Physics.vector( hull[ i ] ).translate( transl ) );
             }
 
             this._area = Physics.geometry.getPolygonArea( verts );
-
             this._aabb = false;
-            scratch.done();
-            return this;
+            return scratch.done(this);
         },
 
         // extended
@@ -5814,7 +6438,7 @@ Physics.geometry('convex-polygon', function( parent ){
                 ,idx
                 ;
 
-            result = result || Physics.vector();
+            result = result || new Physics.vector();
 
             if ( l < 2 ){
                 if ( data ){
@@ -6078,12 +6702,208 @@ Physics.body('circle', function( parent ){
 
 
 // ---
+// inside: src/bodies/compound.js
+
+/*
+ * @requires geometries/compound
+ */
+ /**
+  * class CompoundBody < Body
+  *
+  * Physics.body('compound')
+  *
+  * Not a body in itself. It's a container to group other bodies. The position of the body is the center of mass.
+  * It must have at least one child before being added to the world.
+  *
+  * Additional config options:
+  *
+  * - children: Array of [[Body]] objects.
+  *
+  * Example:
+  *
+  * ```javascript
+  * var thing = Physics.body('compound', {
+  *     // place the center of mass at (300, 200)
+  *     x: 300,
+  *     y: 200,
+  *     // the center of mass is automatically calculated and used to position the shape
+  *     children: [
+  *         body1,
+  *         body2,
+  *         // ...
+  *     ]
+  * });
+  * ```
+  **/
+Physics.body('compound', function( parent ){
+
+    var defaults = {
+
+    };
+
+    return {
+
+        // extended
+        init: function( options ){
+
+            // call parent init method
+            parent.init.call(this, options);
+
+            this.mass = 0;
+            this.moi = 0;
+
+            this.children = [];
+            this.geometry = Physics.geometry('compound');
+            this.addChildren( options.children );
+        },
+
+        // extended
+        connect: function( world ){
+            // sanity check
+            if ( this.mass <= 0 ){
+                throw 'Can not add empty compound body to world.';
+            }
+        },
+
+        /**
+         * CompoundBody#addChild( body ) -> this
+         * - body (Body): The child to add
+         *
+         * Add a body as a child.
+         **/
+        addChild: function( body ){
+
+            this.addChildren([ body ]);
+            return this;
+        },
+
+        /**
+         * CompoundBody#addChildren( bodies ) -> this
+         * - bodies (Array): The list of children to add
+         *
+         * Add an array of children to the compound.
+         **/
+        addChildren: function( bodies ){
+
+            var self = this
+                ,scratch = Physics.scratchpad()
+                ,com = scratch.vector().zero()
+                ,b
+                ,pos
+                ,i
+                ,l = bodies && bodies.length
+                ,M = 0
+                ;
+
+            if ( !l ){
+                return scratch.done( this );
+            }
+
+            for ( i = 0; i < l; i++ ){
+                b = bodies[ i ];
+                // remove body from world if applicable
+                if ( b._world ){
+                    b._world.remove( b );
+                }
+                // add child
+                this.children.push( b );
+                // add child to geometry
+                this.geometry.addChild(
+                    b.geometry,
+                    new Physics.vector(b.offset)
+                        .rotate(b.state.angular.pos)
+                        .vadd(b.state.pos),
+                    b.state.angular.pos
+                );
+                // calc com contribution
+                pos = b.state.pos;
+                com.add( pos._[0] * b.mass, pos._[1] * b.mass );
+                M += b.mass;
+            }
+
+            // add mass
+            this.mass += M;
+            // com adjustment (assuming com is currently at (0,0) body coords)
+            com.mult( 1 / this.mass );
+
+            // shift the center of mass
+            this.offset.vsub( com );
+
+            // refresh view on next render
+            if ( this._world ){
+                this._world.one('render', function(){
+                    self.view = null;
+                });
+            }
+            this.recalc();
+
+            return scratch.done( this );
+        },
+
+        /**
+         * CompoundBody#clear() -> this
+         *
+         * Remove all children.
+         **/
+        clear: function(){
+
+            this._aabb = null;
+            this.moi = 0;
+            this.mass = 0;
+            this.offset.zero();
+            this.children = [];
+            this.geometry.clear();
+
+            return this;
+        },
+
+        /**
+         * CompoundBody#refreshGeometry() -> this
+         *
+         * If the children's positions change, `refreshGeometry()` should be called to fix the shape.
+         **/
+        refreshGeometry: function(){
+
+            this.geometry.clear();
+
+            for ( var i = 0, b, l = this.children.length; i < l; i++ ) {
+                b = this.children[ i ];
+                this.geometry.addChild( b.geometry, new Physics.vector(b.state.pos).vadd(b.offset), b.state.angular.pos );
+            }
+
+            return this;
+        },
+
+        // extended
+        recalc: function(){
+
+            parent.recalc.call(this);
+            // moment of inertia
+            var b
+                ,moi = 0
+                ;
+
+            for ( var i = 0, l = this.children.length; i < l; i++ ) {
+                b = this.children[ i ];
+                b.recalc();
+                // parallel axis theorem
+                moi += b.moi + b.mass * b.state.pos.normSq();
+            }
+
+            this.moi = moi;
+            return this;
+        }
+    };
+});
+
+
+// ---
 // inside: src/bodies/convex-polygon.js
 
 /*
  * @requires geometries/convex-polygon
  */
- /** 
+ /**
   * class ConvexPolygonBody < Body
   *
   * Physics.body('convex-polygon')
@@ -6091,7 +6911,7 @@ Physics.body('circle', function( parent ){
   * Body for convex polygons. The position of the body is the centroid of the polygon.
   *
   * Additional config options:
-  * 
+  *
   * - vertices: Array of [[Vectorish]] objects representing the polygon vertices in clockwise (or counterclockwise) order.
   *
   * Example:
@@ -6115,7 +6935,7 @@ Physics.body('circle', function( parent ){
 Physics.body('convex-polygon', function( parent ){
 
     var defaults = {
-        
+
     };
 
     return {
@@ -6340,7 +7160,7 @@ Physics.behavior('attractor', function( parent ){
  *     bodyB: // the second body
  *     norm: // the normal vector (Vectorish)
  *     mtv: // the minimum transit vector. (the direction and length needed to extract bodyB from bodyA)
- *     pos: // the collision point
+ *     pos: // the collision point relative to bodyA
  *     overlap: // the amount bodyA overlaps bodyB
  * }
  * ```
@@ -6368,42 +7188,46 @@ Physics.behavior('body-collision-detection', function( parent ){
             ;
 
         if ( !fn ){
-            fn = supportFnStack[ hash ] = function( searchDir ){
+            fn = supportFnStack[ hash ] = function pairSupportFunction( searchDir ){
 
-                var scratch = Physics.scratchpad()
-                    ,tA = fn.tA
+                var tA = fn.tA
                     ,tB = fn.tB
-                    ,vA = scratch.vector()
-                    ,vB = scratch.vector()
-                    ,marginA = fn.marginA
-                    ,marginB = fn.marginB
+                    ,vA = fn.tmpv1
+                    ,vB = fn.tmpv2
                     ;
 
                 if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, marginA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, marginB ).transform( tB );
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, fn.marginA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, fn.marginB );
                 } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA ).transform( tA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB ).transform( tB );
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB );
                 }
 
+                vA.vadd( bodyA.offset ).transform( tA );
+                vB.vadd( bodyB.offset ).transform( tB );
                 searchDir.negate().rotate( tB );
 
-                return scratch.done({
+                return {
                     a: vA.values(),
                     b: vB.values(),
                     pt: vA.vsub( vB ).values()
-                });
+                };
             };
 
-            fn.tA = Physics.transform();
-            fn.tB = Physics.transform();
+            // transforms for coordinate transformations
+            fn.tA = new Physics.transform();
+            fn.tB = new Physics.transform();
+
+            // temp vectors (used too frequently to justify scratchpad)
+            fn.tmpv1 = new Physics.vector();
+            fn.tmpv2 = new Physics.vector();
         }
 
         fn.useCore = false;
         fn.margin = 0;
-        fn.tA.setTranslation( bodyA.state.pos ).setRotation( bodyA.state.angular.pos );
-        fn.tB.setTranslation( bodyB.state.pos ).setRotation( bodyB.state.angular.pos );
+        fn.tA.setRotation( bodyA.state.angular.pos ).setTranslation( bodyA.state.pos );
+        fn.tB.setRotation( bodyB.state.angular.pos ).setTranslation( bodyB.state.pos );
         fn.bodyA = bodyA;
         fn.bodyB = bodyB;
 
@@ -6423,9 +7247,11 @@ Physics.behavior('body-collision-detection', function( parent ){
         var scratch = Physics.scratchpad()
             ,d = scratch.vector()
             ,tmp = scratch.vector()
+            ,os = scratch.vector()
             ,overlap
             ,result
             ,support
+            ,inc
             ,collision = false
             ,aabbA = bodyA.aabb()
             ,dimA = Math.min( aabbA.hw, aabbA.hh )
@@ -6435,7 +7261,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
         // just check the overlap first
         support = getSupportFn( bodyA, bodyB );
-        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+        d.clone( bodyA.state.pos )
+            .vadd( bodyA.getGlobalOffset( os ) )
+            .vsub( bodyB.state.pos )
+            .vsub( bodyB.getGlobalOffset( os ) )
+            ;
         result = Physics.gjk(support, d, true);
 
         if ( result.overlap ){
@@ -6446,17 +7276,23 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
+            // inc by 1% of the smallest dim.
+            inc = 1e-2 * Math.min(dimA || 1, dimB || 1);
+
             // first get the min distance of between core objects
             support.useCore = true;
             support.marginA = 0;
             support.marginB = 0;
 
-            while ( result.overlap && (support.marginA < dimA || support.marginB < dimB) ){
+            // while there's still an overlap (or we don't have a positive distance)
+            // and the support margins aren't bigger than the shapes...
+            // search for the distance data
+            while ( (result.overlap || result.distance === 0) && (support.marginA < dimA || support.marginB < dimB) ){
                 if ( support.marginA < dimA ){
-                    support.marginA += 1;
+                    support.marginA += inc;
                 }
                 if ( support.marginB < dimB ){
-                    support.marginB += 1;
+                    support.marginB += inc;
                 }
 
                 result = Physics.gjk(support, d);
@@ -6468,13 +7304,18 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
 
             // calc overlap
-            overlap = Math.max(0, (support.marginA + support.marginB) - result.distance);
+            overlap = (support.marginA + support.marginB) - result.distance;
+
+            if ( overlap <= 0 ){
+                return scratch.done(false);
+            }
+
             collision.overlap = overlap;
             // @TODO: for now, just let the normal be the mtv
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
             collision.mtv = d.mult( overlap ).values();
             // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.margin ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
         }
 
         return scratch.done( collision );
@@ -6497,7 +7338,11 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,collision = false
             ;
 
-        d.clone( bodyB.state.pos ).vsub( bodyA.state.pos );
+        d.clone( bodyB.state.pos )
+            .vadd( bodyB.getGlobalOffset( tmp ) )
+            .vsub( bodyA.state.pos )
+            .vsub( bodyA.getGlobalOffset( tmp ) ) // save offset for later
+            ;
         overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
 
         // hmm... they overlap exactly... choose a direction
@@ -6506,12 +7351,6 @@ Physics.behavior('body-collision-detection', function( parent ){
             d.set( 1, 0 );
         }
 
-        // if ( overlap > 0 ){
-        //     // check the future
-        //     d.vadd( tmp.clone(bodyB.state.vel).mult( dt ) ).vsub( tmp.clone(bodyA.state.vel).mult( dt ) );
-        //     overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
-        // }
-
         if ( overlap <= 0 ){
 
             collision = {
@@ -6519,7 +7358,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB,
                 norm: d.normalize().values(),
                 mtv: d.mult( -overlap ).values(),
-                pos: d.normalize().mult( bodyA.geometry.radius ).values(),
+                pos: d.mult( -bodyA.geometry.radius/overlap ).vadd( tmp ).values(),
                 overlap: -overlap
             };
         }
@@ -6528,7 +7367,7 @@ Physics.behavior('body-collision-detection', function( parent ){
     };
 
     /*
-     * checkPair( bodyA, bodyB ) -> Object
+     * checkPair( bodyA, bodyB[, disp] ) -> Object
      * - bodyA (Object): First body
      * - bodyB (Object): Second body
      * + (Object): Collision result
@@ -6548,6 +7387,68 @@ Physics.behavior('body-collision-detection', function( parent ){
         if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
 
             return checkCircles( bodyA, bodyB );
+
+        } else if ( bodyA.geometry.name === 'compound' || bodyB.geometry.name === 'compound' ){
+            // compound bodies are special. We can't use gjk because
+            // they could have concavities. so we do the pieces individually
+            var test = (bodyA.geometry.name === 'compound')
+                ,compound = test ? bodyA : bodyB
+                ,other = test ? bodyB : bodyA
+                ,cols
+                ,ch
+                ,ret = []
+                ,scratch = Physics.scratchpad()
+                ,vec = scratch.vector()
+                ,oldPos = scratch.vector()
+                ,otherAABB = other.aabb()
+                ,i
+                ,l
+                ;
+
+            for ( i = 0, l = compound.children.length; i < l; i++ ){
+
+                ch = compound.children[ i ];
+                // move body to fake position
+                oldPos.clone( ch.state.pos );
+                ch.offset.vadd( oldPos.vadd( compound.offset ).rotate( -ch.state.angular.pos ) );
+                ch.state.pos.clone( compound.state.pos );
+                ch.state.angular.pos += compound.state.angular.pos;
+
+                // check it if the aabbs overlap
+                if ( Physics.aabb.overlap(otherAABB, ch.aabb()) ){
+
+                    cols = checkPair( other, ch );
+
+                    if ( cols instanceof Array ){
+                        for ( var j = 0, c, ll = cols.length; j < ll; j++ ){
+                            c = cols[j];
+                            // set body to be the compound body
+                            if ( c.bodyA === ch ){
+                                c.bodyA = compound;
+                            } else {
+                                c.bodyB = compound;
+                            }
+                            ret.push( c );
+                        }
+
+                    } else if ( cols ) {
+                        // set body to be the compound body
+                        if ( cols.bodyA === ch ){
+                            cols.bodyA = compound;
+                        } else {
+                            cols.bodyB = compound;
+                        }
+                        ret.push( cols );
+                    }
+                }
+
+                // transform it back
+                ch.state.angular.pos -= compound.state.angular.pos;
+                ch.offset.vsub( oldPos );
+                ch.state.pos.clone( oldPos.rotate( ch.state.angular.pos ).vsub( compound.offset ) );
+            }
+
+            return scratch.done( ret );
 
         } else {
 
@@ -6593,11 +7494,11 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             if ( this.options.check === true ){
 
-                world.off( 'integrate:velocities', this.checkAll );
+                world.off( 'integrate:velocities', this.checkAll, this );
 
             } else {
 
-                world.off( this.options.check, this.check );
+                world.off( this.options.check, this.check, this );
             }
         },
 
@@ -6614,6 +7515,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,targets = this.getTargets()
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var i = 0, l = candidates.length; i < l; ++i ){
@@ -6627,11 +7532,29 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ){
                     ret = checkPair( pair.bodyA, pair.bodyB );
 
-                    if ( ret ){
+                    if ( ret instanceof Array ){
+
+                        for ( var j = 0, r, ll = ret.length; j < ll; j++ ){
+                            r = ret[j];
+                            if ( r ){
+                                hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                                contactList[ hash ] = true;
+                                r.collidedPreviously = prevContacts[ hash ];
+                                collisions.push( r );
+                            }
+                        }
+
+                    } else if ( ret ){
+                        hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
@@ -6655,6 +7578,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 ,bodyB
                 ,collisions = []
                 ,ret
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var j = 0, l = bodies.length; j < l; j++ ){
@@ -6667,11 +7594,29 @@ Physics.behavior('body-collision-detection', function( parent ){
 
                     ret = checkPair( bodyA, bodyB );
 
-                    if ( ret ){
+                    if ( ret instanceof Array ){
+
+                        for ( var k = 0, r, ll = ret.length; k < ll; k++ ){
+                            r = ret[k];
+                            if ( r ){
+                                hash = pairHash( bodyA.uid, bodyB.uid );
+                                contactList[ hash ] = true;
+                                r.collidedPreviously = prevContacts[ hash ];
+                                collisions.push( r );
+                            }
+                        }
+
+                    } else if ( ret ){
+                        hash = pairHash( bodyA.uid, bodyB.uid );
+                        contactList[ hash ] = true;
+                        ret.collidedPreviously = prevContacts[ hash ];
+
                         collisions.push( ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
@@ -6697,13 +7642,45 @@ Physics.behavior('body-collision-detection', function( parent ){
  *
  * Additional options include:
  * - check: channel to listen to for collisions (default: `collisions:detected`).
+ * - mtvThreshold: apply partial extraction of bodies if the minimum transit vector is less than this value ( default: `1`)
+ *   this will depend on your simulation characteristic length scale
+ * - bodyExtractDropoff: every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1). Helps with stablizing contacts. (default: `0.5`)
+ * - forceWakeupAboveOverlapThreshold: force bodies to wake up if the overlap is above mtvThreshold ( default: `true` )
  **/
 Physics.behavior('body-impulse-response', function( parent ){
 
     var defaults = {
         // channel to listen to for collisions
         check: 'collisions:detected'
+        // apply partial extraction of bodies if the minimum transit vector is less than this value
+        // this will depend on your simulation characteristic length scale
+        ,mtvThreshold: 1
+        // every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1)
+        // helps with stablizing contacts.
+        ,bodyExtractDropoff: 0.5
+        // force bodies to wake up if the overlap is above mtvThreshold
+        ,forceWakeupAboveOverlapThreshold: true
     };
+
+    function getUid( b ){
+        return b.uid;
+    }
+
+    function clampMTV( totalV, mtv, into ){
+
+        var m, n;
+        n = mtv.norm();
+        m = n - totalV.proj( mtv );
+        m = Math.max( 0, Math.min( n, m ) );
+
+        if ( n === 0 ){
+            into.zero();
+        } else {
+            into.clone( mtv ).mult( m/n );
+        }
+
+        return into;
+    }
 
     return {
 
@@ -6713,6 +7690,8 @@ Physics.behavior('body-impulse-response', function( parent ){
             parent.init.call( this );
             this.options.defaults( defaults );
             this.options( options );
+
+            this._bodyList = [];
         },
 
         // no applyTo method
@@ -6727,7 +7706,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( this.options.check, this.respond );
+            world.off( this.options.check, this.respond, this );
         },
 
         /** internal
@@ -6756,24 +7735,6 @@ Physics.behavior('body-impulse-response', function( parent ){
                 return;
             }
 
-            if ( fixedA ){
-
-                // extract bodies
-                bodyB.state.pos.vadd( mtv );
-
-            } else if ( fixedB ){
-
-                // extract bodies
-                bodyA.state.pos.vsub( mtv );
-
-            } else {
-
-                // extract bodies
-                mtv.mult( 0.5 );
-                bodyA.state.pos.vsub( mtv );
-                bodyB.state.pos.vadd( mtv );
-            }
-
             // inverse masses and moments of inertia.
             // give fixed bodies infinite mass and moi
             var invMoiA = fixedA ? 0 : 1 / bodyA.moi
@@ -6781,18 +7742,20 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,invMassA = fixedA ? 0 : 1 / bodyA.mass
                 ,invMassB = fixedB ? 0 : 1 / bodyB.mass
                 // coefficient of restitution between bodies
-                ,cor = contact ? 0 : bodyA.restitution * bodyB.restitution
+                ,cor = bodyA.restitution * bodyB.restitution
                 // coefficient of friction between bodies
                 ,cof = bodyA.cof * bodyB.cof
                 // normal vector
                 ,n = scratch.vector().clone( normal )
                 // vector perpendicular to n
                 ,perp = scratch.vector().clone( n ).perp()
+                ,tmp = scratch.vector()
                 // collision point from A's center
                 ,rA = scratch.vector().clone( point )
                 // collision point from B's center
-                ,rB = scratch.vector().clone( point ).vadd( bodyA.state.pos ).vsub( bodyB.state.pos )
-                ,tmp = scratch.vector()
+                ,rB = scratch.vector().clone( point )
+                    .vadd( bodyA.state.pos )
+                    .vsub( bodyB.state.pos )
                 ,angVelA = bodyA.state.angular.vel
                 ,angVelB = bodyB.state.angular.vel
                 // relative velocity towards B at collision point
@@ -6810,8 +7773,36 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,impulse
                 ,sign
                 ,max
-                ,inContact = false
+                ,ratio
+                ,inContact = contact
                 ;
+
+            if ( contact ){
+
+                if ( fixedA ){
+
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
+
+                } else if ( fixedB ){
+
+                    clampMTV( bodyA._mtvTotal, mtv.negate(), tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+                    mtv.negate();
+
+                } else {
+
+                    ratio = 0.5; //bodyA.mass / ( bodyA.mass + bodyB.mass );
+                    mtv.mult( ratio );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
+
+                    mtv.clone( mtrans ).mult( ratio - 1 );
+                    clampMTV( bodyA._mtvTotal, mtv, tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+
+                }
+            }
 
             // if moving away from each other... don't bother.
             if (vproj >= 0){
@@ -6865,21 +7856,15 @@ Physics.behavior('body-impulse-response', function( parent ){
                 // allowed amount
 
                 // maximum impulse allowed by kinetic friction
-                max = vreg / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
+                max = Math.abs(vreg) / ( invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj) );
+                // the sign of vreg ( plus or minus 1 )
+                sign = vreg < 0 ? -1 : 1;
 
-                if (!inContact){
-                    // the sign of vreg ( plus or minus 1 )
-                    sign = vreg < 0 ? -1 : 1;
-
-                    // get impulse due to friction
-                    impulse *= sign * cof;
-                    // make sure the impulse isn't giving the system energy
-                    impulse = (sign === 1) ? Math.min( impulse, max ) : Math.max( impulse, max );
-
-                } else {
-
-                    impulse = max;
-                }
+                // get impulse due to friction
+                impulse = cof * Math.abs( impulse );
+                // constrain the impulse within the "friction cone" ( max < mu * impulse)
+                impulse = Math.min( impulse, max );
+                impulse *= sign;
 
                 if ( fixedA ){
 
@@ -6903,7 +7888,23 @@ Physics.behavior('body-impulse-response', function( parent ){
                 }
             }
 
+            // wake up bodies if necessary
+            if ( bodyA.sleep() ){
+                bodyA.sleepCheck();
+            }
+            if ( bodyB.sleep() ){
+                bodyB.sleepCheck();
+            }
+
             scratch.done();
+        },
+
+        // internal
+        _pushUniq: function( body ){
+            var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+            if ( this._bodyList[ idx ] !== body ){
+                this._bodyList.splice( idx, 0, body );
+            }
         },
 
         /** internal
@@ -6916,19 +7917,48 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             var self = this
                 ,col
-                ,collisions = Physics.util.shuffle(data.collisions)
+                ,collisions = data.collisions// Physics.util.shuffle(data.collisions)
+                ,i,l,b
                 ;
 
-            for ( var i = 0, l = collisions.length; i < l; ++i ){
+            for ( i = 0, l = collisions.length; i < l; ++i ){
 
                 col = collisions[ i ];
+                // add bodies to list for later
+                this._pushUniq( col.bodyA );
+                this._pushUniq( col.bodyB );
+                // ensure they have mtv stat vectors
+                col.bodyA._mtvTotal = col.bodyA._mtvTotal || new Physics.vector();
+                col.bodyB._mtvTotal = col.bodyB._mtvTotal || new Physics.vector();
+                col.bodyA._oldmtvTotal = col.bodyA._oldmtvTotal || new Physics.vector();
+                col.bodyB._oldmtvTotal = col.bodyB._oldmtvTotal || new Physics.vector();
+
                 self.collideBodies(
                     col.bodyA,
                     col.bodyB,
                     col.norm,
                     col.pos,
-                    col.mtv
+                    col.mtv,
+                    col.collidedPreviously
                 );
+            }
+
+            // apply mtv vectors from the average mtv vector
+            for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                b = this._bodyList.pop();
+                // clampMTV( b._oldmtvTotal, b._mtvTotal, b._mtvTotal );
+
+                if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
+                    b._mtvTotal.mult( this.options.bodyExtractDropoff );
+                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                    // wake up bodies if necessary
+                    b.sleep( false );
+                }
+
+                b.state.pos.vadd( b._mtvTotal );
+                b.state.old.pos.vadd( b._mtvTotal );
+                b._oldmtvTotal.swap( b._mtvTotal );
+                b._mtvTotal.zero();
             }
         }
     };
@@ -6967,7 +7997,7 @@ Physics.behavior('constant-acceleration', function( parent ){
             this.options( options );
 
             // extend options
-            this._acc = Physics.vector();
+            this._acc = new Physics.vector();
             this.setAcceleration( this.options.acc );
             delete this.options.acc;
         },
@@ -7000,7 +8030,7 @@ Physics.behavior('constant-acceleration', function( parent ){
 // ---
 // inside: src/behaviors/edge-collision-detection.js
 
-/** 
+/**
  * class EdgeCollisionDetectionBehavior < Behavior
  *
  * `Physics.behavior('edge-collision-detection')`.
@@ -7021,7 +8051,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
      * - bounds (Physics.aabb): The boundary
      * - dummy: (Body): The dummy body to publish as the static other body it collides with
      * + (Array): The collision data
-     * 
+     *
      * Check if a body collides with the boundary
      */
     var checkGeneral = function checkGeneral( body, bounds, dummy ){
@@ -7029,6 +8059,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         var overlap
             ,aabb = body.aabb()
             ,scratch = Physics.scratchpad()
+            ,offset = body.getGlobalOffset( scratch.vector() )
             ,trans = scratch.transform()
             ,dir = scratch.vector()
             ,result = scratch.vector()
@@ -7055,7 +8086,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -7080,7 +8111,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -7105,7 +8136,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: -overlap,
                     y: 0
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -7130,7 +8161,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                     x: 0,
                     y: -overlap
                 },
-                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
             };
 
             collisions.push(collision);
@@ -7146,7 +8177,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
      * - bounds (Physics.aabb): The boundary
      * - dummy: (Body): The dummy body to publish as the static other body it collides with
      * + (Array): The collision data
-     * 
+     *
      * Check if a body collides with the boundary
      */
     var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
@@ -7173,8 +8204,8 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
             this.setAABB( this.options.aabb );
             this.restitution = this.options.restitution;
-            
-            this.body = Physics.body('point', { 
+
+            this.body = Physics.body('point', {
                 treatment: 'static',
                 restitution: this.options.restitution,
                 cof: this.options.cof
@@ -7184,7 +8215,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
         /**
          * EdgeCollisionDetectionBehavior#setAABB( aabb ) -> this
          * - aabb (Physics.aabb): The aabb to use as the boundary
-         * 
+         *
          * Set the boundaries of the edge.
          **/
         setAABB: function( aabb ){
@@ -7200,7 +8231,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 },
                 max: {
                     x: (aabb.x + aabb.hw),
-                    y: (aabb.y + aabb.hh)  
+                    y: (aabb.y + aabb.hh)
                 }
             };
 
@@ -7210,23 +8241,23 @@ Physics.behavior('edge-collision-detection', function( parent ){
         // extended
         connect: function( world ){
 
-            world.on( 'integrate:velocities', this.checkAll, this );
+            world.on( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         // extended
         disconnect: function( world ){
 
-            world.off( 'integrate:velocities', this.checkAll );
+            world.off( 'integrate:positions', this.checkAll, this, 2 );
         },
 
         /** internal
          * EdgeCollisionDetectionBehavior#checkAll( data )
          * - data (Object): Event data
-         * 
+         *
          * Event callback to check all bodies for collisions with the edge
          **/
         checkAll: function( data ){
-            
+
             var bodies = this.getTargets()
                 ,dt = data.dt
                 ,body
@@ -7234,6 +8265,10 @@ Physics.behavior('edge-collision-detection', function( parent ){
                 ,ret
                 ,bounds = this._edges
                 ,dummy = this.body
+                ,prevContacts = this.prevContacts || {}
+                ,contactList = {}
+                ,pairHash = Physics.util.pairHash
+                ,hash
                 ;
 
             for ( var i = 0, l = bodies.length; i < l; i++ ){
@@ -7242,14 +8277,23 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
                 // only detect dynamic bodies
                 if ( body.treatment === 'dynamic' ){
-                    
+
                     ret = checkEdgeCollide( body, bounds, dummy );
 
                     if ( ret ){
+                        hash = pairHash( body.uid, dummy.uid );
+
+                        for ( var j = 0, ll = ret.length; j < ll; j++ ){
+                            contactList[ hash ] = true;
+                            ret[ j ].collidedPreviously = prevContacts[ hash ];
+                        }
+
                         collisions.push.apply( collisions, ret );
                     }
                 }
             }
+
+            this.prevContacts = contactList;
 
             if ( collisions.length ){
 
@@ -7262,6 +8306,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
 
 });
 
+
 // ---
 // inside: src/behaviors/interactive.js
 
@@ -7272,7 +8317,7 @@ Physics.behavior('edge-collision-detection', function( parent ){
  *
  * User interaction helper.
  *
- * Used to get mouse/touch events and add a mouse grab interaction.
+ * Used to get mouse/touch events and add grab interactions.
  *
  * Additional options include:
  * - el: The element of the renderer. What you input as the `el` for the renderer.
@@ -7293,17 +8338,21 @@ Physics.behavior('edge-collision-detection', function( parent ){
  *     data.x; // the x coord
  *     data.y; // the y coord
  * });
+ * // when a mouse or pointer moves
  * world.on('interact:move', function( data ){
  *     data.x; // the x coord
  *     data.y; // the y coord
- *     data.body; // the body that was grabbed (if applicable)
+ *     data.body; // the grabbed body that was moved (if applicable)
  * });
  * // when the viewport is released (mouseup, touchend)
  * world.on('interact:release', function( data ){
  *     data.x; // the x coord
  *     data.y; // the y coord
+ *     data.body; // the body that was grabbed (if applicable)
  * });
  * ```
+ *
+ * The behavior also sets body.isGrabbed = true for any grabbed bodies while they are grabbed.
  **/
 Physics.behavior('interactive', function( parent ){
 
@@ -7336,28 +8385,13 @@ Physics.behavior('interactive', function( parent ){
 
             return { left: curleft, top: curtop };
         }
-        ,getCoords = function( e ){
-            var offset = getElementOffset( e.target )
-                ,obj = ( e.changedTouches && e.changedTouches[0] ) || e
-                ,x = obj.pageX - offset.left
-                ,y = obj.pageY - offset.top
-                ;
-
-            return {
-                x: x
-                ,y: y
-            };
-        }
         ;
 
     return {
         // extended
         init: function( options ){
 
-            var self = this
-                ,prevTreatment
-                ,time
-                ;
+            var self = this;
 
             // call parent init method
             parent.init.call( this );
@@ -7365,9 +8399,8 @@ Physics.behavior('interactive', function( parent ){
             this.options( options );
 
             // vars
-            this.mousePos = new Physics.vector();
-            this.mousePosOld = new Physics.vector();
-            this.offset = new Physics.vector();
+            this.bodyData = {};
+            this.bodyDataByUID = {};
 
             this.el = typeof this.options.el === 'string' ? document.getElementById(this.options.el) : this.options.el;
 
@@ -7376,90 +8409,183 @@ Physics.behavior('interactive', function( parent ){
             }
 
             // init events
-            var grab = function grab( e ){
-                var pos = getCoords( e )
+            // when there are multiple touchdowns, grab is usually called separately for each,
+            // but we loop through e.changedTouches just in case
+            self.grab = function grab( e ){
+                var pos
                     ,body
+                    ,touchId
+                    ,touch
+                    ,offset
+                    ,data
+                    ,touchIndex
+                    ,l
                     ;
 
                 if ( self._world ){
-                    body = self._world.findOne({ $at: new Physics.vector( pos.x, pos.y ) });
 
-                    if ( body ){
-                        // we're trying to grab a body
+                    // Adjust for PointerEvent and older browsers
+                    if ( !e.changedTouches ) {
+                        e.changedTouches = [ e ];
+                    }
 
-                        // fix the body in place
-                        prevTreatment = body.treatment;
-                        body.treatment = 'kinematic';
-                        body.state.vel.zero();
-                        body.state.angular.vel = 0;
-                        // remember the currently grabbed body
-                        self.body = body;
-                        // remember the mouse offset
-                        self.mousePos.clone( pos );
-                        self.offset.clone( pos ).vsub( body.state.pos );
+                    offset = getElementOffset( e.target );
 
-                        pos.body = body;
-                        self._world.emit('interact:grab', pos);
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
+                        touch = e.changedTouches[touchIndex];
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        body = self._world.findOne({ $at: new Physics.vector( pos ), $in: self.getTargets() });
 
-                    } else {
+                        if ( body ){
+                            // we're trying to grab a body
 
-                        self._world.emit('interact:poke', pos);
+                            // fix the body in place
+                            body.state.vel.zero();
+                            body.state.angular.vel = 0;
+                            body.isGrabbed = true;
+                            // remember the currently grabbed bodies
+                            data = self.bodyData[touchId] || {};
+                            data.body = body;
+                            // wake the body up
+                            body.sleep( false );
+                            data.time = Physics.util.ticker.now();
+
+                            // if we're grabbing the same body twice we don't want to remember the wrong treatment.
+                            data.treatment = self.bodyDataByUID[ body.uid ] ? self.bodyDataByUID[ body.uid ].treatment : body.treatment;
+                            // change its treatment but remember its old treatment
+                            body.treatment = 'kinematic';
+                            // remember the click/touch offset
+                            data.pos = data.pos || new Physics.vector();
+                            data.pos.clone( pos );
+
+                            data.offset = data.offset || new Physics.vector();
+                            data.offset.clone( pos ).vsub( body.state.pos );
+                            // init touchPointsOld here, too, so we don't have to do it in "move"
+                            data.oldPos = data.oldPos || new Physics.vector();
+                            data.oldPos.clone( pos );
+
+                            pos.body = body;
+                            self.bodyData[touchId] = data;
+                            self.bodyDataByUID[ body.uid ] = data;
+                            self._world.emit('interact:grab', pos);
+
+                        } else {
+
+                            self._world.emit('interact:poke', pos);
+                        }
                     }
                 }
             };
 
-            var move = Physics.util.throttle(function move( e ){
-                var pos = getCoords( e )
+            // when there are multiple touchdowns, move is called once
+            // and e.changedTouches will have one or more touches in it
+            self.move = Physics.util.throttle(function move( e ){
+                var pos
                     ,state
-                    ;
-
-                if ( self.body ){
-                    time = Physics.util.ticker.now();
-
-                    self.mousePosOld.clone( self.mousePos );
-                    // get new mouse position
-                    self.mousePos.set(pos.x, pos.y);
-
-                    pos.body = self.body;
-                }
-
-                self._world.emit('interact:move', pos);
-
-            }, self.options.moveThrottle);
-
-            var release = function release( e ){
-                var pos = getCoords( e )
                     ,body
-                    ,dt = Math.max(Physics.util.ticker.now() - time, self.options.moveThrottle)
+                    ,touchId
+                    ,touch
+                    ,offset
+                    ,data
+                    ,touchIndex
+                    ,l
                     ;
-
-                // get new mouse position
-                self.mousePos.set(pos.x, pos.y);
-
-                // release the body
-                if (self.body){
-                    self.body.treatment = prevTreatment;
-                    // calculate the release velocity
-                    self.body.state.vel.clone( self.mousePos ).vsub( self.mousePosOld ).mult( 1 / dt );
-                    // make sure it's not too big
-                    self.body.state.vel.clamp( self.options.minVel, self.options.maxVel );
-                    self.body = false;
-                }
 
                 if ( self._world ){
 
-                    self._world.emit('interact:release', pos);
+                    // Adjust for PointerEvent and older browsers
+                    if ( !e.changedTouches ) {
+                        e.changedTouches = [ e ];
+                    }
+
+                    offset = getElementOffset( self.el );
+
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
+                        touch = e.changedTouches[touchIndex];
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        data = self.bodyData[touchId];
+
+                        if ( data ){
+                            body = data.body;
+
+                            // wake the body up
+                            body.sleep( false );
+                            data.time = Physics.util.ticker.now();
+
+                            // set old mouse position
+                            data.oldPos.clone( data.pos );
+                            // get new mouse position
+                            data.pos.clone( pos );
+
+                            pos.body = body;
+                        }
+
+                        self._world.emit('interact:move', pos);
+                    }
+                }
+
+            }, self.options.moveThrottle);
+
+            // when there are multiple touchups, release is called once
+            // and e.changedTouches will have one or more touches in it
+            self.release = function release( e ){
+                var pos
+                    ,body
+                    ,touchId
+                    ,touch
+                    ,offset
+                    ,data
+                    ,dt
+                    ,touchIndex
+                    ,l
+                    ;
+
+                if ( self._world ){
+
+                    // Adjust for PointerEvent and older browsers
+                    if ( !e.changedTouches ) {
+                        e.changedTouches = [ e ];
+                    }
+
+                    for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
+                        offset = getElementOffset( self.el );
+                        touch = e.changedTouches[touchIndex];
+                        touchId = touch.identifier || touch.pointerId || "mouse";
+                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        data = self.bodyData[touchId];
+
+                        // release the body
+                        if ( data ){
+                            body = data.body;
+                            // wake the body up
+                            body.sleep( false );
+                            // get new mouse position
+                            data.pos.clone( pos );
+
+                            dt = Math.max(Physics.util.ticker.now() - data.time, self.options.moveThrottle);
+                            body.treatment = data.treatment;
+                            // calculate the release velocity
+                            body.state.vel.clone( data.pos ).vsub( data.oldPos ).mult( 1 / dt );
+                            // make sure it's not too big
+                            body.state.vel.clamp( self.options.minVel, self.options.maxVel );
+
+                            body.isGrabbed = false;
+                            pos.body = body;
+
+                            delete body.isGrabbed;
+                        }
+
+                        // emit before we delete the vars in case
+                        // the listeners need the body
+                        self._world.emit('interact:release', pos);
+
+                        // remove vars
+                        delete self.bodyData[touchId];
+                    }
                 }
             };
-
-            this.el.addEventListener('mousedown', grab);
-            this.el.addEventListener('touchstart', grab);
-
-            this.el.addEventListener('mousemove', move);
-            this.el.addEventListener('touchmove', move);
-
-            this.el.addEventListener('mouseup', release);
-            this.el.addEventListener('touchend', release);
         },
 
         // extended
@@ -7467,13 +8593,51 @@ Physics.behavior('interactive', function( parent ){
 
             // subscribe the .behave() method to the position integration step
             world.on('integrate:positions', this.behave, this);
+
+            if ( window.PointerEvent ) {
+
+                this.el.addEventListener('pointerdown', this.grab);
+                window.addEventListener('pointermove', this.move);
+                window.addEventListener('pointerup', this.release);
+
+            } else {
+
+                this.el.addEventListener('mousedown', this.grab);
+                this.el.addEventListener('touchstart', this.grab);
+
+                window.addEventListener('mousemove', this.move);
+                window.addEventListener('touchmove', this.move);
+
+                window.addEventListener('mouseup', this.release);
+                window.addEventListener('touchend', this.release);
+
+            }
         },
 
         // extended
         disconnect: function( world ){
 
             // unsubscribe when disconnected
-            world.off('integrate:positions', this.behave);
+            world.off('integrate:positions', this.behave, this);
+
+            if ( window.PointerEvent ) {
+
+                this.el.removeEventListener('pointerdown', this.grab);
+                window.removeEventListener('pointermove', this.move);
+                window.removeEventListener('pointerup', this.release);
+
+            } else {
+
+                this.el.removeEventListener('mousedown', this.grab);
+                this.el.removeEventListener('touchstart', this.grab);
+
+                window.removeEventListener('mousemove', this.move);
+                window.removeEventListener('touchmove', this.move);
+
+                window.removeEventListener('mouseup', this.release);
+                window.removeEventListener('touchend', this.release);
+
+            }
         },
 
         // extended
@@ -7482,14 +8646,17 @@ Physics.behavior('interactive', function( parent ){
             var self = this
                 ,state
                 ,dt = Math.max(data.dt, self.options.moveThrottle)
+                ,body
+                ,d
                 ;
 
-            if ( self.body ){
-
-                // if we have a body, we need to move it the the new mouse position.
-                // we'll do this by adjusting the velocity so it gets there at the next step
-                state = self.body.state;
-                state.vel.clone( self.mousePos ).vsub( self.offset ).vsub( state.pos ).mult( 1 / dt );
+            // if we have one or more bodies grabbed, we need to move them to the new mouse/finger positions.
+            // we'll do this by adjusting the velocity so they get there at the next step
+            for ( var touchId in self.bodyData ) {
+                d = self.bodyData[touchId];
+                body = d.body;
+                state = body.state;
+                state.vel.clone( d.pos ).vsub( d.offset ).vsub( state.pos ).mult( 1 / dt );
             }
         }
     };
@@ -7499,7 +8666,7 @@ Physics.behavior('interactive', function( parent ){
 // ---
 // inside: src/behaviors/newtonian.js
 
-/** 
+/**
  * class NewtonianBehavior < Behavior
  *
  * `Physics.behavior('newtonian')`.
@@ -7537,42 +8704,95 @@ Physics.behavior('newtonian', function( parent ){
             });
             this.options( options );
         },
-        
+
+        calcPotential: function( posA, posB, out ){
+
+            var strength = this.options.strength
+                ,minDistSq = this._minDistSq
+                ,maxDistSq = this._maxDistSq
+                ,normsq
+                ,g
+                ,pos
+                ;
+
+            pos = out || new Physics.vector();
+
+            // clone the position
+            pos.clone( posB ).vsub( posA );
+            // get the square distance
+            normsq = pos.normSq();
+
+            if (normsq > minDistSq && normsq < maxDistSq){
+
+                g = strength / normsq;
+                return pos.normalize().mult( g );
+            }
+
+            return pos.zero();
+        },
+
         // extended
         behave: function( data ){
 
             var bodies = this.getTargets()
                 ,body
                 ,other
-                ,strength = this.options.strength
-                ,minDistSq = this._minDistSq
-                ,maxDistSq = this._maxDistSq
                 ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
-                ,normsq
-                ,g
+                ,potential = scratch.vector()
+                ,comp
+                ,bodyA
+                ,bodyB
+                ,posA = scratch.vector()
+                ,posB = scratch.vector()
+                ,i, j, k, m, l, ll, lll
                 ;
 
-            for ( var j = 0, l = bodies.length; j < l; j++ ){
-                
+            for ( j = 0, l = bodies.length; j < l; j++ ){
+
                 body = bodies[ j ];
 
-                for ( var i = j + 1; i < l; i++ ){
-                    
+                for ( i = j + 1; i < l; i++ ){
+
                     other = bodies[ i ];
-                    // clone the position
-                    pos.clone( other.state.pos );
-                    pos.vsub( body.state.pos );
-                    // get the square distance
-                    normsq = pos.normSq();
 
-                    if (normsq > minDistSq && normsq < maxDistSq){
-
-                        g = strength / normsq;
-
-                        body.accelerate( pos.normalize().mult( g * other.mass ) );
-                        other.accelerate( pos.mult( body.mass/other.mass ).negate() );
+                    if ( body.name === 'compound' ){
+                        comp = body;
+                    } else if ( other.name === 'compound' ){
+                        comp = other;
+                        other = body;
                     }
+
+                    if ( comp ){
+                        if ( other.name === 'compound' ){
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                for ( m = 0, lll = other.children.length; m < lll; m++ ){
+                                    bodyB = other.children[ m ];
+                                    other.toWorldCoords( posB.clone( bodyB.state.pos ).vadd( other.offset ) );
+                                    this.calcPotential( posA, posB, potential );
+                                    comp.accelerate( potential.mult( bodyB.mass ) );
+                                    other.accelerate( potential.mult( bodyA.mass/bodyB.mass ).negate() );
+                                }
+                            }
+                        } else {
+                            for ( k = 0, ll = comp.children.length; k < ll; k++ ){
+                                bodyA = comp.children[ k ];
+                                comp.toWorldCoords( posA.clone( bodyA.state.pos ).vadd( comp.offset ) );
+                                this.calcPotential( posA, other.state.pos, potential );
+                                comp.accelerate( potential.mult( other.mass ) );
+                                other.accelerate( potential.mult( bodyA.mass/other.mass ).negate() );
+                            }
+                        }
+
+                    } else {
+
+                        this.calcPotential( body.state.pos, other.state.pos, potential );
+                        body.accelerate( potential.mult( other.mass ) );
+                        other.accelerate( potential.mult( body.mass/other.mass ).negate() );
+                    }
+
+                    comp = null;
                 }
             }
 
@@ -7654,7 +8874,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.on( 'add:body', this.trackBody, this );
             world.on( 'remove:body', this.untrackBody, this );
-            world.on( 'integrate:velocities', this.sweep, this );
+            world.on( 'integrate:positions', this.sweep, this, 1 );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -7667,9 +8887,9 @@ Physics.behavior('sweep-prune', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'add:body', this.trackBody );
-            world.off( 'remove:body', this.untrackBody );
-            world.off( 'integrate:velocities', this.sweep );
+            world.off( 'add:body', this.trackBody, this );
+            world.off( 'remove:body', this.untrackBody, this );
+            world.off( 'integrate:positions', this.sweep, this, 1 );
             this.clear();
         },
 
@@ -7683,6 +8903,11 @@ Physics.behavior('sweep-prune', function( parent ){
 
             this.updateIntervals();
             this.sortIntervalLists();
+
+            if ( this._world ){
+                this._world.emit('sweep-prune:intervals', this.intervalLists);
+            }
+
             return this.checkOverlaps();
         },
 
@@ -7783,6 +9008,10 @@ Physics.behavior('sweep-prune', function( parent ){
                 };
             }
 
+            if ( doCreate){
+                c.flag = 1;
+            }
+
             return c;
         },
 
@@ -7851,7 +9080,8 @@ Physics.behavior('sweep-prune', function( parent ){
                 ,candidates = this.candidates
                 ;
 
-            encounters.length = candidates.length = 0;
+            Physics.util.clearArray( encounters );
+            Physics.util.clearArray( candidates );
 
             for ( var xyz = 0; xyz < maxDof; ++xyz ){
 
@@ -7899,11 +9129,7 @@ Physics.behavior('sweep-prune', function( parent ){
                                 // if it's the x axis, create a pair
                                 c = this.getPair( tr1, tr2, isX );
 
-                                if ( c ){
-
-                                    if ( c.flag > collisionFlag ){
-                                        c.flag = 1;
-                                    }
+                                if ( c && c.flag < collisionFlag ){
 
                                     // if it's greater than the axis index, set the flag
                                     // to = 0.
@@ -7946,10 +9172,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             var tr
                 ,intr
-                ,scratch = Physics.scratchpad()
-                ,pos = scratch.vector()
                 ,aabb
-                ,span = scratch.vector()
                 ,list = this.tracked
                 ,i = list.length
                 ;
@@ -7959,17 +9182,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                 tr = list[ i ];
                 intr = tr.interval;
-                pos.clone( tr.body.state.pos );
                 aabb = tr.body.aabb();
-                span.set( aabb.hw, aabb.hh );
 
                 // copy the position (plus or minus) the aabb half-dimensions
                 // into the min/max intervals
-                intr.min.val.clone( pos ).vsub( span );
-                intr.max.val.clone( pos ).vadd( span );
+                intr.min.val.clone( aabb ).sub( aabb.hw, aabb.hh );
+                intr.max.val.clone( aabb ).add( aabb.hw, aabb.hh );
             }
-
-            scratch.done();
         },
 
         /** internal
@@ -7990,13 +9209,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                     min: {
                         type: false, //min
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     },
 
                     max: {
                         type: true, //max
-                        val: Physics.vector(),
+                        val: new Physics.vector(),
                         tracker: tracker
                     }
                 }
@@ -8094,7 +9313,7 @@ Physics.behavior('sweep-prune', function( parent ){
 // ---
 // inside: src/behaviors/verlet-constraints.js
 
-/** 
+/**
  * class VerletConstraintsBehavior < Behavior
  *
  * `Physics.behavior('verlet-constraints')`.
@@ -8145,12 +9364,12 @@ Physics.behavior('verlet-constraints', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off('integrate:positions', this.resolve);
+            world.off('integrate:positions', this.resolve, this);
         },
 
         /**
          * VerletConstraintsBehavior#drop() -> this
-         * 
+         *
          * Remove all constraints
          **/
         drop: function(){
@@ -8168,7 +9387,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
          * - targetLength (Number): Target length. defaults to current distance between the bodies
          * + (Object): The constraint data object
-         * 
+         *
          * Constrain two bodies to a target relative distance.
          *
          * Returns constraint data that can be used to remove the constraint later.
@@ -8211,7 +9430,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * - stiffness (Number): A number between 0 and 1 that represents the stiffness of the constraint. Defaults to: `0.5`
          * - targetAngle (Number): Target angle. Defaults to the current angle between bodies
          * + (Object): The constraint data object
-         * 
+         *
          * Constrain three bodies to a target relative angle
          *
          * Returns constraint data that can be used to remove the constraint later.
@@ -8250,7 +9469,7 @@ Physics.behavior('verlet-constraints', function( parent ){
          * VerletConstraintsBehavior#remove( constraintId ) -> this
          * - constraintData (Object): The constraint data returned when creating a constraint
          * - constraintId (String): The constraint id
-         * 
+         *
          * Remove a constraint
          **/
         remove: function( cstrOrId ){
@@ -8270,7 +9489,7 @@ Physics.behavior('verlet-constraints', function( parent ){
             if ( isObj ){
 
                 for ( i = 0, l = constraints.length; i < l; ++i ){
-                    
+
                     if ( constraints[ i ] === cstrOrId ){
 
                         constraints.splice( i, 1 );
@@ -8280,7 +9499,7 @@ Physics.behavior('verlet-constraints', function( parent ){
             } else {
 
                 for ( i = 0, l = constraints.length; i < l; ++i ){
-                    
+
                     if ( constraints[ i ].id === cstrOrId ){
 
                         constraints.splice( i, 1 );
@@ -8295,7 +9514,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /** internal
          * VerletConstraintsBehavior#resolveAngleConstraints( coef )
          * - coef (Number): Coefficient for this resolution phase
-         * 
+         *
          * Resolve angle constraints.
          **/
         resolveAngleConstraints: function( coef ){
@@ -8311,7 +9530,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 ;
 
             for ( var i = 0, l = constraints.length; i < l; ++i ){
-            
+
                 con = constraints[ i ];
 
                 ang = con.bodyB.state.pos.angle2( con.bodyA.state.pos, con.bodyC.state.pos );
@@ -8322,11 +9541,11 @@ Physics.behavior('verlet-constraints', function( parent ){
                     continue;
 
                 } else if (corr <= -Math.PI){
-                
+
                     corr += TWOPI;
 
                 } else if (corr >= Math.PI){
-                
+
                     corr -= TWOPI;
                 }
 
@@ -8341,7 +9560,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyA.treatment === 'dynamic' ){
 
                     if ( con.bodyB.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                        
+
                         ang = corr * (con.bodyB.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyB.treatment !== 'dynamic' ){
@@ -8353,7 +9572,6 @@ Physics.behavior('verlet-constraints', function( parent ){
                         ang = corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyA.mass );
                     }
 
-                    // ang = corr;
 
                     trans.setRotation( ang );
                     con.bodyA.state.pos.translateInv( trans );
@@ -8364,19 +9582,17 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyC.treatment === 'dynamic' ){
 
                     if ( con.bodyA.treatment === 'dynamic' && con.bodyB.treatment === 'dynamic' ){
-                        
+
                         ang = -corr * (con.bodyB.mass + con.bodyA.mass) * invMassSum;
 
                     } else if ( con.bodyB.treatment !== 'dynamic' ){
 
                         ang = -corr * con.bodyA.mass / ( con.bodyC.mass + con.bodyA.mass );
-                        
+
                     } else {
 
                         ang = -corr * con.bodyB.mass / ( con.bodyB.mass + con.bodyC.mass );
                     }
-
-                    // ang = -corr;
 
                     trans.setRotation( ang );
                     con.bodyC.state.pos.translateInv( trans );
@@ -8387,13 +9603,13 @@ Physics.behavior('verlet-constraints', function( parent ){
                 if ( con.bodyB.treatment === 'dynamic' ){
 
                     if ( con.bodyA.treatment === 'dynamic' && con.bodyC.treatment === 'dynamic' ){
-                        
+
                         ang = corr * (con.bodyA.mass + con.bodyC.mass) * invMassSum;
 
                     } else if ( con.bodyA.treatment !== 'dynamic' ){
 
                         ang = corr * con.bodyC.mass / ( con.bodyC.mass + con.bodyB.mass );
-                        
+
                     } else {
 
                         ang = corr * con.bodyA.mass / ( con.bodyA.mass + con.bodyC.mass );
@@ -8411,6 +9627,10 @@ Physics.behavior('verlet-constraints', function( parent ){
                     con.bodyB.state.pos.rotateInv( trans );
                     con.bodyB.state.pos.translate( trans );
                 }
+
+                con.bodyA.sleepCheck();
+                con.bodyB.sleepCheck();
+                con.bodyC.sleepCheck();
             }
 
             scratch.done();
@@ -8419,7 +9639,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /** internal
          * VerletConstraintsBehavior#resolveDistanceConstraints( coef )
          * - coef (Number): Coefficient for this resolution phase
-         * 
+         *
          * Resolve distance constraints.
          **/
         resolveDistanceConstraints: function( coef ){
@@ -8434,7 +9654,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 ;
 
             for ( var i = 0, l = constraints.length; i < l; ++i ){
-            
+
                 con = constraints[ i ];
 
                 // move constrained bodies to target length based on their
@@ -8442,7 +9662,7 @@ Physics.behavior('verlet-constraints', function( parent ){
                 BA.clone( con.bodyB.state.pos ).vsub( con.bodyA.state.pos );
                 len = BA.normSq() || Math.random() * 0.0001;
                 corr = coef * con.stiffness * ( len - con.targetLengthSq ) / len;
-                
+
                 BA.mult( corr );
                 proportion = (con.bodyA.treatment !== 'dynamic' || con.bodyB.treatment !== 'dynamic') ? 1 : con.bodyB.mass / (con.bodyA.mass + con.bodyB.mass);
 
@@ -8467,6 +9687,9 @@ Physics.behavior('verlet-constraints', function( parent ){
 
                     con.bodyB.state.pos.vsub( BA );
                 }
+
+                con.bodyA.sleepCheck();
+                con.bodyB.sleepCheck();
             }
 
             scratch.done();
@@ -8474,7 +9697,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#shuffleConstraints()
-         * 
+         *
          * Mix up the constraints.
          **/
         shuffleConstraints: function(){
@@ -8485,7 +9708,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 
         /** internal
          * VerletConstraintsBehavior#resolve()
-         * 
+         *
          * Resolve all constraints.
          **/
         resolve: function(){
@@ -8505,7 +9728,7 @@ Physics.behavior('verlet-constraints', function( parent ){
         /**
          * VerletConstraintsBehavior#getConstraints() -> Object
          * + (Object): The object containing copied arrays of the constraints
-         * 
+         *
          * Get all constraints.
          **/
         getConstraints: function(){
@@ -8525,7 +9748,7 @@ Physics.behavior('verlet-constraints', function( parent ){
 Physics.integrator('improved-euler', function( parent ){
 
     return {
-        /** 
+        /**
          * class ImprovedEuler < Integrator
          *
          * `Physics.integrator('improved-euler')`.
@@ -8539,7 +9762,7 @@ Physics.integrator('improved-euler', function( parent ){
             // call parent init
             parent.init.call(this, options);
         },
- 
+
         // extended
         integrateVelocities: function( bodies, dt ){
 
@@ -8555,15 +9778,15 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
 
                     // Inspired from https://github.com/soulwire/Coffee-Physics
                     // @licence MIT
-                    // 
+                    //
                     // x += (v * dt) + (a * 0.5 * dt * dt)
                     // v += a * dt
 
-                    
+
                     // Scale force to mass.
                     // state.acc.mult( body.massInv );
 
@@ -8589,7 +9812,7 @@ Physics.integrator('improved-euler', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     state.old.angular.vel = state.angular.vel;
                     state.angular.vel += state.angular.acc * dt;
@@ -8625,7 +9848,7 @@ Physics.integrator('improved-euler', function( parent ){
                 state = body.state;
 
                 // only integrate if the body isn't fixed
-                if ( body.treatment !== 'static' ){
+                if ( body.treatment !== 'static' && !body.sleep() ){
 
 
                     // Store previous location.
@@ -8643,7 +9866,7 @@ Physics.integrator('improved-euler', function( parent ){
 
                     //
                     // Angular components
-                    // 
+                    //
 
                     state.old.angular.pos = state.angular.pos;
                     state.angular.pos += state.old.angular.vel * dt + state.old.angular.acc * halfdtdt;
@@ -8658,6 +9881,355 @@ Physics.integrator('improved-euler', function( parent ){
 });
 
 
+// ---
+// inside: src/integrators/velocity-verlet-alt.js
+
+Physics.integrator('velocity-verlet-alt', function( parent ){
+
+    // for this integrator we need to know if the object has been integrated before
+    // so let's add a mixin to bodies
+
+    Physics.body.mixin({
+
+        started: function( val ){
+            if ( val !== undefined ){
+                this._started = true;
+            }
+
+            return !!this._started;
+        }
+    });
+
+
+    return {
+        /**
+         * class VelocityVerlet < Integrator
+         *
+         * `Physics.integrator('velocity-verlet')`.
+         *
+         * The velocity-verlet integrator.
+         **/
+
+        // extended
+        init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+        },
+
+        // extended
+        integrateVelocities: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,drag = 1 - this.options.drag
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't static
+                if ( body.treatment !== 'static' ){
+
+                    // v = v_prev + 0.5 * (a_prev + a) * dt
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
+
+                    // use the velocity in vel if the velocity has been changed manually
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.acc.clone( state.acc );
+                        state.old.acc.mult( dt );
+                        state.old.vel.clone( state.vel ).vsub( state.old.acc );
+                        state.old.acc.mult( 1/dt );
+                    }
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Apply acceleration
+                    // v += 0.5 * (a_prev + a) * dt
+                    state.vel.vadd( state.old.acc.vadd( state.acc ).mult( 0.5 * dt ) );
+
+                    // Reset accel
+                    // state.acc.zero();
+
+                    //
+                    // Angular components
+                    //
+
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.angular.acc = state.angular.acc;
+                        state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
+                    }
+
+                    state.angular.vel += 0.5 * (state.angular.acc + state.old.angular.acc) * dt;
+                    state.angular.acc = 0;
+
+                    body.started( true );
+
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
+            }
+        },
+
+        // extended
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't static
+                if ( body.treatment !== 'static' ){
+
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
+
+                    // Store old position.
+                    // xold = x
+                    state.old.pos.clone( state.pos );
+
+                    state.old.vel.mult( dt );
+                    state.old.acc.mult( 0.5 * dtdt );
+                    state.pos.vadd( state.old.vel ).vadd( state.old.acc );
+
+                    // store calculated velocity
+                    state.old.vel.clone( state.vel );
+
+                    // store old acc
+                    state.old.acc.clone( state.acc );
+
+                    // Reset accel
+                    state.acc.zero();
+
+                    //
+                    // Angular components
+                    //
+                    state.old.angular.pos = state.angular.pos;
+
+                    state.angular.pos += state.angular.vel * dt + 0.5 * state.old.angular.acc * dtdt;
+                    state.old.angular.vel = state.angular.vel;
+                    state.old.angular.acc = state.angular.acc;
+                    state.angular.acc = 0;
+                }
+            }
+        }
+    };
+});
+
+
+// ---
+// inside: src/integrators/velocity-verlet.js
+
+Physics.integrator('velocity-verlet', function( parent ){
+
+    // for this integrator we need to know if the object has been integrated before
+    // so let's add a mixin to bodies
+
+    Physics.body.mixin({
+
+        started: function( val ){
+            if ( val !== undefined ){
+                this._started = true;
+            }
+
+            return !!this._started;
+        }
+    });
+
+
+    return {
+        /**
+         * class VelocityVerlet < Integrator
+         *
+         * `Physics.integrator('velocity-verlet')`.
+         *
+         * The velocity-verlet integrator.
+         **/
+
+        // extended
+        init: function( options ){
+
+            // call parent init
+            parent.init.call(this, options);
+        },
+
+        /**
+         * Integrator#integrate( bodies, dt ) -> this
+         * - bodies (Array): List of bodies to integrate
+         * - dt (Number): Timestep size
+         *
+         * Integrate bodies by timestep.
+         *
+         * Will emit `integrate:velocities` and `integrate:positions`
+         * events on the world.
+         **/
+        integrate: function( bodies, dt ){
+
+            var world = this._world;
+
+            this.integratePositions( bodies, dt );
+
+            if ( world ){
+                world.emit('integrate:positions', {
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+
+            this.integrateVelocities( bodies, dt );
+
+            if ( world ){
+                world.emit('integrate:velocities', {
+                    bodies: bodies,
+                    dt: dt
+                });
+            }
+
+            return this;
+        },
+
+        // extended
+        integrateVelocities: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,drag = 1 - this.options.drag
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't static
+                if ( body.treatment !== 'static' && !body.sleep() ){
+
+                    // v = v_prev + 0.5 * (a_prev + a) * dt
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
+
+                    // Apply "air resistance".
+                    if ( drag ){
+
+                        state.vel.mult( drag );
+                    }
+
+                    // Apply acceleration
+                    // v += 0.5 * (a_prev + a) * dt
+                    state.old.vel.clone( state.vel );
+                    state.vel.vadd( state.old.acc.vadd( state.acc ).mult( 0.5 * dt ) );
+
+                    // Reset accel
+                    state.old.acc.clone( state.acc );
+                    state.acc.zero();
+
+                    //
+                    // Angular components
+                    //
+
+                    state.old.angular.vel = state.angular.vel;
+                    state.old.angular.acc = state.angular.acc;
+
+                    state.angular.vel += 0.5 * (state.angular.acc + state.old.angular.acc) * dt;
+
+                    state.angular.acc = 0;
+
+                    body.started( true );
+
+                } else {
+                    // set the velocity and acceleration to zero!
+                    state.vel.zero();
+                    state.acc.zero();
+                    state.angular.vel = 0;
+                    state.angular.acc = 0;
+                }
+            }
+        },
+
+        // extended
+        integratePositions: function( bodies, dt ){
+
+            // half the timestep
+            var dtdt = dt * dt
+                ,body = null
+                ,state
+                ;
+
+            for ( var i = 0, l = bodies.length; i < l; ++i ){
+
+                body = bodies[ i ];
+                state = body.state;
+
+                // only integrate if the body isn't static
+                if ( body.treatment !== 'static' && !body.sleep( dt ) ){
+
+                    // x = x_prev + v_prev * dt + 0.5 * a_prev * dt * dt
+
+                    // use the velocity in vel if the velocity has been changed manually
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.acc.clone( state.acc );
+                        state.old.acc.mult( dt );
+                        state.old.vel.clone( state.vel ).vsub( state.old.acc );
+                        state.old.acc.mult( 1/dt );
+                    }
+
+                    // Store old position.
+                    // xold = x
+                    state.old.pos.clone( state.pos );
+
+                    state.old.vel.mult( dt );
+                    state.old.acc.mult( 0.5 * dtdt );
+                    state.pos.vadd( state.old.vel ).vadd( state.old.acc );
+
+                    // revert
+                    state.old.vel.mult( 1/dt );
+                    state.old.acc.mult( 2 / dtdt );
+
+                    //
+                    // Angular components
+                    //
+
+                    if ( !body.started() ){
+
+                        // Set old vals on first integration
+                        state.old.angular.acc = state.angular.acc;
+                        state.old.angular.vel = state.angular.vel - state.old.angular.acc * dt;
+                    }
+
+                    state.old.angular.pos = state.angular.pos;
+
+                    state.angular.pos += state.angular.vel * dt + 0.5 * state.old.angular.acc * dtdt;
+                }
+            }
+        }
+    };
+});
+
 
 // ---
 // inside: src/renderers/canvas.js
@@ -8671,7 +10243,6 @@ Physics.integrator('improved-euler', function( parent ){
  *
  * Additional config options:
  *
- * - debug: Draw debug shapes and bounding boxes. (default: `false`)
  * - metaEl: HTMLElement to write meta information like FPS and IPF into. (default: autogenerated)
  * - offset: Offset the shapes by this amount. (default: `{ x: 0, y: 0 }`)
  * - styles: Styles to use to draw the shapes. (see below)
@@ -8697,6 +10268,37 @@ Physics.integrator('improved-euler', function( parent ){
  *        angleIndicator: 'white'
  *    }
  * }
+ * ```
+ *
+ * Styles can also be defined on a per-body basis. Use the "styles" property for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        strokeStyle: '#542437',
+ *        lineWidth: 1,
+ *        fillStyle: '#542437',
+ *        angleIndicator: 'white'
+ *    }
+ * });
+ * ```
+ *
+ * You can also define an image to use for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        src: 'path/to/image.jpg',
+ *        width: 40,
+ *        height: 50
+ *    }
+ * });
  * ```
  **/
 Physics.renderer('canvas', function( proto ){
@@ -8724,17 +10326,24 @@ Physics.renderer('canvas', function( proto ){
 
     var defaults = {
 
-        // draw aabbs of bodies for debugging
-        debug: false,
         // the element to place meta data into
         metaEl: null,
         // default styles of drawn objects
         styles: {
 
+            'point': colors.blue,
+
             'circle' : {
                 strokeStyle: colors.blue,
                 lineWidth: 1,
                 fillStyle: colors.blue,
+                angleIndicator: colors.white
+            },
+
+            'rectangle' : {
+                strokeStyle: colors.violet,
+                lineWidth: 1,
+                fillStyle: colors.violet,
                 angleIndicator: colors.white
             },
 
@@ -8748,17 +10357,6 @@ Physics.renderer('canvas', function( proto ){
         offset: { x: 0, y: 0 }
     };
 
-    // deep copy callback to extend deeper into options
-    var deep = function( a, b ){
-
-        if ( Physics.util.isPlainObject( b ) ){
-
-            return Physics.util.extend({}, a, b, deep );
-        }
-
-        return b !== undefined ? b : a;
-    };
-
     return {
 
         // extended
@@ -8770,9 +10368,11 @@ Physics.renderer('canvas', function( proto ){
             proto.init.call(this, options);
 
             // further options
-            this.options = Physics.util.extend({}, defaults, this.options, deep);
-            this.options.offset = Physics.vector( this.options.offset );
-
+            this.options.defaults( defaults, true );
+            this.options.onChange(function(){
+                self.options.offset = new Physics.vector( self.options.offset );
+            });
+            this.options( options, true );
 
             // hidden canvas
             this.hiddenCanvas = document.createElement('canvas');
@@ -8796,6 +10396,7 @@ Physics.renderer('canvas', function( proto ){
                 this.el = viewport;
             }
 
+            this.container = this.el.parentNode;
             this.ctx = viewport.getContext('2d');
 
             this.els = {};
@@ -8816,7 +10417,12 @@ Physics.renderer('canvas', function( proto ){
 
             this._layers = {};
             this.addLayer( 'main', this.el );
-            this.resize( this.options.width, this.options.height );
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
         },
 
         /**
@@ -9009,6 +10615,7 @@ Physics.renderer('canvas', function( proto ){
                     ,view
                     ,i
                     ,l = bodies.length
+                    ,t = self._interpolateTime
                     ,stack = (l || layer.id !== 'main') ? bodies : self._world._bodies
                     ;
 
@@ -9027,6 +10634,7 @@ Physics.renderer('canvas', function( proto ){
 
                 if ( layer.options.follow ){
                     offset.vsub( layer.options.follow.state.pos );
+                    offset.sub( layer.options.follow.state.vel.get(0)*t, layer.options.follow.state.vel.get(1)*t );
                 }
 
                 if ( clear !== false ){
@@ -9092,13 +10700,14 @@ Physics.renderer('canvas', function( proto ){
         resize: function( width, height ){
 
             var layer;
+            proto.resize.call( this, width, height );
 
             for ( var id in this._layers ){
 
                 layer = this._layers[ id ];
                 if ( layer.options.autoResize ){
-                    layer.el.width = width;
-                    layer.el.height = height;
+                    layer.el.width = this.width;
+                    layer.el.height = this.height;
                 }
             }
 
@@ -9245,6 +10854,80 @@ Physics.renderer('canvas', function( proto ){
             ctx.fill();
         },
 
+        /**
+         * CanvasRenderer#draw( geometry[, styles, ctx, offset] ) -> this
+         * - geometry (Geometry): The shape to draw
+         * - styles (Object): The styles configuration
+         * - ctx (Canvas2DContext): The canvas context
+         * - offset (Vectorish): The offset from center
+         *
+         * Draw a geometry to a context.
+         **/
+        draw: function( geometry, styles, ctx, offset ){
+
+            var name = geometry.name
+                ,x = +(offset && offset.x)
+                ,y = +(offset && offset.y)
+                ,w = geometry.aabb().hw
+                ;
+
+            ctx = ctx || this.ctx;
+            styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
+
+            ctx.save();
+            ctx.translate(x, y);
+
+            if (name === 'circle'){
+
+                this.drawCircle(0, 0, geometry.radius, styles, ctx);
+
+            } else if (name === 'convex-polygon'){
+
+                this.drawPolygon(geometry.vertices, styles, ctx);
+
+            } else if (name === 'rectangle'){
+
+                this.drawRect(0, 0, geometry.width, geometry.height, styles, ctx);
+
+            } else if (name === 'compound'){
+
+                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                    ch = geometry.children[ i ];
+
+                    // translate
+                    ctx.translate(ch.pos.x, ch.pos.y);
+                    // rotate
+                    ctx.rotate(ch.angle);
+
+                    this.draw( ch.g, styles, ctx );
+
+                    // unrotate
+                    ctx.rotate(-ch.angle);
+                    // untranslate
+                    ctx.translate(-ch.pos.x, -ch.pos.y);
+                }
+
+            } else {
+
+                // assume it's a point
+                this.drawCircle(0, 0, 1, styles, ctx);
+            }
+
+            if (name !== 'compound' && styles.angleIndicator){
+
+                ctx.beginPath();
+                this.setStyle( styles.angleIndicator, ctx );
+                ctx.moveTo(0, 0);
+                ctx.lineTo(w, 0);
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            return this;
+        },
+
         // extended
         createView: function( geometry, styles ){
 
@@ -9252,14 +10935,12 @@ Physics.renderer('canvas', function( proto ){
                 ,aabb = geometry.aabb()
                 ,hw = aabb.hw + Math.abs(aabb.x)
                 ,hh = aabb.hh + Math.abs(aabb.y)
-                ,x = hw + 1
-                ,y = hh + 1
+                ,offset = { x: hw + 1, y: hh + 1 }
                 ,hiddenCtx = this.hiddenCtx
                 ,hiddenCanvas = this.hiddenCanvas
-                ,name = geometry.name
                 ;
 
-            styles = styles || this.options.styles[ name ] || {};
+            styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
 
             // must want an image
             if ( styles.src ){
@@ -9274,40 +10955,14 @@ Physics.renderer('canvas', function( proto ){
                 return view;
             }
 
-            x += styles.lineWidth | 0;
-            y += styles.lineWidth | 0;
+            offset.x += styles.lineWidth | 0;
+            offset.y += styles.lineWidth | 0;
 
-            // clear
+            // clear and resize
             hiddenCanvas.width = 2 * hw + 2 + (2 * styles.lineWidth|0);
             hiddenCanvas.height = 2 * hh + 2 + (2 * styles.lineWidth|0);
 
-            hiddenCtx.save();
-            hiddenCtx.translate(x, y);
-
-            if (name === 'circle'){
-
-                this.drawCircle(0, 0, geometry.radius, styles, hiddenCtx);
-
-            } else if (name === 'convex-polygon'){
-
-                this.drawPolygon(geometry.vertices, styles, hiddenCtx);
-
-            } else if (name === 'rectangle'){
-
-                this.drawRect(0, 0, geometry.width, geometry.height, styles, hiddenCtx);
-            }
-
-            if (styles.angleIndicator){
-
-                hiddenCtx.beginPath();
-                this.setStyle( styles.angleIndicator, hiddenCtx );
-                hiddenCtx.moveTo(0, 0);
-                hiddenCtx.lineTo(hw, 0);
-                hiddenCtx.closePath();
-                hiddenCtx.stroke();
-            }
-
-            hiddenCtx.restore();
+            this.draw( geometry, styles, hiddenCtx, offset );
 
             view = new Image( hiddenCanvas.width, hiddenCanvas.height );
             view.src = hiddenCanvas.toDataURL('image/png');
@@ -9325,6 +10980,7 @@ Physics.renderer('canvas', function( proto ){
         drawBody: function( body, view, ctx, offset ){
 
             var pos = body.state.pos
+                ,os = body.offset
                 ,v = body.state.vel
                 ,t = this._interpolateTime || 0
                 ,x
@@ -9337,29 +10993,16 @@ Physics.renderer('canvas', function( proto ){
             ctx = ctx || this.ctx;
 
             // interpolate positions
-            x = pos.x + offset.x + v.x * t;
-            y = pos.y + offset.y + v.y * t;
+            x = pos._[0] + offset.x + v._[0] * t;
+            y = pos._[1] + offset.y + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
             ctx.save();
             ctx.translate( x, y );
             ctx.rotate( ang );
-            ctx.drawImage(view, -view.width/2, -view.height/2);
+            ctx.translate( os._[0], os._[1] );
+            ctx.drawImage(view, -view.width/2, -view.height/2, view.width, view.height);
             ctx.restore();
-
-            if ( this.options.debug ){
-                aabb = body.aabb();
-                // draw bounding boxes
-                this.drawRect( aabb.x, aabb.y, 2 * aabb.hw, 2 * aabb.hh, 'rgba(0, 0, 255, 0.3)' );
-
-                // draw also paths
-                body._debugView = body._debugView || this.createView(body.geometry, 'rgba(255, 0, 0, 0.5)');
-                ctx.save();
-                ctx.translate(pos.x + offset.x, pos.y + offset.y);
-                ctx.rotate(body.state.angular.pos);
-                ctx.drawImage(body._debugView, -body._debugView.width * 0.5, -body._debugView.height * 0.5);
-                ctx.restore();
-            }
         },
 
         // extended
@@ -9448,6 +11091,7 @@ Physics.renderer('dom', function( proto ){
     var classpfx = 'pjs-'
         ,px = 'px'
         ,cssTransform = pfx('transform')
+        ,borderRadius = pfx('borderRadius')
         ;
 
     var newEl = function( node, content ){
@@ -9490,6 +11134,36 @@ Physics.renderer('dom', function( proto ){
 
                 viewport.appendChild(stats);
             }
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
+        },
+
+        // extended
+        resize: function( width, height ){
+
+            proto.resize.call( this, width, height );
+            this.el.style.width = this.width + px;
+            this.el.style.height = this.height + px;
+        },
+
+        /** internal
+         * DomRenderer#pointProperties( el, geometry )
+         * - el (HTMLElement): The element
+         * - geometry (Geometry): The body's geometry
+         *
+         * Set dom element style properties for a point.
+         **/
+        pointProperties: function( el, geometry ){
+
+            el.style.width = '2px';
+            el.style.height = '2px';
+            el.style.marginLeft = '-1px';
+            el.style.marginTop = '-1px';
+            el.style[ borderRadius ] = '50%';
         },
 
         /** internal
@@ -9507,6 +11181,7 @@ Physics.renderer('dom', function( proto ){
             el.style.height = (aabb.hh * 2) + px;
             el.style.marginLeft = (-aabb.hw) + px;
             el.style.marginTop = (-aabb.hh) + px;
+            el.style[ borderRadius ] = '50%';
         },
 
         /** internal
@@ -9530,6 +11205,7 @@ Physics.renderer('dom', function( proto ){
         createView: function( geometry ){
 
             var el = newEl()
+                ,chel
                 ,fn = geometry.name + 'Properties'
                 ;
 
@@ -9538,7 +11214,23 @@ Physics.renderer('dom', function( proto ){
             el.style.top = '0px';
             el.style.left = '0px';
 
-            if (this[ fn ]){
+            if ( geometry.name === 'compound' ){
+
+                for ( var i = 0, l = geometry.children.length, ch; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    chel = newEl();
+                    chel.className = classpfx + geometry.name + ' ' + classpfx + 'child';
+                    chel.style.position = 'absolute';
+                    chel.style.top = '0px';
+                    chel.style.left = '0px';
+                    if ( this[ ch.g.name + 'Properties' ] ){
+                        this[ ch.g.name + 'Properties' ](chel, ch.g);
+                    }
+                    chel.style[cssTransform] = 'translate('+ch.pos._[0]+'px,'+ch.pos._[1]+'px) rotate('+ ch.angle +'rad)';
+                    el.appendChild( chel );
+                }
+
+            } else if ( this[ fn ] ){
                 this[ fn ](el, geometry);
             }
 
@@ -9556,8 +11248,8 @@ Physics.renderer('dom', function( proto ){
         // extended
         disconnect: function( world ){
 
-            world.off( 'add:body', this.attach );
-            world.off( 'remove:body', this.detach );
+            world.off( 'add:body', this.attach, this );
+            world.off( 'remove:body', this.detach, this );
         },
 
         /**
@@ -9613,6 +11305,7 @@ Physics.renderer('dom', function( proto ){
 
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,x
                 ,y
                 ,ang
@@ -9620,10 +11313,10 @@ Physics.renderer('dom', function( proto ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
-            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad)';
+            view.style[cssTransform] = 'translate('+x+'px,'+y+'px) rotate('+ ang +'rad) translate('+os._[0]+'px,'+os._[1]+'px)';
         }
     };
 });
@@ -9632,6 +11325,9 @@ Physics.renderer('dom', function( proto ){
 // ---
 // inside: src/renderers/pixi-renderer.js
 
+/*
+ * @requires pixi.js
+ */
 /**
  * class PixiRenderer < Renderer
  *
@@ -9641,7 +11337,6 @@ Physics.renderer('dom', function( proto ){
  *
  * Additional config options:
  *
- * - debug: Draw debug shapes and bounding boxes. (default: `false`)
  * - metaEl: HTMLElement to write meta information like FPS and IPF into. (default: autogenerated)
  * - offset: Offset the shapes by this amount. (default: `{ x: 0, y: 0 }`)
  * - styles: Styles to use to draw the shapes. (see below)
@@ -9659,7 +11354,9 @@ Physics.renderer('dom', function( proto ){
  *        strokeStyle: '0xE8900C',
  *        lineWidth: 3,
  *        fillStyle: '0xD5DE4C',
- *        angleIndicator: '0xE8900C'
+ *        angleIndicator: '0xE8900C',
+ *        strokeAlpha: 1,
+ *        fillAlpha: 1
  *    },
  *
  *    'convex-polygon' : {
@@ -9670,6 +11367,38 @@ Physics.renderer('dom', function( proto ){
  *    }
  * }
  * ```
+ *
+ * Styles can also be defined on a per-body basis. Use the "styles" property for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        strokeStyle: '0x542437',
+ *        lineWidth: 1,
+ *        fillStyle: '0x542437',
+ *        angleIndicator: '0xFFFFFF'
+ *    }
+ * });
+ * ```
+ *
+ * You can also define an image to use for a body:
+ *
+ * Example:
+ *
+ * ```javascript
+ * Physics.body('circle', {
+ *     // ...
+ *     styles: {
+ *        src: 'path/to/image.jpg',
+ *        width: 40,
+ *        height: 50,
+ *        anchor: { x: 0.5, y: 0.5 }
+ *    }
+ * });
+ * ```
  **/
 /* global PIXI */
 Physics.renderer('pixi', function( parent ){
@@ -9679,84 +11408,172 @@ Physics.renderer('pixi', function( parent ){
         return {};
     }
 
-    var Pi2 = Math.PI * 2;
+    var Pi2 = Math.PI * 2
+        ,colors = {
+            white: '0xFFFFFF'
+            ,violet: '0x542437'
+            ,blue: '0x53777A'
+        }
+        ,fontStyles = {
+            font: "18px monospace",
+            fill: "black",
+            align: "left"
+        }
 
-    var defaults = {
+        ,defaults = {
 
-        // draw aabbs of bodies for debugging
-        debug: false,
-        // the element to place meta data into
-        metaEl: null,
-        offset: { x: 0, y: 0 },
-        // Provide some default colours
-        styles: {
-            // Defines the default canvas colour
-            'color': '0x66FF99',
+            // the element to place meta data into
+            metaEl: null,
+            offset: { x: 0, y: 0 },
+            // Provide some default colours
+            styles: {
+                // Defines the default canvas colour
+                'color': false,
 
-            'point' : '0xE8900C',
+                'point': colors.blue,
 
-            'circle' : {
-                strokeStyle: '0xE8900C',
-                lineWidth: 3,
-                fillStyle: '0xD5DE4C',
-                angleIndicator: '0xE8900C'
-            },
+                'circle' : {
+                    strokeStyle: colors.blue,
+                    lineWidth: 1,
+                    fillStyle: colors.blue,
+                    angleIndicator: colors.white,
+                    fillAlpha: 1,
+                    strokeAlpha: 1,
+                    alpha: 1
+                },
 
-            'convex-polygon' : {
-                strokeStyle: '0xE8900C',
-                lineWidth: 3,
-                fillStyle: '0xD5DE4C',
-                angleIndicator: '0xE8900C'
+                'rectangle' : {
+                    strokeStyle: colors.violet,
+                    lineWidth: 1,
+                    fillStyle: colors.violet,
+                    angleIndicator: colors.white,
+                    fillAlpha: 1,
+                    strokeAlpha: 1,
+                    alpha: 1
+                },
+
+                'convex-polygon' : {
+                    strokeStyle: colors.violet,
+                    lineWidth: 1,
+                    fillStyle: colors.violet,
+                    angleIndicator: colors.white,
+                    fillAlpha: 1,
+                    strokeAlpha: 1,
+                    alpha: 1
+                }
             }
         }
-    };
-
-    // deep copy callback to extend deeper into options
-    var deep = function( a, b ){
-
-        if ( Physics.util.isPlainObject( b ) ){
-
-            return Physics.util.extend({}, a, b, deep );
-        }
-
-        return b !== undefined ? b : a;
-    };
+        ;
 
     return {
 
         // extended
         init: function( options ){
 
+            var self = this
+                ,el
+                ,isTransparent
+                ;
+
             if (typeof PIXI === 'undefined') {
-                throw "PIXI obj not present - cannot continue ";
+                throw "PIXI not present - cannot continue";
             }
 
             // call parent init
             parent.init.call(this, options);
 
             // further options
-            this.options = Physics.util.extend({}, defaults, this.options, deep);
-            this.options.offset = Physics.vector( this.options.offset );
+            this.options.defaults( defaults, true );
+            this.options.onChange(function(){
+                self.options.offset = new Physics.vector( self.options.offset );
+            });
+            this.options( options, true );
 
+            isTransparent = (!this.options.styles.color || this.options.styles.color === 'transparent');
             // Hook in PIXI stage here
             this.stage = new PIXI.Stage(this.options.styles.color);
-            this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
 
             // Create empty meta object for use later
             this.meta = {};
 
+            el = (this.el && this.el.nodeName === 'CANVAS') ? el : null;
             // add the renderer view element to the DOM according to its type
-            if ( this.el.nodeName === 'CANVAS' ){
-                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, this.el);
-            } else {
-                this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height);
+            this.renderer = new PIXI.autoDetectRenderer(this.options.width, this.options.height, {
+                view: el,
+                transparent: isTransparent,
+                resolution: window.devicePixelRatio || 1
+            });
 
-                if ( this.el !== null ) {
-                    this.el.appendChild(this.renderer.view);
-                } else {
-                    document.body.appendChild(this.renderer.view);
-                }
+            if ( !el ){
+                this.el = this.el || document.body;
+                // add to passed in element
+                this.el.appendChild( this.renderer.view );
             }
+
+            if ( this.options.autoResize ){
+                this.resize();
+            } else {
+                this.resize( this.options.width, this.options.height );
+            }
+        },
+
+        // extended
+        resize: function( width, height ){
+
+            parent.resize.call( this, width, height );
+            this.renderer.resize( this.width, this.height );
+        },
+
+        // extended
+        connect: function( world ){
+
+            world.on( 'add:body', this.attach, this );
+            world.on( 'remove:body', this.detach, this );
+        },
+
+        // extended
+        disconnect: function( world ){
+
+            world.off( 'add:body', this.attach, this );
+            world.off( 'remove:body', this.detach, this );
+        },
+
+        /**
+         * PixiRenderer#detach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to detach a child from the stage
+         **/
+        detach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // remove view from dom
+                this.stage.removeChild( el );
+            }
+
+            return this;
+        },
+
+        /**
+         * PixiRenderer#attach( data ) -> this
+         * - data (PIXI.Graphics|Object): Graphics object or event data (`data.body`)
+         *
+         * Event callback to attach a child to the stage
+         **/
+        attach: function( data ){
+
+            // interpred data as either dom node or event data
+            var el = (data instanceof PIXI.Graphics && data) || (data.body && data.body.view);
+
+            if ( el ){
+                // attach to viewport
+                this.stage.addChild( el );
+            }
+
+            return this;
         },
 
         /**
@@ -9797,6 +11614,7 @@ Physics.renderer('pixi', function( parent ){
         drawBody: function( body, view ){
             var pos = body.state.pos
                 ,v = body.state.vel
+                ,os = body.offset
                 ,t = this._interpolateTime || 0
                 ,x
                 ,y
@@ -9804,12 +11622,12 @@ Physics.renderer('pixi', function( parent ){
                 ;
 
             // interpolate positions
-            x = pos.x + v.x * t;
-            y = pos.y + v.y * t;
+            x = pos._[0] + v._[0] * t;
+            y = pos._[1] + v._[1] * t;
             ang = body.state.angular.pos + body.state.angular.vel * t;
 
-            view.position.x = x;
-            view.position.y = y;
+            view.position.set( x, y );
+            view.pivot.set( -os._[0], -os._[1] );
             view.rotation = ang;
         },
 
@@ -9821,31 +11639,86 @@ Physics.renderer('pixi', function( parent ){
         },
 
         /**
-         * PixiRenderer#createCircle( x, y, r, style ) -> PIXI.Graphics
-         * - x (Number): The x coord
-         * - y (Number): The y coord
-         * - r (Number): The circle radius
-         * - style (Object): The styles configuration
-         * + (PIXI.Graphics): A graphic object representing a circle.
+         * PixiRenderer#setStyles( graphics, styles ) -> PIXI.Graphics
+         * - graphics (PIXI.Graphics): The graphics object to set styles on
+         * - styles (Object): The styles configuration
+         * + (PIXI.Graphics): A graphic object
          *
-         * Create a circle for use in PIXI stage
+         * Set styles on pixi graphics object
          **/
-        createCircle: function( x, y, r, style ){
+        setStyles: function( graphics, styles ){
 
-            var graphics = new PIXI.Graphics();
-            graphics.beginFill(style.fillStyle);
-            graphics.lineStyle(style.lineWidth, style.strokeStyle);
-            graphics.drawCircle(x, y, r);
-            // Center the graphics to the circle
-            graphics.pivot.x = (x / 2) + (r / 2);
-            graphics.pivot.y = (y / 2) + (r / 2);
+            if ( Physics.util.isObject(styles) ){
+
+                if ( styles.fillStyle && styles.fillStyle !== 'transparent' ){
+                    graphics.beginFill( styles.fillStyle );
+                    graphics.fillAlpha = styles.fillAlpha !== undefined ? styles.fillAlpha : 1;
+                } else {
+                    graphics.beginFill();
+                    graphics.fillAlpha = 0;
+                }
+
+                graphics.lineStyle( styles.lineWidth || 0, styles.strokeStyle, styles.strokeAlpha !== undefined ? styles.strokeAlpha : 1 );
+                graphics.alpha = styles.alpha !== undefined ? styles.alpha : 1;
+
+            } else {
+
+                if ( styles && styles !== 'transparent' ){
+                    graphics.beginFill( styles );
+                } else {
+                    graphics.beginFill();
+                    graphics.fillAlpha = 0;
+                }
+
+                graphics.lineStyle( 0 );
+            }
+
             return graphics;
         },
 
         /**
-         * PixiRenderer#createPolygon( verts, style ) -> PIXI.Graphics
+         * PixiRenderer#createCircle( x, y, r, styles ) -> PIXI.Graphics
+         * - x (Number): The x coord
+         * - y (Number): The y coord
+         * - r (Number): The circle radius
+         * - styles (Object): The styles configuration
+         * + (PIXI.Graphics): A graphic object representing a circle.
+         *
+         * Create a circle for use in PIXI stage
+         **/
+        createCircle: function( x, y, r, styles ){
+
+            var graphics = new PIXI.Graphics();
+            this.setStyles( graphics, styles );
+            graphics.drawCircle( x, y, r );
+            graphics.endFill();
+            return graphics;
+        },
+
+        /**
+         * PixiRenderer#createRect( x, y, r, styles ) -> PIXI.Graphics
+         * - x (Number): The x coord
+         * - y (Number): The y coord
+         * - width (Number): The rectangle width
+         * - height (Number): The rectangle height
+         * - styles (Object): The styles configuration
+         * + (PIXI.Graphics): A graphic object representing a circle.
+         *
+         * Create a rectangle for use in PIXI stage
+         **/
+        createRect: function( x, y, width, height, styles ){
+
+            var graphics = new PIXI.Graphics();
+            this.setStyles( graphics, styles );
+            graphics.drawRect( x, y, width, height );
+            graphics.endFill();
+            return graphics;
+        },
+
+        /**
+         * PixiRenderer#createPolygon( verts, styles ) -> PIXI.Graphics
          * - verts (Array): Array of [[Vectorish]] vertices
-         * - style (Object): The styles configuration
+         * - styles (Object): The styles configuration
          * + (PIXI.Graphics): A graphic object representing a polygon.
          *
          * Create a polygon for use in PIXI stage
@@ -9863,8 +11736,7 @@ Physics.renderer('pixi', function( parent ){
                 ,graphics = new PIXI.Graphics()
                 ;
 
-            graphics.beginFill(styles.fillStyle);
-            graphics.lineStyle(styles.lineWidth, styles.strokeStyle);
+            this.setStyles( graphics, styles );
 
             graphics.moveTo(x, y);
 
@@ -9885,10 +11757,10 @@ Physics.renderer('pixi', function( parent ){
         },
 
         /**
-         * PixiRenderer#createLine( from, to, style ) -> PIXI.Graphics
+         * PixiRenderer#createLine( from, to, styles ) -> PIXI.Graphics
          * - from (Vectorish): Starting point
          * - to (Vectorish): Ending point
-         * - style (Object): The styles configuration
+         * - styles (Object): The styles configuration
          * + (PIXI.Graphics): A graphic object representing a polygon.
          *
          * Create a line for use in PIXI stage
@@ -9900,8 +11772,7 @@ Physics.renderer('pixi', function( parent ){
                 ;
 
             var graphics = new PIXI.Graphics();
-            graphics.beginFill(styles.fillStyle);
-            graphics.lineStyle(styles.lineWidth, styles.strokeStyle);
+            this.setStyles( graphics, styles );
 
             graphics.moveTo(x, y);
 
@@ -9915,58 +11786,82 @@ Physics.renderer('pixi', function( parent ){
         },
 
         // extended
-        createView: function( geometry ){
+        createView: function( geometry, styles, parent ){
 
             var view = null
                 ,aabb = geometry.aabb()
                 ,hw = aabb.hw + Math.abs(aabb.x)
                 ,hh = aabb.hh + Math.abs(aabb.y)
-                ,x = hw + 1
-                ,y = hh + 1
                 ,name = geometry.name
                 ;
 
-            var styles = styles || this.options.styles[ name ];
+            parent = parent || this.stage;
+            styles = styles || this.options.styles[ name ] || this.options.styles.circle || {};
 
-            x += styles.lineWidth | 0;
-            y += styles.lineWidth | 0;
+            // must want an image
+            if ( styles.src ){
+                view = PIXI.Sprite.fromImage( styles.src );
+                view.anchor.set( 0.5, 0.5 );
+                if ( styles.anchor ) {
+                    view.anchor.x = styles.anchor.x;
+                    view.anchor.y = styles.anchor.y;
+                }
+                if ( styles.width ){
+                    view.width = styles.width;
+                }
+                if ( styles.height ){
+                    view.height = styles.height;
+                }
+                parent.addChild(view);
+                return view;
+            }
 
             if (name === 'circle'){
 
-                view = this.createCircle(x, y, geometry.radius, styles);
+                view = this.createCircle(0, 0, geometry.radius, styles);
 
             } else if (name === 'convex-polygon'){
 
                 view = this.createPolygon(geometry.vertices, styles);
-            }
 
-            if (styles.angleIndicator){
+            } else if (name === 'rectangle'){
 
-                view.beginFill(styles.angleIndicator);
-                view.moveTo((x / 2), (5 + styles.lineWidth));
-                view.lineTo((x / 2) + (geometry.radius / 2), geometry.radius);
-                // Center the graphics to the circle
-                view.endFill();
+                view = this.createRect(-geometry.width/2, -geometry.height/2, geometry.width, geometry.height, styles);
+            } else if (name === 'compound'){
 
-            }
-            if (view) {
-                this.stage.addChild(view);
-                return view;
+                view = new PIXI.Graphics();
+
+                for ( var i = 0, l = geometry.children.length, ch, chview; i < l; i++ ){
+                    ch = geometry.children[ i ];
+                    chview = this.createView( ch.g, styles, view );
+                    chview.position.set( ch.pos.x, ch.pos.y );
+                    chview.rotation = ch.angle;
+                }
             } else {
-                throw "Invalid view name passed.";
+
+                // assume it's a point
+                view = this.createCircle(0, 0, 1, styles);
             }
 
+            if ( name !== 'compound' && styles.angleIndicator && styles.angleIndicator !== 'transparent' ){
+
+                view.lineStyle( styles.lineWidth, styles.angleIndicator );
+                view.moveTo( 0, 0 );
+                view.lineTo( hw, 0 );
+            }
+
+            if ( name !== 'compound' ){
+                view.cacheAsBitmap = true;
+            }
+
+            parent.addChild(view);
+            return view;
         },
 
         // extended
         drawMeta: function( meta ){
             if (!this.meta.loaded){
-                // define the font style here
-                var fontStyles = {
-                    font: "18px Snippet",
-                    fill: "white",
-                    align: "left"
-                };
+                // define the font styles here
                 this.meta.fps = new PIXI.Text('FPS: ' + meta.fps.toFixed(2), fontStyles);
                 this.meta.fps.position.x = 15;
                 this.meta.fps.position.y = 5;

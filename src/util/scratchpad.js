@@ -16,7 +16,7 @@ Physics.scratchpad = (function(){
     var scratches = [];
     var numScratches = 0;
     var Scratch, Scratchpad;
-    
+
     var regIndex = 0;
 
 
@@ -24,7 +24,7 @@ Physics.scratchpad = (function(){
      * class Scratch
      *
      * A scratchpad session.
-     * 
+     *
      * This class keeps track of temporary objects used
      * in this session and releases them when finished (call to `.done()`).
      *
@@ -39,7 +39,7 @@ Physics.scratchpad = (function(){
         // private variables
         this._active = false;
         this._indexArr = [];
-        
+
         if (++numScratches >= Scratchpad.maxScratches){
             throw SCRATCH_MAX_REACHED;
         }
@@ -52,9 +52,9 @@ Physics.scratchpad = (function(){
          * - val (Mixed): No effect on this method, just passed on to the return value so you can do things like:
          return scratch.done( myReturnVal );
          * + (Mixed): Whatever you specified as `val`
-         * 
+         *
          * Declare that your work is finished.
-         * 
+         *
          * Release temp objects for use elsewhere. Must be called when immediate work is done.
          *
          * You can wrap the return value in scratch.done() so that you don't forget to call it.
@@ -70,10 +70,10 @@ Physics.scratchpad = (function(){
             this._active = false;
             var s;
             for ( var i = 0; i < regIndex; ++i ){
-                
+
                 this[ i ] = 0;
             }
-            
+
             // add it back to the scratch stack for future use
             scratches.push( this );
             return val;
@@ -88,13 +88,13 @@ Physics.scratchpad = (function(){
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance.
      * + (Function): The wrapped function (if `fn` arg specified) that can be reused like the original minus the first (scratch) parameter.
      * + (Scratch): The scratch session.
-     * 
+     *
      * Get a new scratch session to work from or wrap a function in a scratch session.
-     * 
+     *
      * Call `.done()` on it when finished.
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // get a scratch session manually
      * var myAlg = function( scratch, arg1, arg2, ... ){
@@ -111,7 +111,7 @@ Physics.scratchpad = (function(){
      * ```
      *
      * Example:
-     * 
+     *
      * ```javascript
      * // wrap a function in a scratch session
      * var myAlg = Physics.scratchpad(function( scratch, arg1, arg2, ... ){
@@ -144,13 +144,13 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.fn( fn ) -> Function
      * - fn (Function): Some function you'd like to wrap in a scratch session. First argument is the scratch instance. See [[Physics.scratchpad]].
      * + (Function): The wrapped function that can be reused like the original minus the first (scratch) parameter.
-     * 
+     *
      * Wrap a function in a scratch session.
      *
      * Same as calling `Physics.scratchpad( fn )` with a function specified.
      **/
     Scratchpad.fn = function( fn ){
-        
+
         var args = [];
         for ( var i = 0, l = fn.length; i < l; i++ ){
             args.push( i );
@@ -173,7 +173,7 @@ Physics.scratchpad = (function(){
      * Physics.scratchpad.register( name, constructor )
      * - name (String): Name of the object class
      * - constructor (Function): The object constructor
-     * 
+     *
      * Register a new object to be included in scratchpads.
      *
      * Example:
@@ -196,7 +196,7 @@ Physics.scratchpad = (function(){
         }
 
         // create a new function on the prototype
-        proto[ name ] = function(){
+        Scratch.prototype[ name ] = function(){
 
             // get the stack (or initialize it)
             var stack = this[ stackname ] || (this[ stackname ] = [])
@@ -219,7 +219,7 @@ Physics.scratchpad = (function(){
             }
 
             // return or create new instance
-            return stack[ stackIndex ] || 
+            return stack[ stackIndex ] ||
                     (stack[ stackIndex ] = useFactory ? constructor() : new constructor() );
         };
 

@@ -27,7 +27,7 @@ Physics.behavior('constant-acceleration', function( parent ){
             this.options( options );
 
             // extend options
-            this._acc = Physics.vector();
+            this._acc = new Physics.vector();
             this.setAcceleration( this.options.acc );
             delete this.options.acc;
         },

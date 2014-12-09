@@ -68,6 +68,7 @@
                 fn = Physics.util.bind( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
+                fn._scope_ = scope;
 
             } else if ( priority === undefined ) {
 
@@ -83,15 +84,16 @@
         },
 
         /**
-         * Physics.util.pubsub#off( topic, fn ) -> this
+         * Physics.util.pubsub#off( topic, fn[, scope] ) -> this
          * Physics.util.pubsub#off( topicCfg ) -> this
          * - topic (String): topic The topic name. Specify `true` to remove all listeners for all topics
          * - topicCfg (Object): A config with key/value pairs of `{ topic: callbackFn, ... }`
          * - fn (Function): The original callback function. Specify `true` to remove all listeners for specified topic
+         * - scope (Object): The scope the callback was bound to. This is important if you are binding methods that come from object prototypes.
          *
          * Unsubscribe callback(s) from topic(s).
          **/
-        off: function( topic, fn ){
+        off: function( topic, fn, scope ){
 
             var listeners
                 ,listn
@@ -136,7 +138,10 @@
 
                 listn = listeners[ i ];
 
-                if ( listn._bindfn_ === fn || listn === fn ){
+                if (
+                    (listn._bindfn_ === fn || listn === fn) &&
+                    ( (!scope) || listn._scope_ === scope) // check the scope too if specified
+                ){
                     listeners.splice( i, 1 );
                     break;
                 }

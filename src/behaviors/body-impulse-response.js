@@ -10,6 +10,7 @@
  * - mtvThreshold: apply partial extraction of bodies if the minimum transit vector is less than this value ( default: `1`)
  *   this will depend on your simulation characteristic length scale
  * - bodyExtractDropoff: every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1). Helps with stablizing contacts. (default: `0.5`)
+ * - forceWakeupAboveOverlapThreshold: force bodies to wake up if the overlap is above mtvThreshold ( default: `true` )
  **/
 Physics.behavior('body-impulse-response', function( parent ){
 
@@ -22,7 +23,29 @@ Physics.behavior('body-impulse-response', function( parent ){
         // every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1)
         // helps with stablizing contacts.
         ,bodyExtractDropoff: 0.5
+        // force bodies to wake up if the overlap is above mtvThreshold
+        ,forceWakeupAboveOverlapThreshold: true
     };
+
+    function getUid( b ){
+        return b.uid;
+    }
+
+    function clampMTV( totalV, mtv, into ){
+
+        var m, n;
+        n = mtv.norm();
+        m = n - totalV.proj( mtv );
+        m = Math.max( 0, Math.min( n, m ) );
+
+        if ( n === 0 ){
+            into.zero();
+        } else {
+            into.clone( mtv ).mult( m/n );
+        }
+
+        return into;
+    }
 
     return {
 
@@ -32,6 +55,8 @@ Physics.behavior('body-impulse-response', function( parent ){
             parent.init.call( this );
             this.options.defaults( defaults );
             this.options( options );
+
+            this._bodyList = [];
         },
 
         // no applyTo method
@@ -46,7 +71,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         // extended
         disconnect: function( world ){
 
-            world.off( this.options.check, this.respond );
+            world.off( this.options.check, this.respond, this );
         },
 
         /** internal
@@ -89,11 +114,13 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,n = scratch.vector().clone( normal )
                 // vector perpendicular to n
                 ,perp = scratch.vector().clone( n ).perp()
+                ,tmp = scratch.vector()
                 // collision point from A's center
                 ,rA = scratch.vector().clone( point )
                 // collision point from B's center
-                ,rB = scratch.vector().clone( point ).vadd( bodyA.state.pos ).vsub( bodyB.state.pos )
-                ,tmp = scratch.vector()
+                ,rB = scratch.vector().clone( point )
+                    .vadd( bodyA.state.pos )
+                    .vsub( bodyB.state.pos )
                 ,angVelA = bodyA.state.angular.vel
                 ,angVelB = bodyB.state.angular.vel
                 // relative velocity towards B at collision point
@@ -111,30 +138,34 @@ Physics.behavior('body-impulse-response', function( parent ){
                 ,impulse
                 ,sign
                 ,max
+                ,ratio
                 ,inContact = contact
                 ;
 
             if ( contact ){
-                if ( mtv.normSq() < this.options.mtvThreshold ){
-                    mtv.mult( this.options.bodyExtractDropoff );
-                }
 
                 if ( fixedA ){
 
-                    // extract bodies
-                    bodyB.state.pos.vadd( mtv );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
 
                 } else if ( fixedB ){
 
-                    // extract bodies
-                    bodyA.state.pos.vsub( mtv );
+                    clampMTV( bodyA._mtvTotal, mtv.negate(), tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+                    mtv.negate();
 
                 } else {
 
-                    // extract bodies
-                    mtv.mult( 0.5 );
-                    bodyA.state.pos.vsub( mtv );
-                    bodyB.state.pos.vadd( mtv );
+                    ratio = 0.5; //bodyA.mass / ( bodyA.mass + bodyB.mass );
+                    mtv.mult( ratio );
+                    clampMTV( bodyB._mtvTotal, mtv, tmp );
+                    bodyB._mtvTotal.vadd( tmp );
+
+                    mtv.clone( mtrans ).mult( ratio - 1 );
+                    clampMTV( bodyA._mtvTotal, mtv, tmp );
+                    bodyA._mtvTotal.vadd( tmp );
+
                 }
             }
 
@@ -222,7 +253,23 @@ Physics.behavior('body-impulse-response', function( parent ){
                 }
             }
 
+            // wake up bodies if necessary
+            if ( bodyA.sleep() ){
+                bodyA.sleepCheck();
+            }
+            if ( bodyB.sleep() ){
+                bodyB.sleepCheck();
+            }
+
             scratch.done();
+        },
+
+        // internal
+        _pushUniq: function( body ){
+            var idx = Physics.util.sortedIndex( this._bodyList, body, getUid );
+            if ( this._bodyList[ idx ] !== body ){
+                this._bodyList.splice( idx, 0, body );
+            }
         },
 
         /** internal
@@ -235,12 +282,22 @@ Physics.behavior('body-impulse-response', function( parent ){
 
             var self = this
                 ,col
-                ,collisions = Physics.util.shuffle(data.collisions)
+                ,collisions = data.collisions// Physics.util.shuffle(data.collisions)
+                ,i,l,b
                 ;
 
-            for ( var i = 0, l = collisions.length; i < l; ++i ){
+            for ( i = 0, l = collisions.length; i < l; ++i ){
 
                 col = collisions[ i ];
+                // add bodies to list for later
+                this._pushUniq( col.bodyA );
+                this._pushUniq( col.bodyB );
+                // ensure they have mtv stat vectors
+                col.bodyA._mtvTotal = col.bodyA._mtvTotal || new Physics.vector();
+                col.bodyB._mtvTotal = col.bodyB._mtvTotal || new Physics.vector();
+                col.bodyA._oldmtvTotal = col.bodyA._oldmtvTotal || new Physics.vector();
+                col.bodyB._oldmtvTotal = col.bodyB._oldmtvTotal || new Physics.vector();
+
                 self.collideBodies(
                     col.bodyA,
                     col.bodyB,
@@ -249,6 +306,24 @@ Physics.behavior('body-impulse-response', function( parent ){
                     col.mtv,
                     col.collidedPreviously
                 );
+            }
+
+            // apply mtv vectors from the average mtv vector
+            for ( i = 0, l = this._bodyList.length; i < l; ++i ){
+                b = this._bodyList.pop();
+                // clampMTV( b._oldmtvTotal, b._mtvTotal, b._mtvTotal );
+
+                if ( b._mtvTotal.normSq() < this.options.mtvThreshold ){
+                    b._mtvTotal.mult( this.options.bodyExtractDropoff );
+                } else if ( this.options.forceWakeupAboveOverlapThreshold ) {
+                    // wake up bodies if necessary
+                    b.sleep( false );
+                }
+
+                b.state.pos.vadd( b._mtvTotal );
+                b.state.old.pos.vadd( b._mtvTotal );
+                b._oldmtvTotal.swap( b._mtvTotal );
+                b._mtvTotal.zero();
             }
         }
     };

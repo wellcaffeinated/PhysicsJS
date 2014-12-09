@@ -135,7 +135,7 @@
         disconnect: function( world ){
 
             if (this.behave){
-                world.off('integrate:positions', this.behave);
+                world.off('integrate:positions', this.behave, this);
             }
         },
 

@@ -1,5 +1,5 @@
 /**
- * PhysicsJS v0.6.0 - 2014-04-22
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
@@ -16,7 +16,7 @@
     }
 }(this, function (Physics) {
     'use strict';
-    /** 
+    /**
      * class EdgeCollisionDetectionBehavior < Behavior
      *
      * `Physics.behavior('edge-collision-detection')`.
@@ -37,7 +37,7 @@
          * - bounds (Physics.aabb): The boundary
          * - dummy: (Body): The dummy body to publish as the static other body it collides with
          * + (Array): The collision data
-         * 
+         *
          * Check if a body collides with the boundary
          */
         var checkGeneral = function checkGeneral( body, bounds, dummy ){
@@ -45,6 +45,7 @@
             var overlap
                 ,aabb = body.aabb()
                 ,scratch = Physics.scratchpad()
+                ,offset = body.getGlobalOffset( scratch.vector() )
                 ,trans = scratch.transform()
                 ,dir = scratch.vector()
                 ,result = scratch.vector()
@@ -71,7 +72,7 @@
                         x: overlap,
                         y: 0
                     },
-                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
                 };
     
                 collisions.push(collision);
@@ -96,7 +97,7 @@
                         x: 0,
                         y: overlap
                     },
-                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
                 };
     
                 collisions.push(collision);
@@ -121,7 +122,7 @@
                         x: -overlap,
                         y: 0
                     },
-                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
                 };
     
                 collisions.push(collision);
@@ -146,7 +147,7 @@
                         x: 0,
                         y: -overlap
                     },
-                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).values()
+                    pos: body.geometry.getFarthestHullPoint( dir, result ).rotate( trans ).vadd( offset ).values()
                 };
     
                 collisions.push(collision);
@@ -162,7 +163,7 @@
          * - bounds (Physics.aabb): The boundary
          * - dummy: (Body): The dummy body to publish as the static other body it collides with
          * + (Array): The collision data
-         * 
+         *
          * Check if a body collides with the boundary
          */
         var checkEdgeCollide = function checkEdgeCollide( body, bounds, dummy ){
@@ -189,8 +190,8 @@
     
                 this.setAABB( this.options.aabb );
                 this.restitution = this.options.restitution;
-                
-                this.body = Physics.body('point', { 
+    
+                this.body = Physics.body('point', {
                     treatment: 'static',
                     restitution: this.options.restitution,
                     cof: this.options.cof
@@ -200,7 +201,7 @@
             /**
              * EdgeCollisionDetectionBehavior#setAABB( aabb ) -> this
              * - aabb (Physics.aabb): The aabb to use as the boundary
-             * 
+             *
              * Set the boundaries of the edge.
              **/
             setAABB: function( aabb ){
@@ -216,7 +217,7 @@
                     },
                     max: {
                         x: (aabb.x + aabb.hw),
-                        y: (aabb.y + aabb.hh)  
+                        y: (aabb.y + aabb.hh)
                     }
                 };
     
@@ -226,23 +227,23 @@
             // extended
             connect: function( world ){
     
-                world.on( 'integrate:velocities', this.checkAll, this );
+                world.on( 'integrate:positions', this.checkAll, this, 2 );
             },
     
             // extended
             disconnect: function( world ){
     
-                world.off( 'integrate:velocities', this.checkAll );
+                world.off( 'integrate:positions', this.checkAll, this, 2 );
             },
     
             /** internal
              * EdgeCollisionDetectionBehavior#checkAll( data )
              * - data (Object): Event data
-             * 
+             *
              * Event callback to check all bodies for collisions with the edge
              **/
             checkAll: function( data ){
-                
+    
                 var bodies = this.getTargets()
                     ,dt = data.dt
                     ,body
@@ -250,6 +251,10 @@
                     ,ret
                     ,bounds = this._edges
                     ,dummy = this.body
+                    ,prevContacts = this.prevContacts || {}
+                    ,contactList = {}
+                    ,pairHash = Physics.util.pairHash
+                    ,hash
                     ;
     
                 for ( var i = 0, l = bodies.length; i < l; i++ ){
@@ -258,14 +263,23 @@
     
                     // only detect dynamic bodies
                     if ( body.treatment === 'dynamic' ){
-                        
+    
                         ret = checkEdgeCollide( body, bounds, dummy );
     
                         if ( ret ){
+                            hash = pairHash( body.uid, dummy.uid );
+    
+                            for ( var j = 0, ll = ret.length; j < ll; j++ ){
+                                contactList[ hash ] = true;
+                                ret[ j ].collidedPreviously = prevContacts[ hash ];
+                            }
+    
                             collisions.push.apply( collisions, ret );
                         }
                     }
                 }
+    
+                this.prevContacts = contactList;
     
                 if ( collisions.length ){
     
@@ -277,6 +291,7 @@
         };
     
     });
+    
     // end module: behaviors/edge-collision-detection.js
     return Physics;
 }));// UMD

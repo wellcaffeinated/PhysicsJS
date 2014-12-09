@@ -44,8 +44,12 @@
         ps.emit( 'tick', time );
     }
 
-    // start stepping
-    step();
+    // start stepping if we can
+    if ( window.requestAnimationFrame ){
+        step();
+    } else {
+        active = false;
+    }
 
     /**
      * Physics.util.ticker.start() -> this
