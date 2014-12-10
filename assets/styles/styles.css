@@ -329,39 +329,52 @@ nav.toc a.github {
   background-repeat: no-repeat;
   background-position: 1em 1.3em;
 }
-/* line 293, styles.scss */
+/* line 294, styles.scss */
 #main-header ul,
 #main-header ul li,
+#main-header ui li button,
 nav.toc ul,
-nav.toc ul li {
+nav.toc ul li,
+nav.toc ui li button {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   list-style: none;
   padding: 0;
   margin: 0;
 }
-/* line 301, styles.scss */
+/* line 302, styles.scss */
+#main-header .btn-codepen-sandbox,
+nav.toc .btn-codepen-sandbox {
+  background-image: url("http://s.cdpn.io/3/cp-arrow-right.svg");
+  background-repeat: no-repeat;
+  background-position: 0.9em center;
+  background-size: 40px 40px;
+  padding-left: 3.8em;
+  font-size: 1em;
+  padding-right: 1.1em;
+}
+/* line 312, styles.scss */
 #main-header ul,
 nav.toc ul {
   margin: 2em 0;
 }
 
-/* line 306, styles.scss */
+/* line 317, styles.scss */
 #content {
   padding: 0 10% 15%;
   overflow: hidden;
 }
 
-/* line 311, styles.scss */
+/* line 322, styles.scss */
 .welcome {
   position: relative;
   z-index: 2;
 }
-/* line 314, styles.scss */
+/* line 325, styles.scss */
 .welcome .col:first-child {
   padding-right: 1em;
 }
 
-/* line 319, styles.scss */
+/* line 330, styles.scss */
 #intro-viewport {
   position: absolute;
   top: 0;
@@ -369,7 +382,7 @@ nav.toc ul {
   z-index: -1;
 }
 
-/* line 326, styles.scss */
+/* line 337, styles.scss */
 #demo-area {
   position: absolute;
   top: 0;
@@ -379,7 +392,7 @@ nav.toc ul {
   border-left: 1px solid #000;
   padding-left: 2px;
 }
-/* line 335, styles.scss */
+/* line 346, styles.scss */
 #demo-area .demo-wrap {
   position: absolute;
   top: 0;
@@ -387,19 +400,19 @@ nav.toc ul {
   bottom: 0;
   right: 0;
 }
-/* line 343, styles.scss */
+/* line 354, styles.scss */
 #demo-area textarea {
   opacity: 0;
 }
 
-/* line 347, styles.scss */
+/* line 358, styles.scss */
 .demo-wrap {
   position: relative;
   overflow: hidden;
   min-height: 500px;
   background: #171717;
 }
-/* line 353, styles.scss */
+/* line 364, styles.scss */
 .demo-wrap .display {
   position: absolute;
   top: 0;
@@ -408,7 +421,7 @@ nav.toc ul {
   bottom: 0;
   z-index: 1;
 }
-/* line 362, styles.scss */
+/* line 373, styles.scss */
 .demo-wrap .controls {
   position: absolute;
   top: 0;
@@ -417,24 +430,24 @@ nav.toc ul {
   z-index: 3;
   background: rgba(0, 0, 0, 0.5);
 }
-/* line 370, styles.scss */
+/* line 381, styles.scss */
 .demo-wrap .controls .selectricWrapper {
   display: inline-block;
   margin: 0 0.4em 1px 0;
   vertical-align: middle;
 }
-/* line 376, styles.scss */
+/* line 387, styles.scss */
 .demo-wrap .controls > * {
   margin-right: 0.5em;
 }
-/* line 381, styles.scss */
+/* line 392, styles.scss */
 .demo-wrap .CodeMirror {
   height: 100%;
   z-index: 2;
   background: rgba(23, 23, 23, 0.85);
 }
 
-/* line 392, styles.scss */
+/* line 403, styles.scss */
 #main {
   width: 100%;
   max-width: 1600px;
@@ -445,27 +458,27 @@ nav.toc ul {
   -o-box-sizing: border-box;
   box-sizing: border-box;
 }
-/* line 402, styles.scss */
+/* line 413, styles.scss */
 #main > article {
   margin: 0 6em;
 }
-/* line 407, styles.scss */
+/* line 418, styles.scss */
 #main .doc header {
   padding-bottom: 1em;
 }
-/* line 411, styles.scss */
+/* line 422, styles.scss */
 #main .doc .title {
   font-size: 1.5em;
 }
-/* line 415, styles.scss */
+/* line 426, styles.scss */
 #main .doc .desc {
   margin: 0 0 0.5em;
 }
-/* line 419, styles.scss */
+/* line 430, styles.scss */
 #main .doc .children {
   margin-top: 2em;
 }
-/* line 423, styles.scss */
+/* line 434, styles.scss */
 #main .doc .doc .children {
   overflow: hidden;
   /*background: #eee;*/
@@ -481,7 +494,7 @@ nav.toc ul {
   -ms-border-radius: 5px;
   border-radius: 5px;
 }
-/* line 439, styles.scss */
+/* line 450, styles.scss */
 #main .doc.class {
   border: 1px solid #aaa;
   background: #fafafa;
@@ -491,62 +504,62 @@ nav.toc ul {
   -ms-border-radius: 5px;
   border-radius: 5px;
 }
-/* line 449, styles.scss */
+/* line 460, styles.scss */
 #main .doc .doc .title {
   margin: 0;
   padding: 0;
   border-bottom: 1px solid #aaa;
 }
-/* line 456, styles.scss */
+/* line 467, styles.scss */
 #main .doc .title .aliases {
   float: right;
 }
-/* line 460, styles.scss */
+/* line 471, styles.scss */
 #main .doc .title .flags {
   /*display: inline;*/
   font-size: 0.6em;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   margin: 0.2em 0;
 }
-/* line 466, styles.scss */
+/* line 477, styles.scss */
 #main .doc .title .flags span {
   margin-right: 1ex;
 }
-/* line 470, styles.scss */
+/* line 481, styles.scss */
 #main .doc .title .flags .internal {
   /*display: block;*/
   color: #1A70AC;
 }
-/* line 476, styles.scss */
+/* line 487, styles.scss */
 #main .doc .title .flags .deprecated .from,
 #main .doc .title .flags .deprecated .to {
   margin: 0 1ex;
 }
-/* line 482, styles.scss */
+/* line 493, styles.scss */
 #main .doc .doc .title a {
   /*color: #fafafa;*/
 }
-/* line 486, styles.scss */
+/* line 497, styles.scss */
 #main .doc .doc {
   margin-bottom: 4em;
 }
-/* line 491, styles.scss */
+/* line 502, styles.scss */
 #main .doc .signatures,
 #main .doc .signatures > li {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-/* line 497, styles.scss */
+/* line 508, styles.scss */
 #main .doc .signatures {
   margin: 1em 0 2em 0;
   /* callback functions... */
 }
-/* line 500, styles.scss */
+/* line 511, styles.scss */
 #main .doc .signatures > li {
   /*border-left: 1em solid #171717;*/
 }
-/* line 504, styles.scss */
+/* line 515, styles.scss */
 #main .doc .signatures .declaration {
   padding: 1em;
   background: #171717;
@@ -554,7 +567,7 @@ nav.toc ul {
   font-size: 0.875em;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
-/* line 513, styles.scss */
+/* line 524, styles.scss */
 #main .doc .signatures .arguments-desc,
 #main .doc .signatures .returns-desc {
   padding: 1em;
@@ -564,26 +577,26 @@ nav.toc ul {
   /*rgba(10,10,0,0.03);*/
   overflow: hidden;
 }
-/* line 522, styles.scss */
+/* line 533, styles.scss */
 #main .doc .signatures .arguments-desc code,
 #main .doc .signatures .returns-desc code {
   color: #b58900;
 }
-/* line 526, styles.scss */
+/* line 537, styles.scss */
 #main .doc .signatures .returns-desc {
   border: none;
 }
-/* line 531, styles.scss */
+/* line 542, styles.scss */
 #main .doc .signatures .arguments-desc .arguments-desc {
   background: #000;
 }
-/* line 536, styles.scss */
+/* line 547, styles.scss */
 #main .doc .signatures .arguments-desc p,
 #main .doc .signatures .returns-desc p {
   padding: 0;
   font-style: normal;
 }
-/* line 542, styles.scss */
+/* line 553, styles.scss */
 #main .doc .signatures .arguments-desc dt,
 #main .doc .signatures .returns-desc dt {
   width: 160px;
@@ -593,7 +606,7 @@ nav.toc ul {
   font-size: 0.875em;
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
-/* line 552, styles.scss */
+/* line 563, styles.scss */
 #main .doc .signatures .arguments-desc dd,
 #main .doc .signatures .returns-desc dd {
   float: left;
@@ -601,11 +614,11 @@ nav.toc ul {
   margin-left: 2em;
   font-style: normal;
 }
-/* line 559, styles.scss */
+/* line 570, styles.scss */
 #main .doc .signatures .arguments-desc dd .arguments-desc {
   margin-bottom: 2em;
 }
-/* line 566, styles.scss */
+/* line 577, styles.scss */
 #main .doc .signatures .arguments-desc .title,
 #main .doc .signatures .returns-desc .title,
 #main .doc .signatures .arguments-desc dd > .types,
@@ -615,26 +628,26 @@ nav.toc ul {
   color: #888;
   border: none;
 }
-/* line 574, styles.scss */
+/* line 585, styles.scss */
 #main .doc .signatures .arguments-desc .title:before,
 #main .doc .signatures .returns-desc .title:before {
   content: '// ';
 }
-/* line 578, styles.scss */
+/* line 589, styles.scss */
 #main .doc .signatures .arguments {
   margin: 0 1ex;
 }
-/* line 582, styles.scss */
+/* line 593, styles.scss */
 #main .doc .signatures .arguments .arguments {
   color: #93a1a1;
 }
-/* line 586, styles.scss */
+/* line 597, styles.scss */
 #main .doc .signatures .returns > span {
   margin: 0 1ex;
 }
 
 /* type colors */
-/* line 599, styles.scss */
+/* line 610, styles.scss */
 .arguments a,
 .returns a,
 .arguments-desc a,
@@ -642,7 +655,7 @@ nav.toc ul {
   color: inherit;
 }
 
-/* line 607, styles.scss */
+/* line 618, styles.scss */
 .arguments a,
 .arguments span,
 .returns a,
@@ -651,29 +664,29 @@ nav.toc ul {
   color: #b58900;
 }
 
-/* line 611, styles.scss */
+/* line 622, styles.scss */
 .signatures {
   /* optional */
 }
-/* line 612, styles.scss */
+/* line 623, styles.scss */
 .signatures .name {
   color: #c7c7c7;
 }
-/* line 618, styles.scss */
+/* line 629, styles.scss */
 .signatures .this,
 .signatures .Object,
 .signatures .Array {
   color: #dc322f;
 }
-/* line 622, styles.scss */
+/* line 633, styles.scss */
 .signatures .Function {
   color: #859900;
 }
-/* line 626, styles.scss */
+/* line 637, styles.scss */
 .signatures .String {
   color: #6c71c4;
 }
-/* line 637, styles.scss */
+/* line 648, styles.scss */
 .signatures .false,
 .signatures .true,
 .signatures .void,
@@ -684,16 +697,16 @@ nav.toc ul {
 .signatures .NaN {
   color: #2aa198 !important;
 }
-/* line 642, styles.scss */
+/* line 653, styles.scss */
 .signatures .optional {
   font-size: inherit;
   margin: 0 1ex;
 }
-/* line 647, styles.scss */
+/* line 658, styles.scss */
 .signatures .optional:before {
   content: '[';
 }
-/* line 651, styles.scss */
+/* line 662, styles.scss */
 .signatures .optional:after {
   content: ']';
 }
@@ -701,7 +714,7 @@ nav.toc ul {
 /*======================================================================
 Selectric
 ======================================================================*/
-/* line 659, styles.scss */
+/* line 670, styles.scss */
 .selectricWrapper {
   position: relative;
   margin: 0 0 10px;
@@ -709,12 +722,12 @@ Selectric
   cursor: pointer;
 }
 
-/* line 666, styles.scss */
+/* line 677, styles.scss */
 .selectricResponsive {
   width: 100%;
 }
 
-/* line 670, styles.scss */
+/* line 681, styles.scss */
 .selectric {
   border: 1px solid #1E6EA7;
   background: #268BD2;
@@ -722,7 +735,7 @@ Selectric
   border-radius: 3px;
 }
 
-/* line 676, styles.scss */
+/* line 687, styles.scss */
 .selectric .label {
   display: block;
   white-space: nowrap;
@@ -735,7 +748,7 @@ Selectric
   min-height: 24px;
 }
 
-/* line 687, styles.scss */
+/* line 698, styles.scss */
 .selectric .button {
   border-radius: 0px;
   display: block;
@@ -752,7 +765,7 @@ Selectric
   /* IE Fix */
 }
 
-/* line 702, styles.scss */
+/* line 713, styles.scss */
 .selectric .button:after {
   content: " ";
   position: absolute;
@@ -768,38 +781,38 @@ Selectric
   border-bottom: none;
 }
 
-/* line 717, styles.scss */
+/* line 728, styles.scss */
 .selectricHover .selectric {
   border-color: #05558e;
 }
 
-/* line 720, styles.scss */
+/* line 731, styles.scss */
 .selectricHover .selectric .button {
   color: #05558e;
 }
 
-/* line 723, styles.scss */
+/* line 734, styles.scss */
 .selectricHover .selectric .button:after {
   border-top-color: #05558e;
 }
 
-/* line 727, styles.scss */
+/* line 738, styles.scss */
 .selectricOpen {
   z-index: 9999;
 }
 
-/* line 730, styles.scss */
+/* line 741, styles.scss */
 .selectricOpen .selectric {
   border-color: #05558e;
   background: #0d72b9;
 }
 
-/* line 734, styles.scss */
+/* line 745, styles.scss */
 .selectricOpen .selectricItems {
   display: block;
 }
 
-/* line 738, styles.scss */
+/* line 749, styles.scss */
 .selectricDisabled {
   filter: alpha(opacity=50);
   opacity: 0.5;
@@ -811,7 +824,7 @@ Selectric
   user-select: none;
 }
 
-/* line 749, styles.scss */
+/* line 760, styles.scss */
 .selectricHideSelect {
   position: relative;
   overflow: hidden;
@@ -819,14 +832,14 @@ Selectric
   height: 0;
 }
 
-/* line 755, styles.scss */
+/* line 766, styles.scss */
 .selectricHideSelect select {
   position: absolute;
   left: -100%;
   display: none;
 }
 
-/* line 761, styles.scss */
+/* line 772, styles.scss */
 .selectricInput {
   position: absolute !important;
   top: 0 !important;
@@ -843,7 +856,7 @@ Selectric
   background: none !important;
 }
 
-/* line 777, styles.scss */
+/* line 788, styles.scss */
 .selectricTempShow {
   position: absolute !important;
   visibility: hidden !important;
@@ -851,7 +864,7 @@ Selectric
 }
 
 /* Items box */
-/* line 784, styles.scss */
+/* line 795, styles.scss */
 .selectricItems {
   display: none;
   position: absolute;
@@ -863,19 +876,19 @@ Selectric
   box-shadow: 0 0 10px -6px;
 }
 
-/* line 794, styles.scss */
+/* line 805, styles.scss */
 .selectricItems .selectricScroll {
   height: 100%;
   overflow: auto;
 }
 
-/* line 798, styles.scss */
+/* line 809, styles.scss */
 .selectricAbove .selectricItems {
   top: auto;
   bottom: 100%;
 }
 
-/* line 802, styles.scss */
+/* line 813, styles.scss */
 .selectricItems ul, .selectricItems li {
   list-style: none;
   padding: 0;
@@ -885,7 +898,7 @@ Selectric
   min-height: 20px;
 }
 
-/* line 810, styles.scss */
+/* line 821, styles.scss */
 .selectricItems li {
   display: block;
   padding: 5px;
@@ -895,20 +908,20 @@ Selectric
   cursor: pointer;
 }
 
-/* line 818, styles.scss */
+/* line 829, styles.scss */
 .selectricItems li.selected {
   background: #A9C2E4;
   color: #444;
   border-top-color: #E0E0E0;
 }
 
-/* line 823, styles.scss */
+/* line 834, styles.scss */
 .selectricItems li:hover {
   background: #A9C2E4;
   color: #444;
 }
 
-/* line 827, styles.scss */
+/* line 838, styles.scss */
 .selectricItems li.disabled {
   background: #F5F5F5;
   color: #BBB;

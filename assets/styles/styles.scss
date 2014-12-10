@@ -290,12 +290,23 @@ nav.toc {
     }
 
     ul,
-    ul li {
+    ul li,
+    ui li button {
       font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 
       list-style: none;
       padding: 0;
       margin: 0;
+    }
+
+    .btn-codepen-sandbox {
+        background-image: url("http://s.cdpn.io/3/cp-arrow-right.svg");
+        background-repeat: no-repeat;
+        background-position: 0.9em center;
+        background-size: 40px 40px;
+        padding-left: 3.8em;
+        font-size: 1em;
+        padding-right: 1.1em;
     }
 
     ul {
