@@ -332,8 +332,8 @@
 
                 if ( v >= limit ){
                     this.sleep( false );
-                    return scratch.done();
                 }
+                return scratch.done();
             }
 
             this._sleepMeanK++;
