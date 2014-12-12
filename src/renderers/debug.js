@@ -129,6 +129,12 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 }
             };
 
+            this.debugEl = document.createElement('div');
+            this.debugEl.className = 'debug-el';
+            this.container.appendChild( this.debugEl );
+
+            this.showText = Physics.util.throttle(this.showText, 100, this);
+
             if ( window.dat ){
                 this.initGui();
             }
@@ -139,7 +145,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             world.on('sweep-prune:intervals', this.storeIntervals, this );
             world.on('collisions:detected', this.storeCollisions, this );
-
+            world.on('debug', this.avgVal, this);
             this.updateGui();
         },
 
@@ -148,7 +154,28 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
 
             world.off('sweep-prune:intervals', this.storeIntervals, this );
             world.off('collisions:detected', this.storeCollisions, this );
+            world.off('debug', this.avgVal, this);
 
+        },
+
+        avgVal: function( val ){
+            var m = this.m || 0
+                ,k = this.k || 0
+                ,s = this.s || 0
+                ,data
+                ;
+
+            k++;
+            data = Physics.statistics.pushRunningAvg( val, k, m, s );
+            this.m = data[0];
+            this.s = data[1];
+            this.k = k;
+
+            this.showText( 'Mean: ' + this.m.toPrecision( 2 ) + '<br/>Variance: ' + (this.s/(k-1)).toPrecision( 2 ) );
+        },
+
+        showText: function( txt ){
+            this.debugEl.innerHTML = txt;
         },
 
         storeIntervals: function( intervals ){
