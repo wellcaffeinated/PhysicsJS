@@ -204,14 +204,14 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ,to = scratch.vector().set( intr.val.x, y )
                 ;
 
-            this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
-            this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawLine( from, to, opts[ intr.isMax ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawCircle( from.x, from.y, 4, opts[ intr.isMax ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
 
             from.set( 0, intr.val.y );
             to.set( x, intr.val.y );
 
-            this.drawLine( from, to, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
-            this.drawCircle( from.x, from.y, 4, opts[ intr.type ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawLine( from, to, opts[ intr.isMax ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
+            this.drawCircle( from.x, from.y, 4, opts[ intr.isMax ? 'intervalMaxColor' : 'intervalMinColor' ], ctx );
 
             scratch.done();
         },
@@ -431,6 +431,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
                 ctx.shadowColor = '#fff';
                 ctx.shadowBlur = 4;
                 ctx.font = '12px monospace';
+                ctx.strokeText('uid: '+body.uid, x, y - 20);
                 ctx.strokeText('r: ('+x.toFixed(0)+', '+y.toFixed(0)+')', x, y-8);
                 ctx.strokeText('v: ('+format(v.x)+', '+format(v.y)+')', x, y+12);
                 ctx.strokeText('o: ('+format(os.x)+', '+format(os.y)+')', x, y+26);

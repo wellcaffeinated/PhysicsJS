@@ -1,15 +1,15 @@
 /**
- * class SweepPruneBehavior < Behavior
- *
- * `Physics.behavior('sweep-prune')`.
- *
- * Sweep and Prune implementation for broad phase collision detection.
- *
- * This massively improves the speed of collision detection. It's set up to always be used with [[BodyCollisionDetection]], and [[BodyImpulseResponse]].
- *
- * Additional options include:
- * - channel: The channel to publish collision candidates to. (default: `collisions:candidates`)
- **/
+* class SweepPruneBehavior < Behavior
+*
+* `Physics.behavior('sweep-prune')`.
+*
+* Sweep and Prune implementation for broad phase collision detection.
+*
+* This massively improves the speed of collision detection. It's set up to always be used with [[BodyCollisionDetection]], and [[BodyImpulseResponse]].
+*
+* Additional options include:
+* - channel: The channel to publish collision candidates to. (default: `collisions:candidates`)
+**/
 Physics.behavior('sweep-prune', function( parent ){
 
     var uid = 1;
@@ -20,8 +20,6 @@ Physics.behavior('sweep-prune', function( parent ){
         return uid++;
     };
 
-    // add z: 2 to get this to work in 3D
-    var dof = { x: 0, y: 1 }; // degrees of freedom
     // change to "3" to get it to work in 3D
     var maxDof = 2;
 
@@ -38,19 +36,17 @@ Physics.behavior('sweep-prune', function( parent ){
             });
             this.options( options );
 
-            this.encounters = [];
-            this.candidates = [];
-
             this.clear();
         },
 
         /**
-         * SweepPruneBehavior#clear()
-         *
-         * Refresh tracking data
-         **/
+        * SweepPruneBehavior#clear()
+        *
+        * Refresh tracking data
+        **/
         clear: function(){
 
+            this.candidates = [];
             this.tracked = [];
             this.pairs = []; // pairs selected as candidate collisions by broad phase
             this.intervalLists = []; // stores lists of aabb projection intervals to be sorted
@@ -67,7 +63,7 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.on( 'add:body', this.trackBody, this );
             world.on( 'remove:body', this.untrackBody, this );
-            world.on( 'integrate:positions', this.sweep, this, 1 );
+            world.on( 'integrate:positions', this.broadphase, this, 1 );
 
             // add current bodies
             var bodies = world.getBodies();
@@ -82,103 +78,114 @@ Physics.behavior('sweep-prune', function( parent ){
 
             world.off( 'add:body', this.trackBody, this );
             world.off( 'remove:body', this.untrackBody, this );
-            world.off( 'integrate:positions', this.sweep, this, 1 );
+            world.off( 'integrate:positions', this.broadphase, this );
             this.clear();
         },
 
         /** internal
-         * SweepPruneBehavior#broadPhase() -> Array
-         * + (Array): The candidate data of overlapping aabbs
-         *
-         * Execute the broad phase and get candidate collisions
-         **/
-        broadPhase: function(){
+        * SweepPruneBehavior#sortIntervalList( list, axis )
+        *
+        * Simple insertion sort for an axis list
+        **/
+        sortIntervalList: function( list, axis ){
 
-            this.updateIntervals();
-            this.sortIntervalLists();
-
-            if ( this._world ){
-                this._world.emit('sweep-prune:intervals', this.intervalLists);
-            }
-
-            return this.checkOverlaps();
-        },
-
-        /** internal
-         * SweepPruneBehavior#sortIntervalLists()
-         *
-         * Simple insertion sort for each axis
-         **/
-        sortIntervalLists: function(){
-
-            var list
-                ,len
+            var len = list.length
                 ,i
                 ,hole
                 ,bound
                 ,boundVal
                 ,left
                 ,leftVal
-                ,axis
                 ;
 
-            // for each axis...
-            for ( var xyz = 0; xyz < maxDof; ++xyz ){
+            // for each interval bound...
+            for ( i = 1; i < len; i++ ){
 
-                // get the intervals for that axis
-                list = this.intervalLists[ xyz ];
-                i = 0;
-                len = list.length;
-                axis = xyz;
+                // store bound
+                bound = list[ i ];
+                boundVal = bound.val.get( axis );
+                hole = i;
 
-                // for each interval bound...
-                while ( (++i) < len ){
+                left = list[ hole - 1 ];
+                leftVal = left && left.val.get( axis );
 
-                    // store bound
-                    bound = list[ i ];
-                    boundVal = bound.val.get( axis );
-                    hole = i;
+                // while others are greater than bound...
+                while ( hole > 0 && leftVal > boundVal ) {
 
-                    left = list[ hole - 1 ];
-                    leftVal = left && left.val.get( axis );
-
-                    // while others are greater than bound...
-                    while (
-                        hole > 0 &&
-                        (
-                            leftVal > boundVal ||
-                            // if it's an equality, only move it over if
-                            // the hole was created by a minimum
-                            // and the previous is a maximum
-                            // so that we detect contacts also
-                            leftVal === boundVal &&
-                            ( left.type && !bound.type )
-                        )
-                    ) {
-
-                        // move others greater than bound to the right
-                        list[ hole ] = left;
-                        hole--;
-                        left = list[ hole - 1 ];
-                        leftVal = left && left.val.get( axis );
+                    if ( (!bound.isMax && left.isMax) && Physics.aabb.overlap( bound.tracker.aabb, left.tracker.aabb ) ){
+                        this.addCandidate( this.getPair(bound.tracker, left.tracker) );
                     }
 
-                    // insert bound in the hole
-                    list[ hole ] = bound;
+                    if ( bound.isMax && !left.isMax ){
+                        this.removeCandidate( this.getPair(bound.tracker, left.tracker), (bound.tracker.removed || left.tracker.removed) );
+                    }
+
+                    // move others greater than bound to the right
+                    list[ hole ] = left;
+                    hole--;
+                    left = list[ hole - 1 ];
+                    leftVal = left && left.val.get( axis );
                 }
+
+                // insert bound in the hole
+                list[ hole ] = bound;
             }
         },
 
         /** internal
-         * SweepPruneBehavior#getPair( tr1, tr2, doCreate ) -> Object
-         * - tr1 (Object): First tracker
-         * - tr2 (Object): Second tracker
-         * - doCreate (Boolean): Create if not found
-         * + (Object): Pair object or null if not found
-         *
-         * Get a pair object for the tracker objects
-         **/
-        getPair: function(tr1, tr2, doCreate){
+        * SweepPruneBehavior#addCandidate( pair )
+        * - pair (Object): The pair object
+        *
+        * Add a pair to collision candidates
+        **/
+        addCandidate: function( pair ){
+
+            if ( !pair || pair.index > -1 ){
+                // already added
+                return;
+            }
+
+            pair.index = this.candidates.length;
+            this.candidates.push( pair );
+        },
+
+        /** internal
+        * SweepPruneBehavior#removeCandidate( pair[, removePair] )
+        * - pair (Object): The pair object
+        * - removePair (Boolean): If true will also remove pair from hash table
+        *
+        * Remove a pair from collision candidates
+        **/
+        removeCandidate: function( pair, removePair ){
+
+            var other;
+
+            if ( pair && pair.index > -1 ){
+
+                other = this.candidates.pop();
+                if ( other !== pair ){
+                    other.index = pair.index;
+                    this.candidates[ other.index ] = other;
+                }
+
+                pair.index = -1;
+            }
+
+            if ( pair && removePair ){
+                // remove the pair from the hash too
+                this.pairs[ pair.hash ] = null;
+            }
+        },
+
+        /** internal
+        * SweepPruneBehavior#getPair( tr1, tr2, doCreate ) -> Object
+        * - tr1 (Object): First tracker
+        * - tr2 (Object): Second tracker
+        * + (Object): Pair object or null if not found
+        *
+        * Get a pair object for the tracker objects
+        **/
+        getPair: function(tr1, tr2){
 
             var hash = pairHash( tr1.id, tr2.id );
 
@@ -190,177 +197,22 @@ Physics.behavior('sweep-prune', function( parent ){
 
             if ( !c ){
 
-                if ( !doCreate ){
-                    return null;
-                }
-
                 c = this.pairs[ hash ] = {
-                    bodyA: tr1.body,
-                    bodyB: tr2.body,
-                    flag: 1
+                    index: -1
+                    ,hash: hash
+                    ,bodyA: tr1.body
+                    ,bodyB: tr2.body
                 };
-            }
-
-            if ( doCreate){
-                c.flag = 1;
             }
 
             return c;
         },
 
-        // getPair: function(tr1, tr2, doCreate){
-
-        //     var hash = Math.min(tr1.id, tr2.id) // = pairHash( tr1.id, tr2.id )
-        //         ,other = Math.max(tr1.id, tr2.id)
-        //         ,first
-        //         ,c
-        //         ;
-
-        //     if ( hash === false ){
-        //         return null;
-        //     }
-
-        //     first = this.pairs[ hash ];
-
-        //     if ( !first ){
-        //         if ( !doCreate ){
-        //             return null;
-        //         }
-
-        //         first = this.pairs[ hash ] = [];
-        //     }
-
-        //     c = first[ other ];
-
-        //     if ( !c ){
-
-        //         if ( !doCreate ){
-        //             return null;
-        //         }
-
-        //         c = first[ other ] = {
-        //             bodyA: tr1.body,
-        //             bodyB: tr2.body,
-        //             flag: 1
-        //         };
-        //     }
-
-        //     return c;
-        // },
-
         /** internal
-         * SweepPruneBehavior#checkOverlaps() -> Array
-         * + (Array): List of candidate collisions
-         *
-         * Check each axis for overlaps of bodies AABBs
-         **/
-        checkOverlaps: function(){
-
-            var isX
-                ,hash
-                ,tr1
-                ,tr2
-                ,bound
-                ,list
-                ,len
-                ,i
-                ,j
-                ,c
-                // determine which axis is the last we need to check
-                ,collisionFlag = 1 << (dof.z + 1) << (dof.y + 1) << (dof.x + 1)
-                ,encounters = this.encounters
-                ,enclen = 0
-                ,candidates = this.candidates
-                ;
-
-            Physics.util.clearArray( encounters );
-            Physics.util.clearArray( candidates );
-
-            for ( var xyz = 0; xyz < maxDof; ++xyz ){
-
-                // is the x coord
-                isX = (xyz === 0);
-                // get the interval list for this axis
-                list = this.intervalLists[ xyz ];
-
-                // for each interval bound
-                for ( i = 0, len = list.length; i < len; i++ ){
-
-                    bound = list[ i ];
-                    tr1 = bound.tracker;
-
-                    if ( bound.type ){
-
-                        // is a max
-
-                        j = enclen;
-
-                        for ( j = enclen - 1; j >= 0; j-- ){
-
-                            tr2 = encounters[ j ];
-
-                            // if they are the same tracked interval
-                            if ( tr2 === tr1 ){
-
-                                // remove the interval from the encounters list
-                                // faster than .splice()
-                                if ( j < enclen - 1 ) {
-
-                                    encounters[ j ] = encounters.pop();
-
-                                } else {
-
-                                    // encountered a max right after a min... no overlap
-                                    encounters.pop();
-                                }
-
-                                enclen--;
-
-                            } else {
-
-                                // check if we have flagged this pair before
-                                // if it's the x axis, create a pair
-                                c = this.getPair( tr1, tr2, isX );
-
-                                if ( c && c.flag < collisionFlag ){
-
-                                    // if it's greater than the axis index, set the flag
-                                    // to = 0.
-                                    // if not, increment the flag by one.
-                                    c.flag = c.flag << (xyz + 1);
-
-                                    // c.flag will equal collisionFlag
-                                    // if we've incremented the flag
-                                    // enough that all axes are overlapping
-                                    if ( c.flag === collisionFlag ){
-
-                                        // overlaps on all axes.
-                                        // add it to possible collision
-                                        // candidates list for narrow phase
-
-                                        candidates.push( c );
-                                    }
-                                }
-                            }
-                        }
-
-                    } else {
-
-                        // is a min
-                        // just add this minimum to the encounters list
-                        enclen = encounters.push( tr1 );
-                    }
-                }
-            }
-
-            return candidates;
-        },
-
-        /** internal
-         * SweepPruneBehavior#updateIntervals()
-         *
-         * Update position intervals on each axis
-         **/
+        * SweepPruneBehavior#updateIntervals()
+        *
+        * Update position intervals on each axis
+        **/
         updateIntervals: function(){
 
             var tr
@@ -376,6 +228,7 @@ Physics.behavior('sweep-prune', function( parent ){
                 tr = list[ i ];
                 intr = tr.interval;
                 aabb = tr.body.aabb();
+                tr.aabb = aabb;
 
                 // copy the position (plus or minus) the aabb half-dimensions
                 // into the min/max intervals
@@ -385,61 +238,58 @@ Physics.behavior('sweep-prune', function( parent ){
         },
 
         /** internal
-         * SweepPruneBehavior#trackBody( data )
-         * - data (Object): Event data
-         *
-         * Event callback to add body to list of those tracked by sweep and prune
-         **/
+        * SweepPruneBehavior#trackBody( data )
+        * - data (Object): Event data
+        *
+        * Event callback to add body to list of those tracked by sweep and prune
+        **/
         trackBody: function( data ){
 
             var body = data.body
                 ,tracker = {
-
-                    id: getUniqueId(),
+                    id: body.uid,
                     body: body
-                }
-                ,intr = {
-
-                    min: {
-                        type: false, //min
-                        val: new Physics.vector(),
-                        tracker: tracker
-                    },
-
-                    max: {
-                        type: true, //max
-                        val: new Physics.vector(),
-                        tracker: tracker
-                    }
                 }
                 ;
 
-            tracker.interval = intr;
+            tracker.interval = {
+
+                min: {
+                    isMax: false, //min
+                    val: new Physics.vector(),
+                    tracker: tracker
+                },
+
+                max: {
+                    isMax: true, //max
+                    val: new Physics.vector(),
+                    tracker: tracker
+                }
+            };
+
             this.tracked.push( tracker );
 
-            for ( var xyz = 0; xyz < maxDof; ++xyz ){
+            for ( var xyz = 0; xyz < maxDof; xyz++ ){
 
-                this.intervalLists[ xyz ].push( intr.min, intr.max );
+                this.intervalLists[ xyz ].push( tracker.interval.min, tracker.interval.max );
             }
         },
 
         /** internal
-         * SweepPruneBehavior#untrackBody( data )
-         * - data (Object): Event data
-         *
-         * Event callback to remove body from list of those tracked
-         **/
+        * SweepPruneBehavior#untrackBody( data )
+        * - data (Object): Event data
+        *
+        * Event callback to remove body from list of those tracked
+        **/
         untrackBody: function( data ){
 
             var body = data.body
-                ,list
-                ,minmax
                 ,trackedList = this.tracked
                 ,tracker
-                ,count
+                ,toRemove = this.toRemove || ( this.toRemove = [] )
                 ;
 
-            for ( var i = 0, l = trackedList.length; i < l; ++i ){
+            for ( var i = 0, l = trackedList.length; i < l; i++ ){
 
                 tracker = trackedList[ i ];
 
@@ -447,31 +297,13 @@ Physics.behavior('sweep-prune', function( parent ){
 
                     // remove the tracker at this index
                     trackedList.splice(i, 1);
+                    // mark for removal
+                    toRemove.push( tracker );
+                    // move far away so pairs are removed automatically
+                    tracker.interval.min.val.set( Infinity, Infinity );
+                    tracker.interval.max.val.set( Infinity, Infinity );
 
-                    for ( var xyz = 0; xyz < maxDof; ++xyz ){
-
-                        count = 0;
-                        list = this.intervalLists[ xyz ];
-
-                        for ( var j = 0, m = list.length; j < m; ++j ){
-
-                            minmax = list[ j ];
-
-                            if ( minmax === tracker.interval.min || minmax === tracker.interval.max ){
-
-                                // remove interval from list
-                                list.splice(j, 1);
-                                j--;
-                                l--;
-
-                                if (count > 0){
-                                    break;
-                                }
-
-                                count++;
-                            }
-                        }
-                    }
+                    tracker.removed = true;
 
                     break;
                 }
@@ -479,24 +311,82 @@ Physics.behavior('sweep-prune', function( parent ){
         },
 
         /** internal
-         * SweepPruneBehavior#sweep( data )
-         * - data (Object): Event data
-         *
-         * Event callback to sweep and publish event if any candidate collisions are found
-         **/
-        sweep: function( data ){
+        * SweepPruneBehavior#cleanup( toRemove )
+        * - data (Array): Trackers to remove
+        *
+        * Clean up trackers
+        **/
+        cleanup: function( toRemove ){
 
-            var self = this
-                ,candidates
+            var tracker
+                ,list
+                ,count
+                ,minmax
                 ;
 
-            candidates = self.broadPhase();
+            for ( var i = 0, l = toRemove.length; i < l; i++ ){
 
-            if ( candidates.length ){
+                tracker = toRemove[ i ];
+
+                for ( var xyz = 0; xyz < maxDof; xyz++ ){
+
+                    count = 0;
+                    list = this.intervalLists[ xyz ];
+
+                    for ( var j = 0, m = list.length; j < m; j++ ){
+
+                        minmax = list[ j ];
+
+                        // remove both the min and the max
+                        if ( minmax === tracker.interval.min || minmax === tracker.interval.max ){
+
+                            // remove interval from list
+                            list.splice(j, 1);
+                            j--;
+                            l--;
+
+                            if (count > 0){
+                                break;
+                            }
+
+                            count++;
+                        }
+                    }
+                }
+            }
+        },
+
+        /** internal
+        * SweepPruneBehavior#broadPhase( data )
+        * - data (Object): Event data
+        *
+        * Event callback to sweep and publish event if any candidate collisions are found
+        **/
+        broadphase: function( data ){
+
+            var self = this
+                ,toRemove
+                ;
+
+            toRemove = this.toRemove;
+            this.toRemove = null;
+
+            this.updateIntervals();
+            this.sortIntervalList( this.intervalLists[0], 0 );
+            this.sortIntervalList( this.intervalLists[1], 1 );
+            // this.sortIntervalList( this.intervalLists[2], 2 );
+
+            this._world.emit('sweep-prune:intervals', this.intervalLists);
+
+            if ( this.candidates.length ){
 
                 this._world.emit( this.options.channel, {
-                    candidates: candidates
+                    candidates: this.candidates
                 });
+            }
+
+            if ( toRemove ){
+                this.cleanup( toRemove );
             }
         }
     };
