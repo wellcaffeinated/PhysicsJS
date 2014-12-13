@@ -392,7 +392,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                         for ( var j = 0, r, ll = ret.length; j < ll; j++ ){
                             r = ret[j];
                             if ( r ){
-                                hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                                hash = pair.hash; //pairHash( pair.bodyA.uid, pair.bodyB.uid );
                                 contactList[ hash ] = true;
                                 r.collidedPreviously = prevContacts[ hash ];
                                 collisions.push( r );
@@ -400,7 +400,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                         }
 
                     } else if ( ret ){
-                        hash = pairHash( pair.bodyA.uid, pair.bodyB.uid );
+                        hash = pair.hash; //pairHash( pair.bodyA.uid, pair.bodyB.uid );
                         contactList[ hash ] = true;
                         ret.collidedPreviously = prevContacts[ hash ];
 
