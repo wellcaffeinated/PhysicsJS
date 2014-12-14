@@ -178,12 +178,12 @@
             e = scratch.event();
             // event data
             e.topic = topic;
-            e.handler = handler;
 
             // reverse iterate so priorities work out correctly
             while ( l-- ){
 
                 handler = listeners[ l ];
+                e.handler = handler;
                 handler( data, e );
 
                 // if _one_ flag is set, the unsubscribe
