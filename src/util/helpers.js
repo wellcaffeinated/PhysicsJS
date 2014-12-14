@@ -195,6 +195,19 @@ if ( !Function.prototype.bind ){
 }
 
 /**
+* Physics.util.bindScope( fn, scope ) -> Function
+* - fn (Function): The function to bind scope to
+* - scope (Object): The scope to give to `fn`
+*
+* Bind a scope to a function (no argument binding). It's faster.
+**/
+Physics.util.bindScope = function( fn, scope ){
+    return function(){
+        return fn.apply( scope, arguments );
+    };
+};
+
+/**
  * Physics.util.find( collection, fn( value, index, collection ) ) -> Mixed
  * - collection (Array): Collection of values to test
  * - fn (Function): The test function

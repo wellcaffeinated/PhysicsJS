@@ -65,7 +65,7 @@
 
             if ( Physics.util.isObject( scope ) ){
 
-                fn = Physics.util.bind( fn, scope );
+                fn = Physics.util.bindScope( fn, scope );
                 fn._bindfn_ = orig;
                 fn._one_ = orig._one_;
                 fn._scope_ = scope;
