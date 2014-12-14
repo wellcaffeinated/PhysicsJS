@@ -168,14 +168,13 @@
                 ,l = listeners && listeners.length
                 ,handler
                 ,e
-                ,scratch = Physics.scratchpad()
                 ;
 
             if ( !l ){
-                return scratch.done(this);
+                return this;
             }
 
-            e = scratch.event();
+            e = this._edata || (this._edata = {});
             // event data
             e.topic = topic;
 
@@ -192,7 +191,7 @@
                 }
             }
 
-            return scratch.done(this);
+            return this;
         },
 
         /**
