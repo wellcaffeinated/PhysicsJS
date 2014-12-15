@@ -89,6 +89,7 @@ Physics.behavior('body-collision-detection', function( parent ){
         return fn;
     };
 
+    var maxGJKTries = 110;
     /*
      * checkGJK( bodyA, bodyB ) -> Object
      * - bodyA (Object): First body
@@ -106,72 +107,73 @@ Physics.behavior('body-collision-detection', function( parent ){
             ,overlap
             ,result
             ,support
-            ,inc
+            ,incA
+            ,incB
             ,collision = false
-            ,aabbA = bodyA.aabb()
-            ,dimA = Math.min( aabbA.hw, aabbA.hh )
-            ,aabbB = bodyB.aabb()
-            ,dimB = Math.min( aabbB.hw, aabbB.hh )
+            ,tries = 0
+            ,aabbA = bodyA.geometry.aabb()
+            ,dimA = Math.min( aabbA.hw, aabbA.hh ) || 1
+            ,aabbB = bodyB.geometry.aabb()
+            ,dimB = Math.min( aabbB.hw, aabbB.hh ) || 1
+            ,fA = (bodyA.geometry.name !== 'circle')|0 // 0 if circle
+            ,fB = (bodyB.geometry.name !== 'circle')|0 // 0 if circle
             ;
 
         // just check the overlap first
         support = getSupportFn( bodyA, bodyB );
-        d.clone( bodyA.state.pos )
-            .vadd( bodyA.getGlobalOffset( os ) )
-            .vsub( bodyB.state.pos )
-            .vsub( bodyB.getGlobalOffset( os ) )
-            ;
-        result = Physics.gjk(support, d, true);
+        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
 
-        if ( result.overlap ){
+        // increment margins by 1% of the shape dimension.
+        incA = 1e-2 * dimA * fA;
+        incB = 1e-2 * dimB * fB;
 
-            // there is a collision. let's do more work.
-            collision = {
-                bodyA: bodyA,
-                bodyB: bodyB
-            };
+        // first get the min distance of between core objects
+        support.useCore = true;
+        // if one is  a circle, use its radius as the margin
+        support.marginA = fA ? incA : dimA;
+        support.marginB = fB ? incB : dimB;
 
-            // inc by 1% of the smallest dim.
-            inc = 1e-2 * Math.min(dimA || 1, dimB || 1);
+        // while there's still an overlap (or we don't have a positive distance)
+        // and the support margins aren't bigger than the shapes...
+        // search for the distance data
+        while (
+            (!result || result.overlap || result.distance === 0) &&
+            tries++ < maxGJKTries
+        ){
+            result = Physics.gjk(support, d);
 
-            // first get the min distance of between core objects
-            support.useCore = true;
-            support.marginA = 0;
-            support.marginB = 0;
-
-            // while there's still an overlap (or we don't have a positive distance)
-            // and the support margins aren't bigger than the shapes...
-            // search for the distance data
-            while ( (result.overlap || result.distance === 0) && (support.marginA < dimA || support.marginB < dimB) ){
-                if ( support.marginA < dimA ){
-                    support.marginA += inc;
-                }
-                if ( support.marginB < dimB ){
-                    support.marginB += inc;
-                }
-
-                result = Physics.gjk(support, d);
-            }
-
-            if ( result.overlap || result.maxIterationsReached ){
-                // This implementation can't deal with a core overlap yet
-                return scratch.done(false);
-            }
-
-            // calc overlap
-            overlap = (support.marginA + support.marginB) - result.distance;
-
-            if ( overlap <= 0 ){
-                return scratch.done(false);
-            }
-
-            collision.overlap = overlap;
-            // @TODO: for now, just let the normal be the mtv
-            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
-            collision.mtv = d.mult( overlap ).values();
-            // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            support.marginA += incA;
+            support.marginB += incB;
         }
+
+        if ( result.overlap || result.maxIterationsReached ){
+            // gjk failed...
+            // console.log('failed')
+            return scratch.done(false);
+        }
+
+        // calc overlap
+        overlap = (support.marginA + support.marginB) - result.distance;
+
+        // if the distance is greater than combined margins... it's not intersecting
+        if ( overlap <= 0 ){
+            return scratch.done(false);
+        }
+
+        // there is a collision. let's do more work.
+        collision = {
+            bodyA: bodyA,
+            bodyB: bodyB
+        };
+
+        d.vadd( bodyA.getGlobalOffset( os ) ).vsub( bodyB.getGlobalOffset( os ) );
+
+        collision.overlap = overlap;
+        // @TODO: for now, just let the normal be the mtv
+        collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+        collision.mtv = d.mult( overlap ).values();
+        // get a corresponding hull point for one of the core points.. relative to body A
+        collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
 
         return scratch.done( collision );
     };
