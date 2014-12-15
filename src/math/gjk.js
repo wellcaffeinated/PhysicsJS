@@ -308,7 +308,6 @@
                 return {
                     simplex: simplex,
                     iterations: iterations,
-                    distance: 0,
                     maxIterationsReached: true
                 };
             }
