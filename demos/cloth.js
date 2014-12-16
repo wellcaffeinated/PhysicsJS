@@ -1,7 +1,7 @@
 //
 // Tearable Cloth
 //
-Physics({ timestep: 8 },function (world) {
+Physics({ timestep: 8, sleepDisabled: true },function (world) {
 
     // bounds of the window
     var viewportBounds = Physics.aabb(0, 0, window.innerWidth, window.innerHeight)
