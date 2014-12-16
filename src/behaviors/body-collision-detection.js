@@ -26,292 +26,8 @@
  **/
 Physics.behavior('body-collision-detection', function( parent ){
 
-    var supportFnStack = [];
-
-    /*
-     * getSupportFn( bodyA, bodyB ) -> Function
-     * - bodyA (Object): First body
-     * - bodyB (Object): Second body
-     * + (Function): The support function
-     *
-     * Get a general support function for use with GJK algorithm
-     */
-    var getSupportFn = function getSupportFn( bodyA, bodyB ){
-
-        var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
-            ,fn = supportFnStack[ hash ]
-            ;
-
-        if ( !fn ){
-            fn = supportFnStack[ hash ] = function pairSupportFunction( searchDir ){
-
-                var tA = fn.tA
-                    ,tB = fn.tB
-                    ,vA = fn.tmpv1
-                    ,vB = fn.tmpv2
-                    ;
-
-                if ( fn.useCore ){
-                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, fn.marginA );
-                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, fn.marginB );
-                } else {
-                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA );
-                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB );
-                }
-
-                vA.vadd( bodyA.offset ).transform( tA );
-                vB.vadd( bodyB.offset ).transform( tB );
-                searchDir.negate().rotate( tB );
-
-                return {
-                    a: vA.values(),
-                    b: vB.values(),
-                    pt: vA.vsub( vB ).values()
-                };
-            };
-
-            // transforms for coordinate transformations
-            fn.tA = new Physics.transform();
-            fn.tB = new Physics.transform();
-
-            // temp vectors (used too frequently to justify scratchpad)
-            fn.tmpv1 = new Physics.vector();
-            fn.tmpv2 = new Physics.vector();
-        }
-
-        fn.useCore = false;
-        fn.margin = 0;
-        fn.tA.setRotation( bodyA.state.angular.pos ).setTranslation( bodyA.state.pos );
-        fn.tB.setRotation( bodyB.state.angular.pos ).setTranslation( bodyB.state.pos );
-        fn.bodyA = bodyA;
-        fn.bodyB = bodyB;
-
-        return fn;
-    };
-
     var maxGJKTries = 110;
-    /*
-     * checkGJK( bodyA, bodyB ) -> Object
-     * - bodyA (Object): First body
-     * - bodyB (Object): Second body
-     * + (Object): Collision result
-     *
-     * Use GJK algorithm to check arbitrary bodies for collisions
-     */
-    var checkGJK = function checkGJK( bodyA, bodyB ){
 
-        var scratch = Physics.scratchpad()
-            ,d = scratch.vector()
-            ,tmp = scratch.vector()
-            ,os = scratch.vector()
-            ,overlap
-            ,result
-            ,support
-            ,incA
-            ,incB
-            ,collision = false
-            ,tries = 0
-            ,aabbA = bodyA.geometry.aabb()
-            ,dimA = Math.min( aabbA.hw, aabbA.hh ) || 1
-            ,aabbB = bodyB.geometry.aabb()
-            ,dimB = Math.min( aabbB.hw, aabbB.hh ) || 1
-            ,fA = (bodyA.geometry.name !== 'circle')|0 // 0 if circle
-            ,fB = (bodyB.geometry.name !== 'circle')|0 // 0 if circle
-            ;
-
-        // just check the overlap first
-        support = getSupportFn( bodyA, bodyB );
-        d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
-
-        // increment margins by 1% of the shape dimension.
-        incA = 1e-2 * dimA * fA;
-        incB = 1e-2 * dimB * fB;
-
-        // first get the min distance of between core objects
-        support.useCore = true;
-        // if one is  a circle, use its radius as the margin
-        support.marginA = fA ? incA : dimA;
-        support.marginB = fB ? incB : dimB;
-
-        // while there's still an overlap (or we don't have a positive distance)
-        // and the support margins aren't bigger than the shapes...
-        // search for the distance data
-        while (
-            (!result || result.overlap || result.distance === 0) &&
-            tries++ < maxGJKTries
-        ){
-            result = Physics.gjk(support, d);
-
-            support.marginA += incA;
-            support.marginB += incB;
-        }
-
-        if ( result.overlap || result.maxIterationsReached ){
-            // gjk failed...
-            // console.log('failed')
-            return scratch.done(false);
-        }
-
-        // calc overlap
-        overlap = (support.marginA + support.marginB) - result.distance;
-
-        // if the distance is greater than combined margins... it's not intersecting
-        if ( overlap <= 0 ){
-            return scratch.done(false);
-        }
-
-        // there is a collision. let's do more work.
-        collision = {
-            bodyA: bodyA,
-            bodyB: bodyB
-        };
-
-        d.vadd( bodyA.getGlobalOffset( os ) ).vsub( bodyB.getGlobalOffset( os ) );
-
-        collision.overlap = overlap;
-        // @TODO: for now, just let the normal be the mtv
-        collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
-        collision.mtv = d.mult( overlap ).values();
-        // get a corresponding hull point for one of the core points.. relative to body A
-        collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
-
-        return scratch.done( collision );
-    };
-
-    /*
-     * checkCircles( bodyA, bodyB ) -> Object
-     * - bodyA (Object): First body
-     * - bodyB (Object): Second body
-     * + (Object): Collision result
-     *
-     * Check two circles for collisions.
-     */
-    var checkCircles = function checkCircles( bodyA, bodyB ){
-
-        var scratch = Physics.scratchpad()
-            ,d = scratch.vector()
-            ,tmp = scratch.vector()
-            ,overlap
-            ,collision = false
-            ;
-
-        d.clone( bodyB.state.pos )
-            .vadd( bodyB.getGlobalOffset( tmp ) )
-            .vsub( bodyA.state.pos )
-            .vsub( bodyA.getGlobalOffset( tmp ) ) // save offset for later
-            ;
-        overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
-
-        // hmm... they overlap exactly... choose a direction
-        if ( d.equals( Physics.vector.zero ) ){
-
-            d.set( 1, 0 );
-        }
-
-        if ( overlap <= 0 ){
-
-            collision = {
-                bodyA: bodyA,
-                bodyB: bodyB,
-                norm: d.normalize().values(),
-                mtv: d.mult( -overlap ).values(),
-                pos: d.mult( -bodyA.geometry.radius/overlap ).vadd( tmp ).values(),
-                overlap: -overlap
-            };
-        }
-
-        return scratch.done( collision );
-    };
-
-    /*
-     * checkPair( bodyA, bodyB[, disp] ) -> Object
-     * - bodyA (Object): First body
-     * - bodyB (Object): Second body
-     * + (Object): Collision result
-     *
-     * Check a pair for collisions
-     */
-    var checkPair = function checkPair( bodyA, bodyB ){
-
-        // filter out bodies that don't collide with each other
-        if (
-            ( bodyA.treatment === 'static' || bodyA.treatment === 'kinematic' ) &&
-            ( bodyB.treatment === 'static' || bodyB.treatment === 'kinematic' )
-        ){
-            return false;
-        }
-
-        if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
-
-            return checkCircles( bodyA, bodyB );
-
-        } else if ( bodyA.geometry.name === 'compound' || bodyB.geometry.name === 'compound' ){
-            // compound bodies are special. We can't use gjk because
-            // they could have concavities. so we do the pieces individually
-            var test = (bodyA.geometry.name === 'compound')
-                ,compound = test ? bodyA : bodyB
-                ,other = test ? bodyB : bodyA
-                ,cols
-                ,ch
-                ,ret = []
-                ,scratch = Physics.scratchpad()
-                ,vec = scratch.vector()
-                ,oldPos = scratch.vector()
-                ,otherAABB = other.aabb()
-                ,i
-                ,l
-                ;
-
-            for ( i = 0, l = compound.children.length; i < l; i++ ){
-
-                ch = compound.children[ i ];
-                // move body to fake position
-                oldPos.clone( ch.state.pos );
-                ch.offset.vadd( oldPos.vadd( compound.offset ).rotate( -ch.state.angular.pos ) );
-                ch.state.pos.clone( compound.state.pos );
-                ch.state.angular.pos += compound.state.angular.pos;
-
-                // check it if the aabbs overlap
-                if ( Physics.aabb.overlap(otherAABB, ch.aabb()) ){
-
-                    cols = checkPair( other, ch );
-
-                    if ( cols instanceof Array ){
-                        for ( var j = 0, c, ll = cols.length; j < ll; j++ ){
-                            c = cols[j];
-                            // set body to be the compound body
-                            if ( c.bodyA === ch ){
-                                c.bodyA = compound;
-                            } else {
-                                c.bodyB = compound;
-                            }
-                            ret.push( c );
-                        }
-
-                    } else if ( cols ) {
-                        // set body to be the compound body
-                        if ( cols.bodyA === ch ){
-                            cols.bodyA = compound;
-                        } else {
-                            cols.bodyB = compound;
-                        }
-                        ret.push( cols );
-                    }
-                }
-
-                // transform it back
-                ch.state.angular.pos -= compound.state.angular.pos;
-                ch.offset.vsub( oldPos );
-                ch.state.pos.clone( oldPos.rotate( ch.state.angular.pos ).vsub( compound.offset ) );
-            }
-
-            return scratch.done( ret );
-
-        } else {
-
-            return checkGJK( bodyA, bodyB );
-        }
-    };
 
     var defaults = {
 
@@ -359,6 +75,282 @@ Physics.behavior('body-collision-detection', function( parent ){
             }
         },
 
+        // getMinDistance: function( support, d, dimA, dimB, res, aIsCircle, bIsCircle ){
+        //
+        //     var result
+        //         ,dx = 1 / res
+        //         ,incA = dimA * dx
+        //         ,incB = dimB * dx
+        //         ,incFactor = 1 / (incA + incB)
+        //         ,threshold = 2 * (incA + incB)
+        //         ,n = (0.9 * res) | 0
+        //         ,tries = 0
+        //         ;
+        //
+        //     support.useCore = true;
+        //
+        //     if ( aIsCircle ){
+        //         threshold = 2 * incB + dimA;
+        //         incA = 0;
+        //         incFactor = 1 / incB;
+        //     } else if ( bIsCircle ){
+        //         threshold = 2 * incA + dimB;
+        //         incB = 0;
+        //         incFactor = 1 / incA;
+        //     }
+        //
+        //     while( tries++ < maxGJKTries ){
+        //         support.marginA = n * incA;
+        //         support.marginB = n * incB;
+        //         // console.log(tries, n, support.marginA, support.marginB);
+        //         result = Physics.gjk( support, d );
+        //         // console.log('dist', result.distance);
+        //
+        //         // move forward one
+        //         if ( result.overlap || result.distance === 0 ){
+        //             n++;
+        //             continue;
+        //         }
+        //
+        //         if ( result.distance < threshold ){
+        //             this._world.emit('debug', tries);
+        //             return result;
+        //         }
+        //
+        //         // go back number of increments that distance allows (less one)
+        //         n -= (result.distance * incFactor * 0.9)|0;
+        //         n = n < 0 ? 0 : n;
+        //     }
+        //     this._world.emit('debug', tries);
+        //     return false;
+        // },
+
+        /**
+         * BodyCollisionDetectionBehavior#checkGJK( bodyA, bodyB ) -> Object
+         * - bodyA (Object): First body
+         * - bodyB (Object): Second body
+         * + (Object): Collision result
+         *
+         * Use GJK algorithm to check arbitrary bodies for collisions
+         **/
+        checkGJK: function( bodyA, bodyB ){
+
+            var scratch = Physics.scratchpad()
+                ,d = scratch.vector()
+                ,tmp = scratch.vector()
+                ,os = scratch.vector()
+                ,overlap
+                ,result
+                ,support
+                ,collision = false
+                ,aabbA = bodyA.geometry.aabb()
+                ,dimA = Math.min( aabbA.hw, aabbA.hh ) || 1
+                ,aabbB = bodyB.geometry.aabb()
+                ,dimB = Math.min( aabbB.hw, aabbB.hh ) || 1
+                ,aIsCircle = (bodyA.geometry.name === 'circle')
+                ,bIsCircle = (bodyB.geometry.name === 'circle')
+                ,tries = 0
+                ,incA
+                ,incB
+                ;
+
+            // just check the overlap first
+            support = Physics.gjk.getSupportFn( bodyA, bodyB );
+            support.update();
+            d.clone( bodyA.state.pos ).vsub( bodyB.state.pos );
+
+            if ( d.equals(Physics.vector.zero) ){
+                d.set(0, 1);
+            }
+
+            incA = aIsCircle ? 0 : 1e-2 * dimA;
+            incB = bIsCircle ? 0 : 1e-2 * dimA;
+
+            // if one is a circle, use its radius as the margin
+            support.useCore = true;
+            support.marginA = aIsCircle ? dimA : incA;
+            support.marginB = bIsCircle ? dimB : incB;
+
+            // while there's still an overlap (or we don't have a positive distance)
+            // and the support margins aren't bigger than the shapes...
+            // search for the distance data
+            while (
+                (!result || result.overlap || result.distance === 0) &&
+                tries++ < maxGJKTries
+            ){
+                result = Physics.gjk(support, d);
+
+                support.marginA += incA;
+                support.marginB += incB;
+            }
+
+            if ( result.overlap || result.maxIterationsReached ){
+                // gjk failed...
+                // console.log('failed', result.maxIterationsReached);
+                return scratch.done(false);
+            }
+
+            // calc overlap
+            overlap = (support.marginA + support.marginB) - result.distance;
+
+            // if the distance is greater than combined margins... it's not intersecting
+            if ( overlap <= 0 ){
+                return scratch.done(false);
+            }
+
+            // there is a collision. let's do more work.
+            collision = {
+                bodyA: bodyA,
+                bodyB: bodyB
+            };
+
+            d.vadd( bodyA.getGlobalOffset( os ) ).vsub( bodyB.getGlobalOffset( os ) );
+
+            collision.overlap = overlap;
+            // @TODO: for now, just let the normal be the mtv
+            collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
+            collision.mtv = d.mult( overlap ).values();
+            // get a corresponding hull point for one of the core points.. relative to body A
+            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+
+            return scratch.done( collision );
+        },
+
+        /**
+         * BodyCollisionDetectionBehavior#checkCircles( bodyA, bodyB ) -> Object
+         * - bodyA (Object): First body
+         * - bodyB (Object): Second body
+         * + (Object): Collision result
+         *
+         * Check two circles for collisions.
+         **/
+        checkCircles: function( bodyA, bodyB ){
+
+            var scratch = Physics.scratchpad()
+                ,d = scratch.vector()
+                ,tmp = scratch.vector()
+                ,overlap
+                ,collision = false
+                ;
+
+            d.clone( bodyB.state.pos )
+                .vadd( bodyB.getGlobalOffset( tmp ) )
+                .vsub( bodyA.state.pos )
+                .vsub( bodyA.getGlobalOffset( tmp ) ) // save offset for later
+                ;
+            overlap = d.norm() - (bodyA.geometry.radius + bodyB.geometry.radius);
+
+            // hmm... they overlap exactly... choose a direction
+            if ( d.equals( Physics.vector.zero ) ){
+
+                d.set( 1, 0 );
+            }
+
+            if ( overlap <= 0 ){
+
+                collision = {
+                    bodyA: bodyA,
+                    bodyB: bodyB,
+                    norm: d.normalize().values(),
+                    mtv: d.mult( -overlap ).values(),
+                    pos: d.mult( -bodyA.geometry.radius/overlap ).vadd( tmp ).values(),
+                    overlap: -overlap
+                };
+            }
+
+            return scratch.done( collision );
+        },
+
+        /**
+         * checkPair( bodyA, bodyB ) -> Object
+         * - bodyA (Object): First body
+         * - bodyB (Object): Second body
+         * + (Object): Collision result
+         *
+         * Check a pair for collisions
+         **/
+        checkPair: function( bodyA, bodyB ){
+
+            // filter out bodies that don't collide with each other
+            if (
+                ( bodyA.treatment === 'static' || bodyA.treatment === 'kinematic' ) &&
+                ( bodyB.treatment === 'static' || bodyB.treatment === 'kinematic' )
+            ){
+                return false;
+            }
+
+            if ( bodyA.geometry.name === 'circle' && bodyB.geometry.name === 'circle' ){
+
+                return this.checkCircles( bodyA, bodyB );
+
+            } else if ( bodyA.geometry.name === 'compound' || bodyB.geometry.name === 'compound' ){
+                // compound bodies are special. We can't use gjk because
+                // they could have concavities. so we do the pieces individually
+                var test = (bodyA.geometry.name === 'compound')
+                    ,compound = test ? bodyA : bodyB
+                    ,other = test ? bodyB : bodyA
+                    ,cols
+                    ,ch
+                    ,ret = []
+                    ,scratch = Physics.scratchpad()
+                    ,vec = scratch.vector()
+                    ,oldPos = scratch.vector()
+                    ,otherAABB = other.aabb()
+                    ,i
+                    ,l
+                    ;
+
+                for ( i = 0, l = compound.children.length; i < l; i++ ){
+
+                    ch = compound.children[ i ];
+                    // move body to fake position
+                    oldPos.clone( ch.state.pos );
+                    ch.offset.vadd( oldPos.vadd( compound.offset ).rotate( -ch.state.angular.pos ) );
+                    ch.state.pos.clone( compound.state.pos );
+                    ch.state.angular.pos += compound.state.angular.pos;
+
+                    // check it if the aabbs overlap
+                    if ( Physics.aabb.overlap(otherAABB, ch.aabb()) ){
+
+                        cols = this.checkPair( other, ch );
+
+                        if ( cols instanceof Array ){
+                            for ( var j = 0, c, ll = cols.length; j < ll; j++ ){
+                                c = cols[j];
+                                // set body to be the compound body
+                                if ( c.bodyA === ch ){
+                                    c.bodyA = compound;
+                                } else {
+                                    c.bodyB = compound;
+                                }
+                                ret.push( c );
+                            }
+
+                        } else if ( cols ) {
+                            // set body to be the compound body
+                            if ( cols.bodyA === ch ){
+                                cols.bodyA = compound;
+                            } else {
+                                cols.bodyB = compound;
+                            }
+                            ret.push( cols );
+                        }
+                    }
+
+                    // transform it back
+                    ch.state.angular.pos -= compound.state.angular.pos;
+                    ch.offset.vsub( oldPos );
+                    ch.state.pos.clone( oldPos.rotate( ch.state.angular.pos ).vsub( compound.offset ) );
+                }
+
+                return scratch.done( ret );
+
+            } else {
+
+                return this.checkGJK( bodyA, bodyB );
+            }
+        },
+
         /** internal
          * BodyCollisionDetectionBehavior#check( data )
          * - data (Object): The event data
@@ -387,7 +379,7 @@ Physics.behavior('body-collision-detection', function( parent ){
                     (Physics.util.indexOf( targets, pair.bodyA ) > -1) &&
                     (Physics.util.indexOf( targets, pair.bodyB ) > -1)
                 ){
-                    ret = checkPair( pair.bodyA, pair.bodyB );
+                    ret = this.checkPair( pair.bodyA, pair.bodyB );
 
                     if ( ret instanceof Array ){
 
@@ -449,7 +441,7 @@ Physics.behavior('body-collision-detection', function( parent ){
 
                     bodyB = bodies[ i ];
 
-                    ret = checkPair( bodyA, bodyB );
+                    ret = this.checkPair( bodyA, bodyB );
 
                     if ( ret instanceof Array ){
 

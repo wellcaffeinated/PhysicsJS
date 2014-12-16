@@ -23,6 +23,13 @@
                 font-family: monospace;
             }
 
+            .debug-el {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: white;
+                font: monospace;
+            }
         </style>
     </head>
     <body>
@@ -166,63 +173,63 @@
 
             function addBodies( world, P ){
 
-                world.add( Physics.body('circle', {
-                    x: viewWidth/2,
-                    y: viewHeight - 20,//+100,
-                    radius: 20,
-                    width: 40,
-                    height: 40,
-                    mass: 1.4,
-                    offset: Physics.vector(10, 2),
-                    angle: Math.PI/2,
-                    //cof: 0,
-                    //vy: -0.2,
-                    // vx: 0.1,
-                    restitution: 1
-                }));
+                // world.add( Physics.body('circle', {
+                //     x: viewWidth/2,
+                //     y: viewHeight - 20,//+100,
+                //     radius: 20,
+                //     width: 40,
+                //     height: 40,
+                //     mass: 1.4,
+                //     offset: Physics.vector(10, 2),
+                //     angle: Math.PI/2,
+                //     //cof: 0,
+                //     //vy: -0.2,
+                //     // vx: 0.1,
+                //     restitution: 1
+                // }));
+                //
+                // world.add( Physics.body('circle', {
+                //     x: viewWidth/2,
+                //     y: viewHeight - 100,//+100,
+                //     radius: 20,
+                //     width: 40,
+                //     height: 40,
+                //     mass: 1.4,
+                //     offset: Physics.vector(-10, 2),
+                //     // angle: Math.PI/2,
+                //     //cof: 0,
+                //     //vy: -0.2,
+                //     // vx: 0.1,
+                //     restitution: 0.9
+                // }));
+                //
+                // var polygons = [
+                //     {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
+                //     {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], angle: Math.PI  }
+                // ];
+                //
+                // for(var i = 0;i < polygons.length;i++){
+                //     world.add(
+                //         Physics.body('convex-polygon', {
+                //           x: polygons[i].x,
+                //           y: polygons[i].y,
+                //           vertices: polygons[i].v,
+                //           angle: polygons[i].angle,
+                //
+                //           restitution: 0.5,
+                //           cof: 1
+                //         })
+                //     );
+                // }
 
-                world.add( Physics.body('circle', {
-                    x: viewWidth/2,
-                    y: viewHeight - 100,//+100,
-                    radius: 20,
-                    width: 40,
-                    height: 40,
-                    mass: 1.4,
-                    offset: Physics.vector(-10, 2),
-                    // angle: Math.PI/2,
-                    //cof: 0,
-                    //vy: -0.2,
-                    // vx: 0.1,
-                    restitution: 0.9
-                }));
 
-                var polygons = [
-                    {x:410, y:220, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}] },
-                    {x:290, y:320, v:[{x: 0, y: 80}, {x: 80, y: 0}, {x: 0, y: -80},{x: -30, y: -30}, {x: -30, y: 30}], angle: Math.PI  }
-                ];
-
-                for(var i = 0;i < polygons.length;i++){
-                    world.add(
-                        Physics.body('convex-polygon', {
-                          x: polygons[i].x,
-                          y: polygons[i].y,
-                          vertices: polygons[i].v,
-                          angle: polygons[i].angle,
-
-                          restitution: 0.5,
-                          cof: 1
-                        })
-                    );
-                }
-
-
-                world.add( makeThing(400, 600) );
-                world.add( makeThing(400, 500) );
-
+                // world.add( makeThing(400, 600) );
+                // world.add( makeThing(400, 500) );
+                //
                 var rectangles = [
-                    { x: 100, y: 60, w: 50, h: 20, mass: 1 }
+                    { x: 500, y: 60, w: 50, h: 20, mass: 1 }
                     ,{ x: 300, y: 60, w: 100, h: 80, mass: 2 }
-                    ,{ x: 500, y: 100, w: 150, h: 300, mass: 3 }
+                    // ,{ x: 500, y: 100, w: 150, h: 300, mass: 3 }
                 ];
 
                 for(var i = 0;i < rectangles.length;i++){
@@ -244,159 +251,147 @@
 
             }
 
-            function zeroPointSeven( world ){
-                // some fun colors
-                var colors = [
-                    '#b58900',
-                    '#cb4b16',
-                    '#dc322f',
-                    '#d33682',
-                    '#6c71c4',
-                    '#268bd2',
-                    '#2aa198',
-                    '#859900'
-                ];
+            function initGJKTools( world, Physics ){
 
-                // scale relative to window width
-                function S( n ){
-                    return n * window.innerWidth / 600;
+                var minkowskiStyles = {
+                    strokeStyle: 'rgba(0, 0, 200, 0.5)'
+                    ,fillStyle: 'rgba(0, 0, 200, 0.1)'
+                    ,lineWidth: 1
+                };
+
+                function drawMinkowski(renderer, ctx, support){
+                    var dir = Physics.vector(1, 0)
+                        ,point = Physics.vector()
+                        ,dtheta = 0.1
+                        ,verts = []
+                        ;
+
+                    for ( var i = 0, l = 2; i < l; i += dtheta ){
+
+                        dir.rotate( dtheta*Math.PI );
+                        point.clone( support( dir ).pt );
+                        verts.push( point.values() );
+                    }
+
+                    var x = ctx.canvas.width/2
+                        ,y = ctx.canvas.height/2
+                        ;
+                    ctx.translate(x, y);
+                    renderer.drawCircle( 0, 0, 1, 'red', ctx );
+                    renderer.drawPolygon( verts, minkowskiStyles, ctx );
+                    ctx.translate(-x, -y);
                 }
 
-                var versionMass = 100;
+                var dirStyles = { lineWidth: 1, strokeStyle: '#000' };
+                var currentSimplex = 0;
+                function drawSimplex( renderer, ctx, simplexes ) {
+                    var idx = currentSimplex % simplexes.length;
+                    var simplex = simplexes[ idx ];
+                    if (!simplex || !simplex.length) return;
 
-                // create the zero
-                var zero = Physics.body('compound', {
-                    x: 400/2 - S(80)
-                    ,y: 500/2
-                    //,treatment: 'static'
-                    ,mass: versionMass
-                    ,styles: {
-                        fillStyle: colors[2]
-                        ,strokeStyle: colors[4]
-                        ,lineWidth: 2
+                    var x = ctx.canvas.width/2
+                        ,y = ctx.canvas.height/2
+                        ;
+
+                    ctx.strokeText('simplexes: '+simplexes.length, 0, 12);
+                    ctx.strokeText('idx: '+idx, 0, 22);
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.beginPath();
+                    ctx.moveTo(simplex[0].pt.x, simplex[0].pt.y);
+
+                    for ( var i = 1; i < simplex.length; i++ ) {
+                        ctx.lineTo(simplex[i].pt.x, simplex[i].pt.y);
                     }
-                    ,children: [
-                        // coords of children are relative to the compound center of mass
-                        Physics.body('rectangle', {
-                            x: S(-50)
-                            ,y: 0
-                            ,width: S(20)
-                            ,height: S(97)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: S(50)
-                            ,y: 0
-                            ,width: S(20)
-                            ,height: S(97)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: 0
-                            ,y: S(75)
-                            ,width: S(48)
-                            ,height: S(20)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: -S(35)
-                            ,y: S(60)
-                            ,angle: Math.PI / 4
-                            ,width: S(50)
-                            ,height: S(20)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: S(35)
-                            ,y: S(60)
-                            ,angle: -Math.PI / 4
-                            ,width: S(50)
-                            ,height: S(20)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: 0
-                            ,y: S(-75)
-                            ,width: S(48)
-                            ,height: S(20)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: -S(35)
-                            ,y: -S(60)
-                            ,angle: -Math.PI / 4
-                            ,width: S(50)
-                            ,height: S(20)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: S(35)
-                            ,y: -S(60)
-                            ,angle: Math.PI / 4
-                            ,width: S(50)
-                            ,height: S(20)
-                        })
-                    ]
-                });
 
-                var point = Physics.body('circle', {
-                    x: 400/2 + S(6)
-                    ,y: 500/2 + S(76)
-                    ,radius: S(13)
-                    ,mass: versionMass
-                    ,treatment: 'static'
-                    ,styles: {
-                        fillStyle: colors[2]
-                        ,strokeStyle: colors[4]
-                        ,lineWidth: 2
-                    }
-                });
-
-                var seven = Physics.body('compound', {
-                    x: 400/2 + S(86)
-                    ,y: 500/2 - S(34)
-                    //,treatment: 'static'
-                    ,mass: versionMass
-                    ,styles: {
-                        fillStyle: colors[2]
-                        ,strokeStyle: colors[4]
-                        ,lineWidth: 2
-                    }
-                    ,children: [
-                        Physics.body('rectangle', {
-                            x: S(35)
-                            ,y: -S(80)
-                            ,width: S(114)
-                            ,height: S(24)
-                        })
-                        ,Physics.body('rectangle', {
-                            x: S(51.5)
-                            ,y: S(2.5)
-                            ,angle: -70 * Math.PI/180
-                            ,width: S(160)
-                            ,height: S(28)
-                        })
-                    ]
-                });
-
-                var l = 0;
-                while( l-- ){
-                    world.add(Physics.body('circle', {
-                        x: Math.random() * 400
-                        ,y: Math.random() * 500
-                        ,radius: S(2)
-                        ,mass: 1
-                        ,restitution: 0
-                    }));
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = simplex.details.noOverlap ? 'rgba(0, 100, 100, 0.8)' : 'rgba(0, 200, 0, 0.8)';
+                    ctx.stroke();
+                    renderer.drawLine( Physics.vector.zero, simplex.dir.mult(20), dirStyles, ctx );
+                    var last = simplex[ simplex.length - 1 ].pt;
+                    renderer.drawCircle(last.x, last.y, 2, 'gold', ctx);
+                    ctx.restore();
                 }
 
-                // add things to the world
-                world.add([
-                    zero
-                    ,point
-                    ,seven
-                ]);
+                var renderer = world.renderer();
+                var layer = renderer.addLayer('gjk', null, { autoResize: false, width: 600, height: 600, zIndex: 10 });
+                layer.el.style.right = '0';
+                layer.el.style.left = '';
+
+                var bodyA = world.getBodies()[0];
+                var bodyB = world.getBodies()[1];
+                var support = Physics.gjk.getSupportFn(bodyA, bodyB);
+
+                layer.render = function(){
+
+                    layer.el.width = layer.el.width;
+
+                    var simplexes = [];
+                    function pushSimplex( s, dir, details ){
+                        var sx = s.map(function(s){
+                            return Physics.util.extend({}, s);
+                        });
+                        sx.details = details;
+                        sx.dir = dir.clone().normalize();
+                        simplexes.push( sx );
+                    }
+                    support.update();
+                    support.useCore = false;
+                    support.marginA = 0;
+                    support.marginB = 0;
+                    var result = Physics.gjk( support, Physics.vector.axis[0], false, pushSimplex );
+                    var simplex = result.simplex;
+                    var distance = result.distance;
+                    var closest = result.closest;
+                    var overlap = result.overlap;
+
+                    if ( !bodyA.realView ){
+                        bodyA.realView = bodyA.view;
+                    }
+                    if ( !bodyB.realView ){
+                        bodyB.realView = bodyB.view;
+                    }
+
+                    if ( overlap ){
+
+                        bodyA.view = bodyA._overlapView || (bodyA._overlapView = renderer.createView( bodyA.geometry, 'rgba(200, 0, 0, 0.4)' ));
+                        bodyB.view = bodyB._overlapView || (bodyB._overlapView = renderer.createView( bodyB.geometry, 'rgba(200, 0, 0, 0.4)' ));
+
+                    } else {
+
+                        bodyA.view = bodyA.realView;
+                        bodyB.view = bodyB.realView;
+
+                        if ( closest ){
+                            layer.ctx.save();
+                            // layer.ctx.translate( layer.el.width/2, layer.el.height/2 );
+                            renderer.drawLine(result.closest.a, result.closest.b, 'tomato', layer.ctx);
+                            renderer.drawCircle(result.closest.a.x, result.closest.a.y, 2, 'steelblue', layer.ctx);
+                            renderer.drawCircle(result.closest.b.x, result.closest.b.y, 2, 'steelblue', layer.ctx);
+                            layer.ctx.restore();
+                        }
+                    }
+
+                    drawMinkowski( renderer, layer.ctx, support );
+                    drawSimplex( renderer, layer.ctx, simplexes );
+                };
+
+                window.addEventListener('keydown', function( e ){
+                    if ( e.keyCode === 39 ){
+                        currentSimplex++;
+                    } else if ( e.keyCode === 37 ){
+                        currentSimplex--;
+                    }
+                });
+
             }
-
 
             Physics({ timestep: 2, maxIPF: 24 }, [
                 setup
                 ,addBodies
                 // ,zeroPointSeven
                 ,initEvents
+                ,initGJKTools
             ]);
 
         </script>

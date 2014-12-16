@@ -360,6 +360,77 @@
         return tmp;
     };
 
+
+    var supportFnStack = [];
+    /**
+     * Physics.gjk.getSupportFn( bodyA, bodyB ) -> Function
+     * - bodyA (Object): First body
+     * - bodyB (Object): Second body
+     * + (Function): The support function
+     *
+     * Get a general support function for use with GJK algorithm
+     **/
+    gjk.getSupportFn = function getSupportFn( bodyA, bodyB ){
+
+        var hash = Physics.util.pairHash( bodyA.uid, bodyB.uid )
+            ,fn = supportFnStack[ hash ]
+            ;
+
+        if ( !fn ){
+            fn = supportFnStack[ hash ] = function pairSupportFunction( searchDir ){
+
+                var tA = fn.tA
+                    ,tB = fn.tB
+                    ,vA = fn.tmpv1
+                    ,vB = fn.tmpv2
+                    ;
+
+                if ( fn.useCore ){
+                    vA = bodyA.geometry.getFarthestCorePoint( searchDir.rotateInv( tA ), vA, fn.marginA );
+                    vB = bodyB.geometry.getFarthestCorePoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB, fn.marginB );
+                } else {
+                    vA = bodyA.geometry.getFarthestHullPoint( searchDir.rotateInv( tA ), vA );
+                    vB = bodyB.geometry.getFarthestHullPoint( searchDir.rotate( tA ).rotateInv( tB ).negate(), vB );
+                }
+
+                vA.vadd( bodyA.offset ).transform( tA );
+                vB.vadd( bodyB.offset ).transform( tB );
+                searchDir.negate().rotate( tB );
+
+                return {
+                    a: vA.values(),
+                    b: vB.values(),
+                    pt: vA.vsub( vB ).values()
+                };
+            };
+
+            // transforms for coordinate transformations
+            fn.tA = new Physics.transform();
+            fn.tB = new Physics.transform();
+
+            // temp vectors (used too frequently to justify scratchpad)
+            fn.tmpv1 = new Physics.vector();
+            fn.tmpv2 = new Physics.vector();
+
+            // this is faster...
+            // http://jsperf.com/data-on-fn-vs-data-on-object
+            fn.useCore = false;
+            fn.bodyA = bodyA;
+            fn.bodyB = bodyB;
+            fn.update = function(){
+                fn.tA.setRotation( bodyA.state.angular.pos ).setTranslation( bodyA.state.pos );
+                fn.tB.setRotation( bodyB.state.angular.pos ).setTranslation( bodyB.state.pos );
+            };
+
+            fn.update();
+        }
+
+        fn.marginA = 0;
+        fn.marginB = 0;
+
+        return fn;
+    };
+
     Physics.gjk = gjk;
 
 })();

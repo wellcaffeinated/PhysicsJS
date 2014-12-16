@@ -164,10 +164,10 @@
             * }
             * ```
             **/
-            Scratchpad = function Scratchpad( fn ){
+            Scratchpad = function Scratchpad( n, fn ){
 
-                if ( fn ){
-                    return Scratchpad.fn( fn );
+                if ( n && fn ){
+                    return Scratchpad.fn( n, fn );
                 }
 
                 var scratch = scratches.pop() || new Scratch();
@@ -188,7 +188,7 @@
             *
             * Same as calling `Physics.scratchpad( fn )` with a function specified.
             **/
-            Scratchpad.fn = function( fn ){
+            Scratchpad.fn = function( cfg, fn ){
 
                 var args = [];
                 for ( var i = 0, l = fn.length; i < l; i++ ){
@@ -197,15 +197,22 @@
 
                 args = 'a' + args.join(',a');
                 /* jshint -W054 */
-                var handle = new Function('fn, scratches, Scratch', 'return function('+args+'){ '+
-                    'var scratch = scratches.pop() || new Scratch( scratches );'+
-                    'scratch._active = true;'+
-                    'return scratch.done( fn(scratch, '+args+') );'+
+                var handle = new Function('fn, scratch', 'return function('+args+'){ '+
+                    'return fn(scratch, '+args+');'+
                     '};'
                 );
                 /* jshint +W054 */
 
-                return handle(fn, scratches, Scratch);
+                var scratch = {};
+
+                for ( var key in cfg ){
+                    scratch[key] = [];
+                    while( cfg[key].count-- ){
+                        scratch[key].push(new cfg[key].constructor);
+                    }
+                }
+
+                return handle(fn, scratch);
             };
 
             /**
@@ -278,47 +285,114 @@
         var runner = new Runner( document.getElementById('log') );
 
         runner.suite('get 0', {
-            'original': function() {
-                var scratch = Physics.scratchpad();
-                scratch.done();
+            'original': {
+                setup: function(){
+                    var scratchfn = function(){
+                        var scratch = Physics.scratchpad();
+                        scratch.done();
+                    };
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
-            ,'wip': function() {
-                var scratch = testscratchpad();
-                scratch.done();
+            ,'wip': {
+                setup: function(){
+                    var scratchfn = testscratchpad({vector: {count: 0, constructor: Physics.vector}}, function( scratch ){
+
+                    });
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
         });
 
         runner.suite('get 1', {
-            'original': function() {
-                var scratch = Physics.scratchpad();
-                var v = scratch.vector();
-                scratch.done();
+            'original': {
+                setup: function(){
+                    var scratchfn = function(){
+                        var scratch = Physics.scratchpad();
+                        var v = scratch.vector().set(2, 4);
+                        v.norm();
+                        scratch.done();
+                    };
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
-            ,'wip': function() {
-                var scratch = testscratchpad();
-                var v = scratch.vector();
-                scratch.done();
+            ,'wip': {
+                setup: function(){
+                    var scratchfn = testscratchpad({vector: {count: 1, constructor: Physics.vector}}, function( scratch ){
+                        var v = scratch.vector[0];
+                        v.set(2, 4);
+                        v.norm();
+                    });
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
         });
 
         runner.suite('get 5', {
-            'original': function(){
-                var scratch = Physics.scratchpad();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.done();
+            'original': {
+                setup: function(){
+                    var scratchfn = function(){
+                        var scratch = Physics.scratchpad();
+                        var v = scratch.vector().set(2, 4);
+                        v.norm();
+                        scratch.vector();
+                        scratch.vector();
+                        scratch.vector();
+                        scratch.vector();
+                        scratch.done();
+                    };
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
-            ,'wip': function(){
-                var scratch = testscratchpad();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.vector();
-                scratch.done();
+            ,'wip': {
+                setup: function(){
+                    var scratchfn = testscratchpad({vector: {count: 5, constructor: Physics.vector}}, function( scratch ){
+                        var a = scratch.vector[0];
+                        a.set(2, 4);
+                        a.norm();
+                        var b = scratch.vector[1];
+                        var c = scratch.vector[2];
+                        var d = scratch.vector[3];
+                        var e = scratch.vector[4];
+                    });
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
+            }
+            ,'noscratch': {
+                setup: function(){
+                    var tmp = [
+                        Physics.vector(),
+                        Physics.vector(),
+                        Physics.vector(),
+                        Physics.vector(),
+                        Physics.vector()
+                        ];
+
+                    var scratchfn = function(){
+                        var a = tmp[0];
+                        a.set(2, 4);
+                        a.norm();
+                        var b = tmp[1];
+                        var c = tmp[2];
+                        var d = tmp[3];
+                        var e = tmp[4];
+                    };
+                }
+                ,fn: function() {
+                    scratchfn();
+                }
             }
         });
 
