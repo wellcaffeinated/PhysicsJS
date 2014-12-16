@@ -8,10 +8,14 @@
     // get the next search direction from two simplex points
     var getNextSearchDir = function getNextSearchDir( ptA, ptB, dir ){
 
-        var ABdotB = ptB.normSq() - ptB.dot( ptA )
-            ,ABdotA = ptB.dot( ptA ) - ptA.normSq()
+        var ABdotB
+            ,ABdotA
             ,ang
             ;
+
+        // dir = AB = B - A
+        dir.clone( ptB ).vsub( ptA );
+        ABdotB = dir.dot( ptB );
 
         // if the origin is farther than either of these points
         // get the direction from one of those points to the origin
@@ -19,15 +23,17 @@
 
             return dir.clone( ptB ).negate();
 
-        } else if ( ABdotA > 0 ){
+        }
+
+        ABdotA = dir.dot( ptA );
+
+        if ( ABdotA > 0 ){
 
             return dir.clone( ptA ).negate();
 
         // otherwise, use the perpendicular direction from the simplex
         } else {
 
-            // dir = AB = B - A
-            dir.clone( ptB ).vsub( ptA );
             // if (left handed coordinate system)
             // A cross AB < 0 then get perpendicular counterclockwise
             ang = ptA.cross( dir );
@@ -38,6 +44,10 @@
             return dir.perp( ang > 0 );
         }
     };
+
+    var tmpA = new Physics.vector()
+        ,tmpB = new Physics.vector()
+        ;
 
     /** hide
      * getClosestPoints( simplex ) -> Object
@@ -58,10 +68,9 @@
         var len = simplex.length
             ,last = len >= 3 ? simplex[ len - 2 ] : simplex[ len - 1 ]
             ,prev = len >= 3 ? simplex[ len - 3 ] : simplex[ len - 2 ]
-            ,scratch = Physics.scratchpad()
-            ,A = scratch.vector().clone( last.pt )
+            ,A = tmpA.clone( last.pt )
             // L = B - A
-            ,L = scratch.vector().clone( prev.pt ).vsub( A )
+            ,L = tmpB.clone( prev.pt ).vsub( A )
             ,lambdaB
             ,lambdaA
             ;
@@ -69,11 +78,11 @@
         if ( L.equals(Physics.vector.zero) ){
             // oh.. it's a zero vector. So A and B are both the closest.
             // just use one of them
-            return scratch.done({
+            return {
 
                 a: last.a,
                 b: last.b
-            });
+            };
         }
 
         lambdaB = - L.dot( A ) / L.normSq();
@@ -82,26 +91,34 @@
         if ( lambdaA <= 0 ){
             // woops.. that means the closest simplex point
             // isn't on the line it's point B itself
-            return scratch.done({
+            return {
                 a: prev.a,
                 b: prev.b
-            });
+            };
         } else if ( lambdaB <= 0 ){
             // vice versa
-            return scratch.done({
+            return {
                 a: last.a,
                 b: last.b
-            });
+            };
         }
 
         // guess we'd better do the math now...
-        return scratch.done({
+        return {
             // a closest = lambdaA * Aa + lambdaB * Ba
             a: A.clone( last.a ).mult( lambdaA ).vadd( L.clone( prev.a ).mult( lambdaB ) ).values(),
             // b closest = lambdaA * Ab + lambdaB * Bb
             b: A.clone( last.b ).mult( lambdaA ).vadd( L.clone( prev.b ).mult( lambdaB ) ).values()
-        });
+        };
     };
+
+    var tmp1 = new Physics.vector()
+        ,tmp2 = new Physics.vector()
+        ,tmp3 = new Physics.vector()
+        ,tmp4 = new Physics.vector()
+        ,tmp5 = new Physics.vector()
+        ,tmp6 = new Physics.vector()
+        ;
 
     /**
      * Physics.gjk( support(axis)[, seed, checkOverlapOnly, debugFn] ) -> Object
@@ -119,7 +136,7 @@
      * - axis (Physics.vector): The axis to search
      * - seed (Physics.vector): The starting direction for the simplex (defaults to x-axis)
      * - checkOverlapOnly (Boolean): only check whether there is an overlap, don't calculate the depth
-     * - debugFn (Function): For debugging. Called at every iteration with the current simplex.
+     * - debugFn (Function): For debugging. Called at every iteration with the current simplex., direction, and overlap data
      *
      * Implementation agnostic GJK function.
      *
@@ -143,17 +160,14 @@
             ,distance = false
             ,simplex = []
             ,simplexLen = 1
-            // setup a scratchpad of temporary cheap objects
-            ,scratch = Physics.scratchpad()
             // use seed as starting direction or use x axis
-            ,dir = scratch.vector().clone(seed || Physics.vector.axis[ 0 ])
-            ,last = scratch.vector()
-            ,lastlast = scratch.vector()
+            ,dir = tmp1.clone(seed || Physics.vector.axis[ 0 ])
+            ,last = tmp2
+            ,lastlast = tmp3
             // some temp vectors
-            ,v1 = scratch.vector()
-            ,v2 = scratch.vector()
-            ,ab
-            ,ac
+            ,v1 = tmp4
+            ,ab = tmp5
+            ,ac = tmp6
             ,sign
             ,axab
             ,tmp
@@ -225,7 +239,6 @@
                     break;
                 }
 
-                ab = ab || scratch.vector();
                 ab.clone( last ).vsub( lastlast );
                 axab = last.cross( ab );
 
@@ -259,11 +272,9 @@
 
                 // we need to trim the useless point...
 
-                ab = ab || scratch.vector();
-                ac = ac || scratch.vector();
-
                 // get the edges AB and AC
-                ab.clone( lastlast ).vsub( last );
+                ab.swap( lastlast );
+                ab.vsub( last );
                 ac.clone( simplex[ 0 ].pt ).vsub( last );
 
                 // here normally people think about this as getting outward facing
@@ -329,7 +340,6 @@
             // woah nelly... that's a lot of iterations.
             // Stop it!
             if (iterations > gjkMaxIterations){
-                scratch.done();
                 return {
                     simplex: simplex,
                     iterations: iterations,
@@ -337,9 +347,6 @@
                 };
             }
         }
-
-        // free workspace
-        scratch.done();
 
         if ( distance === 0 ){
             overlap = true;

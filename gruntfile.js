@@ -37,6 +37,7 @@ module.exports = function(grunt) {
 
         sources : [
             'src/intro.js',
+            'src/math/vector.js',
             'src/math/*.js',
 
             'src/util/noconflict.js',

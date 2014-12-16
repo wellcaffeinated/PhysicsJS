@@ -80,8 +80,8 @@ Physics.geometry('rectangle', function( parent ){
 
             result = result || new Physics.vector();
 
-            var x = dir.x
-                ,y = dir.y
+            var x = dir._[0]
+                ,y = dir._[1]
                 ;
 
             x = x === 0 ? 0 : x < 0 ? -this.width * 0.5 : this.width * 0.5;
@@ -95,8 +95,8 @@ Physics.geometry('rectangle', function( parent ){
 
             var x, y;
             result = this.getFarthestHullPoint( dir, result );
-            x = result.x;
-            y = result.y;
+            x = result._[0];
+            y = result._[1];
             result.x = x === 0 ? 0 : x < 0 ? x + margin : x - margin;
             result.y = y === 0 ? 0 : y < 0 ? y + margin : y - margin;
 
