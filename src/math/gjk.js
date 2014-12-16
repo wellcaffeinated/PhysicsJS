@@ -56,8 +56,8 @@
         // this won't give great results for the closest
         // points algorithm, so let's use the previous two
         var len = simplex.length
-            ,last = simplex[ len - 2 ]
-            ,prev = simplex[ len - 3 ]
+            ,last = len >= 3 ? simplex[ len - 2 ] : simplex[ len - 1 ]
+            ,prev = len >= 3 ? simplex[ len - 3 ] : simplex[ len - 2 ]
             ,scratch = Physics.scratchpad()
             ,A = scratch.vector().clone( last.pt )
             // L = B - A
@@ -67,7 +67,6 @@
             ;
 
         if ( L.equals(Physics.vector.zero) ){
-
             // oh.. it's a zero vector. So A and B are both the closest.
             // just use one of them
             return scratch.done({
@@ -156,6 +155,7 @@
             ,ab
             ,ac
             ,sign
+            ,axab
             ,tmp
             ,iterations = 0
             ;
@@ -178,7 +178,7 @@
             last.clone( tmp.pt );
 
             if ( debugFn ){
-                debugFn( simplex );
+                debugFn( simplex, dir, { overlap: overlap, noOverlap: noOverlap } );
             }
 
             if ( last.equals(Physics.vector.zero) ){
@@ -218,11 +218,16 @@
                 // make sure we're getting closer to the origin
                 dir.normalize();
                 tmp = lastlast.dot( dir );
+
                 if ( Math.abs(tmp - last.dot( dir )) < gjkAccuracy ){
 
                     distance = -tmp;
                     break;
                 }
+
+                ab = ab || scratch.vector();
+                ab.clone( last ).vsub( lastlast );
+                axab = last.cross( ab );
 
                 // if we are still getting closer then only keep
                 // the points in the simplex that are closest to
@@ -237,9 +242,16 @@
                 } else {
 
                     simplex.splice(1, 1);
+                    lastlast.clone( simplex[0].pt );
                 }
 
-                dir = getNextSearchDir( v1.clone(simplex[ 1 ].pt), v2.clone(simplex[ 0 ].pt), dir );
+                if ( axab === 0 ){
+                    // if the simplex leg points directly towards the origin...
+                    distance = Math.max( -last.dot(dir), 0 );
+                    break;
+                }
+
+                dir = getNextSearchDir( last, lastlast, dir );
                 // continue...
 
             // if it's a triangle
@@ -258,8 +270,15 @@
                 // normals and checking dot products. Since we're in 2D
                 // we can be clever...
                 sign = ab.cross( ac ) > 0;
+                axab = last.cross( ab );
 
-                if ( sign ^ (last.cross( ab ) > 0) ){
+                if ( axab === 0 ){
+
+                    // the origin lies along our simplex
+                    overlap = true;
+                    break;
+
+                } else if ( sign ^ (axab > 0) ){
 
                     // ok... so there's an XOR here... don't freak out
                     // remember last = A = -AO
@@ -322,13 +341,17 @@
         // free workspace
         scratch.done();
 
+        if ( distance === 0 ){
+            overlap = true;
+        }
+
         tmp = {
             overlap: overlap,
             simplex: simplex,
             iterations: iterations
         };
 
-        if ( distance !== false ){
+        if ( !overlap ){
 
             tmp.distance = distance;
             tmp.closest = getClosestPoints( simplex );
