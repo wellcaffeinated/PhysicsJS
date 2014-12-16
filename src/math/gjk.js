@@ -10,6 +10,7 @@
 
         var ABdotB = ptB.normSq() - ptB.dot( ptA )
             ,ABdotA = ptB.dot( ptA ) - ptA.normSq()
+            ,ang
             ;
 
         // if the origin is farther than either of these points
@@ -29,7 +30,12 @@
             dir.clone( ptB ).vsub( ptA );
             // if (left handed coordinate system)
             // A cross AB < 0 then get perpendicular counterclockwise
-            return dir.perp( (ptA.cross( dir ) > 0) );
+            ang = ptA.cross( dir );
+            if ( ang === 0 ){
+                // oops AB points in the same direction as the origin
+                return dir;
+            }
+            return dir.perp( ang > 0 );
         }
     };
 
@@ -288,7 +294,7 @@
                     ac.perp( sign );
 
                     // swap
-                    dir.swap( ab );
+                    dir.swap( ac );
 
                     // continue...
 
