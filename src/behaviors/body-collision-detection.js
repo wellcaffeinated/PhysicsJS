@@ -168,8 +168,8 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             // if one is a circle, use its radius as the margin
             support.useCore = true;
-            support.marginA = aIsCircle ? dimA : 10*incA;
-            support.marginB = bIsCircle ? dimB : 10*incB;
+            support.marginA = aIsCircle ? dimA : 9 * incA;
+            support.marginB = bIsCircle ? dimB : 9 * incB;
 
             // while there's still an overlap (or we don't have a positive distance)
             // and the support margins aren't bigger than the shapes...
@@ -178,10 +178,10 @@ Physics.behavior('body-collision-detection', function( parent ){
                 (!result || result.overlap || result.distance === 0) &&
                 tries++ < maxGJKTries
             ){
-                result = Physics.gjk(support, d);
-
                 support.marginA += incA;
                 support.marginB += incB;
+
+                result = Physics.gjk(support, d);
             }
 
             if ( result.overlap || result.maxIterationsReached ){
