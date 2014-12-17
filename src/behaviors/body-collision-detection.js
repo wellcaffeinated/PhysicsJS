@@ -168,8 +168,8 @@ Physics.behavior('body-collision-detection', function( parent ){
 
             // if one is a circle, use its radius as the margin
             support.useCore = true;
-            support.marginA = aIsCircle ? dimA : incA;
-            support.marginB = bIsCircle ? dimB : incB;
+            support.marginA = aIsCircle ? dimA : 10*incA;
+            support.marginB = bIsCircle ? dimB : 10*incB;
 
             // while there's still an overlap (or we don't have a positive distance)
             // and the support margins aren't bigger than the shapes...
