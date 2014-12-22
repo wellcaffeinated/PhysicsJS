@@ -2,6 +2,6 @@
 
 * Have a .aabb accessor on bodies that is an object. an .updateAABB method will update it. No copying. (like p2)
 * implement edge clipping for contact points
-* implement binary search type algorithm for gjk iterations
 
 * use projection instead of rotation to get bounding boxes (proj, not rotate coords)
+* in support functions, transform bodyB into bodyA coords, instead of both into world coords

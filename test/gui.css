@@ -1,0 +1,91 @@
+.controls {
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.controls.dg.main.taller-than-window .close-button {
+    border-top: 1px solid #ddd;
+}
+
+.controls .dg .c .slider-fg,
+.controls.dg .c .slider-fg {
+    background: #5A93AD;
+}
+
+.controls .dg .c .slider:hover .slider-fg,
+.controls.dg .c .slider:hover .slider-fg {
+    background: #69AAC8;
+}
+
+.controls .dg .cr.number input[type=text],
+.controls.dg .cr.number input[type=text] {
+    color: #5A93AD;
+}
+
+.controls.dg.main .close-button {
+    background-color: #ccc;
+}
+
+.controls.dg.main .close-button:hover {
+    background-color: #ddd;
+}
+
+.controls.dg, .controls .dg {
+    color: #555;
+    text-shadow: none !important;
+}
+
+.controls.dg.main::-webkit-scrollbar {
+    background: #fafafa;
+}
+
+.controls.dg.main::-webkit-scrollbar-thumb {
+    background: #bbb;
+}
+
+.controls.dg li:not(.folder) {
+    background: #fafafa;
+    border-bottom: 1px solid #ddd;
+}
+
+.controls.dg li.save-row .button {
+    text-shadow: none !important;
+}
+
+.controls .dg li.title {
+    background: #e8e8e8 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;
+}
+
+.controls .dg .cr.function:hover,
+.controls.dg .cr.function:hover,
+.controls .dg .cr.boolean:hover,
+.controls.dg .cr.boolean:hover {
+    background: #fff;
+}
+
+.controls .dg .c input[type=text],
+.controls.dg .c input[type=text] {
+    background: #e9e9e9;
+}
+
+.controls .dg .c input[type=text]:hover,
+.controls.dg .c input[type=text]:hover {
+    background: #eee;
+}
+
+.controls .dg .c input[type=text]:focus,
+.controls.dg .c input[type=text]:focus {
+    background: #eee;
+    color: #555;
+}
+
+.controls .dg .c .slider,
+.controls.dg .c .slider {
+    background: #e9e9e9;
+}
+
+.controls .dg .c .slider:hover,
+.controls.dg .c .slider:hover {
+    background: #eee;
+}

@@ -178,7 +178,7 @@
                             //cof: 0,
                             //vy: -0.2,
                             // vx: 0.1,
-                            restitution: 1
+                            restitution: 0.8
                         })
                     );
                 }
@@ -281,8 +281,8 @@ var b;
             Physics({ timestep: 6, maxIPF: 24 }, [
                 setup
                 // ,addBodies
-                // ,lotsOfCircles
-                ,lotsOfRects
+                ,lotsOfCircles
+                // ,lotsOfRects
                 //,initEvents
             ]);
 

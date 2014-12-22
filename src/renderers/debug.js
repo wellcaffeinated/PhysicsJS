@@ -355,6 +355,7 @@ Physics.renderer('debug', 'canvas', function( parent, proto ){
             gui.domElement.style.position = 'absolute';
             gui.domElement.style.top = '0';
             gui.domElement.style.left = '0';
+            gui.domElement.className += ' controls';
             this.el.parentNode.appendChild( gui.domElement );
         },
 
