@@ -458,17 +458,32 @@
         aabb: function(){
 
             var angle = this.state.angular.pos
-                ,scratch = Physics.scratchpad()
-                ,v = scratch.vector()
-                ,aabb = this.geometry.aabb( angle )
+                ,aabb = this._aabb
+                ,scratch
+                ,v
                 ;
 
-            this.getGlobalOffset( v );
+            if ( !aabb || aabb._calcAng !== angle ){
+                scratch = Physics.scratchpad();
+                v = scratch.vector();
 
-            aabb.x += this.state.pos._[0] + v._[0];
-            aabb.y += this.state.pos._[1] + v._[1];
+                aabb = this.geometry.aabb( angle );
+                this.getGlobalOffset( v );
+                aabb.x += v._[0];
+                aabb.y += v._[1];
+                // cache the aabb
+                aabb._calcAng = angle;
+                this._aabb = aabb;
 
-            return scratch.done( aabb );
+                scratch.done();
+            }
+
+            aabb = Physics.aabb.clone( this._aabb );
+
+            aabb.x += this.state.pos._[0];
+            aabb.y += this.state.pos._[1];
+
+            return aabb;
         },
 
         /**
