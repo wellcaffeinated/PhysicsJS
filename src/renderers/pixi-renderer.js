@@ -74,14 +74,21 @@
  * ```
  **/
 /* global PIXI */
-if (!PIXI && require){
-    var PIXI = require('pixi.js');
-}
 Physics.renderer('pixi', function( parent ){
 
     if ( !document ){
         // must be in node environment
         return {};
+    }
+    
+    // no pixi
+    if (!PIXI){
+        if (require){
+            // browserify, node-webkit, or requirejs
+            var PIXI = require('pixi.js');
+        }else{
+            return {};
+        }
     }
 
     var Pi2 = Math.PI * 2
