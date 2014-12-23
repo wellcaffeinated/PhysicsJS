@@ -74,6 +74,9 @@
  * ```
  **/
 /* global PIXI */
+if (!PIXI && require){
+    var PIXI = require('pixi.js');
+}
 Physics.renderer('pixi', function( parent ){
 
     if ( !document ){
