@@ -167,7 +167,7 @@
             function lotsOfRects( world ){
 
                 var rects = [];
-                for ( var i = 0; i < 120; i++ ){
+                for ( var i = 0; i < 100; i++ ){
                     rects.push(
                         Physics.body('rectangle', {
                             x: viewWidth * Math.random(),
@@ -281,8 +281,8 @@ var b;
             Physics({ timestep: 6, maxIPF: 24 }, [
                 setup
                 // ,addBodies
-                ,lotsOfCircles
-                // ,lotsOfRects
+                // ,lotsOfCircles
+                ,lotsOfRects
                 //,initEvents
             ]);
 

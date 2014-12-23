@@ -338,6 +338,7 @@ Physics.behavior('interactive', function( parent ){
                 ,d
                 ;
 
+            // @TODO: forin isn't optimized by interpreter... change this.
             // if we have one or more bodies grabbed, we need to move them to the new mouse/finger positions.
             // we'll do this by adjusting the velocity so they get there at the next step
             for ( var touchId in self.bodyData ) {

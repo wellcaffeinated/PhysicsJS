@@ -204,14 +204,16 @@ Physics.behavior('body-collision-detection', function( parent ){
                 bodyB: bodyB
             };
 
-            d.vadd( bodyA.getGlobalOffset( os ) ).vsub( bodyB.getGlobalOffset( os ) );
-
             collision.overlap = overlap;
             // @TODO: for now, just let the normal be the mtv
             collision.norm = d.clone( result.closest.b ).vsub( tmp.clone( result.closest.a ) ).normalize().values();
             collision.mtv = d.mult( overlap ).values();
             // get a corresponding hull point for one of the core points.. relative to body A
-            collision.pos = d.clone( collision.norm ).mult( support.marginA ).vadd( tmp.clone( result.closest.a ) ).vsub( bodyA.state.pos ).values();
+            collision.pos = d.clone( collision.norm )
+                .mult( support.marginA )
+                .vadd( tmp ) // result.closest.a
+                .vsub( bodyA.state.pos )
+                .values();
 
             return scratch.done( collision );
         },
