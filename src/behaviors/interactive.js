@@ -75,6 +75,10 @@ Physics.behavior('interactive', function( parent ){
         }
         ;
 
+    function updateBodyVelocity( body, pos, offset, dt ){
+        body.state.vel.clone( pos ).vsub( offset ).vsub( body.state.pos ).mult( 1 / dt );
+    }
+
     return {
         // extended
         init: function( options ){
@@ -332,20 +336,15 @@ Physics.behavior('interactive', function( parent ){
         behave: function( data ){
 
             var self = this
-                ,state
                 ,dt = Math.max(data.dt, self.options.moveThrottle)
-                ,body
                 ,d
                 ;
 
-            // @TODO: forin isn't optimized by interpreter... change this.
             // if we have one or more bodies grabbed, we need to move them to the new mouse/finger positions.
             // we'll do this by adjusting the velocity so they get there at the next step
             for ( var touchId in self.bodyData ) {
                 d = self.bodyData[touchId];
-                body = d.body;
-                state = body.state;
-                state.vel.clone( d.pos ).vsub( d.offset ).vsub( state.pos ).mult( 1 / dt );
+                updateBodyVelocity( d.body, d.pos, d.offset, dt );
             }
         }
     };
