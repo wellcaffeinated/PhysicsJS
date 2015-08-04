@@ -39,6 +39,22 @@ Physics.util.clearArray = function clearArray(arr){
 };
 
 /**
+ * Physics.util.rad2deg(radians) -> Number
+ * radians (Number): Radians to convert to degrees
+ */
+Physics.util.rad2deg = function rad2deg(radians) {
+  return radians * (180/3.14159265);
+};
+
+/**
+ * Physics.util.deg2rad(radians) -> Number
+ * degrees (Number): Degrees to convert to radians
+ */
+Physics.util.deg2rad = function deg2rad(degrees) {
+  return degrees * (3.14159265/180);
+};
+
+/**
  * Physics.util.throttle( fn, delay ) -> Function
  * - fn (Function): The function to throttle
  * - delay (Number): Time in milliseconds
