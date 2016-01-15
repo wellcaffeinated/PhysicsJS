@@ -122,7 +122,7 @@ Physics.behavior('interactive', function( parent ){
                     for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         touch = e.changedTouches[touchIndex];
                         touchId = touch.identifier || touch.pointerId || "mouse";
-                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        pos = { idx: touchId, x: (touch.pageX * window.devicePixelRatio) - offset.left, y: (touch.pageX * window.devicePixelRatio) - offset.top };
                         body = self._world.findOne({ $at: new Physics.vector( pos ), $in: self.getTargets() });
 
                         if ( body ){
@@ -192,7 +192,7 @@ Physics.behavior('interactive', function( parent ){
                     for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
                         touch = e.changedTouches[touchIndex];
                         touchId = touch.identifier || touch.pointerId || "mouse";
-                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        pos = { idx: touchId, x: (touch.pageX * window.devicePixelRatio) - offset.left, y: (touch.pageX * window.devicePixelRatio) - offset.top };
                         data = self.bodyData[touchId];
 
                         if ( data ){
@@ -237,11 +237,12 @@ Physics.behavior('interactive', function( parent ){
                         e.changedTouches = [ e ];
                     }
 
+                    offset = getElementOffset( self.el );
+
                     for ( touchIndex = 0, l = e.changedTouches.length; touchIndex < l; touchIndex++) {
-                        offset = getElementOffset( self.el );
                         touch = e.changedTouches[touchIndex];
                         touchId = touch.identifier || touch.pointerId || "mouse";
-                        pos = { idx: touchId, x: touch.pageX - offset.left, y: touch.pageY - offset.top };
+                        pos = { idx: touchId, x: (touch.pageX * window.devicePixelRatio) - offset.left, y: (touch.pageX * window.devicePixelRatio) - offset.top };
                         data = self.bodyData[touchId];
 
                         // release the body
