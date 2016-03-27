@@ -4,6 +4,12 @@ A modular, extendable, and easy-to-use physics engine for javascript.
 
 Latest version: 0.7.0 (beta)
 
+   **Looking for help!** If you would like to help maintain PhysicsJS, please contact me at jasper@wellcaffeinated.net
+   
+   Required Experience:
+   * Experience with numerical physics simulation
+   * Experience maintaining an open source javascript project
+
 ## Usage
 
 **Please [visit the website](http://wellcaffeinated.net/PhysicsJS/) for
