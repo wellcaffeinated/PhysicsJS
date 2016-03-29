@@ -14,7 +14,7 @@
 
     function now(){
         // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
-        return (perf && perf.now) ?
+        return (perf && perf.now && perf.timing && perf.timing.navigationStart) ?
             (perf.now() + perf.timing.navigationStart) :
             Date.now();
     }
