@@ -106,7 +106,10 @@
             },
             set: function( x ){
                 x = +x || 0;
-                this.recalc = ( x === this._[0] );
+                //this.recalc = !( x === this._[0] );
+                if (!this.recalc) {
+                    this.recalc = !(x === this._[0]);
+                }
                 this._[0] = x;
             }
         },
@@ -121,7 +124,10 @@
             },
             set: function( y ){
                 y = +y || 0;
-                this.recalc = ( y === this._[1] );
+                //this.recalc = !( y === this._[1] );
+                if (!this.recalc) {
+                    this.recalc = !(x === this._[1]);
+                }
                 this._[1] = y;
             }
         }
