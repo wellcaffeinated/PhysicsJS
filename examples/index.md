@@ -16,6 +16,7 @@ title: PhysicsJS Examples
 ## From the community
 
 * [MinuteLabs.io](http://minutelabs.io) - Their physics simulations use PhysicsJS
+* [Principia.cc](http://principia.cc/) - A very nice simulation editor
 * [Colors](http://physics.meteor.com/) - a game by Jussi Rytkönen
 * [Asteroid Mining Game](http://www.ape-mining.com/)
 * [Smash](http://smash.gouchon.com/) - An HTML5 Platform combat game
