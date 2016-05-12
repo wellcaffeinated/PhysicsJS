@@ -2,7 +2,7 @@
 // Project: https://github.com/GoodBoyDigital/pixi.js/
 // Definitions by: clark-stevenson <https://github.com/pixijs/pixi-typescript>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
-
+   
 declare class PIXI {
 
     static VERSION: string;
