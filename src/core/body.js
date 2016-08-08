@@ -14,7 +14,11 @@
         // what is its coefficient of friction with another surface with COF = 1?
         cof: 0.8,
         // what is the view object (mixed) that should be used when rendering?
-        view: null
+        view: null,
+        // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
+        minVel: { x: -5, y: -5 },
+        // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+        maxVel: { x: 5, y: 5 }
     };
 
     var uidGen = 1;
@@ -45,6 +49,10 @@
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
             view: null,
+            // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
+            minVel: { x: -5, y: -5 },
+            // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+            maxVel: { x: 5, y: 5 },
             // the vector offsetting the geometry from its center of mass
             offset: Physics.vector(0,0)
         }
@@ -391,6 +399,7 @@
          * - acc (Physics.vector): The acceleration vector
          *
          * Accelerate the body by adding supplied vector to its current acceleration
+         * After acceleration apply velocity limitation using maxVel and minVel
          **/
         accelerate: function( acc ){
 
@@ -398,6 +407,9 @@
                 this.state.acc.vadd( acc );
             }
 
+            // Limit velocity with maxVel and minVel
+            this.state.vel.clamp( this.minVel, this.maxVel );
+            
             return this;
         },
 
