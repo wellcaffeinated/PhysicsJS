@@ -15,9 +15,9 @@
         cof: 0.8,
         // what is the view object (mixed) that should be used when rendering?
         view: null,
-        // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
+        // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity of body
         minVel: { x: -5, y: -5 },
-        // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+        // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity of body
         maxVel: { x: 5, y: 5 }
     };
 
@@ -49,9 +49,9 @@
             cof: 0.8,
             // what is the view object (mixed) that should be used when rendering?
             view: null,
-            // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity a user can give to a body
+            // The minimum velocity clamp [[Vectorish]] (default: { x: -5, y: -5 }) to restrict velocity of body
             minVel: { x: -5, y: -5 },
-            // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity a user can give to a body
+            // The maximum velocity clamp [[Vectorish]] (default: { x: 5, y: 5 }) to restrict velocity of body
             maxVel: { x: 5, y: 5 },
             // the vector offsetting the geometry from its center of mass
             offset: Physics.vector(0,0)
