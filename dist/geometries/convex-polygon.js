@@ -1,9 +1,9 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-08
+ * PhysicsJS v0.7.0 - 2016-08-09
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Copyright (c) 2014 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Copyright (c) 2016 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 (function (root, factory) {

@@ -1,0 +1,5 @@
+html, body { height: 100%; margin: 0; }
+#viewport { position: relative; 
+				height: 100%; 
+				background: #ffffff;
+				 }
