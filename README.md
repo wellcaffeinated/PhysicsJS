@@ -10,6 +10,10 @@ Latest version: 0.7.0 (beta)
    * Experience with numerical physics simulation
    * Experience maintaining an open source javascript project
 
+## Announcement
+
+<a href="http://physicsjs.challengepost.com/?utm_source=partner&amp;utm_medium=banner&amp;utm_campaign=physicsjs" target="_blank" ><img src="http://wellcaffeinated.net/images/physics-js-promo-widget.gif"></a>
+
 ## Usage
 
 **Please [visit the website](http://wellcaffeinated.net/PhysicsJS/) for
