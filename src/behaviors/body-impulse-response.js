@@ -21,7 +21,7 @@ Physics.behavior('body-impulse-response', function( parent ){
         // this will depend on your simulation characteristic length scale
         ,mtvThreshold: 1
         // every body overlap correction (underneith mtvThreshold) will only extract by this fraction (0..1)
-        // helps with stablizing contacts.
+        // helps with stabilizing contacts.
         ,bodyExtractDropoff: 0.5
         // force bodies to wake up if the overlap is above mtvThreshold
         ,forceWakeupAboveOverlapThreshold: true
