@@ -1,3 +1,7 @@
+# This project is no longer maintained
+
+It's been many years since writing this library. And I don't have time to dedicate to maintain it. On the up side, [Matter.js](http://brm.io/matter-js) has really stepped up and taken the spotlight of javascript physics. It has everything PhysicsJS has and more. :)
+
 # PhysicsJS
 
 A modular, extendable, and easy-to-use physics engine for javascript.
