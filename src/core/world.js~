@@ -72,8 +72,8 @@
      *
      *  // is sleeping disabled?
      *  sleepDisabled: false,
-     *  // Kinetic Energy at which bodies wake up
-     *  sleepEnergyLimit: 0.005,
+     *  // speed at which bodies wake up
+     *  sleepSpeedLimit: 0.1,
      *  // variance in position below which bodies fall asleep
      *  sleepVarianceLimit: 2,
      *  // time (ms) before sleepy bodies fall asleep

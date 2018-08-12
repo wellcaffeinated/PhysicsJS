@@ -1,9 +1,9 @@
 /**
- * PhysicsJS v0.7.0 - 2016-08-09
+ * PhysicsJS v0.7.0 - 2014-12-08
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Copyright (c) 2016 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Copyright (c) 2014 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 
@@ -3709,6 +3709,13 @@ Physics.scratchpad = (function(){
                 }
             };
 
+            // private storage for sleeping
+            this._sleepAngPosMean = 0;
+            this._sleepAngPosVariance = 0;
+            this._sleepPosMean = new vector();
+            this._sleepPosVariance = new vector();
+            this._sleepMeanK = 0;
+
             // cleanup
             delete this.x;
             delete this.y;
@@ -3843,7 +3850,13 @@ Physics.scratchpad = (function(){
 
             } else if ( dt === false ){
                 // force wakup
-                this.asleep = false;               
+                this.asleep = false;
+                this._sleepMeanK = 0;
+                this._sleepAngPosMean = 0;
+                this._sleepAngPosVariance = 0;
+                this._sleepPosMean.zero();
+                this._sleepPosVariance.zero();
+                this.sleepIdleTime = 0;
 
             } else if ( dt && !this.asleep ) {
 
@@ -3871,28 +3884,42 @@ Physics.scratchpad = (function(){
             }
 
             var limit
+                ,v
                 ,Ek
+                ,d
                 ;
 
-            if ( this.asleep ){
-                
-                // check kinetic energy (linear and rotational)
-                Ek = 0.5* this.mass * this.state.vel.dot(this.state.vel) + 
-                		0.5*Math.abs(this.moi * this.state.angular.vel.dot(this.state.angular.vel));
-                
-                limit = this.sleepEnergyLimit || (opts && opts.sleepEnergyLimit) || 0;
+            dt = dt || 0;
 
-                if ( Ek >= limit ){
-                	
-                    this.sleep( false );
-                    
+				limit = this.sleepEnergyLimit || (opts && opts.sleepEnergyLimit) || 0;
+				Ek=0.5* this.mass * this.state.vel.dot(this.state.vel) + 
+                		0.5*this.moi * this.state.angular.vel*this.state.angular.vel;
+                		
+            if ( this.asleep ){
+            	// check kinetic energy
+             
+                if ( Ek >= limit ){      
+                    this.sleep( false );                                    
                 }
-                
+               
             }
 
-            
-        },
+            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
+            if ( Ek <= limit ){
+                // check idle time
+                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
+                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
 
+                if ( this.sleepIdleTime > limit ){
+                    this.asleep = true;
+                }
+            } else {
+                this.sleep( false );
+            }
+
+        },
+        
+        
         /**
          * Body#setWorld( world ) -> this
          * - world (Object): The world (or null)
@@ -4997,8 +5024,12 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
         // is sleeping disabled?
         sleepDisabled: false,
+        // speed at which bodies wake up
+        sleepSpeedLimit: 0.05,
         // Kinetic Energy at which bodies wake up
-        sleepEnergyLimit: 0.00000001,
+        sleepEnergyLimit: 0.005,
+        // variance in position below which bodies fall asleep
+        sleepVarianceLimit: 0.02,
         // time (ms) before sleepy bodies fall asleep
         sleepTimeLimit: 500
     };
@@ -5032,6 +5063,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
      *  sleepDisabled: false,
      *  // speed at which bodies wake up
      *  sleepSpeedLimit: 0.1,
+     *  // kinetic energy at which bodies wake up
+        sleepEnergyLimit:0.00000001,
      *  // variance in position below which bodies fall asleep
      *  sleepVarianceLimit: 2,
      *  // time (ms) before sleepy bodies fall asleep

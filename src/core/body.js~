@@ -297,39 +297,26 @@
             }
 
             var limit
-                ,v
                 ,Ek
-                ,d
                 ;
 
-            dt = dt || 0;
-
-				limit = this.sleepEnergyLimit || (opts && opts.sleepEnergyLimit) || 0;
-				Ek=0.5* this.mass * this.state.vel.dot(this.state.vel) + 
-                		0.5*this.moi * this.state.angular.vel*this.state.angular.vel;
-                		
             if ( this.asleep ){
-            	// check kinetic energy
-             
-                if ( Ek >= limit ){      
-                    this.sleep( false );                                    
+                
+                // check kinetic energy (linear and rotational)
+                Ek = 0.5* this.mass * this.state.vel.dot(this.state.vel) + 
+                		0.5*Math.abs(this.moi * this.state.angular.vel.dot(this.state.angular.vel));
+                
+                limit = this.sleepEnergyLimit || (opts && opts.sleepEnergyLimit) || 0;
+
+                if ( Ek >= limit ){
+                	
+                    this.sleep( false );
+                    
                 }
-               
+                
             }
 
-            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
-            if ( Ek <= limit ){
-                // check idle time
-                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
-                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
-
-                if ( this.sleepIdleTime > limit ){
-                    this.asleep = true;
-                }
-            } else {
-                this.sleep( false );
-            }
-
+            
         },
 
         /**

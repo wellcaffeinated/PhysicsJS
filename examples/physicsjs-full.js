@@ -1,9 +1,9 @@
 /**
- * PhysicsJS v0.7.0 - 2014-12-08
+ * PhysicsJS v0.7.0 - 2016-08-09
  * A modular, extendable, and easy-to-use physics engine for javascript
  * http://wellcaffeinated.net/PhysicsJS
  *
- * Copyright (c) 2014 Jasper Palfree <jasper@wellcaffeinated.net>
+ * Copyright (c) 2016 Jasper Palfree <jasper@wellcaffeinated.net>
  * Licensed MIT
  */
 
@@ -3709,13 +3709,6 @@ Physics.scratchpad = (function(){
                 }
             };
 
-            // private storage for sleeping
-            this._sleepAngPosMean = 0;
-            this._sleepAngPosVariance = 0;
-            this._sleepPosMean = new vector();
-            this._sleepPosVariance = new vector();
-            this._sleepMeanK = 0;
-
             // cleanup
             delete this.x;
             delete this.y;
@@ -3850,13 +3843,7 @@ Physics.scratchpad = (function(){
 
             } else if ( dt === false ){
                 // force wakup
-                this.asleep = false;
-                this._sleepMeanK = 0;
-                this._sleepAngPosMean = 0;
-                this._sleepAngPosVariance = 0;
-                this._sleepPosMean.zero();
-                this._sleepPosVariance.zero();
-                this.sleepIdleTime = 0;
+                this.asleep = false;               
 
             } else if ( dt && !this.asleep ) {
 
@@ -3884,57 +3871,26 @@ Physics.scratchpad = (function(){
             }
 
             var limit
-                ,v
-                ,d
-                ,r
-                ,aabb
-                ,scratch = Physics.scratchpad()
-                ,diff = scratch.vector()
-                ,diff2 = scratch.vector()
-                ,kfac
-                ,stats
+                ,Ek
                 ;
 
-            dt = dt || 0;
-            aabb = this.geometry.aabb();
-            r = Math.max(aabb.hw, aabb.hh);
-
             if ( this.asleep ){
-                // check velocity
-                v = this.state.vel.norm() + Math.abs(r * this.state.angular.vel);
-                limit = this.sleepSpeedLimit || (opts && opts.sleepSpeedLimit) || 0;
+                
+                // check kinetic energy (linear and rotational)
+                Ek = 0.5* this.mass * this.state.vel.dot(this.state.vel) + 
+                		0.5*Math.abs(this.moi * this.state.angular.vel.dot(this.state.angular.vel));
+                
+                limit = this.sleepEnergyLimit || (opts && opts.sleepEnergyLimit) || 0;
 
-                if ( v >= limit ){
+                if ( Ek >= limit ){
+                	
                     this.sleep( false );
-                    return scratch.done();
+                    
                 }
+                
             }
 
-            this._sleepMeanK++;
-            kfac = this._sleepMeanK > 1 ? 1/(this._sleepMeanK - 1) : 0;
-            Physics.statistics.pushRunningVectorAvg( this.state.pos, this._sleepMeanK, this._sleepPosMean, this._sleepPosVariance );
-            // we take the sin because that maps the discontinuous angle to a continuous value
-            // then the statistics calculations work better
-            stats = Physics.statistics.pushRunningAvg( Math.sin(this.state.angular.pos), this._sleepMeanK, this._sleepAngPosMean, this._sleepAngPosVariance );
-            this._sleepAngPosMean = stats[0];
-            this._sleepAngPosVariance = stats[1];
-            v = this._sleepPosVariance.norm() + Math.abs(r * Math.asin(stats[1]));
-            v *= kfac;
-            limit = this.sleepVarianceLimit || (opts && opts.sleepVarianceLimit) || 0;
-            // console.log(v, limit, kfac, this._sleepPosVariance.norm(), stats[1])
-            if ( v <= limit ){
-                // check idle time
-                limit = this.sleepTimeLimit || (opts && opts.sleepTimeLimit) || 0;
-                this.sleepIdleTime = (this.sleepIdleTime || 0) + dt;
-
-                if ( this.sleepIdleTime > limit ){
-                    this.asleep = true;
-                }
-            } else {
-                this.sleep( false );
-            }
-
-            scratch.done();
+            
         },
 
         /**
@@ -5041,10 +4997,8 @@ Physics.geometry.nearestPointOnLine = function nearestPointOnLine( pt, linePt1, 
 
         // is sleeping disabled?
         sleepDisabled: false,
-        // speed at which bodies wake up
-        sleepSpeedLimit: 0.05,
-        // variance in position below which bodies fall asleep
-        sleepVarianceLimit: 0.02,
+        // Kinetic Energy at which bodies wake up
+        sleepEnergyLimit: 0.00000001,
         // time (ms) before sleepy bodies fall asleep
         sleepTimeLimit: 500
     };
