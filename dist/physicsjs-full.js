@@ -34,7 +34,7 @@ var document = window.document;
  * The top-level namespace. All of PhysicsJS is contained in
  * the `Physics` namespace.
  *
- * It may (and should) be invoked as a function to create a world instance. For all intensive purposes, [[Physics]] and [[Physics.world]] are the same thing.
+ * It may (and should) be invoked as a function to create a world instance. For all intents and purposes, [[Physics]] and [[Physics.world]] are the same thing.
  *
  * See [[new Physics.world]] for config options and function signature.
  *
