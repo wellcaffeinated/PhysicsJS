@@ -696,6 +696,7 @@ Physics.renderer('canvas', function( proto ){
         createView: function( geometry, styles ){
 
             var view
+                ,name = geometry.name
                 ,aabb = geometry.aabb()
                 ,hw = aabb.hw + Math.abs(aabb.x)
                 ,hh = aabb.hh + Math.abs(aabb.y)
