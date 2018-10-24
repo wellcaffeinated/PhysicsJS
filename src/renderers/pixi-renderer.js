@@ -175,7 +175,7 @@ Physics.renderer('pixi', function( parent ){
                 view: el,
                 transparent: isTransparent,
                 resolution: window.devicePixelRatio || 1
-            });
+            }, options.noWebGL);
 
             if ( !el ){
                 this.el = this.el || document.body;
