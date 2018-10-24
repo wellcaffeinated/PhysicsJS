@@ -164,8 +164,8 @@
                 return this;
             }
 
-            var listeners = this._topics[ topic ]
-                ,l = listeners && listeners.length
+            var l = this._topics[ topic ] && this._topics[ topic ].length
+                ,listeners
                 ,handler
                 ,e
                 ,scratch = Physics.scratchpad()
@@ -183,11 +183,12 @@
             // reverse iterate so priorities work out correctly
             while ( l-- ){
 
-                handler = listeners[ l ];
-                handler( data, e );
+                listeners = this._topics[ topic ];
+                handler = listeners && listeners[ l ];
+                handler && handler( data, e );
 
                 // if _one_ flag is set, the unsubscribe
-                if ( handler._one_ ){
+                if ( handler && handler._one_ ){
                     listeners.splice( l, 1 );
                 }
             }
