@@ -642,6 +642,27 @@
         },
 
         /** chainable
+         * Physics.world#stepDelta( dt ) -> this
+         * - dt (Number): Delta time in ms
+         * 
+         * Step the world BY a specified change in time
+         */
+        stepDelta: function(dt) {
+            // If paused or at the first step, calculate the appropriate time
+            if ( this._paused || this._animTime === undefined ){
+                this._animTime = this._animTime || Physics.util.ticker.now();
+            }
+
+            // Do nothing while paused
+            if(this._paused) {
+                return this;
+            }
+
+            // Otherwise increment the current animation time and step normally
+            return this.step(this._animTime.valueOf() + dt);
+        },
+
+        /** chainable
          * Physics.world#step( [now] ) -> this
          * - now (Number): Current unix timestamp
          *

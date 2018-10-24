@@ -364,6 +364,17 @@
         },
 
         /**
+         * Body#onStep() -> this
+         *
+         * Intended to be overridden by subclasses. Called when the associated
+         * world is stepped.
+         **/
+        onStep: function() {
+            // Override this function to update any associated graphic
+            return this;
+        },
+
+        /**
          * Body#setWorld( world ) -> this
          * - world (Object): The world (or null)
          *
@@ -372,15 +383,21 @@
          * Usually this is called internally. Shouldn't be a need to call this yourself usually.
          **/
         setWorld: function( world ){
-
-            if ( this.disconnect && this._world ){
-                this.disconnect( this._world );
+            if(this._world) {
+                this._world.off("step", this.onStep);
+                if ( this.disconnect ){
+                    this.disconnect( this._world );
+                }
             }
 
             this._world = world;
 
-            if ( this.connect && world ){
-                this.connect( world );
+            if(this._world) {
+                this._world.on("step", this.onStep, this);
+
+                if ( this.connect ){
+                    this.connect( this._world );
+                }
             }
 
             return this;
