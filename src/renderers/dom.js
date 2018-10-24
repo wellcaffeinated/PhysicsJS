@@ -40,7 +40,7 @@ Physics.renderer('dom', function( proto ){
                 }
             }
 
-            if (name in tmpdiv.style){
+            if (prop in tmpdiv.style){
                 return thePrefix[prop] = prop;
             }
 
